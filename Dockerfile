@@ -21,5 +21,5 @@ RUN npm run build
 
 # Bundle app source
 
-EXPOSE 3000
+EXPOSE 19000
 CMD ["npm", "start"]
