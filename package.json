@@ -21,8 +21,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "REACT_APP_API_URL=https://webhooks.inbot.com.br/inbot-adm-front/v1/gateway/ react-scripts start",
-    "build": "REACT_APP_API_URL=https://webhooks.inbot.com.br/inbot-adm-front/v1/gateway/ react-scripts build",
+    "start": "react-scripts start",
+    "start_with_env": "REACT_APP_API_URL=https://webhooks.inbot.com.br/inbot-adm-front/v1/gateway/ react-scripts start",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
