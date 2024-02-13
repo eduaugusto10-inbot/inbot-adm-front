@@ -16,8 +16,6 @@ RUN npm install
 RUN npm ci
 COPY . /code
 
-ENV REACT_APP_API_URL=https://webhooks.inbot.com.br/inbot-adm-front/v1/gateway/
-
 # Build application ReactJS
 RUN npm run build
 
