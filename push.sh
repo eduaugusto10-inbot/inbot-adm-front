@@ -10,7 +10,7 @@ perl -pi -e 'chomp' $MYDIR/VERSION
 VERSION=$(cat $MYDIR/VERSION)
 echo VERSION IS: $VERSION
 ACCOUNT=931985504193
-REPONAME=inbot-adm-back
+REPONAME=inbot-adm-front
 REPO=${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com/$REPONAME
 REGION=us-east-1
 
