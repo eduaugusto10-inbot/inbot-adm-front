@@ -17,13 +17,13 @@ REGION=us-east-1
 export COMPILE_ONLY=""
 
 echo ==================
-echo logging in
+echo logging in 
 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ACCOUNT}.dkr.ecr.us-east-1.amazonaws.com
 
 # $(aws ecr get-login --no-include-email --region us-east-1)
-echo ===========
+echo =========== 
 echo checando se já existe essa versão no repositório
-if aws ecr describe-images --repository-name $REPONAME --region $REGION --output json | jq '.imageDetails[] | select(.imageTags? | any(.[]; contains("'$VERSION'")))' |>
+if aws ecr describe-images --repository-name $REPONAME --region $REGION --output json | jq '.imageDetails[] | select(.imageTags? | any(.[]; contains("'$VERSION'")))' | grep $VERSION; then
     echo "VERSION $VERSION já existe no repositório... vamos apenas compilar"
     COMPILE_ONLY=1
 else
@@ -55,3 +55,4 @@ if [ -z "$COMPILE_ONLY" ]; then
 fi
 
 echo done
+
