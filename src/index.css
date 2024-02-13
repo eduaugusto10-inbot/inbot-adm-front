@@ -1,0 +1,78 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont "Segoe UI", Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+input, textarea,select{
+  width: 300px;
+  height: 30px;
+  border-radius: 4px;
+}
+textarea{
+  height: 103px;
+  resize: 'none';
+}
+table{
+  color:#303030;
+}
+
+thead{
+  color: #FFFF;
+  background-color: var(--primary);
+}
+td, th{
+  padding: 5px;
+}
+:root {
+  --primary: #EE7923;
+  --secondary: #fdfdfd;
+  --bs-gray: #eeeeee;
+}
+
+.text-label {
+  color: #303030;
+}
+
+label {
+  color: #303030;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+.input-forms{
+  display: flex;
+  flex-direction: row;
+}
+.forms {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+button{
+  background-color: var(--primary);
+  color: #FFFF;
+  border-color: var(--primary);
+  margin: 20px;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
