@@ -23,6 +23,9 @@ FROM nginx:alpine
 # Copy the build output from the previous stage to the nginx server
 COPY --from=builder /app/build /usr/share/nginx/html
 
+# Copy manifest.json to the nginx server
+COPY manifest.json /usr/share/nginx/html/inbot-adm-front/v1/gateway/
+
 # Expose port 80
 EXPOSE 80
 
