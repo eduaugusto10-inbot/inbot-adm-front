@@ -1,25 +1,31 @@
-FROM node:18-alpine
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
+# Use node image as base
+FROM node:18-alpine as builder
 
-WORKDIR /code
+# Set the working directory in the container
+WORKDIR /app
 ENV TZ=America/Sao_Paulo
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+# Copy package.json and package-lock.json
+COPY package*.json ./
 
-COPY package*.json /code/
-
+# Install dependencies
 RUN npm install
 
-# If you are building your code for production
-# RUN npm ci --only=production
-RUN npm ci
-COPY . /code
+# Copy the entire project to the container
+COPY . .
 
-# Build application ReactJS
+# Build the application
 RUN npm run build
 
-# Bundle app source
+# Start a new stage from nginx
+FROM nginx:alpine
 
+# Copy the build output from the previous stage to the nginx server
+COPY --from=builder /app/build /usr/share/nginx/html
+
+# Expose port 80
 EXPOSE 19000
-CMD ["npm", "start"]
+
+# Command to run the nginx server
+CMD ["nginx", "-g", "daemon off;"]
+
