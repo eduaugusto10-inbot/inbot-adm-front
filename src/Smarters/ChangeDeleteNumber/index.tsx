@@ -160,13 +160,31 @@ export function ChangeDeleteNumber() {
                     </div>
                     <div className='forms'>
                         <label>Vertical</label>
-                        <input
-                            type="text"
-                            placeholder="Vertical"
+                        <select
                             name="vertical"
                             value={customerData.vertical}
                             onChange={handleInputChange}
-                        />
+                        >
+                            <option value="UNDEFINED">Undefined</option>
+                            <option value="OTHER">Other</option>
+                            <option value="AUTO">Auto</option>
+                            <option value="BEAUTY">Beauty</option>
+                            <option value="APPAREL">Apparel</option>
+                            <option value="EDU">Edu</option>
+                            <option value="ENTERTAIN">Entertain</option>
+                            <option value="EVENT_PLAN">Event Plan</option>
+                            <option value="FINANCE">Finance</option>
+                            <option value="GROCERY">Grocery</option>
+                            <option value="GOVT">Govt</option>
+                            <option value="HOTEL">Hotel</option>
+                            <option value="HEALTH">Health</option>
+                            <option value="NONPROFIT">Nonprofit</option>
+                            <option value="PROF_SERVICES">Prof Services</option>
+                            <option value="RETAIL">Retail</option>
+                            <option value="TRAVEL">Travel</option>
+                            <option value="RESTAURANT">Restaurant</option>
+                            <option value="NOT_A_BIZ">Not a Biz</option>
+                        </select>
                     </div>
                     <div className='forms'>
                         <label>Bot Server Type</label>
