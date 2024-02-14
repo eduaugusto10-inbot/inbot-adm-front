@@ -1,29 +1,23 @@
-# Use node image as base
-FROM node:18-alpine as builder
+# Use uma imagem base do Node.js 18
+FROM node:18-alpine
 
-# Set the working directory in the container
+# Defina o diretório de trabalho dentro do contêiner
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copie o package.json e o package-lock.json para instalar dependências
 COPY package*.json ./
 
-# Install dependencies
+# Instale as dependências
 RUN npm install
 
-# Copy the entire project to the container
+# Copie o restante dos arquivos do aplicativo
 COPY . .
 
-# Build the application
+# Construa o aplicativo ReactJS
 RUN npm run build
 
-# Start a new stage from nginx
-FROM nginx:alpine
-
-# Copy the build output from the previous stage to the nginx server
-COPY --from=builder /app/build /usr/share/nginx/html
-
-# Expose port 80
+# Defina a porta do contêiner para a porta 80
 EXPOSE 80
 
-# Command to run the nginx server
-CMD ["nginx", "-g", "daemon off;"]
+# Comando para iniciar o servidor quando o contêiner for iniciado
+CMD ["npm", "start"]
