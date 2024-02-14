@@ -19,13 +19,10 @@ RUN npm run build
 # Start a new stage from nginx
 FROM nginx:alpine
 
-# Copy custom nginx configuration
-COPY server.conf /etc/nginx/conf.d/server.conf
-
 # Copy the build output from the previous stage to the nginx server
-COPY --from=builder /app/build /usr/share/nginx/html/inbot-adm-front/v1/gateway
+COPY --from=builder /app/build /usr/share/nginx/html
 
-# Expose port 19000
+# Expose port 80
 EXPOSE 80
 
 # Command to run the nginx server
