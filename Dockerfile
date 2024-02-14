@@ -3,8 +3,7 @@ FROM node:18-alpine as builder
 
 # Set the working directory in the container
 WORKDIR /app
-ENV TZ=America/Sao_Paulo
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
@@ -24,14 +23,10 @@ FROM nginx:alpine
 COPY server.conf /etc/nginx/conf.d/server.conf
 
 # Copy the build output from the previous stage to the nginx server
-COPY --from=builder /app/build /usr/share/nginx/html
+COPY --from=builder /app/build /usr/share/nginx/html/inbot-adm-front/v1/gateway
 
-# Copy manifest.json to the nginx server
-COPY build/manifest.json /usr/share/nginx/html/inbot-adm-front/v1/gateway/
-
-# Expose port 80
+# Expose port 19000
 EXPOSE 80
 
 # Command to run the nginx server
 CMD ["nginx", "-g", "daemon off;"]
-
