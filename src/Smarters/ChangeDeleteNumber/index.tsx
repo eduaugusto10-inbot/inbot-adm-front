@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { ICustomerData } from '../types';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
+import { ToastContainer } from "react-toastify";
+import { successMessageChange, errorMessage } from '../../Components/Toastify'
 
 
 export function ChangeDeleteNumber() {
@@ -46,8 +48,13 @@ export function ChangeDeleteNumber() {
         api.put(`/whats/${location.state.phoneNumber}`, customerData)
             .then(res => {
                 console.log(res.status)
+                successMessageChange();
+                setTimeout(() => history("/"), 2000)
             })
-            .catch(error => console.log(error))
+            .catch(error => {
+                console.log(error)
+                errorMessage()
+            })
     }
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = event.target;
@@ -64,149 +71,152 @@ export function ChangeDeleteNumber() {
     };
 
     return (
-        <form onSubmit={handleFormSubmit}>
-            <div className='input-forms'>
-                <div className='left-side'>
-                    <div className='forms'>
-                        <label>Número do telefone</label>
-                        <input
-                            type="text"
-                            placeholder="Número telefone"
-                            name="number"
-                            value={customerData.number}
-                            onChange={handleInputChange}
-                        />
+        <div>
+            <ToastContainer />
+            <form onSubmit={handleFormSubmit}>
+                <div className='input-forms'>
+                    <div className='left-side'>
+                        <div className='forms'>
+                            <label>Número do telefone</label>
+                            <input
+                                type="text"
+                                placeholder="Número telefone"
+                                name="number"
+                                value={customerData.number}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className='forms'>
+                            <label>Nome do cliente</label>
+                            <input
+                                type="text"
+                                placeholder="Nome do cliente"
+                                name="client"
+                                value={customerData.client}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className='forms'>
+                            <label>Descrição</label>
+                            <input
+                                type="text"
+                                placeholder="Descrição"
+                                name="description"
+                                value={customerData.description}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className='forms'>
+                            <label>Access Token</label>
+                            <input
+                                type="text"
+                                placeholder="Access token"
+                                name="accessToken"
+                                value={customerData.accessToken}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className='forms'>
+                            <label>Bot ID</label>
+                            <input
+                                type="number"
+                                placeholder="Enter bot ID"
+                                name="botId"
+                                value={customerData.botId}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className='forms'>
+                            <label>Bot Token</label>
+                            <input
+                                type="text"
+                                placeholder="Bot Token"
+                                name="botToken"
+                                value={customerData.botToken}
+                                onChange={handleInputChange}
+                            />
+                        </div>
                     </div>
-                    <div className='forms'>
-                        <label>Nome do cliente</label>
-                        <input
-                            type="text"
-                            placeholder="Nome do cliente"
-                            name="client"
-                            value={customerData.client}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className='forms'>
-                        <label>Descrição</label>
-                        <input
-                            type="text"
-                            placeholder="Descrição"
-                            name="description"
-                            value={customerData.description}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className='forms'>
-                        <label>Access Token</label>
-                        <input
-                            type="text"
-                            placeholder="Access token"
-                            name="accessToken"
-                            value={customerData.accessToken}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className='forms'>
-                        <label>Bot ID</label>
-                        <input
-                            type="number"
-                            placeholder="Enter bot ID"
-                            name="botId"
-                            value={customerData.botId}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className='forms'>
-                        <label>Bot Token</label>
-                        <input
-                            type="text"
-                            placeholder="Bot Token"
-                            name="botToken"
-                            value={customerData.botToken}
-                            onChange={handleInputChange}
-                        />
+                    <div className='rigth-side'>
+                        <div className='forms'>
+                            <label>Página de internet</label>
+                            <input
+                                type="text"
+                                placeholder="Página de internet"
+                                name="websites"
+                                value={customerData.websites}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className='forms'>
+                            <label>E-mail</label>
+                            <input
+                                type="email"
+                                placeholder="E-mail"
+                                name="email"
+                                value={customerData.email}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className='forms'>
+                            <label>Endereço</label>
+                            <textarea
+                                placeholder="Endereço"
+                                name="address"
+                                value={customerData.address}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className='forms'>
+                            <label>Vertical</label>
+                            <select
+                                name="vertical"
+                                value={customerData.vertical}
+                                onChange={handleInputChange}
+                            >
+                                <option value="UNDEFINED">Undefined</option>
+                                <option value="OTHER">Other</option>
+                                <option value="AUTO">Auto</option>
+                                <option value="BEAUTY">Beauty</option>
+                                <option value="APPAREL">Apparel</option>
+                                <option value="EDU">Edu</option>
+                                <option value="ENTERTAIN">Entertain</option>
+                                <option value="EVENT_PLAN">Event Plan</option>
+                                <option value="FINANCE">Finance</option>
+                                <option value="GROCERY">Grocery</option>
+                                <option value="GOVT">Govt</option>
+                                <option value="HOTEL">Hotel</option>
+                                <option value="HEALTH">Health</option>
+                                <option value="NONPROFIT">Nonprofit</option>
+                                <option value="PROF_SERVICES">Prof Services</option>
+                                <option value="RETAIL">Retail</option>
+                                <option value="TRAVEL">Travel</option>
+                                <option value="RESTAURANT">Restaurant</option>
+                                <option value="NOT_A_BIZ">Not a Biz</option>
+                            </select>
+                        </div>
+                        <div className='forms'>
+                            <label>Bot Server Type</label>
+                            <select
+                                name="botServerType"
+                                value={customerData.botServerType}
+                                onChange={(event: React.ChangeEvent<HTMLSelectElement>) => handleInputChange(event)}
+                            >
+                                <option value="">Escolha uma opção</option>
+                                <option value="dev">Desenvolvimento</option>
+                                <option value="staging">Homologação</option>
+                                <option value="production">Produção</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div className='rigth-side'>
-                    <div className='forms'>
-                        <label>Página de internet</label>
-                        <input
-                            type="text"
-                            placeholder="Página de internet"
-                            name="websites"
-                            value={customerData.websites}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className='forms'>
-                        <label>E-mail</label>
-                        <input
-                            type="email"
-                            placeholder="E-mail"
-                            name="email"
-                            value={customerData.email}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className='forms'>
-                        <label>Endereço</label>
-                        <textarea
-                            placeholder="Endereço"
-                            name="address"
-                            value={customerData.address}
-                            onChange={handleInputChange}
-                        />
-                    </div>
-                    <div className='forms'>
-                        <label>Vertical</label>
-                        <select
-                            name="vertical"
-                            value={customerData.vertical}
-                            onChange={handleInputChange}
-                        >
-                            <option value="UNDEFINED">Undefined</option>
-                            <option value="OTHER">Other</option>
-                            <option value="AUTO">Auto</option>
-                            <option value="BEAUTY">Beauty</option>
-                            <option value="APPAREL">Apparel</option>
-                            <option value="EDU">Edu</option>
-                            <option value="ENTERTAIN">Entertain</option>
-                            <option value="EVENT_PLAN">Event Plan</option>
-                            <option value="FINANCE">Finance</option>
-                            <option value="GROCERY">Grocery</option>
-                            <option value="GOVT">Govt</option>
-                            <option value="HOTEL">Hotel</option>
-                            <option value="HEALTH">Health</option>
-                            <option value="NONPROFIT">Nonprofit</option>
-                            <option value="PROF_SERVICES">Prof Services</option>
-                            <option value="RETAIL">Retail</option>
-                            <option value="TRAVEL">Travel</option>
-                            <option value="RESTAURANT">Restaurant</option>
-                            <option value="NOT_A_BIZ">Not a Biz</option>
-                        </select>
-                    </div>
-                    <div className='forms'>
-                        <label>Bot Server Type</label>
-                        <select
-                            name="botServerType"
-                            value={customerData.botServerType}
-                            onChange={(event: React.ChangeEvent<HTMLSelectElement>) => handleInputChange(event)}
-                        >
-                            <option value="">Escolha uma opção</option>
-                            <option value="dev">Desenvolvimento</option>
-                            <option value="staging">Homologação</option>
-                            <option value="production">Produção</option>
-                        </select>
-                    </div>
+                <div>
+                    <button onClick={BackToHome} className='button'>Voltar</button>
+                    <button className='button'>Deletar</button>
+                    <button type="submit" className='button'>Salvar</button>
                 </div>
-            </div>
-            <div>
-                <button onClick={BackToHome} className='button'>Voltar</button>
-                <button onClick={deleteNumber} className='button'>Deletar</button>
-                <button type="submit" className='button'>Salvar</button>
-            </div>
-        </form>
+            </form>
+        </div>
     );
 }
 
