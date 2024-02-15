@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export const successMessageChange = () => toast.success("Número alterado com sucesso", {
+export const successMessageChange = () => toast.success("Dados alterados com sucesso", {
     theme: "colored"
 });
 export const successMessageCreate = () => toast.success("Número criado com sucesso", {

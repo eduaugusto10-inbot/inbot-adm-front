@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { ICustomerData } from '../types';
 import { useNavigate } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
 import api from '../../utils/api';
+import { ToastContainer } from "react-toastify";
+import { successMessageChange, errorMessage } from '../../Components/Toastify'
 
 
 export function AddNumber() {
@@ -38,8 +39,13 @@ export function AddNumber() {
         api.post('/whats', newNumber)
             .then(res => {
                 console.log(res.status)
+                successMessageChange();
+                setTimeout(() => history("/"), 2000)
             })
-            .catch(error => console.log(error))
+            .catch(error => {
+                errorMessage();
+                console.log(error)
+            })
     };
 
     return (
@@ -113,30 +119,30 @@ export function AddNumber() {
                         <div className='forms'>
                             <label>Vertical</label>
                             <select
-                            name="vertical"
-                            value={newNumber.vertical}
-                            onChange={handleInputChange}
-                        >
-                            <option value="UNDEFINED">Undefined</option>
-                            <option value="OTHER">Other</option>
-                            <option value="AUTO">Auto</option>
-                            <option value="BEAUTY">Beauty</option>
-                            <option value="APPAREL">Apparel</option>
-                            <option value="EDU">Edu</option>
-                            <option value="ENTERTAIN">Entertain</option>
-                            <option value="EVENT_PLAN">Event Plan</option>
-                            <option value="FINANCE">Finance</option>
-                            <option value="GROCERY">Grocery</option>
-                            <option value="GOVT">Govt</option>
-                            <option value="HOTEL">Hotel</option>
-                            <option value="HEALTH">Health</option>
-                            <option value="NONPROFIT">Nonprofit</option>
-                            <option value="PROF_SERVICES">Prof Services</option>
-                            <option value="RETAIL">Retail</option>
-                            <option value="TRAVEL">Travel</option>
-                            <option value="RESTAURANT">Restaurant</option>
-                            <option value="NOT_A_BIZ">Not a Biz</option>
-                        </select>
+                                name="vertical"
+                                value={newNumber.vertical}
+                                onChange={handleInputChange}
+                            >
+                                <option value="UNDEFINED">Undefined</option>
+                                <option value="OTHER">Other</option>
+                                <option value="AUTO">Auto</option>
+                                <option value="BEAUTY">Beauty</option>
+                                <option value="APPAREL">Apparel</option>
+                                <option value="EDU">Edu</option>
+                                <option value="ENTERTAIN">Entertain</option>
+                                <option value="EVENT_PLAN">Event Plan</option>
+                                <option value="FINANCE">Finance</option>
+                                <option value="GROCERY">Grocery</option>
+                                <option value="GOVT">Govt</option>
+                                <option value="HOTEL">Hotel</option>
+                                <option value="HEALTH">Health</option>
+                                <option value="NONPROFIT">Nonprofit</option>
+                                <option value="PROF_SERVICES">Prof Services</option>
+                                <option value="RETAIL">Retail</option>
+                                <option value="TRAVEL">Travel</option>
+                                <option value="RESTAURANT">Restaurant</option>
+                                <option value="NOT_A_BIZ">Not a Biz</option>
+                            </select>
                         </div>
                         <div className='forms'>
                             <label>Endereço</label>
