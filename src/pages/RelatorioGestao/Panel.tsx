@@ -7,24 +7,23 @@ import { useNavigate } from 'react-router-dom';
 const Panel = () => {
   // Use States
   const [useAPI, setUseApi] = useState([]);
-
-  const [ativo, setAtivo] = useState(true);
-  const [inativo, setInativo] = useState(false);
-
-  const [simAssinante, setSimAssinante] = useState(true);
-  const [naoAssinante, setNaoAssinante] = useState(false);
-
-  const [contratoStart, setContratoStart] = useState(true);
-  const [contratoLite, setContratoLite] = useState(true);
-  const [contratoBusiness, setContratoBusiness] = useState(true);
-  const [contratoEnterprise, setContratoEnterprise] = useState(true);
-  const [contratoOutro, setContratoOutro] = useState(false);
-
+  
   const [projetoId, setProjetoId] = useState(true); // Radio
   const [query, setQuery] = useState("");
 
   const [searchParams, setSearchParams] = useState([]);
 
+  const [checkBox, setCheckBox] = useState({
+    ativo: true,
+    inativo: false,
+    simAssinante: true,
+    naoAssinante: false,
+    start: true,
+    lite: true,
+    business: true,
+    enterprise: true,
+    outro: false,
+  })
 
   // Use Effect
   useEffect(() => {
@@ -40,46 +39,52 @@ const Panel = () => {
   const navigate = useNavigate();
 
   // Functions
+  function checkBoxState(name: string, state: boolean) {
+    console.log(checkBox)
+    setCheckBox({ ...checkBox, [name]: state });
+    console.log(checkBox)
+  }
+
   function statusBot(objStatus: any) {
-    if (ativo && !inativo) {
+    if (checkBox.ativo && !checkBox.inativo) {
       objStatus = objStatus.filter((item: any) => item.bot_active === "1");
     }
-    if (!ativo && inativo) {
+    if (!checkBox.ativo && checkBox.inativo) {
       objStatus = objStatus.filter((item: any) => item.bot_active === "0");
     }
-    if (!ativo && !inativo) {
+    if (!checkBox.ativo && !checkBox.inativo) {
       objStatus = [];
     }
     return objStatus;
   }
 
   function subscribers(objSub: any) {
-    if (simAssinante && !naoAssinante) {
+    if (checkBox.simAssinante && !checkBox.naoAssinante) {
       objSub = objSub.filter((item: any) => item.bot_customer_paid === "1");
     }
-    if (!simAssinante && naoAssinante) {
+    if (!checkBox.simAssinante && checkBox.naoAssinante) {
       objSub = objSub.filter((item: any) => item.bot_customer_paid === "0");
     }
-    if (!simAssinante && !naoAssinante) {
+    if (!checkBox.simAssinante && !checkBox.naoAssinante) {
       objSub = [];
     }
     return objSub;
   }
 
   function contractStatus(objStatus: any) {
-    if (!contratoStart) {
+    if (!checkBox.start) {
       objStatus = objStatus.filter((item: any) => item.bot_customer_contract_type !== "Start");
     }
-    if (!contratoLite) {
+    if (!checkBox.lite) {
       objStatus = objStatus.filter((item: any) => item.bot_customer_contract_type !== "Lite");
     }
-    if (!contratoOutro) {
+    if (!checkBox.outro) {
       objStatus = objStatus.filter((item: any) => item.bot_customer_contract_type !== "Outro");
     }
-    if (!contratoBusiness) {
+    if (!checkBox.business) {
       objStatus = objStatus.filter((item: any) => item.bot_customer_contract_type !== "Business");
     }
-    if (!contratoEnterprise) {
+    if (!checkBox.enterprise) {
       objStatus = objStatus.filter((item: any) => item.bot_customer_contract_type !== "Enterprise");
     }
     return objStatus;
@@ -152,10 +157,11 @@ const Panel = () => {
                   type="checkbox"
                   id="bot-enable"
                   onChange={(event) => {
-                    setAtivo((event.target as HTMLInputElement).checked);
+                    checkBox.ativo = (event.target as HTMLInputElement).checked
+                    checkBoxState("ativo",  checkBox.ativo)
                     search();
-                  }}
-                  checked={ativo} />
+                  }} 
+                  checked={checkBox.ativo}/>
                 <label>Ativo</label>
               </div>
               <div>
@@ -163,10 +169,11 @@ const Panel = () => {
                   type="checkbox" 
                   id="bot-disable" 
                   onChange={(event) => {
-                    setInativo((event.target as HTMLInputElement).checked);
+                    checkBox.inativo = (event.target as HTMLInputElement).checked
+                    checkBoxState("inativo",  checkBox.inativo)
                     search();
                   }} 
-                  checked={inativo}
+                  checked={checkBox.inativo}
                   />
                 <label>Inativo</label>
               </div>
@@ -180,10 +187,11 @@ const Panel = () => {
                   type="checkbox"
                   id="subscriber"
                   onChange={(event) => {
-                    setSimAssinante((event.target as HTMLInputElement).checked);
+                    checkBox.simAssinante = (event.target as HTMLInputElement).checked
+                    checkBoxState("simAssinante",  checkBox.simAssinante)
                     search();
                   }} 
-                  checked={simAssinante}/>
+                  checked={checkBox.simAssinante}/>
                 <label>Sim</label>
               </div>
               <div>
@@ -191,10 +199,11 @@ const Panel = () => {
                 type="checkbox" 
                 id="non-subscriber" 
                 onChange={(event) => {
-                  setNaoAssinante((event.target as HTMLInputElement).checked);
-                  search();
-                }} 
-                checked={naoAssinante}/>
+                    checkBox.naoAssinante = (event.target as HTMLInputElement).checked
+                    checkBoxState("naoAssinante",  checkBox.naoAssinante)
+                    search();
+                  }} 
+                  checked={checkBox.naoAssinante}/>
                 <label>Não</label>
               </div>
             </div>
@@ -207,10 +216,11 @@ const Panel = () => {
                 type="checkbox" 
                 id="contract-start" 
                 onChange={(event) => {
-                  setContratoStart((event.target as HTMLInputElement).checked);
-                  search();
-                }} 
-                checked = {contratoStart}/>
+                    checkBox.start = (event.target as HTMLInputElement).checked
+                    checkBoxState("start",  checkBox.start)
+                    search();
+                  }} 
+                  checked={checkBox.start}/>
                 <label>Start</label>
               </div>
               <div>
@@ -218,10 +228,11 @@ const Panel = () => {
                 type="checkbox" 
                 id="contract-lite" 
                 onChange={(event) => {
-                  setContratoLite((event.target as HTMLInputElement).checked);
-                  search();
-                }}  
-                checked = {contratoLite}/>
+                    checkBox.lite = (event.target as HTMLInputElement).checked
+                    checkBoxState("lite",  checkBox.lite)
+                    search();
+                  }} 
+                  checked={checkBox.lite}/>
                 <label>Lite</label>
               </div>
               <div>
@@ -229,10 +240,11 @@ const Panel = () => {
                 type="checkbox" 
                 id="contract-business" 
                 onChange={(event) => {
-                  setContratoBusiness((event.target as HTMLInputElement).checked);
-                  search();
-                }}  
-                checked = {contratoBusiness}/>
+                    checkBox.business = (event.target as HTMLInputElement).checked
+                    checkBoxState("business",  checkBox.business)
+                    search();
+                  }} 
+                  checked={checkBox.business}/>
                 <label>Business</label>
               </div>
               <div>
@@ -240,10 +252,11 @@ const Panel = () => {
                 type="checkbox" 
                 id="contract-enterprise" 
                 onChange={(event) => {
-                  setContratoEnterprise((event.target as HTMLInputElement).checked);
-                  search();
-                }}  
-                checked = {contratoEnterprise}/>
+                    checkBox.enterprise = (event.target as HTMLInputElement).checked
+                    checkBoxState("enterprise",  checkBox.enterprise)
+                    search();
+                  }} 
+                  checked={checkBox.enterprise}/>
                 <label>Enterprise</label>
               </div>
               <div>
@@ -251,10 +264,11 @@ const Panel = () => {
                 type="checkbox" 
                 id="contract-outro" 
                 onChange={(event) => {
-                  setContratoOutro((event.target as HTMLInputElement).checked);
-                  search();
-                }}  
-                checked = {contratoOutro}/>
+                    checkBox.outro = (event.target as HTMLInputElement).checked
+                    checkBoxState("outro",  checkBox.outro)
+                    search();
+                  }} 
+                  checked={checkBox.outro}/>
                 <label>Outro</label>
               </div>
             </div>
@@ -282,8 +296,9 @@ const Panel = () => {
           </div>
         </div>
       </div>
+    <ListProjects search={searchParams} />
     </body>
-    <ListProjects search={searchParams} /></>
+    </>
   )
 }
 
