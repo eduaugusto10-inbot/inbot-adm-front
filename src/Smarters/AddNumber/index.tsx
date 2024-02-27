@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ICustomerData } from '../types';
+import { ICustomerData } from '../../types';
 import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { ToastContainer } from "react-toastify";

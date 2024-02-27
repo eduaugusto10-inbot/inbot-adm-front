@@ -1,5 +1,3 @@
-import { useState, useEffect } from 'react';
-import api from '../../utils/api';
 import './index.css';
 
 function monthByName(monthID: number) {
@@ -32,6 +30,7 @@ function cellColor(contract: string, value: number, labelIndex: number){
     } else {
         contractValue = 10000;
     }
+
     const percentValue = value/contractValue;
     if(percentValue <0.31){
         return "yellow"
@@ -81,8 +80,10 @@ const DynamicList = ({ bots }: { bots: Array<Record<string, unknown>> }) => {
     "Quantidade de fichas criadas e aprovadas",
     "Quantidade de Tokens do ChatGPT utilizados",
     "Custo com Tokens do ChatGPT (dólar)"
+    //
+    //
   ];
-  const theKeys = ["total", "whatsapp", "inchat", "idk", "fichas", "chatgpt", "dolarcost"];
+  const theKeys = ["total", "whatsapp", "inchat", "idk", "fichas", "chatgpt", "dolarcost" /* */];
 
   return (
     <div>
@@ -106,21 +107,12 @@ const DynamicList = ({ bots }: { bots: Array<Record<string, unknown>> }) => {
   );
 };
 
+type SearchType = { [key: string]: any }[];
 
-export function ListProjects() {
-    const [useAPI, setUseApi] = useState([]);
-    useEffect(() => {
-        api.get('/report')
-            .then(res => {
-                console.log(res.data);
-                setUseApi(res.data);
-            })
-            .catch(error => console.log(error));
-    }, []);
-    
+export function ListProjects({ search }: { search: SearchType }) {
     return (
         <div className="container">
-            <DynamicList bots={useAPI} />
+            <DynamicList bots={search} />
         </div>
     );
 }

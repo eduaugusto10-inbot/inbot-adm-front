@@ -13,3 +13,8 @@ export interface ICustomerData {
     vertical: string;
     websites: string;
 }
+/*
+export interface IRelatorioGestao {
+    contract: 
+}
+*/

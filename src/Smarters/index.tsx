@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../utils/api';
-import { ICustomerData } from './types';
+import { ICustomerData } from '../types';
 import { useNavigate } from 'react-router-dom';
 
 
