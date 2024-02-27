@@ -7,8 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const Panel = () => {
   // Use States
   const [useAPI, setUseApi] = useState([]);
-  
-  const [projetoId, setProjetoId] = useState(true); // Radio
+
   const [query, setQuery] = useState("");
 
   const [searchParams, setSearchParams] = useState([]);
@@ -40,9 +39,7 @@ const Panel = () => {
 
   // Functions
   function checkBoxState(name: string, state: boolean) {
-    console.log(checkBox)
     setCheckBox({ ...checkBox, [name]: state });
-    console.log(checkBox)
   }
 
   function statusBot(objStatus: any) {
@@ -92,9 +89,13 @@ const Panel = () => {
 
   function newQuery(obj: any) {
     const regex = new RegExp(query, "gi");
-    if (projetoId)
-      obj = obj.filter((item: any) => item.bot_project_name.match(regex)); // Procurando Nome
-    else obj = obj.filter((item: any) => item.bot_id.toString().match(regex)); // Procurando Id
+    const filteredByName  = obj.filter((item: any) => item.bot_project_name.match(regex));
+
+    if (filteredByName.length > 0) {
+      return filteredByName;
+    }
+    
+    obj = obj.filter((item: any) => item.bot_id.toString().match(regex));
     return obj;
   }
 
@@ -129,24 +130,6 @@ const Panel = () => {
               }}
               placeholder="Digite o nome ou id" />
             <form>
-            <input
-                id="project-radio"
-                type="radio"
-                name="search-radio"
-                checked={projetoId}
-                onChange={() => {
-                    setProjetoId(true);
-                    search();
-                }} /><label>Nome do Projeto</label>
-            <input
-                id="bot-id-radio"
-                type="radio"
-                name="search-radio"
-                checked={!projetoId}
-                onChange={(event) => {
-                    setProjetoId(false);
-                    search();
-                }} /><label>Bot ID</label>
         </form>
           </fieldset>
           <fieldset>
