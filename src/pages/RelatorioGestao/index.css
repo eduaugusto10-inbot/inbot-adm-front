@@ -1,6 +1,59 @@
-.container {
-    color: black;
-    width: 10%;
-    margin: 0;
-    display: flex;
-}
+ body {
+     background-color: #fafafa;
+     font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+     color: #303030;
+     padding: 0px;
+     margin: 0px;
+     margin-bottom: 200px;
+ }
+
+ legend {
+    color: #303030;
+ }
+
+ th,
+ table,
+ td {
+     padding: 5px;
+ }
+
+ a {
+     color: blue;
+     cursor: pointer;
+ }
+
+ table {
+     width: 90vw;
+     margin: 10px 0px 0px 30px;
+ }
+
+ input {
+     margin: 0.4em;
+ }
+
+ img {
+     padding: 0px 0px 0px 11px;
+ }
+
+ #project-name {
+     padding: 14px 0px 0px 24px;
+ }
+
+ #input-search {
+     width: 25em;
+     height: 3em;
+     padding-left: 8px;
+ }
+
+ #container {
+     margin: 10px 0px 0px 30px;
+ }
+
+ #bot-name {
+     width: 300px;
+ }
+
+ #search-container {
+     display: flex;
+     flex-direction: row;
+ }

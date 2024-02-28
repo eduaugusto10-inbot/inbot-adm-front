@@ -111,7 +111,7 @@ type SearchType = { [key: string]: any }[];
 
 export function ListProjects({ search }: { search: SearchType }) {
     return (
-        <div className="container">
+        <div>
             <DynamicList bots={search} />
         </div>
     );

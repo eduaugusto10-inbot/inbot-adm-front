@@ -1,7 +1,7 @@
 import api from '../../utils/api';
 import React, { useState, useEffect } from 'react';
 import ListProjects from "../RelatorioGestao"
-import './panel.css';
+import './index.css';
 import { useNavigate } from 'react-router-dom';
 
 const Panel = () => {
@@ -94,7 +94,7 @@ const Panel = () => {
     if (filteredByName.length > 0) {
       return filteredByName;
     }
-    
+
     obj = obj.filter((item: any) => item.bot_id.toString().match(regex));
     return obj;
   }
@@ -111,8 +111,8 @@ const Panel = () => {
 
   // Return
   return (
-    <><body>
-      <div id="container">
+    <>
+      <div>
         <b>
           <button onClick={() => navigate(-1)}>← VOLTAR</button>
         </b>
@@ -280,7 +280,6 @@ const Panel = () => {
         </div>
       </div>
     <ListProjects search={searchParams} />
-    </body>
     </>
   )
 }
