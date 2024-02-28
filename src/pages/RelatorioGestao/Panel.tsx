@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react';
 import ListProjects from "../RelatorioGestao"
 import './index.css';
 import { useNavigate } from 'react-router-dom';
+import { useDownloadExcel } from "react-export-table-to-excel";
+import keys from "../JSON/keys.json"
+import labels from "../JSON/labels.json"
 
 const Panel = () => {
   // Use States
@@ -29,7 +32,7 @@ const Panel = () => {
     api.get('/report')
       .then(res => {
         setUseApi(res.data);
-        setSearchParams(res.data);
+        setSearchParams(res.data)
       })
       .catch(error => console.log(error));
   }, []);
@@ -37,10 +40,34 @@ const Panel = () => {
   // Use History
   const navigate = useNavigate();
 
+  // React Download
+  const { onDownload } = useDownloadExcel({
+    currentTableRef: "",
+    filename: "Users table",
+    sheet: "Users"
+  });
+
   // Functions
   function checkBoxState(name: string, state: boolean) {
     setCheckBox({ ...checkBox, [name]: state });
   }
+  
+ function totalType(type: string) {
+    let total: { months: { [key: string]: any }[] }[] = searchParams;
+    let value = 0;
+    for (let i = 0; i < total.length; i++) {
+        for (let j = 0; j < total[i].months.length; j++) {
+            if (total[i].months[j][type] !== undefined){
+                let currentValue = total[i].months[j][type];
+              if (typeof type !== 'number'){
+                currentValue = parseInt(currentValue)
+              }
+              value += currentValue;
+            }
+        }
+    }
+    return value;
+}
 
   function statusBot(objStatus: any) {
     if (checkBox.ativo && !checkBox.inativo) {
@@ -255,6 +282,21 @@ const Panel = () => {
                 <label>Outro</label>
               </div>
             </div>
+          </fieldset>
+          <fieldset>
+            <legend>Total</legend>
+            {keys.map((name, index) => (
+                <div key={index}>
+                  <b>{`${labels[index]}: `}</b>{`${totalType(name)}`}
+                </div>
+              ))}
+          </fieldset>
+          <fieldset>
+            <legend>Exportar</legend>
+            <b>
+              <button onClick={onDownload}>Baixar Total</button>
+              <button onClick={onDownload}>Baixar</button>
+            </b>
           </fieldset>
         </div>
         <div>

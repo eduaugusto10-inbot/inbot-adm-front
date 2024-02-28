@@ -7,8 +7,11 @@
      margin-bottom: 200px;
  }
 
- legend {
+ legend,
+ div,
+ h2 {
     color: #303030;
+    margin: 0px;
  }
 
  th,
@@ -28,7 +31,9 @@
  }
 
  input {
-     margin: 0.4em;
+    margin: 0em;
+    width: 11px;
+    height: 11px;
  }
 
  img {
@@ -50,7 +55,7 @@
  }
 
  #bot-name {
-     width: 300px;
+     width: 30px;
  }
 
  #search-container {

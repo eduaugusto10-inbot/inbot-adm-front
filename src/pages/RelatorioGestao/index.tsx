@@ -1,4 +1,7 @@
 import './index.css';
+import theKeys from "../JSON/keys.json"
+import labels from "../JSON/labels.json"
+
 
 function monthByName(monthID: number) {
     let date = new Date();
@@ -72,18 +75,6 @@ const TableRow = ({ bot, label, labelIndex, theKeys }: TableRowProps) => {
 
 const DynamicList = ({ bots }: { bots: Array<Record<string, unknown>> }) => {
   const columnNames = ["Nome do Projeto", "Bot ID", "Tipo de Contrato", "Indicador", monthByName(3), monthByName(2), monthByName(1), monthByName(0)];
-  const labels = [
-    "Quantidade de atendimentos total (bot)",
-    "Quantidade de atendimentos via whatsapp",
-    "Quantidade de atendimentos inchat (humano)",
-    "Quantidade de IDK",
-    "Quantidade de fichas criadas e aprovadas",
-    "Quantidade de Tokens do ChatGPT utilizados",
-    "Custo com Tokens do ChatGPT (dólar)"
-    //
-    //
-  ];
-  const theKeys = ["total", "whatsapp", "inchat", "idk", "fichas", "chatgpt", "dolarcost" /* */];
 
   return (
     <div>
