@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import ListProjects from "../RelatorioGestao"
 import './index.css';
 import { useNavigate } from 'react-router-dom';
-import { useDownloadExcel } from "react-export-table-to-excel";
 import keys from "../JSON/keys.json"
 import labels from "../JSON/labels.json"
 
@@ -39,13 +38,6 @@ const Panel = () => {
 
   // Use History
   const navigate = useNavigate();
-
-  // React Download
-  const { onDownload } = useDownloadExcel({
-    currentTableRef: "",
-    filename: "Users table",
-    sheet: "Users"
-  });
 
   // Functions
   function checkBoxState(name: string, state: boolean) {
@@ -291,34 +283,6 @@ const Panel = () => {
                 </div>
               ))}
           </fieldset>
-          <fieldset>
-            <legend>Exportar</legend>
-            <b>
-              <button onClick={onDownload}>Baixar Total</button>
-              <button onClick={onDownload}>Baixar</button>
-            </b>
-          </fieldset>
-        </div>
-        <div>
-          <legend style={{fontSize: "12px"}}>Utilização do plano contratado</legend>
-          <div style={{display: "flex", flexDirection: "row", fontSize: "12px"}}>
-            <div style={{display: "flex", flexDirection: "row", padding: "10px"}}>
-              <div style={{backgroundColor: "yellow", width: "10px", height: "10px", borderRadius: "20px", margin: "3px"}}></div>
-              <label>- 0 a 30%</label>
-            </div>
-            <div style={{display: "flex", flexDirection: "row", padding: "10px"}}>
-              <div style={{backgroundColor: "blue", width: "10px", height: "10px", borderRadius: "20px", margin: "3px"}}></div>
-              <label>- 31 a 70%</label>
-            </div>
-            <div style={{display: "flex", flexDirection: "row", padding: "10px"}}>
-              <div style={{backgroundColor: "green", width: "10px", height: "10px", borderRadius: "20px", margin: "3px"}}></div>
-              <label>- 71 a 100%</label>
-            </div>
-            <div style={{display: "flex", flexDirection: "row", padding: "10px"}}>
-              <div style={{backgroundColor: "red", width: "10px", height: "10px", borderRadius: "20px", margin: "3px"}}></div>
-              <label>- acima de 100%</label>
-            </div>
-          </div>
         </div>
       </div>
     <ListProjects search={searchParams} />

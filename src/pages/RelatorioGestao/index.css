@@ -14,6 +14,12 @@
     margin: 0px;
  }
 
+ #download {
+    margin: 8px;
+    padding: 0px;
+    content: center;
+ }
+
  th,
  table,
  td {

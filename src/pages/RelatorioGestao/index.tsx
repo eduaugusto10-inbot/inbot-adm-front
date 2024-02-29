@@ -1,7 +1,8 @@
 import './index.css';
 import theKeys from "../JSON/keys.json"
 import labels from "../JSON/labels.json"
-
+import { DownloadTableExcel } from "react-export-table-to-excel";
+import React, { useRef } from 'react';
 
 function monthByName(monthID: number) {
     let date = new Date();
@@ -73,11 +74,42 @@ const TableRow = ({ bot, label, labelIndex, theKeys }: TableRowProps) => {
   );
 };
 
-const DynamicList = ({ bots }: { bots: Array<Record<string, unknown>> }) => {
-  const columnNames = ["Nome do Projeto", "Bot ID", "Tipo de Contrato", "Indicador", monthByName(3), monthByName(2), monthByName(1), monthByName(0)];
+type SearchType = { [key: string]: any }[];
 
-  return (
-    <div>
+export function ListProjects({ search }: { search: SearchType }) {
+  const tableRef = useRef(null)
+  const columnNames = ["Nome do Projeto", "Bot ID", "Tipo de Contrato", "Indicador", monthByName(3), monthByName(2), monthByName(1), monthByName(0)];
+  const bots = search
+  
+    return (
+        <div>
+          <legend style={{fontSize: "12px"}}>Utilização do plano contratado</legend>
+          <div style={{display: "flex", flexDirection: "row", fontSize: "12px"}}>
+            <div style={{display: "flex", flexDirection: "row", padding: "10px"}}>
+              <div style={{backgroundColor: "yellow", width: "10px", height: "10px", borderRadius: "20px", margin: "3px"}}></div>
+              <label>- 0 a 30%</label>
+            </div>
+            <div style={{display: "flex", flexDirection: "row", padding: "10px"}}>
+              <div style={{backgroundColor: "blue", width: "10px", height: "10px", borderRadius: "20px", margin: "3px"}}></div>
+              <label>- 31 a 70%</label>
+            </div>
+            <div style={{display: "flex", flexDirection: "row", padding: "10px"}}>
+              <div style={{backgroundColor: "green", width: "10px", height: "10px", borderRadius: "20px", margin: "3px"}}></div>
+              <label>- 71 a 100%</label>
+            </div>
+            <div style={{display: "flex", flexDirection: "row", padding: "10px"}}>
+              <div style={{backgroundColor: "red", width: "10px", height: "10px", borderRadius: "20px", margin: "3px"}}></div>
+              <label>- acima de 100%</label>
+            </div>
+              <DownloadTableExcel
+                filename="users table"
+                sheet="users"
+                currentTableRef={tableRef.current}
+              >
+                <button id="download">Baixar xls</button>
+              </DownloadTableExcel>
+          </div>
+              <table ref={tableRef}>
       {bots.map((bot, botIndex) => (
         <table key={botIndex}>
           <thead>
@@ -94,16 +126,7 @@ const DynamicList = ({ bots }: { bots: Array<Record<string, unknown>> }) => {
           </tbody>
         </table>
       ))}
-    </div>
-  );
-};
-
-type SearchType = { [key: string]: any }[];
-
-export function ListProjects({ search }: { search: SearchType }) {
-    return (
-        <div>
-            <DynamicList bots={search} />
+    </table>
         </div>
     );
 }
