@@ -102,7 +102,7 @@ export function ListProjects({ search }: { search: SearchType }) {
               <label>- acima de 100%</label>
             </div>
               <DownloadTableExcel
-                filename="users table"
+                filename="RelatorioGestao"
                 sheet="users"
                 currentTableRef={tableRef.current}
               >
