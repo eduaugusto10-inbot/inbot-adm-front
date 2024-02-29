@@ -108,6 +108,7 @@ export function ListProjects({ search }: { search: SearchType }) {
               >
                 <button id="download">Baixar xls</button>
               </DownloadTableExcel>
+              <button id="download">Baixar csv</button>
           </div>
               <table ref={tableRef}>
       {bots.map((bot, botIndex) => (
