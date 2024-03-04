@@ -80,6 +80,7 @@ export function ListProjects({ search }: { search: SearchType }) {
   const tableRef = useRef(null)
   const columnNames = ["Nome do Projeto", "Bot ID", "Tipo de Contrato", "Indicador", monthByName(3), monthByName(2), monthByName(1), monthByName(0)];
   const bots = search
+  console.log(bots)
   
     return (
         <div>
@@ -108,7 +109,7 @@ export function ListProjects({ search }: { search: SearchType }) {
               >
                 <button id="download">Baixar xls</button>
               </DownloadTableExcel>
-              <button id="download">Baixar csv</button>
+              <CSVLink data={bots}>Download me</CSVLink>;
           </div>
               <table ref={tableRef}>
       {bots.map((bot, botIndex) => (
