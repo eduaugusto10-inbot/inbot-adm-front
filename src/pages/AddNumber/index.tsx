@@ -26,7 +26,6 @@ export function AddNumber() {
         event.preventDefault();
         api.post('/whats', newNumber)
             .then(res => {
-                console.log(res.status)
                 successMessageChange();
                 setTimeout(() => history("/"), 2000)
             })

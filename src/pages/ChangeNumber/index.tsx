@@ -17,7 +17,6 @@ export function ChangeDeleteNumber() {
     useEffect(() => {
         api.get(`/whats/${location.state.phoneNumber}`)
             .then(res => {
-                console.log(res.data)
                 setCustomerData(res.data)
             })
             .catch(error => console.log(error))
@@ -32,10 +31,8 @@ export function ChangeDeleteNumber() {
     }
 
     const saveChanges = () => {
-        console.log(customerData)
         api.put(`/whats/${location.state.phoneNumber}`, customerData)
             .then(res => {
-                console.log(res.status)
                 successMessageChange();
                 setTimeout(() => history("/"), 2000)
             })
@@ -55,7 +52,6 @@ export function ChangeDeleteNumber() {
     const handleFormSubmit = (event: React.FormEvent) => {
         event.preventDefault();
         saveChanges();
-        console.log(customerData);
     };
 
     return (

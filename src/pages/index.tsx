@@ -48,7 +48,7 @@ export function AllPhones() {
                             <td>{data.client}</td>
                             <td>{data.botId}</td>
                             <td>{data.botServerType}</td>
-                            <td>{data.description}</td>
+                            <td>{data.observation}</td>
                             <td><button onClick={() => Change(data.number)} className='button'>Alterar</button></td>
                         </tr>
                     ))}
