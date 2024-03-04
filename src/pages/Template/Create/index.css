@@ -1,0 +1,51 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  color: #303030;
+}
+
+.image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.overlay-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+}
+
+.header {
+  font-weight: bold;
+}
+.footer{
+  color: rgba(48, 48, 48, 0.5); 
+}
+.input, .texts {
+  display: flex;
+  flex-direction: column;
+}
+.texts {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  padding-left: 15px;
+  padding-right: 15px;
+  background-color: #fff;
+  width: 90%;
+  border-radius: 7px;
+
+}
+.quickReply-texts{
+  text-align: center;
+}
+
+.quick-reply {
+  color: blue;
+  border-top: 1px solid gray;
+  width: 100%;
+  padding: 5px;
+}

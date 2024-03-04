@@ -35,11 +35,10 @@ export function AllPhones() {
                     <tr>
                         <th>Numero</th>
                         <th>Cliente</th>
-                        <th>Token Smarters</th>
                         <th>Bot ID</th>
-                        <th>Bot token</th>
                         <th>Servidor</th>
                         <th>Observação</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -47,12 +46,10 @@ export function AllPhones() {
                         <tr key={index}  style={{ backgroundColor: index % 2 === 0 ? '#FDFDFD' : '#EEEEEE' }}>
                             <td>{data.number}</td>
                             <td>{data.client}</td>
-                            <td>{truncateAccessToken(data.accessToken)}</td>
                             <td>{data.botId}</td>
-                            <td>{data.botToken}</td>
                             <td>{data.botServerType}</td>
                             <td>{data.description}</td>
-                            <td><button onClick={() => Change(data.number)} className='button'>Alterar/Excluir</button></td>
+                            <td><button onClick={() => Change(data.number)} className='button'>Alterar</button></td>
                         </tr>
                     ))}
                 </tbody>
