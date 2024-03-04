@@ -109,7 +109,6 @@ export function ListProjects({ search }: { search: SearchType }) {
               >
                 <button id="download">Baixar xls</button>
               </DownloadTableExcel>
-              <CSVLink data={bots}>Download me</CSVLink>;
           </div>
               <table ref={tableRef}>
       {bots.map((bot, botIndex) => (
