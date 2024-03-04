@@ -112,8 +112,8 @@ export function ChangeDeleteNumber() {
                             <div className='forms'>
                                 <label>Gateway*</label>
                                 <select
-                                    name="gateway"
-                                    value={customerData.gateway}
+                                    name="webhook"
+                                    value={customerData.webhook}
                                     onChange={(event: React.ChangeEvent<HTMLSelectElement>) => handleInputChange(event)}
                                 >
                                     <option value="">Escolha uma opção</option>

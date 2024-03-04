@@ -90,8 +90,8 @@ export function AddNumber() {
                             <div className='forms'>
                                 <label>Gateway*</label>
                                 <select
-                                    name="gateway"
-                                    value={newNumber.gateway}
+                                    name="webhook"
+                                    value={newNumber.webhook}
                                     onChange={(event: React.ChangeEvent<HTMLSelectElement>) => handleInputChange(event)}
                                 >
                                     <option value="">Escolha uma opção</option>

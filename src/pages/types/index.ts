@@ -7,7 +7,7 @@ export interface ICustomerData {
     observation: string,
     accessToken: string;
     botId: number;
-    gateway: string;
+    webhook: string;
     botToken: string;
     botServerType: string;
     address: string;
@@ -45,7 +45,7 @@ export const defaultCustomerData: ICustomerData = {
     accessToken: '',
     botId: 0,
     botToken: '',
-    gateway: '',
+    webhook: '',
     botServerType: '',
     address: '',
     email: '',
