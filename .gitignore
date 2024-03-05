@@ -1,8 +1,5 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# app id
-/src/pages/JSON/client.json
-
 # dependencies
 /node_modules
 /.pnp

@@ -3,6 +3,25 @@ import theKeys from "../JSON/keys.json"
 import labels from "../JSON/labels.json"
 import { DownloadTableExcel } from "react-export-table-to-excel";
 import React, { useRef } from 'react';
+import { CSVLink } from "react-csv";
+
+function flattenData(obj: any[]) {
+  let formattedObj = JSON.parse(JSON.stringify(obj));
+  for(let i = 0; i < formattedObj.length; i++){
+    formattedObj[i].months = convertToCSV(formattedObj[i].months);
+  }
+  return formattedObj;
+}
+
+function convertToCSV(objArray: any[]) {
+    const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
+    let str = `${Object.keys(array[0]).map(key => `"${key}"`).join()},\n`;
+
+    return array.reduce((str: string, next: { [s: string]: unknown; } | ArrayLike<unknown>) => {
+        str += `${Object.values(next).map(value => `"${value}"`).join()},\n`;
+        return str;
+    }, str);
+}
 
 function monthByName(monthID: number) {
     let date = new Date();
@@ -109,6 +128,9 @@ export function ListProjects({ search }: { search: SearchType }) {
               >
                 <button id="download">Baixar xls</button>
               </DownloadTableExcel>
+              <CSVLink data={flattenData(bots)} className="btn btn-primary">
+                <button id="download">Baixar csv</button>
+              </CSVLink>
           </div>
               <table ref={tableRef}>
       {bots.map((bot, botIndex) => (
