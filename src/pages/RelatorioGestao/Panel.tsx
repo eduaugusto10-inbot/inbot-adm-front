@@ -285,7 +285,7 @@ const Panel = () => {
           </fieldset>
         </div>
       </div>
-    <ListProjects search={searchParams} />
+      {searchParams ? <ListProjects search={searchParams} /> : null}
     </>
   )
 }
