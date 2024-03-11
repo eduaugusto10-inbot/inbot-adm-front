@@ -3,7 +3,7 @@ import { ICustomerData, defaultCustomerData } from '../types';
 import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { ToastContainer } from "react-toastify";
-import { successMessageChange, errorMessage } from '../../Components/Toastify'
+import { successMessageChange, errorMessage, errorMessageImg, successMessageImg } from '../../Components/Toastify'
 
 
 export function AddNumber() {
@@ -13,6 +13,7 @@ export function AddNumber() {
         history("/");
     }
     const [newNumber, setNewNumber] = useState<ICustomerData>(defaultCustomerData);
+    const [imagem, setImagem] = useState<string>("");
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = event.target;
@@ -35,11 +36,36 @@ export function AddNumber() {
             })
     };
 
+    const handleImage = (event: React.FormEvent) => {
+        event.preventDefault();
+        console.log(imagem)
+        api.post('/whats/image', {"image":imagem})
+            .then(res => {
+                successMessageImg();
+                setTimeout(() => history("/"), 2000)
+            })
+            .catch(error => {
+                errorMessageImg();
+                console.log(error)
+            })
+    }
     return (
         <div>
             <ToastContainer />
             <form onSubmit={handleFormSubmit}>
                 <div className='input-forms'>
+                    <div className='div-img'>
+                        <img src={imagem} width={200} height={200} alt='logo da empresa' style={{ margin: "7px", border: "1px solid #000", padding:"7px" }} />
+                        <input
+                            type="text"
+                            onChange={e => setImagem(e.target.value)}
+                            style={{ margin: "7px" }}
+                        />
+                        <button 
+                        onClick={handleImage}
+                        className='button'
+                        style={{ margin: "7px" }}>Enviar imagem</button>
+                    </div>
                     <div className='left-side'>
                         <fieldset>
                             <legend>Configurações Inbot</legend>
