@@ -52,7 +52,7 @@ export function ChangeDeleteNumber() {
     const handleImage = (event: React.FormEvent) => {
         event.preventDefault();
         console.log(profilePic)
-        api.post('/whats/image', { "image": profilePic })
+        api.post('/whats/image', { "image": profilePic, "phoneNumber": customerData.number })
             .then(res => {
                 successMessageImg();
                 setTimeout(() => history("/"), 2000)
