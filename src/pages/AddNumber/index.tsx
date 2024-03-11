@@ -36,35 +36,22 @@ export function AddNumber() {
             })
     };
 
-    const handleImage = (event: React.FormEvent) => {
-        event.preventDefault();
-        console.log(imagem)
-        api.post('/whats/image', {"image":imagem})
-            .then(res => {
-                successMessageImg();
-                setTimeout(() => history("/"), 2000)
-            })
-            .catch(error => {
-                errorMessageImg();
-                console.log(error)
-            })
-    }
     return (
         <div>
             <ToastContainer />
             <form onSubmit={handleFormSubmit}>
                 <div className='input-forms'>
                     <div className='div-img'>
-                        <img src={imagem} width={200} height={200} alt='logo da empresa' style={{ margin: "7px", border: "1px solid #000", padding:"7px" }} />
+                        <img src={newNumber.profile_pic} width={200} height={200} alt='logo da empresa' style={{ margin: "7px", border: "1px solid #000", padding:"7px" }} />
+                        <label>Insira o link da imagem(640x640)*</label>
                         <input
                             type="text"
-                            onChange={e => setImagem(e.target.value)}
+                            name='profile_pic'
+                            onChange={handleInputChange}
                             style={{ margin: "7px" }}
+                            value={newNumber.profile_pic}
+                            required
                         />
-                        <button 
-                        onClick={handleImage}
-                        className='button'
-                        style={{ margin: "7px" }}>Enviar imagem</button>
                     </div>
                     <div className='left-side'>
                         <fieldset>

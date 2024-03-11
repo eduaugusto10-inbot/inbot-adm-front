@@ -3,7 +3,7 @@ import { ICustomerData, defaultCustomerData } from '../types';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { ToastContainer } from "react-toastify";
-import { successMessageChange, errorMessage } from '../../Components/Toastify'
+import { successMessageChange, errorMessage, successMessageImg, errorMessageImg } from '../../Components/Toastify'
 
 
 export function ChangeDeleteNumber() {
@@ -11,6 +11,8 @@ export function ChangeDeleteNumber() {
     const history = useNavigate();
     const location = useLocation()
     const [customerData, setCustomerData] = useState<ICustomerData>(defaultCustomerData);
+    const [profilePic, setProfilePic] = useState<string>('');
+
     function BackToHome() {
         history("/");
     }
@@ -18,17 +20,10 @@ export function ChangeDeleteNumber() {
         api.get(`/whats/${location.state.phoneNumber}`)
             .then(res => {
                 setCustomerData(res.data)
+                setProfilePic(res.data.profile_pic)
             })
             .catch(error => console.log(error))
     }, [])
-
-    const deleteNumber = () => {
-        api.delete(`/whats/${location.state.phoneNumber}`)
-            .then(res => {
-                console.log(res.status)
-            })
-            .catch(error => console.log(error))
-    }
 
     const saveChanges = () => {
         api.put(`/whats/${location.state.phoneNumber}`, customerData)
@@ -54,11 +49,38 @@ export function ChangeDeleteNumber() {
         saveChanges();
     };
 
+    const handleImage = (event: React.FormEvent) => {
+        event.preventDefault();
+        console.log(profilePic)
+        api.post('/whats/image', { "image": profilePic })
+            .then(res => {
+                successMessageImg();
+                setTimeout(() => history("/"), 2000)
+            })
+            .catch(error => {
+                errorMessageImg();
+                console.log(error)
+            })
+    }
+
     return (
         <div>
             <ToastContainer />
             <form onSubmit={handleFormSubmit}>
                 <div className='input-forms'>
+                    <div className='div-img'>
+                        <img src={profilePic} width={200} height={200} alt='logo da empresa' style={{ margin: "7px", border: "1px solid #000", padding: "7px" }} />
+                        <input
+                            type="text"
+                            value={profilePic}
+                            onChange={e => setProfilePic(e.target.value)}
+                            style={{ margin: "7px" }}
+                        />
+                        <button
+                            onClick={handleImage}
+                            className='button'
+                            style={{ margin: "7px" }}>Enviar imagem</button>
+                    </div>
                     <div className='left-side'>
                         <fieldset>
                             <legend>Configurações Inbot</legend>

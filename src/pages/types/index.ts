@@ -14,6 +14,7 @@ export interface ICustomerData {
     email: string;
     vertical: string;
     websites: string;
+    profile_pic: string;
 }
 
 export interface ITemplate {
@@ -50,5 +51,6 @@ export const defaultCustomerData: ICustomerData = {
     address: '',
     email: '',
     vertical: '',
-    websites: ''
+    websites: '',
+    profile_pic:'',
 }
