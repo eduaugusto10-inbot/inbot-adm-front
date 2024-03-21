@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { ToastContainer } from "react-toastify";
 import { successMessageChange, errorMessage, successMessageImg, errorMessageImg } from '../../Components/Toastify'
-
+import { mask } from '../../utils/utils';
 
 export function ChangeDeleteNumber() {
 
@@ -71,6 +71,7 @@ export function ChangeDeleteNumber() {
                     <div className='div-img'>
                         <img src={profilePic} width={200} height={200} alt='logo da empresa' style={{ margin: "7px", border: "1px solid #000", padding: "7px" }} />
                         <input
+                            className='input'
                             type="text"
                             value={profilePic}
                             onChange={e => setProfilePic(e.target.value)}
@@ -87,10 +88,12 @@ export function ChangeDeleteNumber() {
                             <div className='forms'>
                                 <label>Número do telefone*</label>
                                 <input
+                                    maxLength={18}
+                                    className='input'
                                     type="text"
                                     placeholder="Número telefone"
                                     name="number"
-                                    value={customerData.number}
+                                    value={mask(customerData.number)}
                                     onChange={handleInputChange}
                                     required
                                 />
@@ -98,6 +101,7 @@ export function ChangeDeleteNumber() {
                             <div className='forms'>
                                 <label>Nome do cliente*</label>
                                 <input
+                                    className='input'
                                     type="text"
                                     placeholder="Nome do cliente"
                                     name="client"
@@ -109,6 +113,7 @@ export function ChangeDeleteNumber() {
                             <div className='forms'>
                                 <label>Observação</label>
                                 <input
+                                    className='input'
                                     type="text"
                                     placeholder="observação"
                                     name="observation"
@@ -119,6 +124,7 @@ export function ChangeDeleteNumber() {
                             <div className='forms'>
                                 <label>Bot ID*</label>
                                 <input
+                                    className='input'
                                     type="number"
                                     placeholder="Enter bot ID"
                                     name="botId"
@@ -160,6 +166,7 @@ export function ChangeDeleteNumber() {
                             <div className='forms'>
                                 <label>Página de internet</label>
                                 <input
+                                    className='input'
                                     type="text"
                                     placeholder="Página de internet"
                                     name="websites"
@@ -170,6 +177,7 @@ export function ChangeDeleteNumber() {
                             <div className='forms'>
                                 <label>E-mail</label>
                                 <input
+                                    className='input'
                                     type="email"
                                     placeholder="E-mail"
                                     name="email"
@@ -180,6 +188,7 @@ export function ChangeDeleteNumber() {
                             <div className='forms'>
                                 <label>Descrição</label>
                                 <input
+                                    className='input'
                                     type="text"
                                     placeholder="descrição"
                                     name="description"
@@ -228,6 +237,7 @@ export function ChangeDeleteNumber() {
                             <div className='forms'>
                                 <label>Access Token*</label>
                                 <input
+                                    className='input'
                                     type="text"
                                     placeholder="Access token"
                                     name="accessToken"

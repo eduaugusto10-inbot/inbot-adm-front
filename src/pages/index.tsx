@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import api from '../utils/api';
 import { ICustomerData } from './types';
 import { useNavigate } from 'react-router-dom';
-
+import { mask } from '../utils/utils';
 
 export function AllPhones() {
     const history = useNavigate();
@@ -23,9 +23,7 @@ export function AllPhones() {
             .catch(error => console.log(error))
     }, [])
 
-    const truncateAccessToken = (accessToken: string): string => {
-        return accessToken.substring(0, 2) + '...' + accessToken.substring(accessToken.length - 2);
-    };
+
 
     return (
         <div>
@@ -43,8 +41,8 @@ export function AllPhones() {
                 </thead>
                 <tbody>
                     {customerData && customerData.map((data, index) => (
-                        <tr key={index}  style={{ backgroundColor: index % 2 === 0 ? '#FDFDFD' : '#EEEEEE' }}>
-                            <td>{data.number}</td>
+                        <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#FDFDFD' : '#EEEEEE' }}>
+                            <td>{mask(data.number)}</td>
                             <td>{data.client}</td>
                             <td>{data.botId}</td>
                             <td>{data.botServerType}</td>

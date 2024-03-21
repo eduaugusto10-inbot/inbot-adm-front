@@ -1,0 +1,5 @@
+{
+    "utilitario": "Não devem ser utilizadas palavras como: oferta, promoção, bônus, desconto, pesquisa, para que o template não seja considerado um contato de Marketing. Também deve ser evitado contextos de boas vindas, despedidas, convites ou recomendações.",
+    "marketing": "Para uso em campanhas, promoções e ofertas; mensagens de boas-vindas e despedida, convites ou recomentações; ou solicitações para responder ou concluir uma nova transação.",
+    "autenticacao": "Não são permitidos o uso de URLs, mídias e mojis no conteúdo, e nem no parâmetro desse modelo. O parâmetro deve respeitas o limite de 25 caracteres. Será obrigatório o uso de 1 botão no layout."
+}

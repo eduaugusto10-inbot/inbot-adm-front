@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { ToastContainer } from "react-toastify";
 import { successMessageChange, errorMessage, errorMessageImg, successMessageImg } from '../../Components/Toastify'
-
+import { mask } from '../../utils/utils';
 
 export function AddNumber() {
 
@@ -21,6 +21,7 @@ export function AddNumber() {
             ...prevState,
             [name]: value,
         }));
+        console.log(newNumber)
     };
 
     const handleFormSubmit = (event: React.FormEvent) => {
@@ -42,7 +43,7 @@ export function AddNumber() {
             <form onSubmit={handleFormSubmit}>
                 <div className='input-forms'>
                     <div className='div-img'>
-                        <img src={newNumber.profile_pic} width={200} height={200} alt='logo da empresa' style={{ margin: "7px", border: "1px solid #000", padding:"7px" }} />
+                        <img src={newNumber.profile_pic} width={200} height={200} alt='logo da empresa' style={{ margin: "7px", border: "1px solid #000", padding: "7px" }} />
                         <label>Insira o link da imagem(640x640)*</label>
                         <input
                             type="text"
@@ -62,8 +63,9 @@ export function AddNumber() {
                                     type="text"
                                     placeholder="Número telefone"
                                     name="number"
-                                    value={newNumber.number}
+                                    value={mask(newNumber.number)}
                                     onChange={handleInputChange}
+                                    maxLength={18}
                                     required
                                 />
                             </div>
