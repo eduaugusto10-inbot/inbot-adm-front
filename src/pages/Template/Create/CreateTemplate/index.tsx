@@ -1,30 +1,28 @@
-import React, { ChangeEvent, ReactHTML, useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 import '../index.css'
 import Alert from "../../../../Components/Alert"
 import whatsappBackground from '../../../../img/background.jpeg';
 import minus from '../../../../img/minus.png';
-import { IQuickReply, ITemplate, templateValue } from "../../../types";
+import { IButton, IFooter, IHeader, IObject, ITemplate, IVariables, templateValue } from "../../../types";
+import api from "../../../../utils/api";
+import { ToastContainer } from "react-toastify";
+import { errorMessageHeader, waitingMessage, errorMessageFooter, errorMessageBody, erroMessageQuickReply } from '../../../../Components/Toastify'
+import { useNavigate } from "react-router-dom";
 
-interface Button {
-    id: number;
-    value: string;
-    text: string;
-}
-interface Variables {
-    id: number;
-    value: string;
-    text: string;
-}
 export function CreateTemplate() {
     const [template, setTemplate] = useState<ITemplate>(templateValue)
-    const [quickReplies, setQuickReplies] = useState<IQuickReply[]>([])
-    const [templateName, setTemplateName] = useState<string>("")
     const [rodape, setRodape] = useState<boolean>(false);
-    const [header, setHeader] = useState<boolean>(false);
+    const [headers, setHeader] = useState<IHeader>();
     const [typeOfHeader, setTypeOfHeader] = useState<string>("")
-    const [buttons, setButtons] = useState<Button[]>([])
-    const [variables, setVariables] = useState<Variables[]>([])
+    const [buttons, setButtons] = useState<IButton[]>([])
+    const [variables, setVariables] = useState<IVariables[]>([])
     const [midia, setMidia] = useState<string>();
+    const [typeOfButtons, setTypeOfButtons] = useState<string>('without')
+
+    const history = useNavigate();
+    function BackToHome() {
+        history("/template/list");
+    }
 
     const handleInputVariable = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -41,7 +39,7 @@ export function CreateTemplate() {
 
     const handleAddVariable = () => {
         if (variables.length < 8) {
-            const newVariables: Variables = {
+            const newVariables: IVariables = {
                 id: Date.now(),
                 value: `${variables.length + 1}`,
                 text: ""
@@ -54,11 +52,6 @@ export function CreateTemplate() {
         }
     };
 
-    const variavelRegex = (e: string) => {
-        const regex = /\{\{.*?\}\}/
-        console.log(regex.test(e))
-    }
-
     const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
         const imagemSelecionada = event.target.files?.[0];
         if (imagemSelecionada) {
@@ -70,31 +63,22 @@ export function CreateTemplate() {
             reader.readAsDataURL(imagemSelecionada);
         }
     };
-    const handleSaveTemplate = () => {
-        if (quickReplies.length > 0) {
-            setTemplate(prevState => ({
-                ...prevState,
-                parameters: quickReplies
-            }));
-        }
-        const templateJSON = {
-            name: templateName,
-            category: "MARKETING",
-            language: "pt-BR",
-            components: template
-        }
-        console.log(templateJSON)
-    }
 
     const rodapeRadio = (e: any) => {
         const value = e.target.value === "srodape"
         setRodape(!value)
+        let rodapeText = ""
+        if (value) {
+            rodapeText = ""
+        }
+        setTemplate(prevState => ({
+            ...prevState,
+            footer: rodapeText,
+        }));
     }
     const headerRadio = (e: any) => {
-        const value = e.target.value === "texto"
-        console.log(value)
         setTypeOfHeader(e.target.value)
-        setHeader(!value)
+        setHeader(prevState => ({ ...prevState, parameters: [{ type: e.target.value }] }))
         setTemplate(prevState => ({
             ...prevState,
             header: "",
@@ -116,7 +100,7 @@ export function CreateTemplate() {
 
     const handleAddButton = () => {
         if (buttons.length < 3) {
-            const newButtons: Button = {
+            const newButtons: IButton = {
                 id: Date.now(),
                 value: `Button ${buttons.length + 1}`,
                 text: ""
@@ -131,7 +115,6 @@ export function CreateTemplate() {
                 value = i + 1;
             }
         }
-        console.log(value)
         const newBody = template.body.replace(`{{${value}}}`, '');
 
         const body = newBody.replace(/{{(\d+)}}/g, (match, p1) => {
@@ -155,33 +138,139 @@ export function CreateTemplate() {
             ...prevState,
             [name]: value,
         }));
-        variavelRegex(template.header);
     };
 
-    const handleChangeText = (text:string)=>{
+    const handleChangeText = (text: string) => {
         return text.replace(/{{(\d+)}}/g, (match, p1) => {
             const indice = parseInt(p1, 10) - 1;
             if (indice >= 0 && indice < variables.length) {
-              return variables[indice].text;
+                return variables[indice].text;
             } else {
-              return match;
+                return match;
             }
-          });
+        });
+    }
+
+    const quickReplyRadio = (e: any) => {
+        setTypeOfButtons(e.target.value)
+    }
+
+    interface ButtonQR {
+        type: string;
+        parameters: { type: string; text: string }[];
+    }
+    const createPayload = () => {
+        if (headers === undefined) {
+            errorMessageHeader()
+            return;
+        }
+        console.log(template.footer === "")
+        console.log(rodape === false)
+        if (template.footer === "" && rodape === false) {
+            errorMessageFooter()
+            return;
+        }
+        if (template.body === "") {
+            errorMessageBody()
+            return;
+        }
+        waitingMessage();
+        let footer: IFooter;
+        let body: IObject;
+        let header: IHeader;
+        let buttonQR: ButtonQR;
+        const payload: any = {};
+        const components: any[] = [];
+        if (typeOfButtons === "quickReply") {
+            buttonQR = {
+                type: "button",
+                parameters: []
+            }
+            let errorQR = false;
+            for (let index = 0; index < buttons.length; index++) {
+                if (buttons[index].text !== "") {
+                    buttonQR.parameters.push({ type: typeOfButtons, text: buttons[index].text })
+                } else {
+                    errorQR = true;
+                }
+            }
+            if (errorQR) {
+                erroMessageQuickReply()
+                return;
+            }
+            components.push(buttonQR);
+        }
+
+        if (template.footer) {
+            footer = {
+                type: "footer",
+                parameters: [{
+                    type: "text",
+                    text: template.footer,
+                }]
+            }
+            components.push(footer);
+        }
+        console.log(headers)
+        if (headers?.parameters?.[0].type !== "sheader") {
+            header = {
+                type: "header",
+                parameters: [
+                    {
+                        type: headers?.parameters?.[0].type,
+                        text: template.header
+                    }
+                ]
+            }
+            components.push(header);
+        }
+        body = {
+            type: "body",
+            parameters: [
+                {
+                    type: "text",
+                    text: template.body,
+                }
+            ]
+        }
+        if (variables.length > 0) {
+            body.parameters[0].example = [];
+            for (let index = 0; index < variables.length; index++) {
+                body.parameters[0].example.push(variables[index].text)
+            }
+        }
+        const templateString = localStorage.getItem("template")
+        const configTemplate = templateString ? JSON.parse(templateString) : null
+        components.push(body);
+        payload["components"] = components;
+        payload["category"] = configTemplate.type;
+        payload["name"] = configTemplate.name;
+        payload["language"] = configTemplate.language;
+        // api.post('/whats/template', payload)
+        //     .then(resp => {
+        //         successCreateTemplate()
+        //         setTimeout(() => history("/template/list"), 3000)
+        //     })
+        //     .catch(err => {
+        //         errorMessage()
+        //     })
+
     }
 
     return (
         <div className="container" style={{ color: "#FFF", width: "100wv" }}>
+            <ToastContainer />
             <div className="input left" style={{ backgroundColor: "#010042", padding: "20px", width: "50wv" }}>
                 <span className="bolder">Cabeçalho</span>
                 <span style={{ fontSize: "12px", marginBottom: "20px" }}>O cabeçalho pode conter texto destacado, imagem, video ou documento</span>
                 <div className="radio row-align">
-                    <div className="row-align" onChange={headerRadio}><input type="radio" value="texto" name="header" /><span className="padding-5">Texto</span></div>
-                    <div className="row-align" onChange={headerRadio}><input type="radio" value="imagem" name="header" /><span className="padding-5">Imagem</span></div>
-                    <div className="row-align" onChange={headerRadio}><input type="radio" value="documento" name="header" /><span className="padding-5">Documento</span></div>
+                    <div className="row-align" onChange={headerRadio}><input type="radio" value="text" name="header" /><span className="padding-5">Texto</span></div>
+                    <div className="row-align" onChange={headerRadio}><input type="radio" value="image" name="header" /><span className="padding-5">Imagem</span></div>
+                    <div className="row-align" onChange={headerRadio}><input type="radio" value="document" name="header" /><span className="padding-5">Documento</span></div>
                     <div className="row-align" onChange={headerRadio}><input type="radio" value="video" name="header" /><span className="padding-5">Video</span></div>
                     <div className="row-align" onChange={headerRadio}><input type="radio" value="sheader" name="header" /><span className="padding-5">Sem cabeçalho</span></div>
                 </div>
-                {typeOfHeader === "texto" &&
+                {typeOfHeader === "text" &&
                     <div className="container-configure">
                         <span>Texto do Cabeçalho</span>
                         <input type="text"
@@ -198,7 +287,7 @@ export function CreateTemplate() {
                     para aprovação do seu template será necessário escrever um texto exemplo que será enviado na sua variavel."/>
                     </div>
                 }
-                {typeOfHeader === "imagem" &&
+                {typeOfHeader === "image" &&
                     <div className="container-configure">
                         <span>Texto do Cabeçalho</span>
                         <input type="file"
@@ -209,7 +298,7 @@ export function CreateTemplate() {
                     </div>
 
                 }
-                {typeOfHeader === "documento" &&
+                {typeOfHeader === "document" &&
                     <div className="container-configure">
                         <span>Texto do Cabeçalho</span>
                         <input type="file"
@@ -288,17 +377,22 @@ export function CreateTemplate() {
                     </div>
                 </div>
                 <div style={{ height: "290px", width: "50%" }}>
+                    <div className="radio row-align">
+                        <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="quickReply" name="quickReply" /><span className="padding-5">Resposta rápida</span></div>
+                        <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="cta" name="quickReply" /><span className="padding-5">CTA</span></div>
+                        <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="without" name="quickReply" /><span className="padding-5">Nenhum</span></div>
+                    </div>
                     {buttons.map((button, index) => (
                         <div className="container-configure" key={button.id}>
                             <div className="row-align">
-                                <div>
+                                {/* <div>
                                     <span className="bolder" style={{ marginTop: " 13px" }}>Tipo do botão</span>
                                     <select style={{ width: "200px" }}>
-                                        <option>Resposta rápida</option>
-                                        <option>URL</option>
-                                        <option>Telefone</option>
+                                        <option value={"quickReply"}>Resposta rápida</option>
+                                        <option value={"staticURL"}>URL</option>
+                                        <option value={"phoneNumber"}>Telefone</option>
                                     </select>
-                                </div>
+                                </div> */}
                                 <div style={{ marginLeft: "50px" }}>
                                     <span className="bolder" style={{ marginTop: " 13px" }}>Texto do botão</span>
                                     <div style={{ display: "flex", flexDirection: "row" }}>
@@ -318,20 +412,20 @@ export function CreateTemplate() {
                     ))}
                 </div>
                 <div style={{ display: "flex", flexDirection: "row", textAlign: "end", alignContent: "end", alignItems: "end" }}>
-                    <button style={{ fontSize: "12px", backgroundColor: "#0171BD", border: "1px solid #FFF", width: "70px", height: "30px", marginRight: "5px" }} onClick={handleSaveTemplate}>Cancelar</button>
-                    <button style={{ fontSize: "12px", backgroundColor: "#0171BD", border: "1px solid #FFF", width: "70px", height: "30px", marginRight: "5px" }} onClick={handleSaveTemplate}>Salvar</button>
+                    <button onClick={BackToHome} style={{ fontSize: "12px", backgroundColor: "#0171BD", border: "1px solid #FFF", width: "70px", height: "30px", marginRight: "5px" }} >Cancelar</button>
+                    <button style={{ fontSize: "12px", backgroundColor: "#0171BD", border: "1px solid #FFF", width: "70px", height: "30px", marginRight: "5px" }} onClick={createPayload}>Salvar</button>
                 </div>
             </div>
             <div className="image-container rigth fixed" style={{ position: "fixed", color: "#000", alignContent: "end", textAlign: "end", right: "100px", bottom: "0px" }}>
                 <img src={whatsappBackground} alt="Logo" width={350} height={600} />
                 <div className="overlay-text">
                     <div className="texts">
-                        {typeOfHeader === "texto" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{template.header}</label>}
-                        {typeOfHeader === "imagem" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={midia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
-                        {typeOfHeader === "documento" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={midia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
+                        {typeOfHeader === "text" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{template.header}</label>}
+                        {typeOfHeader === "image" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={midia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
+                        {typeOfHeader === "document" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={midia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
                         {typeOfHeader === "video" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><video width="160" height="120" controls><source src={midia} type="video/mp4" /></video></label>}
                         {<label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {handleChangeText(template.body)}</label>}
-                        {<label className="footer" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{template.footer}</label>}
+                        {<label className="footer" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', fontSize:"12px" }}>{template.footer}</label>}
                         <div className="quickReply-texts">
                             {buttons.length > 0 && (<div className="quick-reply"><label >{buttons[0].text}</label></div>)}
                             {buttons.length > 1 && (<div className="quick-reply"><label >{buttons[1].text}</label></div>)}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ICustomerData, defaultCustomerData } from '../types';
+import { ICustomerData, IPayload, defaultCustomerData } from '../types';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { ToastContainer } from "react-toastify";
@@ -32,7 +32,6 @@ export function ChangeDeleteNumber() {
                 setTimeout(() => history("/"), 2000)
             })
             .catch(error => {
-                console.log(error)
                 errorMessage()
             })
     }
@@ -51,7 +50,6 @@ export function ChangeDeleteNumber() {
 
     const handleImage = (event: React.FormEvent) => {
         event.preventDefault();
-        console.log(profilePic)
         api.post('/whats/image', { "image": profilePic, "phoneNumber": customerData.number })
             .then(res => {
                 successMessageImg();
@@ -59,7 +57,6 @@ export function ChangeDeleteNumber() {
             })
             .catch(error => {
                 errorMessageImg();
-                console.log(error)
             })
     }
 
@@ -141,8 +138,8 @@ export function ChangeDeleteNumber() {
                                     onChange={(event: React.ChangeEvent<HTMLSelectElement>) => handleInputChange(event)}
                                 >
                                     <option value="">Escolha uma opção</option>
-                                    <option value="https://integration.inbot.com.br/test/api/v1/smarters/bot">Desenvolvimento</option>
-                                    <option value="https://integration.inbot.com.br/api/v1/smarters/bot">Produção</option>
+                                    <option value="integration-cluster-v9-2.inbot.com.br/test/api/v1/smarters/bot">Desenvolvimento</option>
+                                    <option value="integration-cluster-v9-2.inbot.com.br/api/v1/smarters/bot">Produção</option>
                                 </select>
                             </div>
                             <div className='forms'>

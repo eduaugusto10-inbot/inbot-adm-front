@@ -3,7 +3,7 @@ import { ICustomerData, defaultCustomerData } from '../types';
 import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { ToastContainer } from "react-toastify";
-import { successMessageChange, errorMessage, errorMessageImg, successMessageImg } from '../../Components/Toastify'
+import { successMessageChange, errorMessage } from '../../Components/Toastify'
 import { mask } from '../../utils/utils';
 
 export function AddNumber() {
@@ -21,7 +21,6 @@ export function AddNumber() {
             ...prevState,
             [name]: value,
         }));
-        console.log(newNumber)
     };
 
     const handleFormSubmit = (event: React.FormEvent) => {
@@ -109,8 +108,8 @@ export function AddNumber() {
                                     onChange={(event: React.ChangeEvent<HTMLSelectElement>) => handleInputChange(event)}
                                 >
                                     <option value="">Escolha uma opção</option>
-                                    <option value="https://integration.inbot.com.br/test/api/v1/smarters/bot">Desenvolvimento</option>
-                                    <option value="https://integration.inbot.com.br/api/v1/smarters/bot">Produção</option>
+                                    <option value="https://integration-cluster-v9-2.inbot.com.br/test/api/v1/smarters/bot">Desenvolvimento</option>
+                                    <option value="https://integration-cluster-v9-2.inbot.com.br/api/v1/smarters/bot">Produção</option>
                                 </select>
                             </div>
                             <div className='forms'>

@@ -33,9 +33,9 @@ export const defaultQuickReply: IQuickReply[] = [
 ];
 
 export const templateValue: ITemplate = {
-    footer: "Rodapé",
-    body: "Conteúdo",
-    header: "Cabeçalho"
+    footer: "",
+    body: "",
+    header: ""
 };
 
 export const defaultCustomerData: ICustomerData = {
@@ -52,5 +52,86 @@ export const defaultCustomerData: ICustomerData = {
     email: '',
     vertical: '',
     websites: '',
-    profile_pic:'',
+    profile_pic: '',
+}
+
+export interface ITemplateList {
+    ID: string,
+    category: string,
+    name: string,
+    language: string
+    status: string,
+    components: any
+}
+
+export interface IPayload {
+    category: string,
+    name: string,
+    language: string,
+    components: [{
+        type: string,
+        parameters: [{
+            type: string,
+            text: string,
+            example: string,
+            phoneNumber: string,
+            url: string
+        }]
+    }]
+}
+
+export interface IObject {
+    type?: string,
+    parameters: [{
+        type: string,
+        text: string,
+        example?: string[],
+    }]
+}
+export interface IFooter {
+    type: string,
+    parameters: [{
+        type: string,
+        text: string,
+    }]
+}
+export interface IHeader {
+    choose?: boolean,
+    type?: string,
+    parameters?: [{
+        type?: string,
+        text?: string,
+        example?: [string]
+    }]
+}
+
+export const payload: IPayload = {
+    category: "",
+    name: "",
+    language: "",
+    components: [{
+        type: "",
+        parameters: [{
+            type: "",
+            text: "",
+            example: "",
+            phoneNumber: "",
+            url: ""
+        }]
+    }]
+}
+
+export interface IButton {
+    id: number
+    value: string
+    text: string
+    type?: string
+    phoneNumber?: string
+    url?: string
+}
+
+export interface IVariables {
+    id: number
+    value: string
+    text: string
 }
