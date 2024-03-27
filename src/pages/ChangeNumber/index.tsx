@@ -138,8 +138,8 @@ export function ChangeDeleteNumber() {
                                     onChange={(event: React.ChangeEvent<HTMLSelectElement>) => handleInputChange(event)}
                                 >
                                     <option value="">Escolha uma opção</option>
-                                    <option value="integration-cluster-v9-2.inbot.com.br/test/api/v1/smarters/bot">Desenvolvimento</option>
-                                    <option value="integration-cluster-v9-2.inbot.com.br/api/v1/smarters/bot">Produção</option>
+                                    <option value="https://integration-cluster-v9-2.inbot.com.br/test/api/v1/smarters/bot">Desenvolvimento</option>
+                                    <option value="https://integration-cluster-v9-2.inbot.com.br/api/v1/smarters/bot">Produção</option>
                                 </select>
                             </div>
                             <div className='forms'>
