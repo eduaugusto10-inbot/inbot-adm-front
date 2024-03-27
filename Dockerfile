@@ -1,23 +1,24 @@
-# Use uma imagem base do Node.js 18
-FROM node:18-alpine
+# Usa uma imagem Node.js como base
+FROM node:alpine as build
 
-# Defina o diretório de trabalho dentro do contêiner
+# Define o diretório de trabalho dentro do contêiner
 WORKDIR /app
 
-# Copie o package.json e o package-lock.json para instalar dependências
-COPY package*.json ./
-
-# Instale as dependências
-RUN npm install
-
-# Copie o restante dos arquivos do aplicativo
+# Copia os arquivos do projeto para o contêiner
 COPY . .
 
-# Construa o aplicativo ReactJS
+# Instala as dependências
+RUN npm install
 RUN npm run build
 
-# Defina a porta do contêiner para a porta 80
+# Segunda fase - usa uma imagem nginx leve
+FROM nginx:alpine
+
+# Copia os arquivos de build do ReactJS para o diretório padrão do Nginx
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Expõe a porta 80
 EXPOSE 80
 
-# Comando para iniciar o servidor quando o contêiner for iniciado
-CMD ["npm", "start"]
+# Comando para iniciar o servidor Nginx em foreground
+CMD ["nginx", "-g", "daemon off;"]
