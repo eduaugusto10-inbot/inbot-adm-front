@@ -28,6 +28,9 @@ export const errorMessageImg = () => toast.error("Erro ao salvar imagem", {
 export const errorSession = () => toast.error("Sessão expirada, faça login novamente", {
     theme: "colored"
 });
+export const errorSheets = () => toast.error("Coluna telefone não esta correta", {
+    theme: "colored"
+});
 export const waitingMessage = () => toast.info("Aguarde ...", {
     theme: "colored"
 })
