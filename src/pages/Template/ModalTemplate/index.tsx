@@ -24,11 +24,11 @@ export function ModalTemplate(props: any) {
 
     return (
         <div>
-            <div className="image-container rigth fixed" style={{ position: "fixed", alignContent: "end", textAlign: "end", right: "100px", bottom: "0px" }}>
+            <div style={{ position: "fixed", alignContent: "end", textAlign: "end", right: "100px", bottom: "0px" }}>
                 <img src={whatsappBackground} alt="Logo" width={350} height={600} />
                 <div className="overlay-text">
                     <div className="texts">
-                        {<label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{findText(props.modalTemplate.components, "header")}</label>}
+                        {<label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', backgroundColor:"none" }}>{findText(props.modalTemplate.components, "header")}</label>}
                         {/* {typeOfHeader === "image" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={midia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
                         {typeOfHeader === "document" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={midia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
                         {typeOfHeader === "video" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><video width="160" height="120" controls><source src={midia} type="video/mp4" /></video></label>} */}
