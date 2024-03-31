@@ -1,7 +1,7 @@
 .container-alert {
     display: flex;
     flex-direction: row;
-    background-color: #0171BD;
+    background-color: #DAE7F0;
     margin: 10px;
     border: 7px;
     border-radius: 20px
@@ -9,7 +9,7 @@
 
 .span-12 {
     font-size: 12px;
-    color: #FFF;
+    color: #0D5388;
 }
 
 .div-text {

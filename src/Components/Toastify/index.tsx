@@ -34,6 +34,9 @@ export const errorSheets = () => toast.error("Coluna telefone não esta correta"
 export const waitingMessage = () => toast.info("Aguarde ...", {
     theme: "colored"
 })
+export const successCreateTrigger = () => toast.success("Criado com sucesso", {
+    theme: "colored"
+});
 export const emptyMessage = () => toast.warn("Preencha todos os campos");
 export const errorMessageHeader = () => toast.warn("Preencha os campos do cabeçalho");
 export const errorMessageFooter = () => toast.warn("Preencha os campos do rodapé");
