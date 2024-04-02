@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { Routes, Route, HashRouter } from "react-router-dom"
 import AddNumber from "../pages/AddNumber"
 import AllPhones from "../pages"
 import ChangeDeleteNumber from "../pages/ChangeNumber"
@@ -7,7 +7,7 @@ import ListAll from "../pages/Template/List/ListAll"
 import Accordion from "../pages/Template/TriggerAccordion"
 
 const Router = () => (
-    <BrowserRouter>
+    <HashRouter>
         <Routes>
             <Route path='/add' element={<AddNumber />} />
             <Route path='/change' element={<ChangeDeleteNumber />} />
@@ -16,7 +16,7 @@ const Router = () => (
             <Route path='/template-trigger' element={<Accordion />} />
             <Route path='/' element={<AllPhones />} />
         </Routes>
-    </BrowserRouter>
+    </HashRouter>
 
 )
 
