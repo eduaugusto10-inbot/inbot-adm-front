@@ -43,6 +43,12 @@ export function Accordion() {
     const [template, setTemplate] = useState<ITemplate>(templateValue)
 
     const toggleAccordion = (key: keyof AccordionState) => {
+        setAccordionState({
+            config: false,
+            recebidores: false,
+            disparo: false,
+            revisar: false
+        })
         setAccordionState(prevState => ({
             ...prevState,
             [key]: !prevState[key]
@@ -87,22 +93,6 @@ export function Accordion() {
         }));
         setVariables(variables.filter(variable => variable.id !== id));
     };
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const params = {
-            botId: "403",
-            templateId: templateName,
-            senderPhone: "5511953188171",
-            dataClient: [
-                {
-                    receiverPhone: `${clientNumber}`
-                }
-            ]
-        }
-        await api.post('/whats/template/send', params)
-            .then(resp => console.log(resp))
-            .catch(error => console.log(error))
-    };
 
     const handleSubmitListDataFile = async (dataTemplate: any, campaignId: string) => {
         let count = 0;
@@ -122,7 +112,7 @@ export function Accordion() {
                 const params = {
                     campaignId: `${campaignId}`,
                     phone: `${customer[0]}`,
-                    status:"aguardando",
+                    status: "aguardando",
                     variable_1: customer[1],
                     variable_2: customer[2],
                     variable_3: customer[3],
@@ -179,22 +169,23 @@ export function Accordion() {
     };
 
     const createTrigger = () => {
-        waitingMessage();        
+        waitingMessage();
         const data = {
             "campaignName": campaignName,
             "templateName": templateName,
             "typeTrigger": triggerMode,
-            "timeTrigger": `${dates} ${hours}`,
+            "timeTrigger": triggerMode === "agendado" ? `${dates} ${hours}` : null,
             "status": "aguardando",
-            "botId": 1,
-            "phoneTrigger": "5511999113863"
+            "botId": 403,
+            "phoneTrigger": "5511953188171"
         }
 
         api.post('/whatsapp/trigger', data)
             .then(resp => {
-                handleSubmitListDataFile(fileData,resp.data.data.insertId)
+                handleSubmitListDataFile(fileData, resp.data.data.insertId)
                 console.log(resp.data.data.insertId)
                 successCreateTrigger()
+                setTimeout(() => history("/template/list"), 3000)
             })
             .catch(err => {
                 errorMessage();
@@ -204,7 +195,7 @@ export function Accordion() {
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "50px" }}>
             <ToastContainer />
-            <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69" }}>Disparo do Template</h1>
+            <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69" }}>Envio de Campanhas</h1>
             <div style={{ width: "110%", border: "1px solid #000", marginBottom: "30px" }}></div>
             <div className="config-template">
                 <div className="header-accordion" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>

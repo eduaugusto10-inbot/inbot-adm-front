@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import alert from '../../../../img/help.png'
-import { erroMessageQuickReply, errorMessageHeader, errorMessageFooter, errorMessageBody, waitingMessage } from "../../../../Components/Toastify";
+import { erroMessageQuickReply, errorMessageHeader, errorMessageFooter, errorMessageBody, waitingMessage, successCreateTemplate, errorMessage } from "../../../../Components/Toastify";
 import strings from '../../strings.json'
 import api from "../../../../utils/api";
 import { ToastContainer } from "react-toastify";
@@ -11,11 +11,12 @@ import minus from '../../../../img/minus.png';
 import Alert from "../../../../Components/Alert";
 import { IButton, IFooter, IHeader, IObject, ITemplate, IVariables, templateValue } from "../../../types";
 
-interface AccordionState {
-    config: boolean;
-    recebidores: boolean;
-    disparo: boolean;
-    revisar: boolean;
+interface AccordionStateCreate {
+    config: boolean,
+    header: boolean,
+    body: boolean,
+    footer: boolean,
+    botao: boolean
 }
 interface ButtonQR {
     type: string;
@@ -31,11 +32,12 @@ export function CreateTemplateAccordion() {
 
     const [templateName, setTemplateName] = useState<string>("")
     const [templateType, setTemplateType] = useState<string>("")
-    const [accordionState, setAccordionState] = useState<AccordionState>({
+    const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
         config: true,
-        recebidores: false,
-        disparo: false,
-        revisar: false
+        header: false,
+        body: false,
+        footer: false,
+        botao: false
     });
     const [typeOfHeader, setTypeOfHeader] = useState<string>("")
     const [headers, setHeader] = useState<IHeader>();
@@ -58,7 +60,14 @@ export function CreateTemplateAccordion() {
         }
     }
 
-    const toggleAccordion = (key: keyof AccordionState) => {
+    const toggleAccordion = (key: keyof AccordionStateCreate) => {
+        setAccordionState({
+            config: false,
+            header: false,
+            body: false,
+            footer: false,
+            botao: false
+        })
         setAccordionState(prevState => ({
             ...prevState,
             [key]: !prevState[key]
@@ -272,14 +281,14 @@ export function CreateTemplateAccordion() {
         payload["name"] = templateName;
         payload["language"] = "pt_BR";//configTemplate.language;
         console.log(payload)
-        // api.post('/whats/template', payload)
-        //     .then(resp => {
-        //         successCreateTemplate()
-        //         setTimeout(() => history("/template/list"), 3000)
-        //     })
-        //     .catch(err => {
-        //         errorMessage()
-        //     })
+        api.post('/whats/template', payload)
+            .then(resp => {
+                successCreateTemplate()
+                setTimeout(() => history("/template/list"), 3000)
+            })
+            .catch(err => {
+                errorMessage()
+            })
 
     }
 
@@ -287,7 +296,7 @@ export function CreateTemplateAccordion() {
         <div style={{ width: "80vw" }}>
             <div >
                 <ToastContainer />
-                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69" }}>Disparo do Template</h1>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69" }}>Envio de Campanhas</h1>
                 <div style={{ width: "110%", border: "1px solid #000", marginBottom: "30px" }}></div>
                 <div className="config-template">
                     <div className="header-accordion" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
@@ -326,8 +335,8 @@ export function CreateTemplateAccordion() {
                         </div>}
                 </div>
                 <div className="config-recebidores" style={{ maxHeight: "600px" }}>
-                    <div className="header-accordion" onClick={() => toggleAccordion('recebidores')}>2. Header</div>
-                    {accordionState.recebidores && <div className="body">
+                    <div className="header-accordion" onClick={() => toggleAccordion('header')}>2. Header</div>
+                    {accordionState.header && <div className="body">
                         <div className="radio row-align">
                             <div className="row-align" onChange={headerRadio}><input type="radio" value="text" name="header" /><span className="padding-5">Texto</span></div>
                             <div className="row-align" onChange={headerRadio}><input type="radio" value="image" name="header" /><span className="padding-5">Imagem</span></div>
@@ -378,8 +387,8 @@ export function CreateTemplateAccordion() {
                     </div>}
                 </div>
                 <div className="modo-disparo">
-                    <div className="header-accordion" onClick={() => toggleAccordion('disparo')}>3. Body</div>
-                    {accordionState.disparo && <div className="body">
+                    <div className="header-accordion" onClick={() => toggleAccordion('body')}>3. Body</div>
+                    {accordionState.body && <div className="body">
                         <div style={{ display: "flex", flexDirection: "column", width: "100%", textAlign: "initial", paddingLeft: "20px" }}>
                             <span className="bolder">Corpo da Mensagem</span>
                             <span style={{ fontSize: "11px", marginBottom: "20px", fontStyle: "italic" }}>Este é o principal conteúdo de texto no seu template.</span>
@@ -412,8 +421,8 @@ export function CreateTemplateAccordion() {
                     </div>}
                 </div>
                 <div className="revisar">
-                    <div className="header-accordion" onClick={() => toggleAccordion('revisar')}>4. Footer</div>
-                    {accordionState.revisar && <div className="body">
+                    <div className="header-accordion" onClick={() => toggleAccordion('footer')}>4. Footer</div>
+                    {accordionState.footer && <div className="body">
                         <div style={{ display: "flex", flexDirection: "column", width: "100%", textAlign: "initial", paddingLeft: "20px" }}>
                             <div className="radio row-align">
                                 <div className="row-align" onChange={rodapeRadio}><input type="radio" name="Texto" value="srodape" /><span className="padding-5">Texto</span></div>
@@ -439,8 +448,8 @@ export function CreateTemplateAccordion() {
                     </div>}
                 </div>
                 <div className="revisar">
-                    <div className="header-accordion" onClick={() => toggleAccordion('revisar')}>5. Botão</div>
-                    {accordionState.revisar && <div className="body">
+                    <div className="header-accordion" onClick={() => toggleAccordion('botao')}>5. Botão</div>
+                    {accordionState.botao && <div className="body">
                         <div style={{ width: "50%", marginBottom: "20px" }}>
                             <div className="radio row-align">
                                 <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="quickReply" name="quickReply" /><span className="padding-5">Resposta rápida</span></div>

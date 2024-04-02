@@ -57,7 +57,7 @@ export function ListAll() {
         history("/template/create-config");
     }
     function SendTemplate(name: string) {
-        history("/template/accordeon", { state: { templateName: name } });
+        history("/template/trigger", { state: { templateName: name } });
     }
 
     useEffect(() => {

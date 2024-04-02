@@ -1,0 +1,150 @@
+.container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    color: #303030;
+    text-align: left;
+  }
+  
+  .input-template {
+    width: 400px;
+    height: 40px;
+    border-radius: 5px;
+    border: 1px solid #d6d6d6;
+    margin-bottom: 20px;
+  }
+  
+  .padding-5{
+  padding: 9px;
+  }
+  .buttons-line {
+    width: 100%;
+    text-align: end;
+    background-color: gray;
+    padding: 10px;
+    margin-top: 50px;
+  }
+  
+  .image-container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .container-configure {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .bolder {
+    font-weight: bolder;
+  }
+  
+  .overlay-text {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    width: 100%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+  }
+  
+  .header {
+    font-weight: bold;
+  }
+  
+  .footer {
+    color: rgba(48, 48, 48, 0.5);
+  }
+  
+  .input,
+  .texts {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .left {
+    width: 60%;
+  }
+  
+  .rigth {
+    margin-left: 50px;
+  }
+  
+  .texts {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    padding-left: 15px;
+    padding-right: 15px;
+    background-color: #fff;
+    width: 90%;
+    border-radius: 7px;
+  
+  }
+  
+  .quickReply-texts {
+    text-align: center;
+  }
+  
+  .quick-reply {
+    color: blue;
+    border-top: 1px solid gray;
+    width: 100%;
+    padding: 5px;
+  }
+.header-accordion {
+    background-color: #342D69;
+    width: 800px;
+    height: 40px;
+    color: #FFF;
+    border: 1px solid #FFF;
+    text-align: left;
+    padding: 10px 30px;
+    cursor: pointer;
+    font-weight: bolder;
+}
+
+.body {
+    background-color: #F1F1F1;
+    width: 800px;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.line {
+    flex-direction: row;
+    align-content: space-between;
+}
+
+.column{
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+.input-spaces{
+    margin: 5px;
+}
+
+.input-values {
+    width: 250px;
+    height: 40px;
+    border: 1px solid #A8A8A8;
+    margin: 5px;
+    padding: 5px;
+    border-radius: 20px;
+}
+
+.span-title{
+    background-color: #DAE7F0;
+    color: #0D5388;
+    width: 26px;
+    font-size: 16px;
+    font-weight: bolder;
+    border-radius: 7px;
+    width: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
