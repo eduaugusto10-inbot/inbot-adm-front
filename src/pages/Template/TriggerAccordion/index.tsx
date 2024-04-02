@@ -22,7 +22,7 @@ export function Accordion() {
     const templateName = location.state.templateName
     const history = useNavigate();
     function BackToList() {
-        history("/template/list")
+        history("/template-list")
     }
 
     const [accordionState, setAccordionState] = useState<AccordionState>({
@@ -185,7 +185,7 @@ export function Accordion() {
                 handleSubmitListDataFile(fileData, resp.data.data.insertId)
                 console.log(resp.data.data.insertId)
                 successCreateTrigger()
-                setTimeout(() => history("/template/list"), 3000)
+                setTimeout(() => history("/template-list"), 3000)
             })
             .catch(err => {
                 errorMessage();

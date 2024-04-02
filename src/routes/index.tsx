@@ -9,14 +9,12 @@ import Accordion from "../pages/Template/TriggerAccordion"
 const Router = () => (
     <BrowserRouter>
         <Routes>
+            <Route path='/add' element={<AddNumber />} />
+            <Route path='/change' element={<ChangeDeleteNumber />} />
+            <Route path='/template-create' element={<CreateTemplateAccordion />} />
+            <Route path='/template-list' element={<ListAll />} />
+            <Route path='/template-trigger' element={<Accordion />} />
             <Route path='/' element={<AllPhones />} />
-            <Route path='add' element={<AddNumber />} />
-            <Route path='change' element={<ChangeDeleteNumber />} />
-            <Route path='template'>
-                <Route path='create-config' element={<CreateTemplateAccordion />} />
-                <Route path='list' element={<ListAll />} />
-                <Route path='trigger' element={<Accordion />} />
-            </Route>
         </Routes>
     </BrowserRouter>
 

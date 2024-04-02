@@ -27,7 +27,7 @@ export function CreateTemplateAccordion() {
 
     const history = useNavigate();
     function BackToList() {
-        history("/template/list")
+        history("/template-list")
     }
 
     const [templateName, setTemplateName] = useState<string>("")
@@ -284,7 +284,7 @@ export function CreateTemplateAccordion() {
         api.post('/whats/template', payload)
             .then(resp => {
                 successCreateTemplate()
-                setTimeout(() => history("/template/list"), 3000)
+                setTimeout(() => history("/template-list"), 3000)
             })
             .catch(err => {
                 errorMessage()

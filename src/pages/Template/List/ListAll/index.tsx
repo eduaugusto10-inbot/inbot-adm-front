@@ -54,10 +54,10 @@ export function ListAll() {
 
     const history = useNavigate();
     function CreateTemplate() {
-        history("/template/create-config");
+        history("/template-create");
     }
     function SendTemplate(name: string) {
-        history("/template/trigger", { state: { templateName: name } });
+        history("/template-trigger", { state: { templateName: name } });
     }
 
     useEffect(() => {
