@@ -104,7 +104,7 @@ export function Accordion() {
             .catch(error => console.log(error))
     };
 
-    const handleSubmitListDataFile = async (dataTemplate: any) => {
+    const handleSubmitListDataFile = async (dataTemplate: any, campaignId: string) => {
         let count = 0;
         let sheets = false;
         for (let i = 1; i < dataTemplate.length; i++) {
@@ -120,7 +120,7 @@ export function Accordion() {
         for (const customer of dataTemplate) {
             if (count > 0 && customer.length > 0) {
                 const params = {
-                    campaignId: "403",
+                    campaignId: `${campaignId}`,
                     phone: `${customer[0]}`,
                     status:"aguardando",
                     variable_1: customer[1],
@@ -179,8 +179,7 @@ export function Accordion() {
     };
 
     const createTrigger = () => {
-        waitingMessage();
-        handleSubmitListDataFile(fileData)
+        waitingMessage();        
         const data = {
             "campaignName": campaignName,
             "templateName": templateName,
@@ -193,8 +192,9 @@ export function Accordion() {
 
         api.post('/whatsapp/trigger', data)
             .then(resp => {
+                handleSubmitListDataFile(fileData,resp.data.data.insertId)
+                console.log(resp.data.data.insertId)
                 successCreateTrigger()
-                console.log(resp)
             })
             .catch(err => {
                 errorMessage();
