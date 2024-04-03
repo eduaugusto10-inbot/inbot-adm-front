@@ -301,9 +301,9 @@ export function CreateTemplateAccordion() {
                 <div className="config-template">
                     <div className="header-accordion" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
                     {accordionState.config &&
-                        <div style={{ display: "flex", flexDirection: "row", textAlign: "left", backgroundColor:"#f1f1f1", width:"800px" }}>
-                            <div className="input" style={{justifyContent: "center"}}>
-                                <div style={{ display: "flex", flexDirection: "row" }}>
+                        <div style={{ display: "flex", flexDirection: "row", textAlign: "left", backgroundColor: "#f1f1f1", width: "800px" }}>
+                            <div className="input" style={{ justifyContent: "center" }}>
+                                <div style={{ display: "flex", flexDirection: "row", margin:"10px" }}>
                                     <span className="span-title">Nome*</span>
                                     <input type="text"
                                         className="input-values"
@@ -313,7 +313,7 @@ export function CreateTemplateAccordion() {
                                         onChange={e => setTemplateName(e.target.value.trim().toLowerCase())}
                                     />
                                 </div>
-                                <div style={{ display: "flex", flexDirection: "row" }}>
+                                <div style={{ display: "flex", flexDirection: "row", margin:"10px" }}>
                                     <span className="span-title">Categoria*</span>
                                     <select className="input-values" onChange={e => setTemplateType(e.target.value)}>
                                         <option>---</option>
@@ -327,7 +327,7 @@ export function CreateTemplateAccordion() {
                                 <div style={{ margin: "10px" }}>
                                     <img src={alert} width={25} alt="alerta" />
                                 </div>
-                                <div style={{ display: "flex", flexDirection: "column", minHeight:"200px"}}>
+                                <div style={{ display: "flex", flexDirection: "column", minHeight: "200px" }}>
                                     <span style={{ padding: "10px", fontSize: "16px" }} className="bolder">{templateType === "AUTHENTICATION" ? "Autenticação" : templateType === "UTILITY" ? "Utilitário" : templateType === "MARKETING" ? "Marketing" : "Início"}</span>
                                     <span style={{ marginRight: "50px", fontSize: "11px" }}>{selectTemplate(templateType)}</span>
                                 </div>
@@ -405,18 +405,24 @@ export function CreateTemplateAccordion() {
                             <div style={{ width: "87%", textAlign: "end" }}>
                                 <span>{template.body.length}/1024</span>
                             </div>
-                            <span>Variáveis</span>
+                            <span style={{fontWeight:"bolder"}}>Variáveis</span>
                             <div>
                                 <button onClick={handleAddVariable} style={{ fontSize: "12px", backgroundColor: "#0171BD", border: "1px solid #FFF", width: "70px", height: "30px", marginRight: "5px" }}>Adicionar</button>
                             </div>
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(2, 1fr)', // Duas colunas de largura igual
+                                gridTemplateRows: 'repeat(4, auto)', // Quatro linhas com altura automática
+                                gap: '10px' // Espaçamento entre as células
+                            }}>
+                                {variables.map((variable, index) => (
+                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
+                                        <span className="span-title-variables">{index + 1}.  </span> <input value={variable.text} type="text" name={variable.id.toString()} id="" onChange={handleInputVariable} className="input-values" /><img src={minus} alt="minus" width={20} height={20} style={{ cursor: "pointer", marginTop:"15px" }} onClick={() => handleDeleteVariables(variable.id)} />
+                                    </div>
 
-                            {variables.map((variable, index) => (
-                                <div style={{ display: "flex", flexDirection: "row",justifyContent: "center" }}>
-                                    <span className="span-title">{index + 1}.  </span> <input value={variable.text} type="text" name={variable.id.toString()} id="" onChange={handleInputVariable} className="input-values" /><img src={minus} alt="minus" width={20} height={20} style={{ cursor: "pointer" }} onClick={() => handleDeleteVariables(variable.id)} />
-                                </div>
-
-                            ))
-                            }
+                                ))
+                                }
+                            </div>
                         </div>
                     </div>}
                 </div>
@@ -473,7 +479,7 @@ export function CreateTemplateAccordion() {
                                     </select>
                                 </div> */}
                                                 <div style={{ marginLeft: "50px" }}>
-                                                    <div style={{ display: "flex", flexDirection: "row" }}>
+                                                    <div style={{ display: "flex", flexDirection: "row", margin:"10px" }}>
                                                         <span className="span-title">Texto</span>
                                                         <input
                                                             value={button.text}
@@ -481,7 +487,7 @@ export function CreateTemplateAccordion() {
                                                             maxLength={20}
                                                             name={button.id.toString()}
                                                             className="input-values" />
-                                                        <img src={minus} alt="minus" width={20} height={20} onClick={() => handleDeleteItem(button.id)} style={{ cursor: "pointer" }} />
+                                                        <img src={minus} alt="minus" width={20} height={20} onClick={() => handleDeleteItem(button.id)} style={{ cursor: "pointer", marginTop:"15px" }} />
                                                     </div>
                                                 </div>
                                             </div>

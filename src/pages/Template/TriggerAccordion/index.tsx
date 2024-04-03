@@ -211,38 +211,46 @@ export function Accordion() {
                         </div>
                     </div>}
             </div>
-            <div className="config-recebidores" style={{ maxHeight: "600px" }}>
+            <div className="config-recebidores" style={{ maxHeight: "680px" }}>
                 <div className="header-accordion" onClick={() => toggleAccordion('recebidores')}>2. Cadastro dos Clientes</div>
                 {accordionState.recebidores && <div className="body">
-                    <div>
-                        <div style={{ display: "flex", flexDirection: "column", textAlign: "left" }}>
+                    <div style={{ width: "90%" }}>
+                        <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
                             <span style={{ fontSize: "16px" }}>Clientes</span>
                             <span style={{ fontSize: "11px", fontStyle: "italic" }}>Adicione clientes que receberão os templates, poderá fazer upload de uma planilha ou inserir um número manualmente.</span>
                         </div>
-                        <input type="radio" name="clientes" value="unico" onChange={signInClients} className="input-spaces" /><span>Único</span>
-                        <input type="radio" name="clientes" value="multiplos" onChange={signInClients} className="input-spaces" /><span>Múltiplos</span>
+                        <input type="radio" name="clientes" value="unico" onChange={signInClients} className="input-spaces" /><span>Manual</span>
+                        <input type="radio" name="clientes" value="multiplos" onChange={signInClients} className="input-spaces" /><span>Carregar planilha</span>
                     </div>
                     {!typeClient &&
-                        <div>
-                            <span className="span-title">Telefone </span>
-                            <input
-                                className="input-values"
-                                type="number"
-                                value={clientNumber}
-                                onChange={(event) => setClientNumber(event.target.valueAsNumber)}
-                            />
-                            <span>Variáveis</span>
+                        <div style={{ display: "flex", flexDirection: "column", width: "90%" }}>
+                            <div style={{ display: "flex", flexDirection: "row" }}>
+                                <span className="span-title">Telefone </span>
+                                <input
+                                    className="input-values"
+                                    type="number"
+                                    value={clientNumber}
+                                    onChange={(event) => setClientNumber(event.target.valueAsNumber)}
+                                />
+                            </div>
+                            <span className="span-title" style={{ marginTop: "10px", height: "50px" }}>Variáveis</span>
                             <div>
                                 <button onClick={handleAddVariable} style={{ fontSize: "12px", backgroundColor: "#0171BD", border: "1px solid #FFF", width: "70px", height: "30px", marginRight: "5px" }}>Adicionar</button>
                             </div>
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(2, 1fr)', // Duas colunas de largura igual
+                                gridTemplateRows: 'repeat(4, auto)', // Quatro linhas com altura automática
+                                gap: '10px' // Espaçamento entre as células
+                            }}>
+                                {variables.map((variable, index) => (
+                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", margin: "10px" }}>
+                                        <span className="span-title-variables" >{index + 1}.  </span> <input value={variable.text} type="text" name={variable.id.toString()} id="" onChange={handleInputVariable} className="input-values" /><img src={minus} alt="minus" width={20} height={20} style={{ cursor: "pointer", marginTop: "15px" }} onClick={() => handleDeleteVariables(variable.id)} />
+                                    </div>
 
-                            {variables.map((variable, index) => (
-                                <div style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
-                                    <span className="span-title">{index + 1}.  </span> <input value={variable.text} type="text" name={variable.id.toString()} id="" onChange={handleInputVariable} className="input-values" /><img src={minus} alt="minus" width={20} height={20} style={{ cursor: "pointer" }} onClick={() => handleDeleteVariables(variable.id)} />
-                                </div>
-
-                            ))
-                            }
+                                ))
+                                }
+                            </div>
                             <Alert message={"Você deverá preencher as variáveis para que não ocorra erro no envio"} />
                         </div>}
                     {typeClient &&
@@ -278,12 +286,12 @@ export function Accordion() {
                         <input type="radio" name="disparo" value="imediato" onChange={handleMode} className="input-spaces" /><span>Imediato</span>
                         <input type="radio" name="disparo" value="agendado" onChange={handleMode} className="input-spaces" /><span>Agendado</span>
                     </div>
-                    {mode && <div>
-                        <div style={{ display: "flex", flexDirection: "row" }}>
+                    {mode && <div style={{ display: "flex", flexDirection: "row" }}>
+                        <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
                             <span className="span-title">Data</span>
                             <input type="date" onChange={e => setDate((e.target as HTMLInputElement).value)} className="input-values" />
                         </div>
-                        <div style={{ display: "flex", flexDirection: "row" }}>
+                        <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
                             <span className="span-title">Horário</span>
                             <input type="time" onChange={e => setHours((e.target as HTMLInputElement).value)} className="input-values" />
                         </div>
@@ -296,10 +304,11 @@ export function Accordion() {
             <div className="revisar">
                 <div className="header-accordion" onClick={() => toggleAccordion('revisar')}>4. Resumo e salvar</div>
                 {accordionState.revisar && <div className="body">
-                    <span style={{ fontSize: "20px" }}>Resumo</span>
-                    <span>Template: {templateName}</span>
-                    <span>Telefone do disparo: {templateName}</span>
-                    <span>Data e hora do disparo: {templateName}</span>
+                    <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
+                        <span>Template: {templateName}</span>
+                        <span>Telefone do disparo: {templateName}</span>
+                        <span>Data e hora do disparo: {templateName}</span>
+                    </div>
                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", width: "100%" }}>
                         <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={BackToList}>Cancelar</button>
                         <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={createTrigger}>Salvar</button>
