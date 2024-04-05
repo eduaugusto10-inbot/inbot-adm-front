@@ -5,6 +5,7 @@ import { ITemplateList } from "../../../types";
 import dots from "../../../../img/dots.png"
 import { useNavigate } from "react-router-dom";
 import ModalTemplate from "../../ModalTemplate";
+import { useSearchParams } from "react-router-dom";
 
 interface Row {
     id: number;
@@ -12,15 +13,20 @@ interface Row {
 }
 
 export function ListAll() {
+    const [searchParams, setSearchParams] = useSearchParams();
+    var botId = searchParams.get('bot_id');
 
     const [modal, setModal] = useState<boolean>(false)
     const [modalObject, setModalObject] = useState<any>()
     const [templates, setTemplates] = useState<ITemplateList[]>([])
     const [hoveredRow, setHoveredRow] = useState<number | null>(null);
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
+    const [profilePic, setProfilePic] = useState<string>("")
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [selectedRow, setSelectedRow] = useState<number | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
+
+
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -56,15 +62,23 @@ export function ListAll() {
     function CreateTemplate() {
         history("/template-create");
     }
-    function SendTemplate(name: string) {
-        history("/template-trigger", { state: { templateName: name } });
+    function SendTemplate(name: string, variableQuantity: number) {
+        history("/template-trigger", { state: { templateName: name, variableQuantity: variableQuantity } });
     }
 
     useEffect(() => {
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJoYXNoIjoiN09LbGRDU3B5VnlnVXU4amlvd2xJWXVBRVpaV0RQVGlJQWtKa1FvPSIsImV4cCI6MTY4NDQzMjE3MCwiaXNzIjoic21hcnRlcnMifQ.cJqfC2odGVTJJFyfYQ2PtAVl0miACJt9c7djho5NVe0"
-        // api.get('/listall', { params: { botId: 42 } })
-        api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
-            .then(resp => setTemplates(resp.data.data.messageTemplates))
+        api.get(`https://webhooks.inbot.com.br/inbot-adm-back/v1/gateway/whats-botid/${botId}`)
+            .then(resp => {
+                const token = resp.data.accessToken;
+                api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
+                    .then(resp => setTemplates(resp.data.data.messageTemplates))
+                api.get("https://whatsapp.smarters.io/api/v1/settings", { headers: { 'Authorization': token } })
+                    .then(res => {
+                        console.log(res)
+                        setProfilePic(res.data.data.profile_pic)
+                    })
+                    .catch(error => console.log(error))
+            })
     }, []);
 
     const loadTemplate = (id: number) => {
@@ -72,17 +86,41 @@ export function ListAll() {
         setModal(prevState => !prevState)
     }
 
+    const encontrarMaiorNumero = (texto: string): number => {
+        const regex = /{{.*?(\d+).*?}}/g;
+        const numeros: number[] = [];
+        let match: RegExpExecArray | null;
+
+        // Encontra todas as ocorrências de números dentro das strings que correspondem ao padrão
+        while ((match = regex.exec(texto)) !== null) {
+            if (match[1]) {
+                numeros.push(parseInt(match[1]));
+            }
+        }
+
+        // Encontra o maior número na lista
+        if (numeros.length > 0) {
+            return Math.max(...numeros);
+        } else {
+            return -1; // Retorna -1 se não encontrar nenhum número
+        }
+    };
+
     const sendtemplate = (id: number) => {
-        SendTemplate(templates[id].name)
+        templates[id].components.forEach((element: any) => {
+            if (element.type === "body")
+                SendTemplate(templates[id].name, encontrarMaiorNumero(element.parameters[0].text))
+        });
     }
     return (
         <div style={{ margin: "40px" }}>
             <div>
+                <img src={profilePic} width={200} height={200} alt='logo da empresa' style={{ margin: "7px", border: "1px solid #000", padding: "7px" }} />
                 <button onClick={CreateTemplate} style={{ margin: "10px", backgroundColor: "#010043", border: "1px solid #010043" }}>Novo Template</button>
                 <table>
                     <thead>
                         <tr className="cells" style={{ backgroundColor: "#010043" }}>
-                            <th className="cells">ID do template</th>
+                            <th className="cells"><span>ID do template</span></th>
                             <th className="cells">Nome do template</th>
                             <th className="cells">Status</th>
                             <th className="cells">Categoria</th>

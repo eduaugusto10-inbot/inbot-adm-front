@@ -135,3 +135,16 @@ export interface IVariables {
     value: string
     text: string
 }
+
+export interface IListVariables{
+    phone: number | ""
+    variable_1 : string
+    variable_2 : string
+    variable_3 : string
+    variable_4 : string
+    variable_5 : string
+    variable_6 : string
+    variable_7 : string
+    variable_8 : string
+    variable_9 : string
+}

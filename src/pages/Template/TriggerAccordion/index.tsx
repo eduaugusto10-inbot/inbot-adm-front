@@ -1,13 +1,12 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { read, utils } from "xlsx";
-import { errorMessage, errorSheets, successCreateTrigger, waitingMessage } from "../../../Components/Toastify";
+import { errorCampaingEmpty, errorSheets, errorTriggerMode, waitingMessage } from "../../../Components/Toastify";
 import api from "../../../utils/api";
 import { ToastContainer } from "react-toastify";
 import './index.css'
 import Alert from "../../../Components/Alert";
-import { ITemplate, IVariables, templateValue } from "../../types";
-import minus from '../../../img/minus.png';
+import { IListVariables, ITemplate, IVariables, templateValue } from "../../types";
 
 interface AccordionState {
     config: boolean;
@@ -20,6 +19,7 @@ export function Accordion() {
 
     const location = useLocation()
     const templateName = location.state.templateName
+    const variableQty = location.state.variableQuantity
     const history = useNavigate();
     function BackToList() {
         history("/template-list")
@@ -40,7 +40,16 @@ export function Accordion() {
     const [dates, setDate] = useState<string>("")
     const [hours, setHours] = useState<string>("")
     const [variables, setVariables] = useState<IVariables[]>([])
+    const [listVariables, setListVariables] = useState<IListVariables[]>([])
     const [template, setTemplate] = useState<ITemplate>(templateValue)
+    const [triggerNames, setTriggerNames] = useState<any>([])
+    const [errorMessage, setErrorMessage] = useState<string>("");
+
+    useEffect(() => {
+        api.get(`https://webhooks.inbot.com.br/inbot-adm-back/v1/gateway/whatsapp/trigger-bot/403`)
+            .then(resp => setTriggerNames(resp.data))
+            .catch(error => console.log(error))
+    }, [])
 
     const toggleAccordion = (key: keyof AccordionState) => {
         setAccordionState({
@@ -53,6 +62,26 @@ export function Accordion() {
             ...prevState,
             [key]: !prevState[key]
         }));
+    };
+
+    const addCustomerToSendTemplate = () => {
+        setListVariables(prevState => [
+            ...prevState,
+            {
+                phone: clientNumber,
+                variable_1: variables[0]?.text,
+                variable_2: variables[1]?.text,
+                variable_3: variables[2]?.text,
+                variable_4: variables[3]?.text,
+                variable_5: variables[4]?.text,
+                variable_6: variables[5]?.text,
+                variable_7: variables[6]?.text,
+                variable_8: variables[7]?.text,
+                variable_9: variables[8]?.text,
+            }
+        ]);
+        setClientNumber("")
+        setVariables([])
     };
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,25 +102,6 @@ export function Accordion() {
         };
 
         reader.readAsBinaryString(file);
-    };
-    const handleDeleteVariables = (id: number) => {
-        let value: number = 99;
-        for (let i = 0; i < variables.length; i++) {
-            if (variables[i].id === id) {
-                value = i + 1;
-            }
-        }
-        const newBody = template.body.replace(`{{${value}}}`, '');
-
-        const body = newBody.replace(/{{(\d+)}}/g, (match, p1) => {
-            const num = parseInt(p1, 10);
-            return `{{${num > value ? num - 1 : num}}}`;
-        });
-        setTemplate(prevState => ({
-            ...prevState,
-            "body": body,
-        }));
-        setVariables(variables.filter(variable => variable.id !== id));
     };
 
     const handleSubmitListDataFile = async (dataTemplate: any, campaignId: string) => {
@@ -131,6 +141,29 @@ export function Accordion() {
             count++;
         }
     };
+    const handleSubmitManualListData = async (campaignId: string) => {
+
+        for (let i = 0; i < listVariables.length; i++) {
+            const params = {
+                campaignId: `${campaignId}`,
+                phone: `${listVariables[i].phone}`,
+                status: "aguardando",
+                variable_1: listVariables[i]?.variable_1,
+                variable_2: listVariables[i]?.variable_2,
+                variable_3: listVariables[i]?.variable_3,
+                variable_4: listVariables[i]?.variable_4,
+                variable_5: listVariables[i]?.variable_5,
+                variable_6: listVariables[i]?.variable_6,
+                variable_7: listVariables[i]?.variable_7,
+                variable_8: listVariables[i]?.variable_8,
+                variable_9: listVariables[i]?.variable_9
+            };
+            console.log(params)
+            api.post('/whats-customer', params)
+                .then(resp => console.log(resp.data))
+                .catch(error => console.log(error));
+        }
+    };
 
     const signInClients = (e: any) => {
         const value = e.target.value === "unico"
@@ -143,7 +176,6 @@ export function Accordion() {
     }
     const handleInputVariable = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-
         setVariables(prevVariables => {
             return prevVariables.map(variable => {
                 if (variable.id.toString() === name) {
@@ -153,10 +185,10 @@ export function Accordion() {
             });
         });
     };
-    const handleAddVariable = () => {
+    const handleAddVariable = (id: number) => {
         if (variables.length < 8) {
             const newVariables: IVariables = {
-                id: Date.now(),
+                id: id,
                 value: `${variables.length + 1}`,
                 text: ""
             };
@@ -167,8 +199,27 @@ export function Accordion() {
             }));
         }
     };
-
+    const handleCampaignName = (e: string) => {
+        if (triggerNames !== undefined) {
+            for (let i = 0; i < triggerNames?.data.length; i++) {
+                if (triggerNames.data[i].campaign_name === e) {
+                    setErrorMessage("O nome da campanha já existe!");
+                } else {
+                    setErrorMessage("");
+                }
+            }
+        }
+        setCampaignName(e);
+    }
     const createTrigger = () => {
+        if (campaignName.length === 0) {
+            errorCampaingEmpty()
+            return;
+        }
+        if (triggerMode.length === 0) {
+            errorTriggerMode()
+            return;
+        }
         waitingMessage();
         const data = {
             "campaignName": campaignName,
@@ -180,17 +231,26 @@ export function Accordion() {
             "phoneTrigger": "5511953188171"
         }
 
-        api.post('/whatsapp/trigger', data)
-            .then(resp => {
-                handleSubmitListDataFile(fileData, resp.data.data.insertId)
-                console.log(resp.data.data.insertId)
-                successCreateTrigger()
-                setTimeout(() => history("/template-list"), 3000)
-            })
-            .catch(err => {
-                errorMessage();
-                console.log(err)
-            })
+        // api.post('/whatsapp/trigger', data)
+        //     .then(resp => {
+        //         if (typeClient) {
+        //             handleSubmitListDataFile(fileData, resp.data.data.insertId)
+        //         } else {
+        //             handleSubmitManualListData(resp.data.data.insertId)
+        //         }
+        //         console.log(resp.data.data.insertId)
+        //         successCreateTrigger()
+        //         setTimeout(() => history("/template-list"), 3000)
+        //     })
+        //     .catch(err => {
+        //         errorMessage();
+        //         console.log(err)
+        //     })
+    }
+    if (variables.length < variableQty) {
+        for (let i = 0; i < variableQty; i++) {
+            handleAddVariable(i)
+        }
     }
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "50px" }}>
@@ -201,9 +261,12 @@ export function Accordion() {
                 <div className="header-accordion" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
                 {accordionState.config &&
                     <div className="body line" style={{ display: "flex", justifyContent: "space-around", flexDirection: "row", alignContent: "center" }}>
-                        <div style={{ display: "flex", flexDirection: "row" }}>
-                            <span className="span-title">Nome</span>
-                            <input className="input-values" type="text" value={campaignName} onChange={e => setCampaignName(e.target.value)} />
+                        <div>
+                            <div style={{ display: "flex", flexDirection: "row" }}>
+                                <span className="span-title">Nome</span>
+                                <input className="input-values" type="text" value={campaignName} onChange={e => handleCampaignName(e.target.value)} />
+                            </div>
+                            {errorMessage && <p style={{ color: 'red', fontSize:"10px", fontWeight:"bolder" }}>{errorMessage}</p>}
                         </div>
                         <div style={{ display: "flex", flexDirection: "row" }}>
                             <span className="span-title">Template </span>
@@ -234,22 +297,52 @@ export function Accordion() {
                                 />
                             </div>
                             <span className="span-title" style={{ marginTop: "10px", height: "50px" }}>Variáveis</span>
-                            <div>
-                                <button onClick={handleAddVariable} style={{ fontSize: "12px", backgroundColor: "#0171BD", border: "1px solid #FFF", width: "70px", height: "30px", marginRight: "5px" }}>Adicionar</button>
-                            </div>
                             <div style={{
                                 display: 'grid',
-                                gridTemplateColumns: 'repeat(2, 1fr)', // Duas colunas de largura igual
-                                gridTemplateRows: 'repeat(4, auto)', // Quatro linhas com altura automática
-                                gap: '10px' // Espaçamento entre as células
+                                gridTemplateColumns: 'repeat(2, 1fr)',
+                                gridTemplateRows: 'repeat(4, auto)',
+                                gap: '10px'
                             }}>
                                 {variables.map((variable, index) => (
                                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", margin: "10px" }}>
-                                        <span className="span-title-variables" >{index + 1}.  </span> <input value={variable.text} type="text" name={variable.id.toString()} id="" onChange={handleInputVariable} className="input-values" /><img src={minus} alt="minus" width={20} height={20} style={{ cursor: "pointer", marginTop: "15px" }} onClick={() => handleDeleteVariables(variable.id)} />
+                                        <span className="span-title-variables" >{index + 1}.  </span> <input value={variable.text} type="text" name={variable.id.toString()} id="" onChange={handleInputVariable} className="input-values" />
                                     </div>
 
                                 ))
                                 }
+                                <button onClick={addCustomerToSendTemplate} style={{ fontSize: "12px", backgroundColor: "#0171BD", border: "1px solid #FFF", width: "120px", height: "30px", marginRight: "5px" }}>Adicionar cliente</button>
+                            </div>
+                            <div style={{ maxHeight: "400px", overflowY: 'auto', marginBottom: "10px" }}>
+                                <table style={{ margin: "20px" }}>
+                                    <thead>
+                                        <tr style={{ backgroundColor: '#0D5388', fontSize: "12px" }}>
+                                            <th>Telefone</th>
+                                            <th>Variável 1</th>
+                                            <th>Variável 2</th>
+                                            <th>Variável 3</th>
+                                            <th>Variável 4</th>
+                                            <th>Variável 5</th>
+                                            <th>Variável 6</th>
+                                            <th>Variável 7</th>
+                                            <th>Variável 8</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style={{ backgroundColor: '#F9F9F9', fontSize: "12px" }}>
+                                        {listVariables.length > 0 && listVariables.map((unicVariable, rowIndex) => (
+                                            <tr key={rowIndex}>
+                                                <th>{unicVariable.phone}</th>
+                                                <th>{unicVariable.variable_1}</th>
+                                                <th>{unicVariable.variable_2}</th>
+                                                <th>{unicVariable.variable_3}</th>
+                                                <th>{unicVariable.variable_4}</th>
+                                                <th>{unicVariable.variable_5}</th>
+                                                <th>{unicVariable.variable_6}</th>
+                                                <th>{unicVariable.variable_7}</th>
+                                                <th>{unicVariable.variable_8}</th>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                             <Alert message={"Você deverá preencher as variáveis para que não ocorra erro no envio"} />
                         </div>}
@@ -307,7 +400,7 @@ export function Accordion() {
                     <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
                         <span>Template: {templateName}</span>
                         <span>Telefone do disparo: {templateName}</span>
-                        <span>Data e hora do disparo: {templateName}</span>
+                        <span>Data e hora do disparo: {triggerMode}</span>
                     </div>
                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", width: "100%" }}>
                         <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={BackToList}>Cancelar</button>

@@ -31,6 +31,12 @@ export const errorSession = () => toast.error("Sessão expirada, faça login nov
 export const errorSheets = () => toast.error("Coluna telefone não esta correta", {
     theme: "colored"
 });
+export const errorCampaingEmpty = () => toast.error("Insira o nome da campanha", {
+    theme: "colored"
+});
+export const errorTriggerMode = () => toast.error("Escolha o modo de disparo", {
+    theme: "colored"
+});
 export const waitingMessage = () => toast.info("Aguarde ...", {
     theme: "colored"
 })
