@@ -12,12 +12,14 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: FunctionComponent<ProtectedRouteProps> = ({ element: Component, path, ...rest }) => {
-    if (checkAuth()) {
+    return <Component {...rest} />;
+    /*if (checkAuth()) {
         return <Component {...rest} />;
     } else {
         window.location.replace("http://stackoverflow.com");
         return null;
     }
+    */
 }
 
 const Router = () => (
