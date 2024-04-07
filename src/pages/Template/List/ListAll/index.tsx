@@ -140,7 +140,9 @@ export function ListAll() {
         let buttons = 0;
         headerElement.forEach((element: any) => {
             if (element.type === "button") {
-                buttons = element.parameters.length;
+                if (element.parameters[0].type === "quickReply") {
+                    buttons = element.parameters.length;
+                }
             }
         });
         return buttons;

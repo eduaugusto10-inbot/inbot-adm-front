@@ -126,8 +126,7 @@ export interface IButton {
     value: string
     text: string
     type?: string
-    phoneNumber?: string
-    url?: string
+    url_phone?: string
 }
 
 export interface IVariables {

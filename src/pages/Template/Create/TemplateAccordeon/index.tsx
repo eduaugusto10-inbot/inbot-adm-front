@@ -21,7 +21,7 @@ interface AccordionStateCreate {
 }
 interface ButtonQR {
     type: string;
-    parameters: { type: string; text: string }[];
+    parameters: { type?: string; text: string }[];
 }
 
 export function CreateTemplateAccordion() {
@@ -48,8 +48,9 @@ export function CreateTemplateAccordion() {
     const [variables, setVariables] = useState<IVariables[]>([])
     const [rodape, setRodape] = useState<boolean>(false);
     const [buttons, setButtons] = useState<IButton[]>([])
+    const [buttonsCTA, setButtonsCTA] = useState<IButton[]>([])
     const [typeOfButtons, setTypeOfButtons] = useState<string>('without')
-
+    const [typeCTA, setTypeCTA] = useState<string>("")
     const selectTemplate = (e: string) => {
         switch (e) {
             case "UTILITY":
@@ -106,35 +107,70 @@ export function CreateTemplateAccordion() {
     };
 
     const handleDeleteItem = (id: number) => {
-        setButtons(buttons.filter(button => button.id !== id));
-    };
-
-    const handleAddButton = () => {
-        if (buttons.length < 3) {
-            const newButtons: IButton = {
-                id: Date.now(),
-                value: `Button ${buttons.length + 1}`,
-                text: ""
-            };
-            setButtons(prevButtons => [...prevButtons, newButtons]);
+        if (typeOfButtons !== "cta") {
+            setButtons(buttons.filter(button => button.id !== id));
+        }
+        if (typeOfButtons === "cta") {
+            setButtonsCTA(buttonsCTA.filter(button => button.id !== id));
         }
     };
 
+    const handleAddButton = () => {
+        if (typeOfButtons !== "cta") {
+            if (buttons.length < 3) {
+                const newButtons: IButton = {
+                    id: Date.now(),
+                    value: `Button ${buttons.length + 1}`,
+                    text: ""
+                };
+                setButtons(prevButtons => [...prevButtons, newButtons]);
+            }
+        }
+        if (typeOfButtons === "cta") {
+            if (buttonsCTA.length < 2) {
+                const newButtons: IButton = {
+                    id: Date.now(),
+                    value: `Button ${buttons.length + 1}`,
+                    text: ""
+                };
+                setButtonsCTA(prevButtons => [...prevButtons, newButtons]);
+            }
+        };
+    }
     const quickReplyRadio = (e: any) => {
         setTypeOfButtons(e.target.value)
     }
 
-    const handleAddButtonText = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleAddButtonText = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, buttonId: string) => {
         const { name, value } = e.target;
-
-        setButtons(prevButtons => {
-            return prevButtons.map(button => {
-                if (button.id.toString() === name) {
-                    return { ...button, text: value };
-                }
-                return button;
+        console.log(name)
+        console.log(value)
+        if (typeOfButtons !== "cta") {
+            setButtons(prevButtons => {
+                return prevButtons.map(button => {
+                    if (button.id.toString() === buttonId) {
+                        return { ...button, text: value };
+                    }
+                    return button;
+                });
             });
-        });
+        }
+        if (typeOfButtons === "cta") {
+            setButtonsCTA(prevButtons => {
+                return prevButtons.map(button => {
+                    if (button.id.toString() === buttonId) {
+                        if (value === "phoneNumber" || value === "staticURL")
+                            return { ...button, type: value };
+                        if (name === "url_phone")
+                            return { ...button, url_phone: value };
+                        else
+                            return { ...button, text: value };
+                    }
+                    return button;
+                });
+            });
+        }
+        console.log(buttonsCTA)
     };
 
     const handleDeleteVariables = (id: number) => {
@@ -229,6 +265,26 @@ export function CreateTemplateAccordion() {
             for (let index = 0; index < buttons.length; index++) {
                 if (buttons[index].text !== "") {
                     buttonQR.parameters.push({ type: typeOfButtons, text: buttons[index].text })
+                } else {
+                    errorQR = true;
+                }
+            }
+            if (errorQR) {
+                erroMessageQuickReply()
+                return;
+            }
+            components.push(buttonQR);
+        }
+        if (typeOfButtons === "cta") {
+            buttonQR = {
+                type: "button",
+                parameters: []
+            }
+            let errorQR = false;
+            for (let index = 0; index < buttonsCTA.length; index++) {
+                if (buttonsCTA[index].text !== "") {
+                    const url_phone = buttonsCTA[index].type === "staticURL" ? "url" : "phoneNumber"
+                    buttonQR.parameters.push({ type: buttonsCTA[index].type, text: buttonsCTA[index].text, [url_phone]: buttonsCTA[index].url_phone })
                 } else {
                     errorQR = true;
                 }
@@ -492,7 +548,7 @@ export function CreateTemplateAccordion() {
                 <div className="revisar">
                     <div className="header-accordion" onClick={() => toggleAccordion('botao')}>5. Botão</div>
                     {accordionState.botao && <div className="body">
-                        <div style={{ width: "50%", marginBottom: "20px" }}>
+                        <div style={{ width: "100%", marginBottom: "20px" }}>
                             <div className="radio row-align">
                                 <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="quickReply" name="quickReply" /><span className="padding-5">Resposta rápida</span></div>
                                 <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="cta" name="quickReply" /><span className="padding-5">CTA</span></div>
@@ -511,7 +567,7 @@ export function CreateTemplateAccordion() {
                                                         <span className="span-title">Texto</span>
                                                         <input
                                                             value={button.text}
-                                                            onChange={handleAddButtonText}
+                                                            onChange={e => handleAddButtonText(e, button.id.toString())}
                                                             maxLength={20}
                                                             name={button.id.toString()}
                                                             className="input-values" />
@@ -524,20 +580,22 @@ export function CreateTemplateAccordion() {
                                 </div>
                             }
                             {typeOfButtons === "cta" &&
-                                <div style={{ backgroundColor: "#000", width: "100%" }}>
+                                <div style={{ width: "100%" }}>
                                     <div style={{ display: "flex", flexDirection: "row", marginLeft: "100px" }}>
                                         <button style={{ fontSize: "12px", backgroundColor: "#0171BD", border: "1px solid #FFF", width: "70px", height: "30px", marginRight: "5px" }} onClick={handleAddButton}>Adicionar</button>
                                     </div>
-                                    {buttons.map((button, index) => (
-                                        <div className="container-configure" style={{ backgroundColor: "#000", width: "100%" }} key={button.id}>
+                                    {buttonsCTA.map((button, index) => (
+                                        <div className="container-configure" style={{ width: "100%" }} key={button.id}>
                                             <div className="row-align">
                                                 <div style={{ display: "flex", flexDirection: "row" }}>
                                                     <span className="span-title" style={{ marginTop: " 13px" }}>Tipo</span>
-                                                    <select style={{ width: "200px" }} className="input-values">
+                                                    <select style={{ width: "100px" }} className="input-values" name={button.id.toString()} onChange={e => handleAddButtonText(e, button.id.toString())}>
+                                                        <option>--</option>
                                                         <option value={"staticURL"}>URL</option>
                                                         <option value={"phoneNumber"}>Telefone</option>
                                                     </select>
-                                                    <input type="text" className="input-values" /><img src={minus} alt="minus" width={20} height={20} onClick={() => handleDeleteItem(button.id)} style={{ cursor: "pointer", marginTop: "15px" }} />
+                                                    <input type="text" className="input-values" name="text" onChange={e => handleAddButtonText(e, button.id.toString())} placeholder="Texto do botão" />
+                                                    <input type="text" className="input-values" name="url_phone" onChange={e => handleAddButtonText(e, button.id.toString())} placeholder={typeCTA === "staticURL" ? "Insira o endereço da página" : "Insira o telefone"} /><img src={minus} alt="minus" width={20} height={20} onClick={() => handleDeleteItem(button.id)} style={{ cursor: "pointer", marginTop: "15px" }} />
                                                 </div>
                                             </div>
                                         </div>
@@ -558,11 +616,15 @@ export function CreateTemplateAccordion() {
                         {typeOfHeader === "text" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{template.header}</label>}
                         {<label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {handleChangeText(template.body)}</label>}
                         {<label className="footer" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', fontSize: "12px" }}>{template.footer}</label>}
-                        <div className="quickReply-texts">
+                        {typeOfButtons !== "cta" && <div className="quickReply-texts">
                             {buttons.length > 0 && (<div className="quick-reply"><label >{buttons[0].text}</label></div>)}
                             {buttons.length > 1 && (<div className="quick-reply"><label >{buttons[1].text}</label></div>)}
                             {buttons.length > 2 && (<div className="quick-reply"><label >{buttons[2].text}</label></div>)}
-                        </div>
+                        </div>}
+                        {typeOfButtons === "cta" && <div className="quickReply-texts">
+                            {buttonsCTA.length > 0 && (<div className="quick-reply"><label >{buttonsCTA[0].text}</label></div>)}
+                            {buttonsCTA.length > 1 && (<div className="quick-reply"><label >{buttonsCTA[1].text}</label></div>)}
+                        </div>}
                     </div>
                 </div>
             </div>

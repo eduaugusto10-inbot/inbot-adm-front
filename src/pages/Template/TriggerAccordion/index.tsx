@@ -332,7 +332,7 @@ export function Accordion() {
                                     ))
                                     }
                                 </div>
-                                {headerConfig &&
+                                {headerConfig !=="text" &&
                                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
                                         <span className="span-title">URL mídia</span>
                                         <input className="input-values" value={urlMidia} onChange={e => setURLMidia(e.target.value)} />
