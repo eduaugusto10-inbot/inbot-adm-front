@@ -14,11 +14,13 @@ interface Row {
 
 export function ListAll() {
     const [searchParams, setSearchParams] = useSearchParams();
-    var botId = searchParams.get('bot_id');
+    var botId = searchParams.get('bot_id') ?? "0";
+    localStorage.setItem("botId", botId)
 
     const [modal, setModal] = useState<boolean>(false)
     const [modalObject, setModalObject] = useState<any>()
     const [templates, setTemplates] = useState<ITemplateList[]>([])
+    const [phone, setPhone] = useState<string>("")
     const [hoveredRow, setHoveredRow] = useState<number | null>(null);
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [profilePic, setProfilePic] = useState<string>("")
@@ -60,18 +62,22 @@ export function ListAll() {
 
     const history = useNavigate();
     function CreateTemplate() {
-        history("/template-create");
+        history("/template-create", { state: { urlLogo: profilePic, phone: phone } });
     }
-    function SendTemplate(name: string, variableQuantity: number) {
-        history("/template-trigger", { state: { templateName: name, variableQuantity: variableQuantity } });
+    function SendTemplate(name: string, variableQuantity: number, qtButtons: number, headerConfig: string | null) {
+        history("/template-trigger", { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: profilePic, phone: phone, headerConfig: headerConfig, qtButtons: qtButtons } });
     }
 
     useEffect(() => {
         api.get(`https://webhooks.inbot.com.br/inbot-adm-back/v1/gateway/whats-botid/${botId}`)
             .then(resp => {
+                setPhone(resp.data.number)
                 const token = resp.data.accessToken;
                 api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
-                    .then(resp => setTemplates(resp.data.data.messageTemplates))
+                    .then(resp => {
+                        setTemplates(resp.data.data.messageTemplates)
+                        console.log(resp)
+                    })
                 api.get("https://whatsapp.smarters.io/api/v1/settings", { headers: { 'Authorization': token } })
                     .then(res => {
                         console.log(res)
@@ -106,17 +112,56 @@ export function ListAll() {
         }
     };
 
+    const hasMedia = (headerElement: any) => {
+        let headerType = null;
+        headerElement.forEach((element: any) => {
+            if (element.type === "header") {
+                switch (element.parameters[0].type) {
+                    case "video":
+                        headerType = "video";
+                        break;
+                    case "text":
+                        headerType = "text";
+                        break;
+                    case "image":
+                        headerType = "image";
+                        break;
+                    case "document":
+                        headerType = "document";
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        return headerType;
+    }
+    const hasManyButtons = (headerElement: any) => {
+        let buttons = 0;
+        headerElement.forEach((element: any) => {
+            if (element.type === "button") {
+                buttons = element.parameters.length;
+            }
+        });
+        return buttons;
+    }
+
     const sendtemplate = (id: number) => {
         templates[id].components.forEach((element: any) => {
             if (element.type === "body")
-                SendTemplate(templates[id].name, encontrarMaiorNumero(element.parameters[0].text))
+                SendTemplate(templates[id].name, encontrarMaiorNumero(element.parameters[0].text), hasManyButtons(templates[id].components), hasMedia(templates[id].components))
         });
     }
     return (
         <div style={{ margin: "40px" }}>
             <div>
-                <img src={profilePic} width={200} height={200} alt='logo da empresa' style={{ margin: "7px", border: "1px solid #000", padding: "7px" }} />
-                <button onClick={CreateTemplate} style={{ margin: "10px", backgroundColor: "#010043", border: "1px solid #010043" }}>Novo Template</button>
+                <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
+                    <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
+                </div>
+                <div style={{ width: "100%", borderBottom: "1px solid #000", marginBottom: "30px", display: "flex", flexDirection: "row" }}>
+                    <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }}>Campanhas</h1>
+                    <button onClick={CreateTemplate} style={{ margin: "10px", backgroundColor: "#010043", border: "1px solid #010043", width: "180px", height: "30px", borderRadius: "5px" }}>Novo Template</button>
+                </div>
                 <table>
                     <thead>
                         <tr className="cells" style={{ backgroundColor: "#010043" }}>

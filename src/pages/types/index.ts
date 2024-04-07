@@ -136,15 +136,19 @@ export interface IVariables {
     text: string
 }
 
-export interface IListVariables{
+export interface IListVariables {
     phone: number | ""
-    variable_1 : string
-    variable_2 : string
-    variable_3 : string
-    variable_4 : string
-    variable_5 : string
-    variable_6 : string
-    variable_7 : string
-    variable_8 : string
-    variable_9 : string
+    variable_1: string
+    variable_2: string
+    variable_3: string
+    variable_4: string
+    variable_5: string
+    variable_6: string
+    variable_7: string
+    variable_8: string
+    variable_9: string,
+    media_url?: string,
+    payload_1?: string,
+    payload_2?: string,
+    payload_3?: string,
 }

@@ -1,12 +1,14 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { read, utils } from "xlsx";
-import { errorCampaingEmpty, errorSheets, errorTriggerMode, waitingMessage } from "../../../Components/Toastify";
+import { errorCampaingEmpty, errorSheets, errorTriggerMode, successCreateTrigger, waitingMessage, errorMessage } from "../../../Components/Toastify";
 import api from "../../../utils/api";
 import { ToastContainer } from "react-toastify";
 import './index.css'
 import Alert from "../../../Components/Alert";
 import { IListVariables, ITemplate, IVariables, templateValue } from "../../types";
+import { mask } from "../../../utils/utils";
+import { queryByTestId } from "@testing-library/react";
 
 interface AccordionState {
     config: boolean;
@@ -20,9 +22,14 @@ export function Accordion() {
     const location = useLocation()
     const templateName = location.state.templateName
     const variableQty = location.state.variableQuantity
+    const profilePic = location.state.urlLogo;
+    const phone = location.state.phone;
+    const headerConfig = location.state.headerConfig;
+    const qtButtons = location.state.qtButtons;
+
     const history = useNavigate();
     function BackToList() {
-        history("/template-list")
+        history(`/template-list?bot_id=${localStorage.getItem("botId")}`, { state: { templateName: templateName, variableQuantity: variableQty, urlLogo: profilePic, phone: phone } });
     }
 
     const [accordionState, setAccordionState] = useState<AccordionState>({
@@ -41,12 +48,14 @@ export function Accordion() {
     const [hours, setHours] = useState<string>("")
     const [variables, setVariables] = useState<IVariables[]>([])
     const [listVariables, setListVariables] = useState<IListVariables[]>([])
-    const [template, setTemplate] = useState<ITemplate>(templateValue)
     const [triggerNames, setTriggerNames] = useState<any>([])
     const [errorMessage, setErrorMessage] = useState<string>("");
-
+    const [payload1, setPayload1] = useState<string | null>(null)
+    const [payload2, setPayload2] = useState<string | null>(null)
+    const [payload3, setPayload3] = useState<string | null>(null)
+    const [urlMidia, setURLMidia] = useState<string>("");
     useEffect(() => {
-        api.get(`https://webhooks.inbot.com.br/inbot-adm-back/v1/gateway/whatsapp/trigger-bot/403`)
+        api.get(`https://webhooks.inbot.com.br/inbot-adm-back/v1/gateway/whatsapp/trigger-bot/${localStorage.getItem("botId")}`)
             .then(resp => setTriggerNames(resp.data))
             .catch(error => console.log(error))
     }, [])
@@ -78,10 +87,14 @@ export function Accordion() {
                 variable_7: variables[6]?.text,
                 variable_8: variables[7]?.text,
                 variable_9: variables[8]?.text,
+                media_url: urlMidia,
+                payload_1: payload1,
+                payload_2: payload2,
+                payload_3: payload3,
             }
         ]);
-        setClientNumber("")
-        setVariables([])
+        setClientNumber("");
+        setVariables([]);
     };
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -131,7 +144,12 @@ export function Accordion() {
                     variable_6: customer[6],
                     variable_7: customer[7],
                     variable_8: customer[8],
-                    variable_9: customer[9]
+                    variable_9: customer[9],
+                    media_url: customer[10],
+                    type_media: headerConfig,
+                    payload_1: payload1,
+                    payload_2: payload2,
+                    payload_3: payload3,
                 };
                 console.log(params)
                 api.post('/whats-customer', params)
@@ -156,7 +174,12 @@ export function Accordion() {
                 variable_6: listVariables[i]?.variable_6,
                 variable_7: listVariables[i]?.variable_7,
                 variable_8: listVariables[i]?.variable_8,
-                variable_9: listVariables[i]?.variable_9
+                variable_9: listVariables[i]?.variable_9,
+                media_url: listVariables[i].media_url,
+                type_media: headerConfig,
+                payload_1: payload1,
+                payload_2: payload2,
+                payload_3: payload3,
             };
             console.log(params)
             api.post('/whats-customer', params)
@@ -193,19 +216,14 @@ export function Accordion() {
                 text: ""
             };
             setVariables(prevVariables => [...prevVariables, newVariables]);
-            setTemplate(prevState => ({
-                ...prevState,
-                "body": prevState.body + `{{${variables.length + 1}}}`,
-            }));
         }
     };
     const handleCampaignName = (e: string) => {
         if (triggerNames !== undefined) {
+            setErrorMessage("");
             for (let i = 0; i < triggerNames?.data.length; i++) {
                 if (triggerNames.data[i].campaign_name === e) {
                     setErrorMessage("O nome da campanha já existe!");
-                } else {
-                    setErrorMessage("");
                 }
             }
         }
@@ -227,25 +245,24 @@ export function Accordion() {
             "typeTrigger": triggerMode,
             "timeTrigger": triggerMode === "agendado" ? `${dates} ${hours}` : null,
             "status": "aguardando",
-            "botId": 403,
-            "phoneTrigger": "5511953188171"
+            "botId": localStorage.getItem("botId"),
+            "phoneTrigger": phone
         }
 
-        // api.post('/whatsapp/trigger', data)
-        //     .then(resp => {
-        //         if (typeClient) {
-        //             handleSubmitListDataFile(fileData, resp.data.data.insertId)
-        //         } else {
-        //             handleSubmitManualListData(resp.data.data.insertId)
-        //         }
-        //         console.log(resp.data.data.insertId)
-        //         successCreateTrigger()
-        //         setTimeout(() => history("/template-list"), 3000)
-        //     })
-        //     .catch(err => {
-        //         errorMessage();
-        //         console.log(err)
-        //     })
+        api.post('/whatsapp/trigger', data)
+            .then(resp => {
+                if (typeClient) {
+                    handleSubmitListDataFile(fileData, resp.data.data.insertId)
+                } else {
+                    handleSubmitManualListData(resp.data.data.insertId)
+                }
+                console.log(resp.data.data.insertId)
+                successCreateTrigger()
+                setTimeout(() => BackToList(), 3000)
+            })
+            .catch(err => {
+                console.log(err)
+            })
     }
     if (variables.length < variableQty) {
         for (let i = 0; i < variableQty; i++) {
@@ -255,8 +272,12 @@ export function Accordion() {
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "50px" }}>
             <ToastContainer />
-            <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69" }}>Envio de Campanhas</h1>
-            <div style={{ width: "110%", border: "1px solid #000", marginBottom: "30px" }}></div>
+            <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
+                <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-17px" }} />
+            </div>
+            <div style={{ width: "110%", borderBottom: "1px solid #000", marginBottom: "30px" }}>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }}>Envio de Campanhas</h1>
+            </div>
             <div className="config-template">
                 <div className="header-accordion" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
                 {accordionState.config &&
@@ -266,7 +287,7 @@ export function Accordion() {
                                 <span className="span-title">Nome</span>
                                 <input className="input-values" type="text" value={campaignName} onChange={e => handleCampaignName(e.target.value)} />
                             </div>
-                            {errorMessage && <p style={{ color: 'red', fontSize:"10px", fontWeight:"bolder" }}>{errorMessage}</p>}
+                            {errorMessage && <p style={{ color: 'red', fontSize: "10px", fontWeight: "bolder" }}>{errorMessage}</p>}
                         </div>
                         <div style={{ display: "flex", flexDirection: "row" }}>
                             <span className="span-title">Template </span>
@@ -297,18 +318,44 @@ export function Accordion() {
                                 />
                             </div>
                             <span className="span-title" style={{ marginTop: "10px", height: "50px" }}>Variáveis</span>
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(2, 1fr)',
-                                gridTemplateRows: 'repeat(4, auto)',
-                                gap: '10px'
-                            }}>
-                                {variables.map((variable, index) => (
-                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", margin: "10px" }}>
-                                        <span className="span-title-variables" >{index + 1}.  </span> <input value={variable.text} type="text" name={variable.id.toString()} id="" onChange={handleInputVariable} className="input-values" />
-                                    </div>
+                            <div style={{ display: "flex", flexDirection: "column" }}>
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(2, 1fr)',
+                                    gridTemplateRows: 'repeat(4, auto)',
+                                    gap: '10px'
+                                }}>
+                                    {variables.map((variable, index) => (
+                                        <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", margin: "10px" }}>
+                                            <span className="span-title-variables" >{index + 1}.  </span> <input value={variable.text} type="text" name={variable.id.toString()} id="" onChange={handleInputVariable} className="input-values" />
+                                        </div>
 
-                                ))
+                                    ))
+                                    }
+                                </div>
+                                {headerConfig &&
+                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
+                                        <span className="span-title">URL mídia</span>
+                                        <input className="input-values" value={urlMidia} onChange={e => setURLMidia(e.target.value)} />
+                                    </div>
+                                }
+                                {qtButtons > 0 &&
+                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
+                                        <span className="span-title">Payload 1</span>
+                                        <input className="input-values" value={payload1} onChange={e => setPayload1(e.target.value)} />
+                                    </div>
+                                }
+                                {qtButtons > 1 &&
+                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
+                                        <span className="span-title">Payload 2</span>
+                                        <input className="input-values" value={payload2} onChange={e => setPayload2(e.target.value)} />
+                                    </div>
+                                }
+                                {qtButtons > 2 &&
+                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
+                                        <span className="span-title">Payload</span>
+                                        <input className="input-values" value={payload3} onChange={e => setPayload3(e.target.value)} />
+                                    </div>
                                 }
                                 <button onClick={addCustomerToSendTemplate} style={{ fontSize: "12px", backgroundColor: "#0171BD", border: "1px solid #FFF", width: "120px", height: "30px", marginRight: "5px" }}>Adicionar cliente</button>
                             </div>
@@ -325,6 +372,7 @@ export function Accordion() {
                                             <th>Variável 6</th>
                                             <th>Variável 7</th>
                                             <th>Variável 8</th>
+                                            <th>Link midia</th>
                                         </tr>
                                     </thead>
                                     <tbody style={{ backgroundColor: '#F9F9F9', fontSize: "12px" }}>
@@ -339,6 +387,7 @@ export function Accordion() {
                                                 <th>{unicVariable.variable_6}</th>
                                                 <th>{unicVariable.variable_7}</th>
                                                 <th>{unicVariable.variable_8}</th>
+                                                <th>{unicVariable.media_url}</th>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -399,8 +448,8 @@ export function Accordion() {
                 {accordionState.revisar && <div className="body">
                     <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
                         <span>Template: {templateName}</span>
-                        <span>Telefone do disparo: {templateName}</span>
-                        <span>Data e hora do disparo: {triggerMode}</span>
+                        <span>Telefone do disparo: {mask(phone)}</span>
+                        <span>Data e hora do disparo: {triggerMode} - {dates}:{hours}</span>
                     </div>
                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", width: "100%" }}>
                         <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={BackToList}>Cancelar</button>

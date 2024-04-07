@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import alert from '../../../../img/help.png'
 import { erroMessageQuickReply, errorMessageHeader, errorMessageFooter, errorMessageBody, waitingMessage, successCreateTemplate, errorMessage } from "../../../../Components/Toastify";
 import strings from '../../strings.json'
@@ -10,6 +10,7 @@ import './index.css'
 import minus from '../../../../img/minus.png';
 import Alert from "../../../../Components/Alert";
 import { IButton, IFooter, IHeader, IObject, ITemplate, IVariables, templateValue } from "../../../types";
+import { mask } from "../../../../utils/utils";
 
 interface AccordionStateCreate {
     config: boolean,
@@ -27,9 +28,11 @@ export function CreateTemplateAccordion() {
 
     const history = useNavigate();
     function BackToList() {
-        history("/template-list")
+        history(`/template-list?bot_id=${localStorage.getItem("botId")}`)
     }
-
+    const location = useLocation()
+    const profilePic = location.state.urlLogo;
+    const phone = location.state.phone;
     const [templateName, setTemplateName] = useState<string>("")
     const [templateType, setTemplateType] = useState<string>("")
     const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
@@ -248,7 +251,7 @@ export function CreateTemplateAccordion() {
             components.push(footer);
         }
         console.log(headers)
-        if (headers?.parameters?.[0].type !== "sheader") {
+        if (headers?.parameters?.[0].type === "text") {
             header = {
                 type: "header",
                 parameters: [
@@ -294,12 +297,13 @@ export function CreateTemplateAccordion() {
         payload["name"] = templateName;
         payload["language"] = "pt_BR";//configTemplate.language;
         console.log(payload)
-        api.post('/whats/template', payload)
+        api.post(`/whats/template/${localStorage.getItem("botId")}`, payload)
             .then(resp => {
                 successCreateTemplate()
-                setTimeout(() => history("/template-list"), 3000)
+                setTimeout(() => (`/template-list?bot_id=${localStorage.getItem("botId")}`), 3000)
             })
             .catch(err => {
+                console.log("$s ERROR create template: %O", new Date(), err)
                 errorMessage()
             })
 
@@ -309,7 +313,10 @@ export function CreateTemplateAccordion() {
         <div style={{ width: "80vw" }}>
             <div >
                 <ToastContainer />
-                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69" }}>Envio de Campanhas</h1>
+                <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
+                    <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-17px" }} />
+                </div>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69" }}>Criar Campanha</h1>
                 <div style={{ width: "110%", border: "1px solid #000", marginBottom: "30px" }}></div>
                 <div className="config-template">
                     <div className="header-accordion" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
@@ -334,6 +341,22 @@ export function CreateTemplateAccordion() {
                                         <option value={"UTILITY"}>Utilitário</option>
                                         <option value={"MARKETING"}>Marketing</option>
                                     </select>
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
+                                    <span className="span-title">Telefone</span>
+                                    <input type="text"
+                                        className="input-values"
+                                        value={mask(phone)}
+                                        disabled
+                                    />
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
+                                    <span className="span-title">Bot ID</span>
+                                    <input type="text"
+                                        className="input-values"
+                                        value={localStorage.getItem("botId") ?? ""}
+                                        disabled
+                                    />
                                 </div>
                             </div>
                             <div style={{ width: "340px", display: "flex", flexDirection: "row", textAlign: "left", marginLeft: "20px", borderLeft: "2px solid #FFF", paddingLeft: "10px", backgroundColor: "#DAE7F0" }}>
@@ -501,20 +524,20 @@ export function CreateTemplateAccordion() {
                                 </div>
                             }
                             {typeOfButtons === "cta" &&
-                                <div style={{backgroundColor:"#000", width:"100%"}}>
+                                <div style={{ backgroundColor: "#000", width: "100%" }}>
                                     <div style={{ display: "flex", flexDirection: "row", marginLeft: "100px" }}>
                                         <button style={{ fontSize: "12px", backgroundColor: "#0171BD", border: "1px solid #FFF", width: "70px", height: "30px", marginRight: "5px" }} onClick={handleAddButton}>Adicionar</button>
                                     </div>
                                     {buttons.map((button, index) => (
-                                        <div className="container-configure" style={{backgroundColor:"#000", width:"100%"}} key={button.id}>
+                                        <div className="container-configure" style={{ backgroundColor: "#000", width: "100%" }} key={button.id}>
                                             <div className="row-align">
-                                                <div style={{display:"flex", flexDirection:"row"}}>
+                                                <div style={{ display: "flex", flexDirection: "row" }}>
                                                     <span className="span-title" style={{ marginTop: " 13px" }}>Tipo</span>
                                                     <select style={{ width: "200px" }} className="input-values">
                                                         <option value={"staticURL"}>URL</option>
                                                         <option value={"phoneNumber"}>Telefone</option>
                                                     </select>
-                                                    <input type="text" className="input-values"/><img src={minus} alt="minus" width={20} height={20} onClick={() => handleDeleteItem(button.id)} style={{ cursor: "pointer", marginTop: "15px" }} />
+                                                    <input type="text" className="input-values" /><img src={minus} alt="minus" width={20} height={20} onClick={() => handleDeleteItem(button.id)} style={{ cursor: "pointer", marginTop: "15px" }} />
                                                 </div>
                                             </div>
                                         </div>
