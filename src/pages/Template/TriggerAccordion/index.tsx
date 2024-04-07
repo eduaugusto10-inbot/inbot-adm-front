@@ -8,7 +8,6 @@ import './index.css'
 import Alert from "../../../Components/Alert";
 import { IListVariables, ITemplate, IVariables, templateValue } from "../../types";
 import { mask } from "../../../utils/utils";
-import { queryByTestId } from "@testing-library/react";
 
 interface AccordionState {
     config: boolean;
@@ -50,9 +49,9 @@ export function Accordion() {
     const [listVariables, setListVariables] = useState<IListVariables[]>([])
     const [triggerNames, setTriggerNames] = useState<any>([])
     const [errorMessage, setErrorMessage] = useState<string>("");
-    const [payload1, setPayload1] = useState<string | null>(null)
-    const [payload2, setPayload2] = useState<string | null>(null)
-    const [payload3, setPayload3] = useState<string | null>(null)
+    const [payload1, setPayload1] = useState<string>()
+    const [payload2, setPayload2] = useState<string>()
+    const [payload3, setPayload3] = useState<string>()
     const [urlMidia, setURLMidia] = useState<string>("");
     useEffect(() => {
         api.get(`https://webhooks.inbot.com.br/inbot-adm-back/v1/gateway/whatsapp/trigger-bot/${localStorage.getItem("botId")}`)
