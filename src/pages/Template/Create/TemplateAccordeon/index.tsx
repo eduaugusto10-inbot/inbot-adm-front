@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import alert from '../../../../img/help.png'
 import { erroMessageQuickReply, errorMessageHeader, errorMessageFooter, errorMessageBody, waitingMessage, successCreateTemplate, errorMessage } from "../../../../Components/Toastify";
@@ -11,6 +11,8 @@ import minus from '../../../../img/minus.png';
 import Alert from "../../../../Components/Alert";
 import { IButton, IFooter, IHeader, IObject, ITemplate, IVariables, templateValue } from "../../../types";
 import { mask } from "../../../../utils/utils";
+import useModal from "../../../../Components/Modal/useModal";
+import Modal from "../../../../Components/Modal";
 
 interface AccordionStateCreate {
     config: boolean,
@@ -364,10 +366,37 @@ export function CreateTemplateAccordion() {
             })
 
     }
-
+    const modalRef = useRef<HTMLDivElement>(null);
+    const { isOpen, toggle } = useModal();
+    const [buttonA, setButtonA] = useState<string>("")
+    const [buttonB, setButtonB] = useState<string>("")
+    const [textToModal, setTextToModal] = useState<string>("")
+    const handleButtonName = (wichButton: string) => {
+        if (wichButton === "Salvar") {
+            setButtonA("Fechar")
+            setButtonB("Confirmar")
+            setTextToModal("Tem certeza que deseja salvar")
+        } else if (wichButton === "Cancelar") {
+            setButtonA("Fechar")
+            setButtonB("Voltar")
+            setTextToModal("Tem certeza que deseja voltar")
+        }
+        toggle();
+    }
+    const handleButtonClick = (buttonId: string) => {
+        if (buttonId === "Confirmar") {
+            createPayload()
+        } else if (buttonId === "Fechar") {
+            toggle()
+        } else if (buttonId === "Voltar") {
+            toggle();
+            BackToList();
+        }
+    };
     return (
         <div style={{ width: "80vw" }}>
             <div >
+                <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
                 <ToastContainer />
                 <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
                     <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-17px" }} />
@@ -604,8 +633,8 @@ export function CreateTemplateAccordion() {
                             }</div>
                     </div>}
                     <div style={{ display: "flex", flexDirection: "row", textAlign: "end", alignContent: "end", alignItems: "end" }}>
-                        <button onClick={BackToList} style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} >Cancelar</button>
-                        <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={createPayload}>Salvar</button>
+                        <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Cancelar")}>Cancelar</button>
+                        <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Salvar")}>Salvar</button>
                     </div>
                 </div>
             </div >

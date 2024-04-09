@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { read, utils } from "xlsx";
 import { errorCampaingEmpty, errorSheets, errorTriggerMode, successCreateTrigger, waitingMessage, errorMessage } from "../../../Components/Toastify";
@@ -8,6 +8,8 @@ import './index.css'
 import Alert from "../../../Components/Alert";
 import { IListVariables, ITemplate, IVariables, templateValue } from "../../types";
 import { mask } from "../../../utils/utils";
+import Modal from "../../../Components/Modal";
+import useModal from "../../../Components/Modal/useModal";
 
 interface AccordionState {
     config: boolean;
@@ -268,8 +270,38 @@ export function Accordion() {
             handleAddVariable(i)
         }
     }
+    const modalRef = useRef<HTMLDivElement>(null);
+    const { isOpen, toggle } = useModal();
+    const [buttonA, setButtonA] = useState<string>("")
+    const [buttonB, setButtonB] = useState<string>("")
+    const [textToModal, setTextToModal] = useState<string>("")
+
+    const handleButtonName = (wichButton: string) => {
+        if (wichButton === "Salvar") {
+            setButtonA("Fechar")
+            setButtonB("Confirmar")
+            setTextToModal("Tem certeza que deseja salvar")
+        } else if (wichButton === "Cancelar") {
+            setButtonA("Fechar")
+            setButtonB("Voltar")
+            setTextToModal("Tem certeza que deseja voltar")
+        }
+        toggle();
+    }
+    const handleButtonClick = (buttonId: string) => {
+        if (buttonId === "Confirmar") {
+            createTrigger()
+        } else if (buttonId === "Fechar") {
+            toggle()
+        } else if (buttonId === "Voltar") {
+            toggle();
+            BackToList();
+        }
+    };
+
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "50px" }}>
+            <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
             <ToastContainer />
             <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
                 <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-17px" }} />
@@ -332,7 +364,7 @@ export function Accordion() {
                                     ))
                                     }
                                 </div>
-                                {headerConfig !=="text" &&
+                                {headerConfig !== "text" &&
                                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
                                         <span className="span-title">URL mídia</span>
                                         <input className="input-values" value={urlMidia} onChange={e => setURLMidia(e.target.value)} />
@@ -451,8 +483,8 @@ export function Accordion() {
                         <span>Data e hora do disparo: {triggerMode} - {dates}:{hours}</span>
                     </div>
                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", width: "100%" }}>
-                        <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={BackToList}>Cancelar</button>
-                        <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={createTrigger}>Salvar</button>
+                        <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Cancelar")}>Cancelar</button>
+                        <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Salvar")}>Salvar</button>
                     </div>
 
                 </div>}

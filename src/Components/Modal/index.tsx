@@ -1,0 +1,39 @@
+import React, { ReactNode } from "react";
+import './style.css'
+
+interface ModalType {
+    children?: ReactNode;
+    isOpen: boolean;
+    question: string;
+    toggle: () => void;
+    onButtonClick: (buttonId: string) => void;
+    modalRef: React.RefObject<HTMLDivElement>;
+    buttonA: string;
+    buttonB: string;
+}
+
+export default function Modal(props: ModalType) {
+    const handleButtonClick = (buttonId: string) => {
+        props.onButtonClick(buttonId);
+    };
+
+    return (
+        <>
+            {props.isOpen && (
+                <div ref={props.modalRef} className="modal-overlay" onClick={props.toggle}>
+                    <div onClick={(e) => e.stopPropagation()} className="modal-box">
+                        <div style={{ display: "flex", flexDirection: "column", height:"100%" }}>
+                            <h4 style={{ borderBottom: "2px solid #000", paddingBottom:"20px" }}>{props.question}</h4>
+                            <span></span>
+                            <span>Você não conseguirá reverter sua escolha</span>
+                            <div style={{ marginTop: "auto", display: "flex", justifyContent: "flex-end", marginBottom: "10px" }}>
+                                <button onClick={() => handleButtonClick(props.buttonA)} style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} >{props.buttonA}</button>
+                                <button onClick={() => handleButtonClick(props.buttonB)} style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} >{props.buttonB}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
+    );
+}
