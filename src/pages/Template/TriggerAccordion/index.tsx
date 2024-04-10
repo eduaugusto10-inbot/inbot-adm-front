@@ -298,7 +298,9 @@ export function Accordion() {
             BackToList();
         }
     };
-
+    function triggerTimeResume() {
+        return triggerMode === "imediato" ? "imediato" : `${triggerMode} - ${dates}:${hours}`;
+    }
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "50px" }}>
             <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
@@ -366,7 +368,7 @@ export function Accordion() {
                                 </div>
                                 {headerConfig !== "text" &&
                                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
-                                        <span className="span-title">URL mídia</span>
+                                        <span className="span-title">Link {headerConfig === "document" ? "documento" : headerConfig === "image" ? "imagem" : "video"}</span>
                                         <input className="input-values" value={urlMidia} onChange={e => setURLMidia(e.target.value)} />
                                     </div>
                                 }
@@ -480,7 +482,7 @@ export function Accordion() {
                     <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
                         <span>Template: {templateName}</span>
                         <span>Telefone do disparo: {mask(phone)}</span>
-                        <span>Data e hora do disparo: {triggerMode} - {dates}:{hours}</span>
+                        <span>Data e hora do disparo: {triggerTimeResume()}</span>
                     </div>
                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", width: "100%" }}>
                         <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Cancelar")}>Cancelar</button>

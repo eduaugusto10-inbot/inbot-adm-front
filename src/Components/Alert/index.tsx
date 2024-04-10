@@ -1,6 +1,6 @@
 import React from "react"
 import "./index.css"
-import alert from "../../img/help.png"
+import alert from "../../img/help_blue.png"
 interface AlertProps {
     message: string;
 }

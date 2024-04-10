@@ -64,6 +64,9 @@ export function ListAll() {
     function CreateTemplate() {
         history("/template-create", { state: { urlLogo: profilePic, phone: phone } });
     }
+    function ListCampaign() {
+        history("/trigger-list", { state: { urlLogo: profilePic, botId: botId } });
+    }
     function SendTemplate(name: string, variableQuantity: number, qtButtons: number, headerConfig: string | null) {
         history("/template-trigger", { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: profilePic, phone: phone, headerConfig: headerConfig, qtButtons: qtButtons } });
     }
@@ -161,8 +164,9 @@ export function ListAll() {
                     <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
                 </div>
                 <div style={{ width: "100%", borderBottom: "1px solid #000", marginBottom: "30px", display: "flex", flexDirection: "row" }}>
-                    <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }}>Campanhas</h1>
+                    <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }}>Templates</h1>
                     <button onClick={CreateTemplate} style={{ margin: "10px", backgroundColor: "#010043", border: "1px solid #010043", width: "180px", height: "30px", borderRadius: "5px" }}>Novo Template</button>
+                    <button onClick={ListCampaign} style={{ margin: "10px", backgroundColor: "#010043", border: "1px solid #010043", width: "180px", height: "30px", borderRadius: "5px" }}>Campanhas</button>
                 </div>
                 <table>
                     <thead>

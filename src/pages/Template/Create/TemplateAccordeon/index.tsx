@@ -1,11 +1,13 @@
 import React, { ChangeEvent, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import alert from '../../../../img/help.png'
+import 'react-tooltip/dist/react-tooltip.css'
+import { Tooltip } from 'react-tooltip'
 import { erroMessageQuickReply, errorMessageHeader, errorMessageFooter, errorMessageBody, waitingMessage, successCreateTemplate, errorMessage } from "../../../../Components/Toastify";
 import strings from '../../strings.json'
 import api from "../../../../utils/api";
 import { ToastContainer } from "react-toastify";
-import whatsappBackground from '../../../../img/background.jpeg';
+import whatsappBackground from '../../../../img/background_1.png';
 import './index.css'
 import minus from '../../../../img/minus.png';
 import Alert from "../../../../Components/Alert";
@@ -371,6 +373,7 @@ export function CreateTemplateAccordion() {
     const [buttonA, setButtonA] = useState<string>("")
     const [buttonB, setButtonB] = useState<string>("")
     const [textToModal, setTextToModal] = useState<string>("")
+    const [midia, setMidia] = useState<string>();
     const handleButtonName = (wichButton: string) => {
         if (wichButton === "Salvar") {
             setButtonA("Fechar")
@@ -393,6 +396,17 @@ export function CreateTemplateAccordion() {
             BackToList();
         }
     };
+    const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
+        const imagemSelecionada = event.target.files?.[0];
+        if (imagemSelecionada) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const dataUrl = reader.result as string;
+                setMidia(dataUrl);
+            };
+            reader.readAsDataURL(imagemSelecionada);
+        }
+    };
     return (
         <div style={{ width: "80vw" }}>
             <div >
@@ -401,7 +415,7 @@ export function CreateTemplateAccordion() {
                 <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
                     <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-17px" }} />
                 </div>
-                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69" }}>Criar Campanha</h1>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69" }}>Criar Template</h1>
                 <div style={{ width: "110%", border: "1px solid #000", marginBottom: "30px" }}></div>
                 <div className="config-template">
                     <div className="header-accordion" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
@@ -409,7 +423,7 @@ export function CreateTemplateAccordion() {
                         <div style={{ display: "flex", flexDirection: "row", textAlign: "left", backgroundColor: "#f1f1f1", width: "800px" }}>
                             <div className="input" style={{ justifyContent: "center" }}>
                                 <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
-                                    <span className="span-title">Nome*</span>
+                                    <span className="span-title">Nome</span>
                                     <input type="text"
                                         className="input-values"
                                         maxLength={512}
@@ -417,9 +431,13 @@ export function CreateTemplateAccordion() {
                                         value={templateName}
                                         onChange={e => setTemplateName(e.target.value.trim().toLowerCase())}
                                     />
+                                    <a data-tooltip-id="my-tooltip-multiline" data-tooltip-html="Utilizar apenas letras, números e underline.<br /> Não utilizar espaços, acentuações e virgulas.<br />Exemplo correto: template_1">
+                                        <img src={alert} width={20} height={20} alt="alerta" />
+                                    </a>
+                                    <Tooltip id="my-tooltip-multiline" />
                                 </div>
                                 <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
-                                    <span className="span-title">Categoria*</span>
+                                    <span className="span-title">Categoria</span>
                                     <select className="input-values" onChange={e => setTemplateType(e.target.value)}>
                                         <option>---</option>
                                         <option value={"AUTHENTICATION"}>Autenticação</option>
@@ -428,7 +446,7 @@ export function CreateTemplateAccordion() {
                                     </select>
                                 </div>
                                 <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
-                                    <span className="span-title">Telefone</span>
+                                    <span className="span-title" style={{ textAlign: "center" }}>Tel. Origem</span>
                                     <input type="text"
                                         className="input-values"
                                         value={mask(phone)}
@@ -456,7 +474,7 @@ export function CreateTemplateAccordion() {
                         </div>}
                 </div>
                 <div className="config-recebidores" style={{ maxHeight: "600px" }}>
-                    <div className="header-accordion" onClick={() => toggleAccordion('header')}>2. Header</div>
+                    <div className="header-accordion" onClick={() => toggleAccordion('header')}>2. Cabeçalho</div>
                     {accordionState.header && <div className="body">
                         <div className="radio row-align">
                             <div className="row-align" onChange={headerRadio}><input type="radio" value="text" name="header" /><span className="padding-5">Texto</span></div>
@@ -467,7 +485,7 @@ export function CreateTemplateAccordion() {
                         </div>
                         {typeOfHeader === "text" &&
                             <div className="container-configure">
-                                <div>
+                                <div style={{ width: "750px" }}>
                                     <div style={{ display: "flex", flexDirection: "initial", paddingLeft: "50px" }}>
                                         <span>Texto do Cabeçalho</span>
                                     </div>
@@ -483,32 +501,44 @@ export function CreateTemplateAccordion() {
                                         <span>{template.header.length}/60</span>
                                     </div>
                                 </div>
-                                <Alert message="No cabeçalho você poderá inserir no máximo uma variável,
-                    para inserir a variável será necessário colocar duas chaves conforme exemplo <strong>{{texto exemplo da variavel}}</strong>,
-                    para aprovação do seu template será necessário escrever um texto exemplo que será enviado na sua variavel."/>
                             </div>
                         }
                         {typeOfHeader === "image" &&
                             <div className="container-configure">
-                                <Alert message={"Você vai inserir a url da imagem no momento em que for disparar a mensagem."} />
+                                <input type="file"
+                                    accept="image"
+                                    name="header"
+                                    onChange={handleImageUpload}
+                                />
+
                             </div>
+
                         }
                         {typeOfHeader === "document" &&
                             <div className="container-configure">
+                                <input type="file"
+                                    accept="file"
+                                    name="header"
+                                />
                                 <Alert message={"Você vai inserir a url da documento no momento em que for disparar a mensagem."} />
                             </div>
 
                         }
                         {typeOfHeader === "video" &&
                             <div className="container-configure">
-                                <Alert message={"Você vai inserir a url do video no momento em que for disparar a mensagem."} />
+                                <input type="file"
+                                    accept="video"
+                                    name="header"
+                                    onChange={handleInputChange}
+                                />
+                                <Alert message={"Você vai inserir a url do video no momento em que for disparar a mensagem. A visualização ao lado é simbolica."} />
                             </div>
 
                         }
                     </div>}
                 </div>
                 <div className="modo-disparo">
-                    <div className="header-accordion" onClick={() => toggleAccordion('body')}>3. Body</div>
+                    <div className="header-accordion" onClick={() => toggleAccordion('body')}>3. Corpo da Mensagem</div>
                     {accordionState.body && <div className="body">
                         <div style={{ display: "flex", flexDirection: "column", width: "100%", textAlign: "initial", paddingLeft: "20px" }}>
                             <span className="bolder">Corpo da Mensagem</span>
@@ -548,7 +578,7 @@ export function CreateTemplateAccordion() {
                     </div>}
                 </div>
                 <div className="revisar">
-                    <div className="header-accordion" onClick={() => toggleAccordion('footer')}>4. Footer</div>
+                    <div className="header-accordion" onClick={() => toggleAccordion('footer')}>4. Rodapé</div>
                     {accordionState.footer && <div className="body">
                         <div style={{ display: "flex", flexDirection: "column", width: "100%", textAlign: "initial", paddingLeft: "20px" }}>
                             <div className="radio row-align">
@@ -575,9 +605,9 @@ export function CreateTemplateAccordion() {
                     </div>}
                 </div>
                 <div className="revisar">
-                    <div className="header-accordion" onClick={() => toggleAccordion('botao')}>5. Botão</div>
+                    <div className="header-accordion" onClick={() => toggleAccordion('botao')}>5. Botões</div>
                     {accordionState.botao && <div className="body">
-                        <div style={{ width: "100%", marginBottom: "20px" }}>
+                        <div style={{ width: "100%", marginBottom: "20px", paddingLeft: "20px" }}>
                             <div className="radio row-align">
                                 <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="quickReply" name="quickReply" /><span className="padding-5">Resposta rápida</span></div>
                                 <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="cta" name="quickReply" /><span className="padding-5">CTA</span></div>
@@ -623,12 +653,13 @@ export function CreateTemplateAccordion() {
                                                         <option value={"staticURL"}>URL</option>
                                                         <option value={"phoneNumber"}>Telefone</option>
                                                     </select>
-                                                    <input type="text" className="input-values" name="text" onChange={e => handleAddButtonText(e, button.id.toString())} placeholder="Texto do botão" />
-                                                    <input type="text" className="input-values" name="url_phone" onChange={e => handleAddButtonText(e, button.id.toString())} placeholder={typeCTA === "staticURL" ? "Insira o endereço da página" : "Insira o telefone"} /><img src={minus} alt="minus" width={20} height={20} onClick={() => handleDeleteItem(button.id)} style={{ cursor: "pointer", marginTop: "15px" }} />
+                                                    <input type="text" className="input-values" name="text" onChange={e => handleAddButtonText(e, button.id.toString())} placeholder="Nome do botão" />
+                                                    <input type="text" className="input-values" name="url_phone" onChange={e => handleAddButtonText(e, button.id.toString())} /><img src={minus} alt="minus" width={20} height={20} onClick={() => handleDeleteItem(button.id)} style={{ cursor: "pointer", marginTop: "15px" }} />
                                                 </div>
                                             </div>
                                         </div>
                                     ))}
+                                    <Alert message="No primeiro campo colocar o nome a ser exibido no botão, no segundo campo é o valor do campo. Exemplo: campo 1: Site campo 2: www.inbot.com.br, desta forma ao clicar no botão escrito Site o usuário será direcionado para o site da InBot." />
                                 </div>
                             }</div>
                     </div>}
@@ -643,6 +674,9 @@ export function CreateTemplateAccordion() {
                 <div className="overlay-text">
                     <div className="texts">
                         {typeOfHeader === "text" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{template.header}</label>}
+                        {typeOfHeader === "image" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={midia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
+                        {typeOfHeader === "document" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={midia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
+                        {typeOfHeader === "video" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><video width="160" height="120" controls><source src={midia} type="video/mp4" /></video></label>}
                         {<label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {handleChangeText(template.body)}</label>}
                         {<label className="footer" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', fontSize: "12px" }}>{template.footer}</label>}
                         {typeOfButtons !== "cta" && <div className="quickReply-texts">

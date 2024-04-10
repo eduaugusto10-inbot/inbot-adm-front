@@ -1,5 +1,5 @@
 import React from "react";
-import whatsappBackground from '../../../img/background.jpeg';
+import whatsappBackground from '../../../img/background_1.png';
 
 export function ModalTemplate(props: any) {
 
