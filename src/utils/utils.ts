@@ -30,3 +30,10 @@ export const mask = (phone: string) => {
 export const truncateAccessToken = (accessToken: string): string => {
     return accessToken.substring(0, 2) + '...' + accessToken.substring(accessToken.length - 2);
 };
+
+export const adjustTime = (time: string) => {
+    const adjustTime = new Date(time);
+    adjustTime.setHours(adjustTime.getHours() - 3)
+    return adjustTime.toLocaleString();
+
+}

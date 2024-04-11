@@ -11,22 +11,10 @@ import whatsappBackground from '../../../../img/background_1.png';
 import './index.css'
 import minus from '../../../../img/minus.png';
 import Alert from "../../../../Components/Alert";
-import { IButton, IFooter, IHeader, IObject, ITemplate, IVariables, templateValue } from "../../../types";
+import { AccordionStateCreate, ButtonQR, IButton, IFooter, IHeader, IObject, ITemplate, IVariables, templateValue } from "../../../types";
 import { mask } from "../../../../utils/utils";
 import useModal from "../../../../Components/Modal/useModal";
 import Modal from "../../../../Components/Modal";
-
-interface AccordionStateCreate {
-    config: boolean,
-    header: boolean,
-    body: boolean,
-    footer: boolean,
-    botao: boolean
-}
-interface ButtonQR {
-    type: string;
-    parameters: { type?: string; text: string }[];
-}
 
 export function CreateTemplateAccordion() {
 
@@ -54,8 +42,7 @@ export function CreateTemplateAccordion() {
     const [buttons, setButtons] = useState<IButton[]>([])
     const [buttonsCTA, setButtonsCTA] = useState<IButton[]>([])
     const [typeOfButtons, setTypeOfButtons] = useState<string>('without')
-    const [typeCTA, setTypeCTA] = useState<string>("")
-    const selectTemplate = (e: string) => {
+     const selectTemplate = (e: string) => {
         switch (e) {
             case "UTILITY":
                 return strings.utilitario
@@ -147,8 +134,6 @@ export function CreateTemplateAccordion() {
 
     const handleAddButtonText = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, buttonId: string) => {
         const { name, value } = e.target;
-        console.log(name)
-        console.log(value)
         if (typeOfButtons !== "cta") {
             setButtons(prevButtons => {
                 return prevButtons.map(button => {

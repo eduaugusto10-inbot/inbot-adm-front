@@ -151,3 +151,37 @@ export interface IListVariables {
     payload_2?: string,
     payload_3?: string,
 }
+
+export interface ITriggerList {
+    id: number
+    campaign_name: string
+    template_name: string
+    status: string
+    type_trigger: string
+    time_trigger: string
+}
+
+export interface AccordionState {
+    config: boolean;
+    recebidores: boolean;
+    disparo: boolean;
+    revisar: boolean;
+}
+
+export interface ICustomer {
+    phone: string
+    status: string
+    data_atualizacao: string
+}
+
+export interface AccordionStateCreate {
+    config: boolean,
+    header: boolean,
+    body: boolean,
+    footer: boolean,
+    botao: boolean
+}
+export interface ButtonQR {
+    type: string;
+    parameters: { type?: string; text: string }[];
+}

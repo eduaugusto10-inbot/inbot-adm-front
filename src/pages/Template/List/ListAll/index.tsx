@@ -7,11 +7,6 @@ import { useNavigate } from "react-router-dom";
 import ModalTemplate from "../../ModalTemplate";
 import { useSearchParams } from "react-router-dom";
 
-interface Row {
-    id: number;
-    nome: string;
-}
-
 export function ListAll() {
     const [searchParams, setSearchParams] = useSearchParams();
     var botId = searchParams.get('bot_id') ?? "0";
@@ -79,7 +74,6 @@ export function ListAll() {
                 api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
                     .then(resp => {
                         setTemplates(resp.data.data.messageTemplates)
-                        console.log(resp)
                     })
                 api.get("https://whatsapp.smarters.io/api/v1/settings", { headers: { 'Authorization': token } })
                     .then(res => {
@@ -88,11 +82,14 @@ export function ListAll() {
                     })
                     .catch(error => console.log(error))
             })
-    }, []);
+    },);
 
     const loadTemplate = (id: number) => {
         setModalObject(templates[id])
-        setModal(prevState => !prevState)
+        if (!modal) {
+            setModal(prevState => !prevState)
+        }
+        setMenuOpen(false);
     }
 
     const encontrarMaiorNumero = (texto: string): number => {
@@ -197,6 +194,13 @@ export function ListAll() {
                         ))}
                     </tbody>
                 </table>
+                <div>
+                    {modal && (
+                        <div onClick={() => setModal(prevState => !prevState)}>
+                            <ModalTemplate modalTemplate={modalObject} />
+                        </div>
+                    )}
+                </div>
                 {menuOpen && selectedRow !== null && (
                     <div
                         ref={menuRef}
@@ -218,13 +222,6 @@ export function ListAll() {
                                     onMouseLeave={handleMouseLeave}><td onClick={() => sendtemplate(selectedRow)}>Enviar template</td></tr>
                             </tbody>
                         </table>
-                    </div>
-                )}
-            </div>
-            <div>
-                {modal && (
-                    <div onClick={() => setModal(prevState => !prevState)}>
-                        <ModalTemplate modalTemplate={modalObject} />
                     </div>
                 )}
             </div>

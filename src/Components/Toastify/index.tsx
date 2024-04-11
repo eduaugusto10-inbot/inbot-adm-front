@@ -16,6 +16,9 @@ export const successMessageImg = () => toast.success("Imagem salva com sucesso",
 export const successCreateTemplate = () => toast.success("Template criado com sucesso", {
     theme: "colored"
 })
+export const successCancelTrigger = () => toast.success("Disparo cancelado com sucesso", {
+    theme: "colored"
+})
 export const errorMessage = () => toast.error("Erro no sistema, tente mais tarde", {
     theme: "colored"
 });
@@ -48,3 +51,6 @@ export const errorMessageHeader = () => toast.warn("Preencha os campos do cabeç
 export const errorMessageFooter = () => toast.warn("Preencha os campos do rodapé");
 export const errorMessageBody = () => toast.warn("Preencha o body, não pode ser vazio");
 export const erroMessageQuickReply = () => toast.warn("Preencha o botão");
+export const errorCancelTrigger = () => toast.error("Não permitido cancelar operação",{
+    theme:"colored"
+})
