@@ -9,6 +9,9 @@ import { useSearchParams } from "react-router-dom";
 
 export function ListAll() {
     const [searchParams, setSearchParams] = useSearchParams();
+    if(searchParams.get('bot_id')===null){
+        window.location.href ="https://in.bot/inbot-admin";
+    }
     var botId = searchParams.get('bot_id') ?? "0";
     localStorage.setItem("botId", botId)
 
@@ -23,7 +26,25 @@ export function ListAll() {
     const [selectedRow, setSelectedRow] = useState<number | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
 
-
+    useEffect(() => {
+        if(searchParams.get('bot_id')===null){
+            window.location.href ="https://in.bot/inbot-admin";
+        }
+        api.get(`https://webhooks.inbot.com.br/inbot-adm-back/v1/gateway/whats-botid/${botId}`)
+            .then(resp => {
+                setPhone(resp.data.number)
+                const token = resp.data.accessToken;
+                api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
+                    .then(resp => {
+                        setTemplates(resp.data.data.messageTemplates)
+                    })
+                api.get("https://whatsapp.smarters.io/api/v1/settings", { headers: { 'Authorization': token } })
+                    .then(res => {
+                        setProfilePic(res.data.data.profile_pic)
+                    })
+                    .catch(error => console.log(error))
+            })
+    },);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -65,23 +86,6 @@ export function ListAll() {
     function SendTemplate(name: string, variableQuantity: number, qtButtons: number, headerConfig: string | null) {
         history("/template-trigger", { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: profilePic, phone: phone, headerConfig: headerConfig, qtButtons: qtButtons } });
     }
-
-    useEffect(() => {
-        api.get(`https://webhooks.inbot.com.br/inbot-adm-back/v1/gateway/whats-botid/${botId}`)
-            .then(resp => {
-                setPhone(resp.data.number)
-                const token = resp.data.accessToken;
-                api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
-                    .then(resp => {
-                        setTemplates(resp.data.data.messageTemplates)
-                    })
-                api.get("https://whatsapp.smarters.io/api/v1/settings", { headers: { 'Authorization': token } })
-                    .then(res => {
-                        setProfilePic(res.data.data.profile_pic)
-                    })
-                    .catch(error => console.log(error))
-            })
-    },);
 
     const loadTemplate = (id: number) => {
         setModalObject(templates[id])
