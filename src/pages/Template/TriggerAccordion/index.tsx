@@ -116,7 +116,6 @@ export function Accordion() {
         let sheets = false;
         for (let i = 1; i < dataTemplate.length; i++) {
             if (dataTemplate[i].length > 0 && isNaN(dataTemplate[i][0])) {
-                console.log(dataTemplate[i][0])
                 sheets = true;
             }
         }
@@ -145,9 +144,7 @@ export function Accordion() {
                     payload_2: payload2,
                     payload_3: payload3,
                 };
-                console.log(params)
                 api.post('/whats-customer', params)
-                    .then(resp => console.log(resp.data))
                     .catch(error => console.log(error));
             }
             count++;
@@ -175,9 +172,7 @@ export function Accordion() {
                 payload_2: payload2,
                 payload_3: payload3,
             };
-            console.log(params)
             api.post('/whats-customer', params)
-                .then(resp => console.log(resp.data))
                 .catch(error => console.log(error));
         }
     };
@@ -250,7 +245,6 @@ export function Accordion() {
                 } else {
                     handleSubmitManualListData(resp.data.data.insertId)
                 }
-                console.log(resp.data.data.insertId)
                 successCreateTrigger()
                 setTimeout(() => BackToList(), 3000)
             })

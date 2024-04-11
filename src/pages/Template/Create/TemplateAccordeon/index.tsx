@@ -159,7 +159,6 @@ export function CreateTemplateAccordion() {
                 });
             });
         }
-        console.log(buttonsCTA)
     };
 
     const handleDeleteVariables = (id: number) => {
@@ -228,8 +227,6 @@ export function CreateTemplateAccordion() {
             errorMessageHeader()
             return;
         }
-        console.log(template.footer === "")
-        console.log(rodape === false)
         if (template.footer === "" && rodape === false) {
             errorMessageFooter()
             return;
@@ -295,7 +292,6 @@ export function CreateTemplateAccordion() {
             }
             components.push(footer);
         }
-        console.log(headers)
         if (headers?.parameters?.[0].type === "text") {
             header = {
                 type: "header",
@@ -341,7 +337,6 @@ export function CreateTemplateAccordion() {
         payload["category"] = templateType;
         payload["name"] = templateName;
         payload["language"] = "pt_BR";//configTemplate.language;
-        console.log(payload)
         api.post(`/whats/template/${localStorage.getItem("botId")}`, payload)
             .then(resp => {
                 successCreateTemplate()

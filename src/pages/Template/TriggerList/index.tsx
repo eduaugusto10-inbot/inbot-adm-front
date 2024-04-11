@@ -56,7 +56,6 @@ export function TriggerList() {
     useEffect(() => {
         api.get(`https://webhooks.inbot.com.br/inbot-adm-back/v1/gateway/whatsapp/trigger-bot/${botId}`)
             .then(resp => {
-                console.log(resp.data.data)
                 setTriggerList(resp.data.data)
             })
     }, );
@@ -72,7 +71,6 @@ export function TriggerList() {
         api.put(`/whatsapp/trigger/${triggerId}`)
             .then(resp => {
                 successCancelTrigger()
-                console.log(resp)
             })
             .catch(error => {
                 errorCancelTrigger()
