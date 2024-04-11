@@ -351,7 +351,7 @@ export function Accordion() {
                                     ))
                                     }
                                 </div>
-                                {headerConfig !== "text" &&
+                                {headerConfig !== "text" && headerConfig !==null &&
                                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
                                         <span className="span-title">Link {headerConfig === "document" ? "documento" : headerConfig === "image" ? "imagem" : "video"}</span>
                                         <input className="input-values" value={urlMidia} onChange={e => setURLMidia(e.target.value)} />

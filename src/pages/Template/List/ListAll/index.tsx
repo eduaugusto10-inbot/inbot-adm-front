@@ -44,7 +44,7 @@ export function ListAll() {
                     })
                     .catch(error => console.log(error))
             })
-    },);
+    },[]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -84,6 +84,7 @@ export function ListAll() {
         history("/trigger-list", { state: { urlLogo: profilePic, botId: botId } });
     }
     function SendTemplate(name: string, variableQuantity: number, qtButtons: number, headerConfig: string | null) {
+        console.log(headerConfig)
         history("/template-trigger", { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: profilePic, phone: phone, headerConfig: headerConfig, qtButtons: qtButtons } });
     }
 
