@@ -77,7 +77,6 @@ export function ListAll() {
                     })
                 api.get("https://whatsapp.smarters.io/api/v1/settings", { headers: { 'Authorization': token } })
                     .then(res => {
-                        console.log(res)
                         setProfilePic(res.data.data.profile_pic)
                     })
                     .catch(error => console.log(error))
