@@ -117,7 +117,7 @@ export function TriggerList() {
                     <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
                 </div>
                 <div style={{ width: "100%", borderBottom: "1px solid #000", marginBottom: "30px", display: "flex", flexDirection: "row" }}>
-                    <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }}>Log de Disparos</h1>
+                    <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "90%" }}>Log de Disparos</h1>
                 </div>
                 <table>
                     <thead>

@@ -9,8 +9,8 @@ import { useSearchParams } from "react-router-dom";
 
 export function ListAll() {
     const [searchParams, setSearchParams] = useSearchParams();
-    if(searchParams.get('bot_id')===null){
-        window.location.href ="https://in.bot/inbot-admin";
+    if (searchParams.get('bot_id') === null) {
+        window.location.href = "https://in.bot/inbot-admin";
     }
     var botId = searchParams.get('bot_id') ?? "0";
     localStorage.setItem("botId", botId)
@@ -24,13 +24,14 @@ export function ListAll() {
     const [profilePic, setProfilePic] = useState<string>("")
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [selectedRow, setSelectedRow] = useState<number | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if(searchParams.get('bot_id')===null){
-            window.location.href ="https://in.bot/inbot-admin";
+        if (searchParams.get('bot_id') === null) {
+            window.location.href = "https://in.bot/inbot-admin";
         }
-        api.get(`https://webhooks.inbot.com.br/inbot-adm-back/v1/gateway/whats-botid/${botId}`)
+        api.get(`/gateway/whats-botid/${botId}`)
             .then(resp => {
                 setPhone(resp.data.number)
                 const token = resp.data.accessToken;
@@ -41,10 +42,11 @@ export function ListAll() {
                 api.get("https://whatsapp.smarters.io/api/v1/settings", { headers: { 'Authorization': token } })
                     .then(res => {
                         setProfilePic(res.data.data.profile_pic)
+                        handleImageLoad()
                     })
                     .catch(error => console.log(error))
             })
-    },[]);
+    }, []);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -59,6 +61,10 @@ export function ListAll() {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+    const handleImageLoad = () => {
+        setIsLoading(false);
+    };
 
     const handleOptionClick = (index: number, event: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
         event.stopPropagation();
@@ -162,13 +168,16 @@ export function ListAll() {
         <div style={{ margin: "40px" }}>
             <div>
                 <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
-                    <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
+                    {isLoading ? (<div className="spinner-container">
+                        <div className="spinner"></div>
+                    </div>)
+                    : <img onLoad={handleImageLoad} src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />}
                 </div>
                 <div style={{ width: "100%", borderBottom: "1px solid #000", marginBottom: "30px", display: "flex", flexDirection: "row" }}>
                     <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }}>Templates</h1>
+                </div>
                     <button onClick={CreateTemplate} style={{ margin: "10px", backgroundColor: "#010043", border: "1px solid #010043", width: "180px", height: "30px", borderRadius: "5px" }}>Novo Template</button>
                     <button onClick={ListCampaign} style={{ margin: "10px", backgroundColor: "#010043", border: "1px solid #010043", width: "180px", height: "30px", borderRadius: "5px" }}>Campanhas</button>
-                </div>
                 <table>
                     <thead>
                         <tr className="cells" style={{ backgroundColor: "#010043" }}>

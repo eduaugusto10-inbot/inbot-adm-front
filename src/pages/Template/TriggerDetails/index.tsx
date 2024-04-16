@@ -6,7 +6,7 @@ import { adjustTime, mask } from "../../../utils/utils";
 import { ICustomer } from "../../types";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Pie } from "react-chartjs-2";
-
+import './style.css'
 interface Filters {
     telefone: string;
     variable_1: string;
@@ -125,9 +125,6 @@ export function TriggerDetails() {
     const handleVariable8Change = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFilters({ ...filters, variable_8: event.target.value });
     };
-    const handleVariable9Change = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setFilters({ ...filters, variable_9: event.target.value });
-    };
     const handleStatusChange = (statusKey: keyof Filters['status']) => {
         setFilters({
             ...filters,
@@ -185,38 +182,38 @@ export function TriggerDetails() {
                     <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
                 </div>
                 <div style={{ width: "100%", borderBottom: "1px solid #000", marginBottom: "30px", display: "flex", flexDirection: "row" }}>
-                    <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }}>Log de Disparos</h1>
+                    <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "90%" }}>Log de Disparos</h1>
                 </div>
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-                    <div style={{ width: "250px", height: "300px", border: "1px solid #010043", margin: "20px" }}>
-                        <span style={{ fontWeight: "bolder" }}>Resumo do Disparo</span>
+                    <div style={{ width: "250px", backgroundColor: "#F0F0F0", height: "300px", border: "1px solid #ccc", margin: "20px", borderRadius:"20px" }}>
+                        <span style={{ fontWeight: "bolder", color: "#002080" }}>Resumo do Disparo</span>
                         <Pie data={dataPie} />
                     </div>
-                    <div style={{fontWeight:"bolder", border:"1px solid #000", height:"250px", margin: "20px"}}>
-                        <span>Filtros</span>
+                    <div style={{ fontWeight: "bolder", backgroundColor: "#F0F0F0", border: "1px solid #ccc", height: "250px", margin: "20px", borderRadius:"20px" }}>
+                        <span style={{ color: "#002080" }}>Filtros</span>
                         <div style={{ display: "flex", flexDirection: "row" }}>
                             <div style={{ display: "flex", flexDirection: "column", margin: "10px" }}>
-                                <span>Status</span>
-                                <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign:"left" }}>
-                                    <div><input type="checkbox" onChange={() => handleStatusChange('aguardando')} checked={filters.status.aguardando} /><span style={{marginLeft:"5px", fontWeight:"normal"}}>Aguardando</span></div>
-                                    <div><input type="checkbox" onChange={() => handleStatusChange('enviado')} checked={filters.status.enviado} /><span style={{marginLeft:"5px", fontWeight:"normal"}}>Enviado</span></div>
-                                    <div><input type="checkbox" onChange={() => handleStatusChange('erro')} checked={filters.status.erro} /><span style={{marginLeft:"5px", fontWeight:"normal"}}>Erro</span></div>
+                                <span style={{ color: "#002080" }}>Status</span>
+                                <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
+                                    <div><input type="checkbox" onChange={() => handleStatusChange('aguardando')} checked={filters.status.aguardando} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Aguardando</span></div>
+                                    <div><input type="checkbox" onChange={() => handleStatusChange('enviado')} checked={filters.status.enviado} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Enviado</span></div>
+                                    <div><input type="checkbox" onChange={() => handleStatusChange('erro')} checked={filters.status.erro} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Erro</span></div>
                                 </div>
                             </div>
-                            <div style={{ display: "flex", flexDirection: "column", margin: "10px" }}>
-                                <span>Telefone</span><input type="text" value={filters.telefone} onChange={handleTelefoneChange} placeholder="Digite o telefone..." />
-                                <span>Variável 1</span><input type="text" value={filters.variable_1} onChange={handleVariable1Change} placeholder="Digite valor..." />
-                                <span>Variável 2</span><input type="text" value={filters.variable_2} onChange={handleVariable2Change} placeholder="Digite valor..." />
+                            <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
+                                <span style={{ color: "#002080" }}>Telefone</span><input className="input-filters" type="text" value={filters.telefone} onChange={handleTelefoneChange} placeholder="Digite o telefone..." />
+                                <span style={{ color: "#002080" }}>Variável 1</span><input className="input-filters" type="text" value={filters.variable_1} onChange={handleVariable1Change} placeholder="Digite valor..." />
+                                <span style={{ color: "#002080" }}>Variável 2</span><input className="input-filters" type="text" value={filters.variable_2} onChange={handleVariable2Change} placeholder="Digite valor..." />
                             </div>
-                            <div style={{ display: "flex", flexDirection: "column", margin: "10px" }}>
-                                <span>Variável 3</span><input type="text" value={filters.variable_3} onChange={handleVariable3Change} placeholder="Digite valor..." />
-                                <span>Variável 4</span><input type="text" value={filters.variable_4} onChange={handleVariable4Change} placeholder="Digite valor..." />
-                                <span>Variável 5</span><input type="text" value={filters.variable_5} onChange={handleVariable5Change} placeholder="Digite valor..." />
+                            <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
+                                <span style={{ color: "#002080" }}>Variável 3</span><input className="input-filters" type="text" value={filters.variable_3} onChange={handleVariable3Change} placeholder="Digite valor..." />
+                                <span style={{ color: "#002080" }}>Variável 4</span><input className="input-filters" type="text" value={filters.variable_4} onChange={handleVariable4Change} placeholder="Digite valor..." />
+                                <span style={{ color: "#002080" }}>Variável 5</span><input className="input-filters" type="text" value={filters.variable_5} onChange={handleVariable5Change} placeholder="Digite valor..." />
                             </div>
-                            <div style={{ display: "flex", flexDirection: "column", margin: "10px" }}>
-                                <span>Variável 6</span><input type="text" value={filters.variable_6} onChange={handleVariable6Change} placeholder="Digite valor..." />
-                                <span>Variável 7</span><input type="text" value={filters.variable_7} onChange={handleVariable7Change} placeholder="Digite valor..." />
-                                <span>Variável 8</span><input type="text" value={filters.variable_8} onChange={handleVariable8Change} placeholder="Digite valor..." />
+                            <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
+                                <span style={{ color: "#002080" }}>Variável 6</span><input className="input-filters" type="text" value={filters.variable_6} onChange={handleVariable6Change} placeholder="Digite valor..." />
+                                <span style={{ color: "#002080" }}>Variável 7</span><input className="input-filters" type="text" value={filters.variable_7} onChange={handleVariable7Change} placeholder="Digite valor..." />
+                                <span style={{ color: "#002080" }}>Variável 8</span><input className="input-filters" type="text" value={filters.variable_8} onChange={handleVariable8Change} placeholder="Digite valor..." />
                             </div>
                         </div>
                     </div>
