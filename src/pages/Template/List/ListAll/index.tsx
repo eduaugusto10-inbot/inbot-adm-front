@@ -31,7 +31,7 @@ export function ListAll() {
         if (searchParams.get('bot_id') === null) {
             window.location.href = "https://in.bot/inbot-admin";
         }
-        api.get(`/gateway/whats-botid/${botId}`)
+        api.get(`/whats-botid/${botId}`)
             .then(resp => {
                 setPhone(resp.data.number)
                 const token = resp.data.accessToken;
