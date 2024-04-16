@@ -167,8 +167,8 @@ export function TriggerDetails() {
         }
         if (
             (filters.status.aguardando && customer.status === 'aguardando') ||
-            (filters.status.enviado && customer.status === 'Enviado') ||
-            (filters.status.erro && customer.status === 'Erro')
+            (filters.status.enviado && customer.status === 'enviado') ||
+            (filters.status.erro && customer.status === 'erro')
         ) {
             return true;
         }
