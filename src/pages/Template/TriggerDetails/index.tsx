@@ -16,7 +16,7 @@ export function TriggerDetails() {
         api.get(`/whats-customer/${triggerId}`)
             .then(resp => setCustomerStatus(resp.data.data))
             .catch(error => console.log(error))
-    },)
+    },[])
 
     return (
         <div>
@@ -32,17 +32,37 @@ export function TriggerDetails() {
                     <thead>
                         <tr className="cells" style={{ backgroundColor: "#010043" }}>
                             <th className="cells">Telefone</th>
+                            <th className="cells">Var. 1</th>
+                            <th className="cells">Var. 2</th>
+                            <th className="cells">Var. 3</th>
+                            <th className="cells">Var. 4</th>
+                            <th className="cells">Var. 5</th>
+                            <th className="cells">Var. 6</th>
+                            <th className="cells">Var. 7</th>
+                            <th className="cells">Var. 8</th>
+                            <th className="cells">Var. 9</th>
                             <th className="cells">Status</th>
+                            <th className="cells">Horário do criação</th>
                             <th className="cells">Horário do envio</th>
                             <th className="cells">Log</th>
                         </tr>
                     </thead>
                     {customerStatus.map(customer=>(
                     <tr>
-                        <td><span style={{ margin: "50px" }}>{mask(customer.phone)}</span></td>
-                        <td><span style={{ margin: "50px" }}>{customer.status}</span></td>
-                        <td><span style={{ margin: "50px" }}>{adjustTime(customer.data_atualizacao)}</span></td>
-                        <td><span style={{ margin: "50px" }}> -- </span></td>
+                        <td><span>{mask(customer.phone)}</span></td>
+                        <td><span>{customer.variable_1}</span></td>
+                        <td><span>{customer.variable_2}</span></td>
+                        <td><span>{customer.variable_3}</span></td>
+                        <td><span>{customer.variable_4}</span></td>
+                        <td><span>{customer.variable_5}</span></td>
+                        <td><span>{customer.variable_6}</span></td>
+                        <td><span>{customer.variable_7}</span></td>
+                        <td><span>{customer.variable_8}</span></td>
+                        <td><span>{customer.variable_9}</span></td>
+                        <td><span>{customer.status}</span></td>
+                        <td><span>{adjustTime(customer.data_criacao)}</span></td>
+                        <td><span>{customer.data_disparo ? adjustTime(customer.data_disparo): "----"}</span></td>
+                        <td><span> -- </span></td>
                     </tr>
                     ))}
                 </table>

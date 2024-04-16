@@ -49,7 +49,7 @@ export function Accordion() {
     const [payload3, setPayload3] = useState<string>()
     const [urlMidia, setURLMidia] = useState<string>("");
     useEffect(() => {
-        api.get(`https://webhooks.inbot.com.br/inbot-adm-back/v1/gateway/whatsapp/trigger-bot/${localStorage.getItem("botId")}`)
+        api.get(`/whatsapp/trigger-bot/${localStorage.getItem("botId")}`)
             .then(resp => setTriggerNames(resp.data))
             .catch(error => console.log(error))
     }, [])
@@ -321,8 +321,8 @@ export function Accordion() {
                             <span style={{ fontSize: "16px" }}>Clientes</span>
                             <span style={{ fontSize: "11px", fontStyle: "italic" }}>Adicione clientes que receberão os templates, poderá fazer upload de uma planilha ou inserir um número manualmente.</span>
                         </div>
-                        <input type="radio" name="clientes" value="unico" onChange={signInClients} className="input-spaces" /><span>Manual</span>
-                        <input type="radio" name="clientes" value="multiplos" onChange={signInClients} className="input-spaces" /><span>Carregar planilha</span>
+                        <input type="radio" name="clientes" value="unico" onChange={signInClients} className="input-spaces" checked={typeClient === false}/><span>Manual</span>
+                        <input type="radio" name="clientes" value="multiplos" onChange={signInClients} className="input-spaces" checked={typeClient === true}/><span>Carregar planilha</span>
                     </div>
                     {!typeClient &&
                         <div style={{ display: "flex", flexDirection: "column", width: "90%" }}>
@@ -443,8 +443,8 @@ export function Accordion() {
                 <div className="header-accordion" onClick={() => toggleAccordion('disparo')}>3. Modo de Disparo</div>
                 {accordionState.disparo && <div className="body">
                     <div className="line">
-                        <input type="radio" name="disparo" value="imediato" onChange={handleMode} className="input-spaces" /><span>Imediato</span>
-                        <input type="radio" name="disparo" value="agendado" onChange={handleMode} className="input-spaces" /><span>Agendado</span>
+                        <input type="radio" name="disparo" value="imediato" onChange={handleMode} className="input-spaces" checked={mode===false}/><span>Imediato</span>
+                        <input type="radio" name="disparo" value="agendado" onChange={handleMode} className="input-spaces" checked={mode===true} /><span>Agendado</span>
                     </div>
                     {mode && <div style={{ display: "flex", flexDirection: "row" }}>
                         <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
@@ -468,6 +468,7 @@ export function Accordion() {
                         <span>Template: {templateName}</span>
                         <span>Telefone do disparo: {mask(phone)}</span>
                         <span>Data e hora do disparo: {triggerMode} - {dates} - {hours}</span>
+                        <span>Quantidade de disparos: {typeClient===false ? listVariables.length : ""}</span>
                     </div>
                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", width: "100%" }}>
                         <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Cancelar")}>Cancelar</button>

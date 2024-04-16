@@ -54,11 +54,11 @@ export function TriggerList() {
     const history = useNavigate();
 
     useEffect(() => {
-        api.get(`https://webhooks.inbot.com.br/inbot-adm-back/v1/gateway/whatsapp/trigger-bot/${botId}`)
+        api.get(`/whatsapp/trigger-bot/${botId}`)
             .then(resp => {
                 setTriggerList(resp.data.data)
             })
-    }, );
+    }, []);
 
     function detailedTrigger(id: number) {
         const triggerId = triggerList[id].id;
@@ -125,6 +125,7 @@ export function TriggerList() {
                             <th className="cells">Nome</th>
                             <th className="cells">Template</th>
                             <th className="cells">Tipo de disparo</th>
+                            <th className="cells">Data criação</th>
                             <th className="cells">Data disparo</th>
                             <th className="cells">Status</th>
                             <th className="cells">Opções</th>
@@ -142,6 +143,7 @@ export function TriggerList() {
                                     <td><span>{trigger.campaign_name}</span></td>
                                     <td><span>{trigger.template_name}</span></td>
                                     <td><span>{trigger.type_trigger}</span></td>
+                                    <td><span>{trigger.data_criacao ? adjustTime(trigger.data_criacao) : "--"}</span></td>
                                     <td><span>{trigger.time_trigger ? adjustTime(trigger.time_trigger) : "--"}</span></td>
                                     <td><div id="statusCells" style={{ borderRadius: "20px", backgroundColor: statusBackgroundColor(trigger.status), padding: "7px" }}><span style={{ fontSize: "12px", fontWeight: "bolder", color: statusColor(trigger.status) }}>{statusName(trigger.status)}</span></div></td>
                                     <td><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>

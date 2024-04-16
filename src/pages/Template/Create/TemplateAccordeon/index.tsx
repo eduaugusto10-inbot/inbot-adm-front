@@ -34,15 +34,16 @@ export function CreateTemplateAccordion() {
         footer: false,
         botao: false
     });
-    const [typeOfHeader, setTypeOfHeader] = useState<string>("")
+    const [typeOfHeader, setTypeOfHeader] = useState<string>("sheader")
+    const [rodapeType, setRodapeType] = useState<string>("srodape")
     const [headers, setHeader] = useState<IHeader>();
     const [template, setTemplate] = useState<ITemplate>(templateValue)
     const [variables, setVariables] = useState<IVariables[]>([])
-    const [rodape, setRodape] = useState<boolean>(false);
+    const [rodape, setRodape] = useState<boolean>(true);
     const [buttons, setButtons] = useState<IButton[]>([])
     const [buttonsCTA, setButtonsCTA] = useState<IButton[]>([])
     const [typeOfButtons, setTypeOfButtons] = useState<string>('without')
-     const selectTemplate = (e: string) => {
+    const selectTemplate = (e: string) => {
         switch (e) {
             case "UTILITY":
                 return strings.utilitario
@@ -70,7 +71,8 @@ export function CreateTemplateAccordion() {
     };
 
     const rodapeRadio = (e: any) => {
-        const value = e.target.value === "srodape"
+        setRodapeType(e.target.value);
+        const value = e.target.value === "rodape"
         setRodape(!value)
         let rodapeText = ""
         if (value) {
@@ -418,7 +420,7 @@ export function CreateTemplateAccordion() {
                                 </div>
                                 <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
                                     <span className="span-title">Categoria</span>
-                                    <select className="input-values" onChange={e => setTemplateType(e.target.value)}>
+                                    <select className="input-values" value={templateType} onChange={e => setTemplateType(e.target.value)}>
                                         <option>---</option>
                                         <option value={"AUTHENTICATION"}>Autenticação</option>
                                         <option value={"UTILITY"}>Utilitário</option>
@@ -457,11 +459,11 @@ export function CreateTemplateAccordion() {
                     <div className="header-accordion" onClick={() => toggleAccordion('header')}>2. Cabeçalho</div>
                     {accordionState.header && <div className="body">
                         <div className="radio row-align">
-                            <div className="row-align" onChange={headerRadio}><input type="radio" value="text" name="header" /><span className="padding-5">Texto</span></div>
-                            <div className="row-align" onChange={headerRadio}><input type="radio" value="image" name="header" /><span className="padding-5">Imagem</span></div>
-                            <div className="row-align" onChange={headerRadio}><input type="radio" value="document" name="header" /><span className="padding-5">Documento</span></div>
-                            <div className="row-align" onChange={headerRadio}><input type="radio" value="video" name="header" /><span className="padding-5">Video</span></div>
-                            <div className="row-align" onChange={headerRadio}><input type="radio" value="sheader" name="header" /><span className="padding-5">Sem cabeçalho</span></div>
+                            <div className="row-align" onChange={headerRadio}><input type="radio" value="text" name="header" checked={typeOfHeader === 'text'} /><span className="padding-5">Texto</span></div>
+                            <div className="row-align" onChange={headerRadio}><input type="radio" value="image" name="header" checked={typeOfHeader === 'image'} /><span className="padding-5">Imagem</span></div>
+                            <div className="row-align" onChange={headerRadio}><input type="radio" value="document" name="header" checked={typeOfHeader === 'document'} /><span className="padding-5">Documento</span></div>
+                            <div className="row-align" onChange={headerRadio}><input type="radio" value="video" name="header" checked={typeOfHeader === 'video'} /><span className="padding-5">Video</span></div>
+                            <div className="row-align" onChange={headerRadio}><input type="radio" value="sheader" name="header" checked={typeOfHeader === 'sheader'} /><span className="padding-5">Sem cabeçalho</span></div>
                         </div>
                         {typeOfHeader === "text" &&
                             <div className="container-configure">
@@ -490,7 +492,7 @@ export function CreateTemplateAccordion() {
                                     name="header"
                                     onChange={handleImageUpload}
                                 />
-
+                                <Alert message={"Você vai inserir a url da imagem no momento em que for disparar a mensagem."} />
                             </div>
 
                         }
@@ -506,11 +508,6 @@ export function CreateTemplateAccordion() {
                         }
                         {typeOfHeader === "video" &&
                             <div className="container-configure">
-                                <input type="file"
-                                    accept="video"
-                                    name="header"
-                                    onChange={handleInputChange}
-                                />
                                 <Alert message={"Você vai inserir a url do video no momento em que for disparar a mensagem. A visualização ao lado é simbolica."} />
                             </div>
 
@@ -562,8 +559,8 @@ export function CreateTemplateAccordion() {
                     {accordionState.footer && <div className="body">
                         <div style={{ display: "flex", flexDirection: "column", width: "100%", textAlign: "initial", paddingLeft: "20px" }}>
                             <div className="radio row-align">
-                                <div className="row-align" onChange={rodapeRadio}><input type="radio" name="Texto" value="srodape" /><span className="padding-5">Texto</span></div>
-                                <div className="row-align" onChange={rodapeRadio}><input type="radio" name="Texto" value="rodape" /><span className="padding-5">Sem rodapé</span></div>
+                                <div className="row-align" onChange={rodapeRadio}><input type="radio" name="Texto" value="rodape" checked={rodapeType === 'rodape'} /><span className="padding-5">Texto</span></div>
+                                <div className="row-align" onChange={rodapeRadio}><input type="radio" name="Texto" value="srodape" checked={rodapeType === 'srodape'}/><span className="padding-5">Sem rodapé</span></div>
                             </div>
 
                             {!rodape && <div>
@@ -589,9 +586,9 @@ export function CreateTemplateAccordion() {
                     {accordionState.botao && <div className="body">
                         <div style={{ width: "100%", marginBottom: "20px", paddingLeft: "20px" }}>
                             <div className="radio row-align">
-                                <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="quickReply" name="quickReply" /><span className="padding-5">Resposta rápida</span></div>
-                                <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="cta" name="quickReply" /><span className="padding-5">CTA</span></div>
-                                <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="without" name="quickReply" /><span className="padding-5">Nenhum</span></div>
+                                <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="quickReply" name="quickReply" checked={typeOfButtons === 'quickReply'}/><span className="padding-5">Resposta rápida</span></div>
+                                <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="cta" name="quickReply" checked={typeOfButtons === 'cta'} /><span className="padding-5">CTA</span></div>
+                                <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="without" name="quickReply" checked={typeOfButtons === 'without'} /><span className="padding-5">Nenhum</span></div>
                             </div>
                             {typeOfButtons === "quickReply" &&
                                 <div>
