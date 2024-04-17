@@ -84,9 +84,9 @@ export function TriggerDetails() {
                 let erro = 0;
                 let enviado = 0;
                 for (let i = 0; i < resp.data.data.length; i++) {
-                    if (resp.data.data[i].status === "Enviado") {
+                    if (resp.data.data[i].status === "enviado") {
                         enviado++;
-                    } else if (resp.data.data[i].status === "Erro") {
+                    } else if (resp.data.data[i].status === "erro") {
                         erro++;
                     } else {
                         aguardando++;
