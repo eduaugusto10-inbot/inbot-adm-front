@@ -10,7 +10,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   font-size: 16px;
 }
 
@@ -23,6 +22,10 @@
   width: 150px;
   border-radius: 4px;
   font-weight: bolder;
+  background-color: var(--primary);
+  color: #FFFF;
+  border-color: var(--primary);
+  margin: 20px;
 }
 
 

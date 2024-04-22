@@ -181,15 +181,14 @@ export function TriggerDetails() {
                 <div style={{ display: "flex", flexDirection: "row", width: "100%", padding: "20px 0px 0px 20px" }}>
                     <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
                 </div>
-                <div style={{ width: "100%", borderBottom: "1px solid #000", marginBottom: "30px", display: "flex", flexDirection: "row" }}>
-                    <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "90%" }}>Log de Disparos</h1>
-                </div>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "90%" }} className="title_2024">Log de Disparos</h1>
+                <hr className="hr_color" />
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-                    <div style={{ width: "250px", backgroundColor: "#F0F0F0", height: "300px", border: "1px solid #ccc", margin: "20px", borderRadius:"20px" }}>
+                    <div style={{ width: "250px", backgroundColor: "#F0F0F0", height: "300px", border: "1px solid #ccc", margin: "20px", borderRadius: "20px" }}>
                         <span style={{ fontWeight: "bolder", color: "#002080" }}>Resumo do Disparo</span>
                         <Pie data={dataPie} />
                     </div>
-                    <div style={{ fontWeight: "bolder", backgroundColor: "#F0F0F0", border: "1px solid #ccc", height: "250px", margin: "20px", borderRadius:"20px" }}>
+                    <div style={{ fontWeight: "bolder", backgroundColor: "#F0F0F0", border: "1px solid #ccc", height: "250px", margin: "20px", borderRadius: "20px" }}>
                         <span style={{ color: "#002080" }}>Filtros</span>
                         <div style={{ display: "flex", flexDirection: "row" }}>
                             <div style={{ display: "flex", flexDirection: "column", margin: "10px" }}>

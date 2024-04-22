@@ -1,20 +1,20 @@
 import React, { ChangeEvent, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import alert from '../../../../img/help.png'
+import alert from '../../../img/help.png'
 import 'react-tooltip/dist/react-tooltip.css'
 import { Tooltip } from 'react-tooltip'
-import { erroMessageQuickReply, errorMessageHeader, errorMessageFooter, errorMessageBody, waitingMessage, successCreateTemplate, errorMessage } from "../../../../Components/Toastify";
-import strings from '../../strings.json'
-import api from "../../../../utils/api";
+import { erroMessageQuickReply, errorMessageHeader, errorMessageFooter, errorMessageBody, waitingMessage, successCreateTemplate, errorMessage } from "../../../Components/Toastify";
+import strings from '../strings.json'
+import api from "../../../utils/api";
 import { ToastContainer } from "react-toastify";
-import whatsappBackground from '../../../../img/background_1.png';
+import whatsappBackground from '../../../img/background_1.png';
 import './index.css'
-import minus from '../../../../img/minus.png';
-import Alert from "../../../../Components/Alert";
-import { AccordionStateCreate, ButtonQR, IButton, IFooter, IHeader, IObject, ITemplate, IVariables, templateValue } from "../../../types";
-import { mask } from "../../../../utils/utils";
-import useModal from "../../../../Components/Modal/useModal";
-import Modal from "../../../../Components/Modal";
+import minus from '../../../img/minus.png';
+import Alert from "../../../Components/Alert";
+import { AccordionStateCreate, ButtonQR, IButton, IFooter, IHeader, IObject, ITemplate, IVariables, templateValue } from "../../types";
+import { mask } from "../../../utils/utils";
+import useModal from "../../../Components/Modal/useModal";
+import Modal from "../../../Components/Modal";
 
 export function CreateTemplateAccordion() {
 
@@ -397,8 +397,8 @@ export function CreateTemplateAccordion() {
                 <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
                     <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-17px" }} />
                 </div>
-                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69" }}>Criar Template</h1>
-                <div style={{ width: "110%", border: "1px solid #000", marginBottom: "30px" }}></div>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69" }} className="title_2024">Criar Template</h1>
+                <hr className="hr_color"/>
                 <div className="config-template">
                     <div className="header-accordion" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
                     {accordionState.config &&

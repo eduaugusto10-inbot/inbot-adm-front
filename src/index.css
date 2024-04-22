@@ -4,6 +4,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(to bottom, #ffffff, #e0e0e0);
+  padding: 0;
 }
 
 code {
@@ -23,6 +24,10 @@ select {
   border-radius: 4px;
 }
 
+select {
+  border-radius: 8px !important;
+}
+
 .input-template {
   width: 300px;
   height: 30px;
@@ -34,24 +39,15 @@ textarea {
   resize: 'none';
 }
 
-table {
+.table {
   color: #303030;
-}
-
-thead {
-  color: #FFFF;
-  background-color: var(--primary);
-}
-
-td,
-th {
-  padding: 5px;
 }
 
 :root {
   --primary: #EE7923;
   --secondary: #fdfdfd;
   --bs-gray: #eeeeee;
+  --blue: #048;
 }
 
 .text-label {
@@ -84,13 +80,6 @@ form {
   padding: 10px;
 }
 
-button {
-  background-color: var(--primary);
-  color: #FFFF;
-  border-color: var(--primary);
-  margin: 20px;
-}
-
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -107,7 +96,7 @@ input[type=number] {
   display: flex;
   justify-content: center;
   align-items: center;
-  
+
 }
 
 .spinner {
@@ -121,9 +110,68 @@ input[type=number] {
 
 @keyframes spin {
   0% {
-      transform: rotate(0deg);
+    transform: rotate(0deg);
   }
+
   100% {
-      transform: rotate(360deg);
+    transform: rotate(360deg);
   }
+}
+
+/* th - cores alternadas: */
+table th:nth-child(odd) {
+  background-color: rgba(0, 0, 0, 0);
+  color: #6b97cf;
+}
+
+table th:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0);
+  color: #315180;
+}
+
+.title_2024 {
+  text-align: center;
+  color: var(--blue);
+}
+
+.hr_color {
+  height: 2px;
+  background-image: linear-gradient(to right, #a050e0, #80a0ff);
+}
+
+.btn-grey {
+  background-color: #006699 !important;
+  color: #FFF !important;
+  padding: 0px !important;
+}
+
+.btn {
+  border-radius: 20px;
+}
+
+.table-2024 {
+  box-shadow: 0 0 0 1.5px #30c;
+  /* the table border  */
+  border-radius: 10px;
+  border-collapse: collapse;
+}
+
+
+
+
+.table-2024 th {
+  border-bottom: 2px solid #30c;
+  vertical-align: middle;
+}
+
+.table-2024 th:not(:first-child):not(:last-child) {
+  border-right: 1px solid #aaa;
+}
+
+.table-2024 tr:last-child td:first-child {
+  border-bottom-left-radius: 15px;
+}
+
+.table-2024 tr:last-child td:last-child {
+  border-bottom-right-radius: 15px;
 }

@@ -293,9 +293,8 @@ export function Accordion() {
             <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
                 <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-17px" }} />
             </div>
-            <div style={{ width: "110%", borderBottom: "1px solid #000", marginBottom: "30px" }}>
-                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }}>Envio de Campanhas</h1>
-            </div>
+            <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }} className="title_2024">Envio de Campanhas</h1>
+            <hr className="hr_color" />
             <div className="config-template">
                 <div className="header-accordion" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
                 {accordionState.config &&
@@ -321,8 +320,8 @@ export function Accordion() {
                             <span style={{ fontSize: "16px" }}>Clientes</span>
                             <span style={{ fontSize: "11px", fontStyle: "italic" }}>Adicione clientes que receberão os templates, poderá fazer upload de uma planilha ou inserir um número manualmente.</span>
                         </div>
-                        <input type="radio" name="clientes" value="unico" onChange={signInClients} className="input-spaces" checked={typeClient === false}/><span>Manual</span>
-                        <input type="radio" name="clientes" value="multiplos" onChange={signInClients} className="input-spaces" checked={typeClient === true}/><span>Carregar planilha</span>
+                        <input type="radio" name="clientes" value="unico" onChange={signInClients} className="input-spaces" checked={typeClient === false} /><span>Manual</span>
+                        <input type="radio" name="clientes" value="multiplos" onChange={signInClients} className="input-spaces" checked={typeClient === true} /><span>Carregar planilha</span>
                     </div>
                     {!typeClient &&
                         <div style={{ display: "flex", flexDirection: "column", width: "90%" }}>
@@ -351,7 +350,7 @@ export function Accordion() {
                                     ))
                                     }
                                 </div>
-                                {headerConfig !== "text" && headerConfig !==null &&
+                                {headerConfig !== "text" && headerConfig !== null &&
                                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
                                         <span className="span-title">Link {headerConfig === "document" ? "documento" : headerConfig === "image" ? "imagem" : "video"}</span>
                                         <input className="input-values" value={urlMidia} onChange={e => setURLMidia(e.target.value)} />
@@ -443,8 +442,8 @@ export function Accordion() {
                 <div className="header-accordion" onClick={() => toggleAccordion('disparo')}>3. Modo de Disparo</div>
                 {accordionState.disparo && <div className="body">
                     <div className="line">
-                        <input type="radio" name="disparo" value="imediato" onChange={handleMode} className="input-spaces" checked={mode===false}/><span>Imediato</span>
-                        <input type="radio" name="disparo" value="agendado" onChange={handleMode} className="input-spaces" checked={mode===true} /><span>Agendado</span>
+                        <input type="radio" name="disparo" value="imediato" onChange={handleMode} className="input-spaces" checked={mode === false} /><span>Imediato</span>
+                        <input type="radio" name="disparo" value="agendado" onChange={handleMode} className="input-spaces" checked={mode === true} /><span>Agendado</span>
                     </div>
                     {mode && <div style={{ display: "flex", flexDirection: "row" }}>
                         <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
@@ -468,7 +467,7 @@ export function Accordion() {
                         <span>Template: {templateName}</span>
                         <span>Telefone do disparo: {mask(phone)}</span>
                         <span>Data e hora do disparo: {triggerMode} - {dates} - {hours}</span>
-                        <span>Quantidade de disparos: {typeClient===false ? listVariables.length : ""}</span>
+                        <span>Quantidade de disparos: {typeClient === false ? listVariables.length : ""}</span>
                     </div>
                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", width: "100%" }}>
                         <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Cancelar")}>Cancelar</button>

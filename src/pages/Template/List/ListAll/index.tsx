@@ -171,17 +171,16 @@ export function ListAll() {
                     {isLoading ? (<div className="spinner-container">
                         <div className="spinner"></div>
                     </div>)
-                    : <img onLoad={handleImageLoad} src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />}
+                        : <img onLoad={handleImageLoad} src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />}
                 </div>
-                <div style={{ width: "100%", borderBottom: "1px solid #000", marginBottom: "30px", display: "flex", flexDirection: "row" }}>
-                    <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }}>Templates</h1>
-                </div>
-                    <button onClick={CreateTemplate} style={{ margin: "10px", backgroundColor: "#010043", border: "1px solid #010043", width: "180px", height: "30px", borderRadius: "5px" }}>Novo Template</button>
-                    <button onClick={ListCampaign} style={{ margin: "10px", backgroundColor: "#010043", border: "1px solid #010043", width: "180px", height: "30px", borderRadius: "5px" }}>Campanhas</button>
-                <table>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }} className="title_2024">Templates</h1>
+                <hr className="hr_color" />
+                <button onClick={CreateTemplate} style={{ margin: "10px", width: "180px", height: "30px" }} className="btn btn-grey">Novo Template</button>
+                <button onClick={ListCampaign} style={{ margin: "10px", width: "180px", height: "30px" }} className="btn btn-grey">Campanhas</button>
+                <table className="table-2024">
                     <thead>
-                        <tr className="cells" style={{ backgroundColor: "#010043" }}>
-                            <th className="cells"><span>ID do template</span></th>
+                        <tr className="cells">
+                            <th className="cells">ID do template</th>
                             <th className="cells">Nome do template</th>
                             <th className="cells">Status</th>
                             <th className="cells">Categoria</th>
@@ -199,7 +198,7 @@ export function ListAll() {
                             >
                                 <td className="cells"><span style={{ color: "blue", fontSize: "12px" }}>{template.ID}</span></td>
                                 <td><span>{template.name}</span></td>
-                                <td><div style={{ borderRadius: "20px", backgroundColor: template.status === "APPROVED" ? "#F2FFED" : "#FFECEC", padding: "7px" }}><span style={{ fontSize: "12px", color: template.status === "APPROVED" ? "green" : "red", fontWeight: "bolder" }}>{template.status === "APPROVED" ? "Aprovado" : "Rejeitado"}</span></div></td>
+                                <td><div style={{ borderRadius: "20px", backgroundColor: template.status === "APPROVED" ? "#F2FFED" : template.status === "PENDING" ? "gray" : "#FFECEC", padding: "7px" }}><span style={{ fontSize: "12px", color: template.status === "APPROVED" ? "green" : template.status === "PENDING" ? "yellow" : "red", fontWeight: "bolder" }}>{template.status === "APPROVED" ? "Aprovado" : template.status === "PENDING" ? "Pendente" : "Rejeitado"}</span></div></td>
                                 <td><span>{template.category}</span></td>
                                 <td><span>{template.language}</span></td>
                                 <td><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>
