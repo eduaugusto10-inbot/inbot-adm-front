@@ -380,16 +380,16 @@ export function Accordion() {
                                 <table style={{ margin: "20px" }}>
                                     <thead>
                                         <tr style={{ backgroundColor: '#0D5388', fontSize: "12px" }}>
-                                            <th>Telefone</th>
-                                            <th>Variável 1</th>
-                                            <th>Variável 2</th>
-                                            <th>Variável 3</th>
-                                            <th>Variável 4</th>
-                                            <th>Variável 5</th>
-                                            <th>Variável 6</th>
-                                            <th>Variável 7</th>
-                                            <th>Variável 8</th>
-                                            <th>Link midia</th>
+                                            <th style={{color:"#FFF"}}>Telefone</th>
+                                            <th style={{color:"#FFF"}}>Variável 1</th>
+                                            <th style={{color:"#FFF"}}>Variável 2</th>
+                                            <th style={{color:"#FFF"}}>Variável 3</th>
+                                            <th style={{color:"#FFF"}}>Variável 4</th>
+                                            <th style={{color:"#FFF"}}>Variável 5</th>
+                                            <th style={{color:"#FFF"}}>Variável 6</th>
+                                            <th style={{color:"#FFF"}}>Variável 7</th>
+                                            <th style={{color:"#FFF"}}>Variável 8</th>
+                                            <th style={{color:"#FFF"}}>Link midia</th>
                                         </tr>
                                     </thead>
                                     <tbody style={{ backgroundColor: '#F9F9F9', fontSize: "12px" }}>

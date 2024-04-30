@@ -172,7 +172,7 @@ export function ListAll() {
                     </div>)
                         : <img onLoad={handleImageLoad} src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />}
                 </div>
-                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }} className="title_2024">Templates</h1>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }} className="title_2024">Modelo de Mensagens (Templates)</h1>
                 <hr className="hr_color" />
                 {/* <button onClick={CreateTemplate} style={{ margin: "10px", width: "180px", height: "30px" }} className="btn btn-grey">Novo Template</button>
                 <button onClick={ListCampaign} style={{ margin: "10px", width: "180px", height: "30px" }} className="btn btn-grey">Campanhas</button> */}
