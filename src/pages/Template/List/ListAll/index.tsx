@@ -164,7 +164,7 @@ export function ListAll() {
         });
     }
     return (
-        <div style={{ margin: "40px" }}>
+        <div>
             <div>
                 <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
                     {isLoading ? (<div className="spinner-container">
@@ -174,8 +174,8 @@ export function ListAll() {
                 </div>
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }} className="title_2024">Templates</h1>
                 <hr className="hr_color" />
-                <button onClick={CreateTemplate} style={{ margin: "10px", width: "180px", height: "30px" }} className="btn btn-grey">Novo Template</button>
-                <button onClick={ListCampaign} style={{ margin: "10px", width: "180px", height: "30px" }} className="btn btn-grey">Campanhas</button>
+                {/* <button onClick={CreateTemplate} style={{ margin: "10px", width: "180px", height: "30px" }} className="btn btn-grey">Novo Template</button>
+                <button onClick={ListCampaign} style={{ margin: "10px", width: "180px", height: "30px" }} className="btn btn-grey">Campanhas</button> */}
                 <table className="table-2024">
                     <thead>
                         <tr className="cells">

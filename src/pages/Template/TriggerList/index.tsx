@@ -131,7 +131,7 @@ export function TriggerList() {
     }
 
     return (
-        <div style={{ margin: "40px" }}>
+        <div>
             <ToastContainer />
             <div>
                 <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
