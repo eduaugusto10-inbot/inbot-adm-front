@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import alert from '../../../img/help.png'
 import 'react-tooltip/dist/react-tooltip.css'
 import { Tooltip } from 'react-tooltip'
@@ -28,7 +28,6 @@ export function CreateTemplateAccordion() {
         window.location.href = "https://in.bot/inbot-admin";
     }
     var botId = searchParams.get('bot_id') ?? "0";
-    localStorage.setItem("botId", botId)
 
     const [templateName, setTemplateName] = useState<string>("")
     const [templateType, setTemplateType] = useState<string>("")

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import './style.css'
 import api from "../../../utils/api";
 import dots from "../../../img/dots.png"
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { errorCancelTrigger, successCancelTrigger, waitingMessage } from "../../../Components/Toastify";
 import { adjustTime } from "../../../utils/utils";
@@ -10,9 +10,13 @@ import { ITriggerList } from "../../types";
 
 export function TriggerList() {
 
+    const [searchParams, setSearchParams] = useSearchParams();
+    if (searchParams.get('bot_id') === null) {
+        window.location.href = "https://in.bot/inbot-admin";
+    }
+    
     const location = useLocation()
-    const botId = location.state.botId;
-    const profilePic = location.state.urlLogo;
+    var botId = searchParams.get('bot_id') ?? "0";
 
     const [triggerList, setTriggerList] = useState<ITriggerList[]>([])
     const [hoveredRow, setHoveredRow] = useState<number | null>(null);
@@ -20,6 +24,23 @@ export function TriggerList() {
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [selectedRow, setSelectedRow] = useState<number | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
+    const [profilePic, setProfilePic] = useState<string>("")
+
+    useEffect(() => {
+        if (searchParams.get('bot_id') === null) {
+            window.location.href = "https://in.bot/inbot-admin";
+        }
+        api.get(`/whats-botid/${botId}`)
+            .then(resp => {
+                const token = resp.data.accessToken;
+                api.get("https://whatsapp.smarters.io/api/v1/settings", { headers: { 'Authorization': token } })
+                    .then(res => {
+                        setProfilePic(res.data.data.profile_pic)
+                        // handleImageLoad()
+                    })
+                    .catch(error => console.log(error))
+            })
+    }, []);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {

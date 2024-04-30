@@ -13,7 +13,6 @@ export function ListAll() {
         window.location.href = "https://in.bot/inbot-admin";
     }
     var botId = searchParams.get('bot_id') ?? "0";
-    localStorage.setItem("botId", botId)
 
     const [modal, setModal] = useState<boolean>(false)
     const [modalObject, setModalObject] = useState<any>()
