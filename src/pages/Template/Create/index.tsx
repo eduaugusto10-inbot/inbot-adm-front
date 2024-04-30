@@ -1,5 +1,5 @@
-import React, { ChangeEvent, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import alert from '../../../img/help.png'
 import 'react-tooltip/dist/react-tooltip.css'
 import { Tooltip } from 'react-tooltip'
@@ -20,11 +20,16 @@ export function CreateTemplateAccordion() {
 
     const history = useNavigate();
     function BackToList() {
-        history(`/template-list?bot_id=${localStorage.getItem("botId")}`)
+        history(`/template-list?bot_id=${botId}`)
     }
-    const location = useLocation()
-    const profilePic = location.state.urlLogo;
-    const phone = location.state.phone;
+
+    const [searchParams, setSearchParams] = useSearchParams();
+    if (searchParams.get('bot_id') === null) {
+        window.location.href = "https://in.bot/inbot-admin";
+    }
+    var botId = searchParams.get('bot_id') ?? "0";
+    localStorage.setItem("botId", botId)
+
     const [templateName, setTemplateName] = useState<string>("")
     const [templateType, setTemplateType] = useState<string>("")
     const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
@@ -43,6 +48,9 @@ export function CreateTemplateAccordion() {
     const [buttons, setButtons] = useState<IButton[]>([])
     const [buttonsCTA, setButtonsCTA] = useState<IButton[]>([])
     const [typeOfButtons, setTypeOfButtons] = useState<string>('without')
+    const [phone, setPhone] = useState<string>("")
+    const [profilePic, setProfilePic] = useState<string>("")
+
     const selectTemplate = (e: string) => {
         switch (e) {
             case "UTILITY":
@@ -55,6 +63,23 @@ export function CreateTemplateAccordion() {
                 return "Escolha uma das opções de Categoria";
         }
     }
+
+    useEffect(() => {
+        if (searchParams.get('bot_id') === null) {
+            window.location.href = "https://in.bot/inbot-admin";
+        }
+        api.get(`/whats-botid/${botId}`)
+            .then(resp => {
+                setPhone(resp.data.number)
+                const token = resp.data.accessToken;
+                api.get("https://whatsapp.smarters.io/api/v1/settings", { headers: { 'Authorization': token } })
+                    .then(res => {
+                        setProfilePic(res.data.data.profile_pic)
+                        // handleImageLoad()
+                    })
+                    .catch(error => console.log(error))
+            })
+    }, []);
 
     const toggleAccordion = (key: keyof AccordionStateCreate) => {
         setAccordionState({
@@ -339,10 +364,10 @@ export function CreateTemplateAccordion() {
         payload["category"] = templateType;
         payload["name"] = templateName;
         payload["language"] = "pt_BR";//configTemplate.language;
-        api.post(`/whats/template/${localStorage.getItem("botId")}`, payload)
+        api.post(`/whats/template/${botId}`, payload)
             .then(resp => {
                 successCreateTemplate()
-                setTimeout(() => (`/template-list?bot_id=${localStorage.getItem("botId")}`), 3000)
+                setTimeout(() => (`/template-list?bot_id=${botId}`), 3000)
             })
             .catch(err => {
                 console.log("$s ERROR create template: %O", new Date(), err)
@@ -439,7 +464,7 @@ export function CreateTemplateAccordion() {
                                     <span className="span-title">Bot ID</span>
                                     <input type="text"
                                         className="input-values"
-                                        value={localStorage.getItem("botId") ?? ""}
+                                        value={botId ?? ""}
                                         disabled
                                     />
                                 </div>

@@ -84,14 +84,14 @@ export function ListAll() {
 
     const history = useNavigate();
     function CreateTemplate() {
-        history("/template-create", { state: { urlLogo: profilePic, phone: phone } });
+        history(`/template-create?bot_id=${botId}`, { state: { urlLogo: profilePic, phone: phone } });
     }
     function ListCampaign() {
-        history("/trigger-list", { state: { urlLogo: profilePic, botId: botId } });
+        history(`/trigger-list?bot_id=${botId}`, { state: { urlLogo: profilePic, botId: botId } });
     }
     function SendTemplate(name: string, variableQuantity: number, qtButtons: number, headerConfig: string | null) {
         console.log(headerConfig)
-        history("/template-trigger", { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: profilePic, phone: phone, headerConfig: headerConfig, qtButtons: qtButtons } });
+        history(`/template-trigger?bot_id=${botId}`, { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: profilePic, phone: phone, headerConfig: headerConfig, qtButtons: qtButtons } });
     }
 
     const loadTemplate = (id: number) => {
