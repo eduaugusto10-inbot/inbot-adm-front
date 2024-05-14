@@ -35,5 +35,8 @@ export const adjustTime = (time: string) => {
     const adjustTime = new Date(time);
     adjustTime.setHours(adjustTime.getHours() - 3)
     return adjustTime.toLocaleString();
-
+}
+export const adjustTimeWithout3Hour = (time: string) => {
+    const adjustTime = new Date(time);
+    return adjustTime.toLocaleString();
 }

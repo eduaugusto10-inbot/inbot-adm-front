@@ -392,6 +392,13 @@ export function CreateTemplateAccordion() {
         }
         toggle();
     }
+    const removeAccentsAndCommas = (str: string) => {
+        return str
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/,/g, '')
+          .replace(/[~´`^"']/g, '');
+      }
     const handleButtonClick = (buttonId: string) => {
         if (buttonId === "Confirmar") {
             createPayload()
@@ -415,13 +422,13 @@ export function CreateTemplateAccordion() {
     };
     return (
         <div style={{ width: "80vw" }}>
-            <div >
+            <div style={{width:"800px"}}>
                 <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
                 <ToastContainer />
                 <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
-                    <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-17px" }} />
+                    <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-17px" }} />
                 </div>
-                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69" }} className="title_2024">Criar Template</h1>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", marginLeft:"65px" }} className="title_2024">Criar Template</h1>
                 <hr className="hr_color"/>
                 <div className="config-template">
                     <div className="header-accordion" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
@@ -435,7 +442,7 @@ export function CreateTemplateAccordion() {
                                         maxLength={512}
                                         name="templateName"
                                         value={templateName}
-                                        onChange={e => setTemplateName(e.target.value.trim().toLowerCase())}
+                                        onChange={e => setTemplateName(removeAccentsAndCommas(e.target.value).replace(/\s/g, '').toLowerCase())}
                                     />
                                     <a data-tooltip-id="my-tooltip-multiline" data-tooltip-html="Utilizar apenas letras, números e underline.<br /> Não utilizar espaços, acentuações e virgulas.<br />Exemplo correto: template_1">
                                         <img src={alert} width={20} height={20} alt="alerta" />
@@ -664,7 +671,7 @@ export function CreateTemplateAccordion() {
                                 </div>
                             }</div>
                     </div>}
-                    <div style={{ display: "flex", flexDirection: "row", textAlign: "end", alignContent: "end", alignItems: "end" }}>
+                    <div style={{ flexDirection: "row", textAlign: "end", alignContent: "end", alignItems: "end" }}>
                         <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Cancelar")}>Cancelar</button>
                         <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Salvar")}>Salvar</button>
                     </div>

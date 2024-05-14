@@ -179,9 +179,9 @@ export function TriggerDetails() {
             <ToastContainer />
             <div>
                 <div style={{ display: "flex", flexDirection: "row", width: "100%", padding: "20px 0px 0px 20px" }}>
-                    <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
+                    <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
                 </div>
-                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "90%" }} className="title_2024">Log de Disparos</h1>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "90%", marginLeft:"40px" }} className="title_2024">Detalhes da Campanha</h1>
                 <hr className="hr_color" />
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                     <div style={{ width: "250px", backgroundColor: "#F0F0F0", height: "300px", border: "1px solid #ccc", margin: "20px", borderRadius: "20px" }}>
@@ -217,19 +217,20 @@ export function TriggerDetails() {
                         </div>
                     </div>
                 </div>
+                <div style={{display:"flex",flexDirection:"column"}}>
                 <table>
                     <thead>
                         <tr className="cells" style={{ backgroundColor: "#010043", fontSize: "12px" }}>
                             <th className="cells">Telefone</th>
-                            <th className="cells">Var. 1</th>
-                            <th className="cells">Var. 2</th>
-                            <th className="cells">Var. 3</th>
-                            <th className="cells">Var. 4</th>
-                            <th className="cells">Var. 5</th>
-                            <th className="cells">Var. 6</th>
-                            <th className="cells">Var. 7</th>
-                            <th className="cells">Var. 8</th>
-                            <th className="cells">Var. 9</th>
+                            {filteredCustomers[0]?.variable_1!==null &&<th className="cells">Var. 1</th>}
+                            {filteredCustomers[0]?.variable_2!==null &&<th className="cells">Var. 2</th>}
+                            {filteredCustomers[0]?.variable_3!==null &&<th className="cells">Var. 3</th>}
+                            {filteredCustomers[0]?.variable_4!==null &&<th className="cells">Var. 4</th>}
+                            {filteredCustomers[0]?.variable_5!==null &&<th className="cells">Var. 5</th>}
+                            {filteredCustomers[0]?.variable_6!==null &&<th className="cells">Var. 6</th>}
+                            {filteredCustomers[0]?.variable_7!==null &&<th className="cells">Var. 7</th>}
+                            {filteredCustomers[0]?.variable_8!==null &&<th className="cells">Var. 8</th>}
+                            {filteredCustomers[0]?.variable_9!==null &&<th className="cells">Var. 9</th>}
                             <th className="cells">Status</th>
                             <th className="cells">Horário do criação</th>
                             <th className="cells">Horário do envio</th>
@@ -239,15 +240,15 @@ export function TriggerDetails() {
                     {filteredCustomers.map(customer => (
                         <tr>
                             <td><span style={{ fontSize: "12px" }}>{mask(customer.phone)}</span></td>
-                            <td><span style={{ fontSize: "12px" }}>{customer.variable_1}</span></td>
-                            <td><span style={{ fontSize: "12px" }}>{customer.variable_2}</span></td>
-                            <td><span style={{ fontSize: "12px" }}>{customer.variable_3}</span></td>
-                            <td><span style={{ fontSize: "12px" }}>{customer.variable_4}</span></td>
-                            <td><span style={{ fontSize: "12px" }}>{customer.variable_5}</span></td>
-                            <td><span style={{ fontSize: "12px" }}>{customer.variable_6}</span></td>
-                            <td><span style={{ fontSize: "12px" }}>{customer.variable_7}</span></td>
-                            <td><span style={{ fontSize: "12px" }}>{customer.variable_8}</span></td>
-                            <td><span style={{ fontSize: "12px" }}>{customer.variable_9}</span></td>
+                            {customer.variable_1!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_1}</span></td>}
+                            {customer.variable_2!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_2}</span></td>}
+                            {customer.variable_3!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_3}</span></td>}
+                            {customer.variable_4!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_4}</span></td>}
+                            {customer.variable_5!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_5}</span></td>}
+                            {customer.variable_6!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_6}</span></td>}
+                            {customer.variable_7!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_7}</span></td>}
+                            {customer.variable_8!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_8}</span></td>}
+                            {customer.variable_9!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_9}</span></td>}
                             <td><span style={{ fontSize: "12px" }}>{customer.status}</span></td>
                             <td><span style={{ fontSize: "12px" }}>{adjustTime(customer.data_criacao)}</span></td>
                             <td><span style={{ fontSize: "12px" }}>{customer.data_disparo ? adjustTime(customer.data_disparo) : "----"}</span></td>
@@ -255,6 +256,7 @@ export function TriggerDetails() {
                         </tr>
                     ))}
                 </table>
+                </div>
             </div>
         </div>
     )

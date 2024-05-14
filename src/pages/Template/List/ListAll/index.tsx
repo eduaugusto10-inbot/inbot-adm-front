@@ -170,16 +170,16 @@ export function ListAll() {
                     {isLoading ? (<div className="spinner-container">
                         <div className="spinner"></div>
                     </div>)
-                        : <img onLoad={handleImageLoad} src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />}
+                        : <img onLoad={handleImageLoad} src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-30px" }} />}
                 </div>
-                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }} className="title_2024">Modelo de Mensagens (Templates)</h1>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%", marginLeft:"65px" }} className="title_2024">Gerenciar Templates</h1>
                 <hr className="hr_color" />
                 {/* <button onClick={CreateTemplate} style={{ margin: "10px", width: "180px", height: "30px" }} className="btn btn-grey">Novo Template</button>
                 <button onClick={ListCampaign} style={{ margin: "10px", width: "180px", height: "30px" }} className="btn btn-grey">Campanhas</button> */}
                 <table className="table-2024">
                     <thead>
                         <tr className="cells">
-                            <th className="cells">ID do template</th>
+                            <th className="cells" style={{borderRight:"1px solid #aaa"}}>ID do template</th>
                             <th className="cells">Nome do template</th>
                             <th className="cells">Status</th>
                             <th className="cells">Categoria</th>
@@ -230,7 +230,7 @@ export function ListAll() {
                                     onMouseLeave={handleMouseLeave}> <td onClick={() => loadTemplate(selectedRow)}>Visualizar template</td></tr>
                                 <tr style={{ cursor: "pointer", borderBottom: "1px solid #000", backgroundColor: hoveredRow === selectedRow ? '#F9F9F9' : 'white' }}
                                     onMouseEnter={() => handleMouseEnter(selectedRow)}
-                                    onMouseLeave={handleMouseLeave}><td onClick={() => sendtemplate(selectedRow)}>Enviar template</td></tr>
+                                    onMouseLeave={handleMouseLeave}><td onClick={() => sendtemplate(selectedRow)}>Criar Campanha</td></tr>
                             </tbody>
                         </table>
                     </div>

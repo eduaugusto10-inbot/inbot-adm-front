@@ -293,7 +293,7 @@ export function Accordion() {
             <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
                 <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-17px" }} />
             </div>
-            <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }} className="title_2024">Envio de Campanhas</h1>
+            <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }} className="title_2024">Criar Campanha</h1>
             <hr className="hr_color" />
             <div className="config-template">
                 <div className="header-accordion" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
@@ -313,7 +313,7 @@ export function Accordion() {
                     </div>}
             </div>
             <div className="config-recebidores" style={{ maxHeight: "680px" }}>
-                <div className="header-accordion" onClick={() => toggleAccordion('recebidores')}>2. Cadastro dos Clientes</div>
+                <div className="header-accordion" onClick={() => toggleAccordion('recebidores')}>2. Cadastro dos Contatos da Campanha</div>
                 {accordionState.recebidores && <div className="body">
                     <div style={{ width: "90%" }}>
                         <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
