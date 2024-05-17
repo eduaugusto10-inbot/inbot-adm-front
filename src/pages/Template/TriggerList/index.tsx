@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import './style.css'
 import api from "../../../utils/api";
 import dots from "../../../img/dots.png"
@@ -7,6 +7,7 @@ import { ToastContainer } from "react-toastify";
 import { errorCancelTrigger, successCancelTrigger, waitingMessage } from "../../../Components/Toastify";
 import { adjustTime, adjustTimeWithout3Hour } from "../../../utils/utils";
 import { ITriggerList } from "../../types";
+import loupe from '../../../img/loupe.png'
 
 export function TriggerList() {
 
@@ -23,6 +24,7 @@ export function TriggerList() {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [selectedRow, setSelectedRow] = useState<number | null>(null);
+    const [filtro, setFiltro] = useState<string>('');
     const menuRef = useRef<HTMLDivElement>(null);
     const [profilePic, setProfilePic] = useState<string>("")
 
@@ -55,6 +57,15 @@ export function TriggerList() {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+    const dadosFiltrados = triggerList.filter(trigger =>
+        trigger.campaign_name.toLowerCase().includes(filtro.toLowerCase()) ||
+        trigger.template_name.toLowerCase().includes(filtro.toLowerCase())
+      );
+
+      const handleFiltroChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setFiltro(e.target.value);
+      };
 
     const handleOptionClick = (index: number, event: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
         event.stopPropagation();
@@ -142,12 +153,18 @@ export function TriggerList() {
                 </div>
                     <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "90%" }} className="title_2024">Gerenciar Campanhas</h1>
                 <hr className="hr_color2024" />
-                <table>
+                <div style={{margin:"20px"}}>
+                    <input onChange={handleFiltroChange} value={filtro} type="text" style={{borderRight:"none", width:"300px", borderRadius:"20px 0px 0px 20px", paddingLeft:"20px"}} placeholder="Buscar por nome ou template"/>
+                    <button style={{borderLeft:"none", borderRadius:"0px 20px 20px 0px", width:"50px"}}>
+                        <img src={loupe} alt="" width={20} height={20}/>
+                    </button>
+                </div>
+                <div className="table-container">
+                <table className="fixed-header-table">
                     <thead>
                         <tr className="cells" style={{ backgroundColor: "#010043" }}>
                             <th className="cells">Nome</th>
                             <th className="cells">Template</th>
-                            {/* <th className="cells">Tipo de disparo</th> */}
                             <th className="cells">Data criação</th>
                             <th className="cells">Data de envio</th>
                             <th className="cells">Status</th>
@@ -155,7 +172,7 @@ export function TriggerList() {
                         </tr>
                     </thead>
                     <tbody>
-                        {triggerList.map((trigger, index) => (
+                        {dadosFiltrados.map((trigger, index) => (
                             <React.Fragment key={index}>
                                 <tr
                                     key={index}
@@ -175,6 +192,7 @@ export function TriggerList() {
                         ))}
                     </tbody>
                 </table>
+                </div>
                 {menuOpen && selectedRow !== null && (
                     <div
                         ref={menuRef}
@@ -186,20 +204,18 @@ export function TriggerList() {
                             padding: '5px',
                             backgroundColor: '#fff',
                         }}
-                    ><table>
-                            <tbody>
+                    ><li className="blue-text dropdown-show no-bullets">
                                 {statusNameView(selectedRow)==="aguardando" && (
-                                <tr style={{ cursor: "pointer", borderBottom: "1px solid #000", backgroundColor: hoveredRow === selectedRow ? '#F9F9F9' : 'white' }}
+                                <ul style={{ cursor: "pointer", borderBottom: "1px solid #000", backgroundColor: hoveredRow === selectedRow ? '#f0f0f0' : 'white' }}
                                     onMouseEnter={() => handleMouseEnter(selectedRow)}
                                     onMouseLeave={handleMouseLeave}> <td onClick={() => changeStatus(selectedRow)}>Cancelar disparo</td>
-                                </tr>
+                                </ul>
                             )}
-                                <tr style={{ cursor: "pointer", borderBottom: "1px solid #000", backgroundColor: hoveredRow === selectedRow ? '#F9F9F9' : 'white' }}
+                                <ul style={{ cursor: "pointer", borderBottom: "1px solid #000", backgroundColor: hoveredRow === selectedRow ? '#f0f0f0' : 'white' }}
                                     onMouseEnter={() => handleMouseEnter(selectedRow)}
                                     onMouseLeave={handleMouseLeave}> <td onClick={() => detailedTrigger(selectedRow)}>Detalhes</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                </ul>
+                        </li>
                     </div>
                 )}
             </div>

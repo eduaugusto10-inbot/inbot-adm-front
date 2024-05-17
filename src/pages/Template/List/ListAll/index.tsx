@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import './style.css'
 import api from "../../../../utils/api";
 import { ITemplateList } from "../../../types";
@@ -7,7 +7,8 @@ import { useNavigate } from "react-router-dom";
 import ModalTemplate from "../../ModalTemplate";
 import { useSearchParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { errorMessage, successMessageChange, successMessageDeleteTemplate, waitingMessage } from "../../../../Components/Toastify";
+import { errorMessage, successMessageDeleteTemplate, waitingMessage } from "../../../../Components/Toastify";
+import loupe from '../../../../img/loupe.png'
 
 export function ListAll() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -26,6 +27,7 @@ export function ListAll() {
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [selectedRow, setSelectedRow] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [filtro, setFiltro] = useState<string>('');
     const [token, setToken] = useState<string>('')
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -110,18 +112,16 @@ export function ListAll() {
         const numeros: number[] = [];
         let match: RegExpExecArray | null;
 
-        // Encontra todas as ocorrências de números dentro das strings que correspondem ao padrão
         while ((match = regex.exec(texto)) !== null) {
             if (match[1]) {
                 numeros.push(parseInt(match[1]));
             }
         }
 
-        // Encontra o maior número na lista
         if (numeros.length > 0) {
             return Math.max(...numeros);
         } else {
-            return -1; // Retorna -1 se não encontrar nenhum número
+            return -1;
         }
     };
 
@@ -184,6 +184,14 @@ export function ListAll() {
             })
     }
 
+    const dadosFiltrados = templates.filter(template =>
+        template.name.toLowerCase().includes(filtro.toLowerCase())
+      );
+
+      const handleFiltroChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setFiltro(e.target.value);
+      };
+
     return (
         <div>
             <ToastContainer />
@@ -196,9 +204,14 @@ export function ListAll() {
                 </div>
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%", marginLeft:"65px" }} className="title_2024">Gerenciar Templates</h1>
                 <hr className="hr_color" />
-                {/* <button onClick={CreateTemplate} style={{ margin: "10px", width: "180px", height: "30px" }} className="btn btn-grey">Novo Template</button>
-                <button onClick={ListCampaign} style={{ margin: "10px", width: "180px", height: "30px" }} className="btn btn-grey">Campanhas</button> */}
-                <table className="table-2024">
+                <div style={{margin:"20px"}}>
+                    <input onChange={handleFiltroChange} value={filtro} type="text" style={{borderRight:"none", width:"300px", borderRadius:"20px 0px 0px 20px", paddingLeft:"20px"}} placeholder="Buscar por nome ou template"/>
+                    <button style={{borderLeft:"none", borderRadius:"0px 20px 20px 0px", width:"50px"}}>
+                        <img src={loupe} alt="" width={20} height={20}/>
+                    </button>
+                </div>
+                <div className="table-container">
+                <table className="table-2024 fixed-header-table" style={{textAlign:"left"}}>
                     <thead>
                         <tr className="cells">
                             <th className="cells" style={{borderRight:"1px solid #aaa"}}>ID do template</th>
@@ -210,7 +223,7 @@ export function ListAll() {
                         </tr>
                     </thead>
                     <tbody>
-                        {templates.map((template, index) => (
+                        {dadosFiltrados.map((template, index) => (
                             <tr
                                 key={index}
                                 style={{ border: '1px solid #0171BD', backgroundColor: hoveredRow === index ? '#F9F9F9' : 'white' }}
@@ -227,6 +240,7 @@ export function ListAll() {
                         ))}
                     </tbody>
                 </table>
+                </div>
                 <div>
                     {modal && (
                         <div onClick={() => setModal(prevState => !prevState)}>

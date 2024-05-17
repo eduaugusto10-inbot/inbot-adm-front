@@ -1,12 +1,12 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { read, utils } from "xlsx";
-import { errorCampaingEmpty, errorSheets, errorTriggerMode, successCreateTrigger, waitingMessage } from "../../../Components/Toastify";
+import { errorCampaingEmpty, errorSheets, errorTriggerMode, successCreateTrigger, waitingMessage, errorNoRecipient } from "../../../Components/Toastify";
 import api from "../../../utils/api";
 import { ToastContainer } from "react-toastify";
 import './index.css'
 import Alert from "../../../Components/Alert";
-import { AccordionState, IListVariables, IVariables } from "../../types";
+import { AccordionState, IListVariables, ITemplateList, IVariables } from "../../types";
 import { mask } from "../../../utils/utils";
 import Modal from "../../../Components/Modal";
 import useModal from "../../../Components/Modal/useModal";
@@ -14,16 +14,16 @@ import useModal from "../../../Components/Modal/useModal";
 export function Accordion() {
 
     const location = useLocation()
-    const templateName = location.state.templateName
-    const variableQty = location.state.variableQuantity
-    const profilePic = location.state.urlLogo;
-    const phone = location.state.phone;
-    const headerConfig = location.state.headerConfig;
-    const qtButtons = location.state.qtButtons;
+    const [searchParams, setSearchParams] = useSearchParams();
+    if (searchParams.get('bot_id') === null) {
+        window.location.href = "https://in.bot/inbot-admin";
+    }
+    var botId = searchParams.get('bot_id') ?? "0";
+    
 
     const history = useNavigate();
     function BackToList() {
-        history(`/template-list?bot_id=${localStorage.getItem("botId")}`, { state: { templateName: templateName, variableQuantity: variableQty, urlLogo: profilePic, phone: phone } });
+        history(`/template-list?bot_id=${localStorage.getItem("botId")}`);
     }
 
     const [accordionState, setAccordionState] = useState<AccordionState>({
@@ -48,11 +48,40 @@ export function Accordion() {
     const [payload2, setPayload2] = useState<string>()
     const [payload3, setPayload3] = useState<string>()
     const [urlMidia, setURLMidia] = useState<string>("");
+    const [templates, setTemplates] = useState<ITemplateList[]>([])
+    const [qtButtons, setQtButtons] = useState<number>(0)
+    const [headerConfig, setHeaderConfig] = useState<string | null>()
+    const [variableQty, setVariableQty] = useState<number>(0)
+    const [phone, setPhone] = useState("")
+    const [templateName, setTemplateName] = useState("")
+    const [profilePic, setProfilePic] = useState("")
     useEffect(() => {
         api.get(`/whatsapp/trigger-bot/${localStorage.getItem("botId")}`)
             .then(resp => setTriggerNames(resp.data))
             .catch(error => console.log(error))
     }, [])
+
+    useEffect(() => {
+        if (searchParams.get('bot_id') === null) {
+            window.location.href = "https://in.bot/inbot-admin";
+        }
+        setTemplateName(location?.state?.templateName)
+        api.get(`/whats-botid/${botId}`)
+            .then(resp => {
+                const token = resp.data.accessToken;
+                setPhone(resp.data.number)
+                api.get("https://whatsapp.smarters.io/api/v1/settings", { headers: { 'Authorization': token } })
+                    .then(res => {
+                        setProfilePic(res.data.data.profile_pic)
+                        // handleImageLoad()
+                    })
+                    .catch(error => console.log(error))               
+                api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
+                    .then(resp => {
+                        setTemplates(resp.data.data.messageTemplates)
+                    })
+            })
+    }, []);
 
     const toggleAccordion = (key: keyof AccordionState) => {
         setAccordionState({
@@ -151,7 +180,6 @@ export function Accordion() {
         }
     };
     const handleSubmitManualListData = async (campaignId: string) => {
-
         for (let i = 0; i < listVariables.length; i++) {
             const params = {
                 campaignId: `${campaignId}`,
@@ -207,6 +235,78 @@ export function Accordion() {
             setVariables(prevVariables => [...prevVariables, newVariables]);
         }
     };
+
+    const encontrarMaiorNumero = (texto: string): number => {
+        const regex = /{{.*?(\d+).*?}}/g;
+        const numeros: number[] = [];
+        let match: RegExpExecArray | null;
+
+        while ((match = regex.exec(texto)) !== null) {
+            if (match[1]) {
+                numeros.push(parseInt(match[1]));
+            }
+        }
+
+        if (numeros.length > 0) {
+            return Math.max(...numeros);
+        } else {
+            return 0;
+        }
+    };
+    const hasMedia = (headerElement: any) => {
+        let headerType = null;
+        headerElement.forEach((element: any) => {
+            if (element.type === "header") {
+                switch (element.parameters[0].type) {
+                    case "video":
+                        headerType = "video";
+                        break;
+                    case "text":
+                        headerType = "text";
+                        break;
+                    case "image":
+                        headerType = "image";
+                        break;
+                    case "document":
+                        headerType = "document";
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        return headerType;
+    }
+    const hasManyButtons = (headerElement: any) => {
+        let buttons = 0;
+        headerElement.forEach((element: any) => {
+            if (element.type === "button") {
+                if (element.parameters[0].type === "quickReply") {
+                    buttons = element.parameters.length;
+                }
+            }
+        });
+        return buttons;
+    }
+
+    const loadNewTemplate = (e:any) =>{
+        setVariables([])
+        templates.forEach((template: ITemplateList) => {
+            if(template.ID===e){
+                setTemplateName(template.name);   
+                template.components.forEach((element: any) => {
+                    if (element.type === "body"){
+                        setVariableQty(encontrarMaiorNumero(element.parameters[0].text))
+                    }                    
+                });
+                console.log(templateName)
+                setQtButtons(hasManyButtons(template.components))
+                setHeaderConfig(hasMedia(template.components))
+                return;
+            }
+        })
+    }
+
     const handleCampaignName = (e: string) => {
         if (triggerNames !== undefined) {
             setErrorMessage("");
@@ -219,6 +319,10 @@ export function Accordion() {
         setCampaignName(e);
     }
     const createTrigger = () => {
+        if((listVariables.length === 0 && !typeClient) || (fileData.length === 0 && typeClient)){
+            errorNoRecipient()
+            return;
+        }
         if (campaignName.length === 0) {
             errorCampaingEmpty()
             return;
@@ -252,7 +356,7 @@ export function Accordion() {
                 console.log(err)
             })
     }
-    if (variables.length < variableQty) {
+    if (variableQty > 0 && (variables.length < variableQty)) {
         for (let i = 0; i < variableQty; i++) {
             handleAddVariable(i)
         }
@@ -285,7 +389,7 @@ export function Accordion() {
             BackToList();
         }
     };
-
+    console.log(templateName)
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "50px" }}>
             <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
@@ -301,27 +405,44 @@ export function Accordion() {
                     <div className="body line" style={{ display: "flex", justifyContent: "space-around", flexDirection: "row", alignContent: "center" }}>
                         <div>
                             <div style={{ display: "flex", flexDirection: "row" }}>
-                                <span className="span-title">Nome</span>
+                                <span className="span-title">Nome da campanha</span>
                                 <input className="input-values" type="text" value={campaignName} onChange={e => handleCampaignName(e.target.value)} />
                             </div>
                             {errorMessage && <p style={{ color: 'red', fontSize: "10px", fontWeight: "bolder" }}>{errorMessage}</p>}
                         </div>
                         <div style={{ display: "flex", flexDirection: "row" }}>
-                            <span className="span-title">Template </span>
-                            <input type="text" value={templateName} className="input-values" disabled />
+                            <span className="span-title">Selecionar template </span>
+                            <select name="" id="" className="input-values" onChange={e=>loadNewTemplate(e.target.value)}>
+                                    <option value="">{templateName ?? "--"}</option>
+                                {templates.map(template => (
+                                    <option value={template.ID}>{template.name}</option>
+                                ))}
+                            </select>
                         </div>
                     </div>}
             </div>
             <div className="config-recebidores" style={{ maxHeight: "680px" }}>
                 <div className="header-accordion gradient-background" onClick={() => toggleAccordion('recebidores')}>2. Cadastro dos Contatos da Campanha</div>
                 {accordionState.recebidores && <div className="body">
-                    <div style={{ width: "90%" }}>
+                    <div style={{ width: "90%", display:"flex", flexDirection:"column", textAlign: "left" }}>
                         <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
                             <span style={{ fontSize: "16px" }}>Clientes</span>
                             <span style={{ fontSize: "11px", fontStyle: "italic" }}>Adicione clientes que receberão os templates, poderá fazer upload de uma planilha ou inserir um número manualmente.</span>
                         </div>
-                        <input type="radio" name="clientes" value="unico" onChange={signInClients} className="input-spaces" checked={typeClient === false} /><span>Manual</span>
-                        <input type="radio" name="clientes" value="multiplos" onChange={signInClients} className="input-spaces" checked={typeClient === true} /><span>Carregar planilha</span>
+                        <div style={{marginTop:"17px", marginBottom:"12px", flexDirection:"column"}}>
+                            <div style={{marginBottom:"-7px"}}>
+                                <input type="radio" name="clientes" value="unico" onChange={signInClients} className="input-spaces" checked={typeClient === false} />
+                                <span className="blue-text"><strong>Cadastrar Contato Individualmente:</strong></span>
+                            </div>
+                            <span style={{ fontSize: "11px", fontStyle: "italic", marginLeft:"25px" }}> "Selecione esta opção se deseja adicionar contatos um a um manualmente para esta campanha."</span>
+                        </div>
+                        <div style={{marginBottom:"17px",display:"flex", flexDirection:"column"}}>
+                            <div>
+                                <input type="radio" name="clientes" value="multiplos" onChange={signInClients} className="input-spaces" checked={typeClient === true} />
+                                <span className="blue-text"><strong>Upload de Planilha de Contatos:</strong></span>
+                            </div>
+                            <span style={{ fontSize: "11px", fontStyle: "italic", marginLeft:"25px" }}> "Escolha esta opção para fazer upload de uma planilha com vários contatos de uma só vez para esta campanha."</span>
+                        </div>
                     </div>
                     {!typeClient &&
                         <div style={{ display: "flex", flexDirection: "column", width: "90%" }}>
@@ -341,7 +462,7 @@ export function Accordion() {
                                     gridTemplateColumns: 'repeat(2, 1fr)',
                                     gridTemplateRows: 'repeat(4, auto)',
                                     gap: '10px'
-                                }}>
+                                }}>                                        
                                     {variables.map((variable, index) => (
                                         <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", margin: "10px" }}>
                                             <span className="span-title-variables" >{index + 1}.  </span> <input value={variable.text} type="text" name={variable.id.toString()} id="" onChange={handleInputVariable} className="input-values" />

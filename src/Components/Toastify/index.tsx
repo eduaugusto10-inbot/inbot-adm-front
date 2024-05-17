@@ -43,6 +43,9 @@ export const errorCampaingEmpty = () => toast.error("Insira o nome da campanha",
 export const errorTriggerMode = () => toast.error("Escolha o modo de disparo", {
     theme: "colored"
 });
+export const errorNoRecipient = () => toast.error("Nenhum destinatário cadastrado", {
+    theme: "colored"
+});
 export const waitingMessage = () => toast.info("Aguarde ...", {
     theme: "colored"
 })
