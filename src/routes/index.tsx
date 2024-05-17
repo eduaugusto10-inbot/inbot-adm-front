@@ -7,6 +7,8 @@ import ListAll from "../pages/Template/List/ListAll"
 import Accordion from "../pages/Template/TriggerAccordion"
 import TriggerList from "../pages/Template/TriggerList"
 import TriggerDetails from "../pages/Template/TriggerDetails"
+import UserManagerList from "../pages/UserManager/UserManagerList"
+import Configuration from "../pages/UserManager/Configuration"
 
 const Router = () => (
     <HashRouter>
@@ -18,6 +20,8 @@ const Router = () => (
             <Route path='/trigger-list' element={<TriggerList />} />
             <Route path='/template-trigger' element={<Accordion />} />
             <Route path="/trigger-details" element={<TriggerDetails />} />
+            <Route path="/user-manager-list" element={<UserManagerList />} />
+            <Route path="/user-manager-configuration" element={<Configuration />} />
             <Route path='/' element={<AllPhones />} />
         </Routes>
     </HashRouter>

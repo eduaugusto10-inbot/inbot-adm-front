@@ -366,7 +366,7 @@ export function CreateTemplateAccordion() {
         api.post(`/whats/template/${botId}`, payload)
             .then(resp => {
                 successCreateTemplate()
-                setTimeout(() => (`/template-list?bot_id=${botId}`), 3000)
+                setTimeout(() => BackToList(), 3000)
             })
             .catch(err => {
                 console.log("$s ERROR create template: %O", new Date(), err)
@@ -431,7 +431,7 @@ export function CreateTemplateAccordion() {
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", marginLeft:"65px" }} className="title_2024">Criar Template</h1>
                 <hr className="hr_color"/>
                 <div className="config-template">
-                    <div className="header-accordion" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
+                    <div className="header-accordion gradient-background" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
                     {accordionState.config &&
                         <div style={{ display: "flex", flexDirection: "row", textAlign: "left", backgroundColor: "#f1f1f1", width: "800px" }}>
                             <div className="input" style={{ justifyContent: "center" }}>
@@ -487,7 +487,7 @@ export function CreateTemplateAccordion() {
                         </div>}
                 </div>
                 <div className="config-recebidores" style={{ maxHeight: "600px" }}>
-                    <div className="header-accordion" onClick={() => toggleAccordion('header')}>2. Cabeçalho</div>
+                    <div className="header-accordion gradient-background" onClick={() => toggleAccordion('header')}>2. Cabeçalho</div>
                     {accordionState.header && <div className="body">
                         <div className="radio row-align">
                             <div className="row-align" onChange={headerRadio}><input type="radio" value="text" name="header" checked={typeOfHeader === 'text'} /><span className="padding-5">Texto</span></div>
@@ -546,7 +546,7 @@ export function CreateTemplateAccordion() {
                     </div>}
                 </div>
                 <div className="modo-disparo">
-                    <div className="header-accordion" onClick={() => toggleAccordion('body')}>3. Corpo da Mensagem</div>
+                    <div className="header-accordion gradient-background" onClick={() => toggleAccordion('body')}>3. Corpo da Mensagem</div>
                     {accordionState.body && <div className="body">
                         <div style={{ display: "flex", flexDirection: "column", width: "100%", textAlign: "initial", paddingLeft: "20px" }}>
                             <span className="bolder">Corpo da Mensagem</span>
@@ -586,7 +586,7 @@ export function CreateTemplateAccordion() {
                     </div>}
                 </div>
                 <div className="revisar">
-                    <div className="header-accordion" onClick={() => toggleAccordion('footer')}>4. Rodapé</div>
+                    <div className="header-accordion gradient-background" onClick={() => toggleAccordion('footer')}>4. Rodapé</div>
                     {accordionState.footer && <div className="body">
                         <div style={{ display: "flex", flexDirection: "column", width: "100%", textAlign: "initial", paddingLeft: "20px" }}>
                             <div className="radio row-align">
@@ -613,7 +613,7 @@ export function CreateTemplateAccordion() {
                     </div>}
                 </div>
                 <div className="revisar">
-                    <div className="header-accordion" onClick={() => toggleAccordion('botao')}>5. Botões</div>
+                    <div className="header-accordion gradient-background" onClick={() => toggleAccordion('botao')}>5. Botões</div>
                     {accordionState.botao && <div className="body">
                         <div style={{ width: "100%", marginBottom: "20px", paddingLeft: "20px" }}>
                             <div className="radio row-align">

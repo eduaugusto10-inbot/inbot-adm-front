@@ -296,7 +296,7 @@ export function Accordion() {
             <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }} className="title_2024">Criar Campanha</h1>
             <hr className="hr_color" />
             <div className="config-template">
-                <div className="header-accordion" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
+                <div className="header-accordion gradient-background" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
                 {accordionState.config &&
                     <div className="body line" style={{ display: "flex", justifyContent: "space-around", flexDirection: "row", alignContent: "center" }}>
                         <div>
@@ -313,7 +313,7 @@ export function Accordion() {
                     </div>}
             </div>
             <div className="config-recebidores" style={{ maxHeight: "680px" }}>
-                <div className="header-accordion" onClick={() => toggleAccordion('recebidores')}>2. Cadastro dos Contatos da Campanha</div>
+                <div className="header-accordion gradient-background" onClick={() => toggleAccordion('recebidores')}>2. Cadastro dos Contatos da Campanha</div>
                 {accordionState.recebidores && <div className="body">
                     <div style={{ width: "90%" }}>
                         <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
@@ -439,7 +439,7 @@ export function Accordion() {
                 </div>}
             </div>
             <div className="modo-disparo">
-                <div className="header-accordion" onClick={() => toggleAccordion('disparo')}>3. Modo de Disparo</div>
+                <div className="header-accordion gradient-background" onClick={() => toggleAccordion('disparo')}>3. Modo de Disparo</div>
                 {accordionState.disparo && <div className="body">
                     <div className="line">
                         <input type="radio" name="disparo" value="imediato" onChange={handleMode} className="input-spaces" checked={mode === false} /><span>Imediato</span>
@@ -461,7 +461,7 @@ export function Accordion() {
                 </div>}
             </div>
             <div className="revisar">
-                <div className="header-accordion" onClick={() => toggleAccordion('revisar')}>4. Resumo e salvar</div>
+                <div className="header-accordion gradient-background" onClick={() => toggleAccordion('revisar')}>4. Resumo e salvar</div>
                 {accordionState.revisar && <div className="body">
                     <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
                         <span>Template: {templateName}</span>

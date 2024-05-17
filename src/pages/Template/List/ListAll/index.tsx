@@ -6,6 +6,8 @@ import dots from "../../../../img/dots.png"
 import { useNavigate } from "react-router-dom";
 import ModalTemplate from "../../ModalTemplate";
 import { useSearchParams } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import { errorMessage, successMessageChange, successMessageDeleteTemplate, waitingMessage } from "../../../../Components/Toastify";
 
 export function ListAll() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -24,6 +26,7 @@ export function ListAll() {
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [selectedRow, setSelectedRow] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [token, setToken] = useState<string>('')
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -33,6 +36,7 @@ export function ListAll() {
         api.get(`/whats-botid/${botId}`)
             .then(resp => {
                 setPhone(resp.data.number)
+                setToken(resp.data.accessToken)
                 const token = resp.data.accessToken;
                 api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
                     .then(resp => {
@@ -163,8 +167,26 @@ export function ListAll() {
                 SendTemplate(templates[id].name, encontrarMaiorNumero(element.parameters[0].text), hasManyButtons(templates[id].components), hasMedia(templates[id].components))
         });
     }
+    const deletetemplate = (id: number) => {
+        setMenuOpen(false);
+        waitingMessage()
+        api.delete(`https://whatsapp.smarters.io/api/v1/messageTemplates/${templates[id].name}`, { headers: { 'Authorization': token } })
+            .then(res => {
+                successMessageDeleteTemplate()
+                api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
+                .then(resp => {
+                    setTemplates(resp.data.data.messageTemplates)
+                })
+            })
+            .catch(error => {
+                errorMessage()
+                console.log(error)
+            })
+    }
+
     return (
         <div>
+            <ToastContainer />
             <div>
                 <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
                     {isLoading ? (<div className="spinner-container">
@@ -227,10 +249,16 @@ export function ListAll() {
                             <tbody>
                                 <tr style={{ cursor: "pointer", borderBottom: "1px solid #000", backgroundColor: hoveredRow === selectedRow ? '#F9F9F9' : 'white' }}
                                     onMouseEnter={() => handleMouseEnter(selectedRow)}
-                                    onMouseLeave={handleMouseLeave}> <td onClick={() => loadTemplate(selectedRow)}>Visualizar template</td></tr>
+                                    onMouseLeave={handleMouseLeave}><td onClick={() => sendtemplate(selectedRow)}>Criar campanha</td></tr>
                                 <tr style={{ cursor: "pointer", borderBottom: "1px solid #000", backgroundColor: hoveredRow === selectedRow ? '#F9F9F9' : 'white' }}
                                     onMouseEnter={() => handleMouseEnter(selectedRow)}
-                                    onMouseLeave={handleMouseLeave}><td onClick={() => sendtemplate(selectedRow)}>Criar Campanha</td></tr>
+                                    onMouseLeave={handleMouseLeave}> <td onClick={() => loadTemplate(selectedRow)}>Visualizar</td></tr>
+                                <tr style={{ cursor: "pointer", borderBottom: "1px solid #000", backgroundColor: hoveredRow === selectedRow ? '#F9F9F9' : 'white' }}
+                                    onMouseEnter={() => handleMouseEnter(selectedRow)}
+                                    onMouseLeave={handleMouseLeave}><td onClick={() => sendtemplate(selectedRow)}>Duplicar</td></tr>
+                                <tr style={{ cursor: "pointer", borderBottom: "1px solid #000", backgroundColor: hoveredRow === selectedRow ? '#F9F9F9' : 'white' }}
+                                    onMouseEnter={() => handleMouseEnter(selectedRow)}
+                                    onMouseLeave={handleMouseLeave}><td onClick={() => deletetemplate(selectedRow)}>Deletar</td></tr>
                             </tbody>
                         </table>
                     </div>
