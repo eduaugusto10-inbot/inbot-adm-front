@@ -201,3 +201,21 @@ export interface ButtonQR {
     type: string;
     parameters: { type?: string; text: string }[];
 }
+
+export interface Filters {
+    telefone: string;
+    variable_1: string;
+    variable_2: string;
+    variable_3: string;
+    variable_4: string;
+    variable_5: string;
+    variable_6: string;
+    variable_7: string;
+    variable_8: string;
+    variable_9: string;
+    status: {
+        aguardando: boolean;
+        enviado: boolean;
+        erro: boolean;
+    };
+}

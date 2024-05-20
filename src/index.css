@@ -286,3 +286,25 @@ table th:nth-child(even) {
   font-size: 12.6px;
   font-weight: bolder;
 }
+
+.button-next{
+  height: 30px;
+  border-radius:10px;
+  background-color:#0275D8;
+  color:#FFF;
+  font-size:13.6px;
+  border: none;
+  font-weight: bold;
+}
+
+.header-accordion {
+  background-color: #342D69;
+  width: 900px;
+  height: 40px;
+  color: #FFF;
+  border: 1px solid #FFF;
+  text-align: left;
+  padding: 10px 30px;
+  cursor: pointer;
+  font-weight: bolder;
+}

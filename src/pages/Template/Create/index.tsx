@@ -40,7 +40,7 @@ export function CreateTemplateAccordion() {
     });
     const [typeOfHeader, setTypeOfHeader] = useState<string>("sheader")
     const [rodapeType, setRodapeType] = useState<string>("srodape")
-    const [headers, setHeader] = useState<IHeader>();
+    const [headers, setHeader] = useState<IHeader>({ parameters: [{ type: "sheader" }] });
     const [template, setTemplate] = useState<ITemplate>(templateValue)
     const [variables, setVariables] = useState<IVariables[]>([])
     const [rodape, setRodape] = useState<boolean>(true);
@@ -164,7 +164,7 @@ export function CreateTemplateAccordion() {
             setButtons(prevButtons => {
                 return prevButtons.map(button => {
                     if (button.id.toString() === buttonId) {
-                        return { ...button, text: value };
+                        return { ...button, text: value.replace(/\p{Extended_Pictographic}/gu, '') };
                     }
                     return button;
                 });
@@ -422,7 +422,7 @@ export function CreateTemplateAccordion() {
     };
     return (
         <div style={{ width: "80vw" }}>
-            <div style={{width:"800px"}}>
+            <div style={{width:"900px"}}>
                 <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
                 <ToastContainer />
                 <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
@@ -433,7 +433,8 @@ export function CreateTemplateAccordion() {
                 <div className="config-template">
                     <div className="header-accordion gradient-background" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
                     {accordionState.config &&
-                        <div style={{ display: "flex", flexDirection: "row", textAlign: "left", backgroundColor: "#f1f1f1", width: "800px" }}>
+                    <div className="column" style={{width:"100%"}}>
+                        <div style={{ display: "flex", flexDirection: "row", textAlign: "left", backgroundColor: "#f1f1f1", width: "100%" }}>
                             <div className="input" style={{ justifyContent: "center" }}>
                                 <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
                                     <span className="span-title">Nome</span>
@@ -484,11 +485,15 @@ export function CreateTemplateAccordion() {
                                     <span style={{ marginRight: "50px", fontSize: "11px" }}>{selectTemplate(templateType)}</span>
                                 </div>
                             </div>
+                            </div>
+                            <div style={{width:"100%", textAlign:"right"}}>
+                                <button className="button-next" onClick={() => toggleAccordion('header')}>Próximo</button>
+                            </div>
                         </div>}
                 </div>
                 <div className="config-recebidores" style={{ maxHeight: "600px" }}>
                     <div className="header-accordion gradient-background" onClick={() => toggleAccordion('header')}>2. Cabeçalho</div>
-                    {accordionState.header && <div className="body">
+                    {accordionState.header && <div className="body" style={{width:"100%"}}>
                         <div className="radio row-align">
                             <div className="row-align" onChange={headerRadio}><input type="radio" value="text" name="header" checked={typeOfHeader === 'text'} /><span className="padding-5">Texto</span></div>
                             <div className="row-align" onChange={headerRadio}><input type="radio" value="image" name="header" checked={typeOfHeader === 'image'} /><span className="padding-5">Imagem</span></div>
@@ -543,11 +548,14 @@ export function CreateTemplateAccordion() {
                             </div>
 
                         }
+                        <div style={{width:"100%", textAlign:"right"}}>
+                            <button className="button-next" onClick={() => toggleAccordion('body')}>Próximo</button>
+                        </div>
                     </div>}
                 </div>
                 <div className="modo-disparo">
                     <div className="header-accordion gradient-background" onClick={() => toggleAccordion('body')}>3. Corpo da Mensagem</div>
-                    {accordionState.body && <div className="body">
+                    {accordionState.body && <div className="body" style={{width:"100%"}}>
                         <div style={{ display: "flex", flexDirection: "column", width: "100%", textAlign: "initial", paddingLeft: "20px" }}>
                             <span className="bolder">Corpo da Mensagem</span>
                             <span style={{ fontSize: "11px", marginBottom: "20px", fontStyle: "italic" }}>Este é o principal conteúdo de texto no seu template.</span>
@@ -566,7 +574,7 @@ export function CreateTemplateAccordion() {
                             </div>
                             <span style={{ fontWeight: "bolder" }}>Variáveis</span>
                             <div>
-                                <button onClick={handleAddVariable} style={{ fontSize: "12px", backgroundColor: "#0171BD", border: "1px solid #FFF", width: "70px", height: "30px", marginRight: "5px" }}>Adicionar</button>
+                                <button onClick={handleAddVariable} className="button-next">Adicionar</button>
                             </div>
                             <div style={{
                                 display: 'grid',
@@ -583,11 +591,14 @@ export function CreateTemplateAccordion() {
                                 }
                             </div>
                         </div>
+                        <div style={{width:"100%", textAlign:"right"}}>
+                            <button className="button-next" onClick={() => toggleAccordion('footer')}>Próximo</button>
+                        </div>
                     </div>}
                 </div>
                 <div className="revisar">
                     <div className="header-accordion gradient-background" onClick={() => toggleAccordion('footer')}>4. Rodapé</div>
-                    {accordionState.footer && <div className="body">
+                    {accordionState.footer && <div className="body" style={{width:"100%"}}>
                         <div style={{ display: "flex", flexDirection: "column", width: "100%", textAlign: "initial", paddingLeft: "20px" }}>
                             <div className="radio row-align">
                                 <div className="row-align" onChange={rodapeRadio}><input type="radio" name="Texto" value="rodape" checked={rodapeType === 'rodape'} /><span className="padding-5">Texto</span></div>
@@ -610,6 +621,9 @@ export function CreateTemplateAccordion() {
                             }
                             <Alert message="No rodapé você não poderá inserir variável." />
                         </div>
+                        <div style={{width:"100%", textAlign:"right"}}>
+                            <button className="button-next" onClick={() => toggleAccordion('botao')}>Próximo</button>
+                        </div>
                     </div>}
                 </div>
                 <div className="revisar">
@@ -624,14 +638,18 @@ export function CreateTemplateAccordion() {
                             {typeOfButtons === "quickReply" &&
                                 <div>
                                     <div style={{ display: "flex", flexDirection: "row", marginLeft: "100px" }}>
-                                        <button style={{ fontSize: "12px", backgroundColor: "#0171BD", border: "1px solid #FFF", width: "70px", height: "30px", marginRight: "5px" }} onClick={handleAddButton}>Adicionar</button>
+                                        <button className="button-next" style={{ fontSize: "12px", backgroundColor: "#0171BD", border: "1px solid #FFF", width: "70px", height: "30px", marginRight: "5px" }} onClick={handleAddButton}>Adicionar</button>
                                     </div>
                                     {buttons.map((button, index) => (
                                         <div className="container-configure" key={button.id}>
                                             <div className="row-align">
                                                 <div style={{ marginLeft: "50px" }}>
                                                     <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
-                                                        <span className="span-title">Texto</span>
+                                                        <span className="span-title">Texto
+                                                        <a data-tooltip-id="no-emoji" data-tooltip-html="Não utilizar emojis.">
+                                                            <img src={alert} width={15} height={15} alt="alerta" style={{marginBottom:"15px"}} />
+                                                        </a></span>
+                                                        <Tooltip id="no-emoji" />
                                                         <input
                                                             value={button.text}
                                                             onChange={e => handleAddButtonText(e, button.id.toString())}
@@ -649,13 +667,17 @@ export function CreateTemplateAccordion() {
                             {typeOfButtons === "cta" &&
                                 <div style={{ width: "100%" }}>
                                     <div style={{ display: "flex", flexDirection: "row", marginLeft: "100px" }}>
-                                        <button style={{ fontSize: "12px", backgroundColor: "#0171BD", border: "1px solid #FFF", width: "70px", height: "30px", marginRight: "5px" }} onClick={handleAddButton}>Adicionar</button>
+                                        <button className="button-next" onClick={handleAddButton}>Adicionar</button>
                                     </div>
                                     {buttonsCTA.map((button, index) => (
                                         <div className="container-configure" style={{ width: "100%" }} key={button.id}>
                                             <div className="row-align">
                                                 <div style={{ display: "flex", flexDirection: "row" }}>
-                                                    <span className="span-title" style={{ marginTop: " 13px" }}>Tipo</span>
+                                                    <span className="span-title" style={{ marginTop: " 13px" }}>Tipo
+                                                        <a data-tooltip-id="no-emoji" data-tooltip-html="Não utilizar emojis.">
+                                                            <img src={alert} width={15} height={15} alt="alerta" style={{marginBottom:"15px"}} />
+                                                        </a></span>
+                                                        <Tooltip id="no-emoji" />
                                                     <select style={{ width: "100px" }} className="input-values" name={button.id.toString()} onChange={e => handleAddButtonText(e, button.id.toString())}>
                                                         <option>--</option>
                                                         <option value={"staticURL"}>URL</option>

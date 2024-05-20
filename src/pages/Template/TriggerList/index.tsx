@@ -1,12 +1,11 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
-import './style.css'
 import api from "../../../utils/api";
 import dots from "../../../img/dots.png"
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { errorCancelTrigger, successCancelTrigger, waitingMessage } from "../../../Components/Toastify";
 import { adjustTime, adjustTimeWithout3Hour } from "../../../utils/utils";
-import { ITriggerList } from "../../types";
+import { Filters, ITriggerList } from "../../types";
 import loupe from '../../../img/loupe.png'
 
 export function TriggerList() {
@@ -27,7 +26,24 @@ export function TriggerList() {
     const [filtro, setFiltro] = useState<string>('');
     const menuRef = useRef<HTMLDivElement>(null);
     const [profilePic, setProfilePic] = useState<string>("")
-
+    const [filters, setFilters] = useState<Filters>({
+        telefone: '',
+        variable_1: '',
+        variable_2: '',
+        variable_3: '',
+        variable_4: '',
+        variable_5: '',
+        variable_6: '',
+        variable_7: '',
+        variable_8: '',
+        variable_9: '',
+        status: {
+            aguardando: true,
+            enviado: true,
+            erro: true,
+        }
+    });
+    
     useEffect(() => {
         if (searchParams.get('bot_id') === null) {
             window.location.href = "https://in.bot/inbot-admin";
@@ -144,6 +160,16 @@ export function TriggerList() {
         }
     }
 
+    const handleStatusChange = (statusKey: keyof Filters['status']) => {
+        setFilters({
+            ...filters,
+            status: {
+                ...filters.status,
+                [statusKey]: !filters.status[statusKey],
+            },
+        });
+    };
+
     return (
         <div>
             <ToastContainer />
@@ -159,10 +185,18 @@ export function TriggerList() {
                         <img src={loupe} alt="" width={20} height={20}/>
                     </button>
                 </div>
+                <div style={{ display: "flex", flexDirection: "column", margin: "10px" }}>
+                                <span style={{ color: "#002080" }}>Status</span>
+                                <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
+                                    <div><input type="checkbox" onChange={() => handleStatusChange('aguardando')} checked={filters.status.aguardando} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Aguardando</span></div>
+                                    <div><input type="checkbox" onChange={() => handleStatusChange('enviado')} checked={filters.status.enviado} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Enviado</span></div>
+                                    <div><input type="checkbox" onChange={() => handleStatusChange('erro')} checked={filters.status.erro} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Erro</span></div>
+                                </div>
+                            </div>
                 <div className="table-container">
-                <table className="fixed-header-table">
+                <table className="table-2024 fixed-header-table">
                     <thead>
-                        <tr className="cells" style={{ backgroundColor: "#010043" }}>
+                        <tr className="cells">
                             <th className="cells">Nome</th>
                             <th className="cells">Template</th>
                             <th className="cells">Data criação</th>

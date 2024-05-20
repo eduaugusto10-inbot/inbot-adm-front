@@ -88,12 +88,6 @@ export function ListAll() {
     };
 
     const history = useNavigate();
-    function CreateTemplate() {
-        history(`/template-create?bot_id=${botId}`, { state: { urlLogo: profilePic, phone: phone } });
-    }
-    function ListCampaign() {
-        history(`/trigger-list?bot_id=${botId}`, { state: { urlLogo: profilePic, botId: botId } });
-    }
     function SendTemplate(name: string, variableQuantity: number, qtButtons: number, headerConfig: string | null) {
         console.log(headerConfig)
         history(`/template-trigger?bot_id=${botId}`, { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: profilePic, phone: phone, headerConfig: headerConfig, qtButtons: qtButtons } });
@@ -226,7 +220,7 @@ export function ListAll() {
                         {dadosFiltrados.map((template, index) => (
                             <tr
                                 key={index}
-                                style={{ border: '1px solid #0171BD', backgroundColor: hoveredRow === index ? '#F9F9F9' : 'white' }}
+                                style={{ border: '1px solid #0171BD', backgroundColor: hoveredRow === index ? '#e4e4e4' : 'white' }}
                                 onMouseEnter={() => handleMouseEnter(index)}
                                 onMouseLeave={handleMouseLeave}
                             >
@@ -258,23 +252,22 @@ export function ListAll() {
                             border: '1px solid #ccc',
                             padding: '5px',
                             backgroundColor: '#fff',
+                            borderRadius:"20px"
                         }}
-                    ><table>
-                            <tbody>
-                                <tr style={{ cursor: "pointer", borderBottom: "1px solid #000", backgroundColor: hoveredRow === selectedRow ? '#F9F9F9' : 'white' }}
+                    ><ul className="blue-text" style={{listStyleType:"none", padding:"0px", margin:"0px", fontWeight:"bolder", fontSize:"12.6px"}}>
+                                <li style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRow === selectedRow ? '#e4e4e4' : 'white', padding:"12px 16px" }}
                                     onMouseEnter={() => handleMouseEnter(selectedRow)}
-                                    onMouseLeave={handleMouseLeave}><td onClick={() => sendtemplate(selectedRow)}>Criar campanha</td></tr>
-                                <tr style={{ cursor: "pointer", borderBottom: "1px solid #000", backgroundColor: hoveredRow === selectedRow ? '#F9F9F9' : 'white' }}
+                                    onMouseLeave={handleMouseLeave}><td onClick={() => sendtemplate(selectedRow)}>Criar campanha</td></li>
+                                <li style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRow === selectedRow ? '#e4e4e4' : 'white', padding:"12px 16px" }}
                                     onMouseEnter={() => handleMouseEnter(selectedRow)}
-                                    onMouseLeave={handleMouseLeave}> <td onClick={() => loadTemplate(selectedRow)}>Visualizar</td></tr>
-                                <tr style={{ cursor: "pointer", borderBottom: "1px solid #000", backgroundColor: hoveredRow === selectedRow ? '#F9F9F9' : 'white' }}
+                                    onMouseLeave={handleMouseLeave}> <td onClick={() => loadTemplate(selectedRow)}>Visualizar</td></li>
+                                <li style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRow === selectedRow ? '#e4e4e4' : 'white', padding:"12px 16px" }}
                                     onMouseEnter={() => handleMouseEnter(selectedRow)}
-                                    onMouseLeave={handleMouseLeave}><td onClick={() => sendtemplate(selectedRow)}>Duplicar</td></tr>
-                                <tr style={{ cursor: "pointer", borderBottom: "1px solid #000", backgroundColor: hoveredRow === selectedRow ? '#F9F9F9' : 'white' }}
+                                    onMouseLeave={handleMouseLeave}><td onClick={() => sendtemplate(selectedRow)}>Duplicar</td></li>
+                                <li style={{ cursor: "pointer", backgroundColor: hoveredRow === selectedRow ? '#e4e4e4' : 'white', padding:"12px 16px" }}
                                     onMouseEnter={() => handleMouseEnter(selectedRow)}
-                                    onMouseLeave={handleMouseLeave}><td onClick={() => deletetemplate(selectedRow)}>Deletar</td></tr>
-                            </tbody>
-                        </table>
+                                    onMouseLeave={handleMouseLeave}><td onClick={() => deletetemplate(selectedRow)}>Deletar</td></li>
+                        </ul>
                     </div>
                 )}
             </div>

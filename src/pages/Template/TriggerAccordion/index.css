@@ -92,17 +92,6 @@
     width: 100%;
     padding: 5px;
   }
-.header-accordion {
-    background-color: #342D69;
-    width: 800px;
-    height: 40px;
-    color: #FFF;
-    border: 1px solid #FFF;
-    text-align: left;
-    padding: 10px 30px;
-    cursor: pointer;
-    font-weight: bolder;
-}
 
 .body {
     background-color: #F1F1F1;

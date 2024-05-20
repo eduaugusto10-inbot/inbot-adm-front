@@ -55,6 +55,8 @@ export function Accordion() {
     const [phone, setPhone] = useState("")
     const [templateName, setTemplateName] = useState("")
     const [profilePic, setProfilePic] = useState("")
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [fileName, setFileName] = useState('');
     useEffect(() => {
         api.get(`/whatsapp/trigger-bot/${localStorage.getItem("botId")}`)
             .then(resp => setTriggerNames(resp.data))
@@ -123,6 +125,10 @@ export function Accordion() {
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+
+        if (file) {
+            setFileName(file.name);
+          }
 
         const reader = new FileReader();
 
@@ -318,6 +324,13 @@ export function Accordion() {
         }
         setCampaignName(e);
     }
+
+    useEffect(() => {
+        if (fileInputRef.current) {
+           setFileName(fileInputRef.current.value);
+       }
+     }, [fileName]);
+     
     const createTrigger = () => {
         if((listVariables.length === 0 && !typeClient) || (fileData.length === 0 && typeClient)){
             errorNoRecipient()
@@ -399,9 +412,10 @@ export function Accordion() {
             </div>
             <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }} className="title_2024">Criar Campanha</h1>
             <hr className="hr_color" />
-            <div className="config-template">
+            <div>
                 <div className="header-accordion gradient-background" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
                 {accordionState.config &&
+                <div style={{textAlign:"right"}}>
                     <div className="body line" style={{ display: "flex", justifyContent: "space-around", flexDirection: "row", alignContent: "center" }}>
                         <div>
                             <div style={{ display: "flex", flexDirection: "row" }}>
@@ -419,11 +433,14 @@ export function Accordion() {
                                 ))}
                             </select>
                         </div>
+                        </div>
+                        <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('recebidores')}>Próximo</button>
                     </div>}
             </div>
             <div className="config-recebidores" style={{ maxHeight: "680px" }}>
                 <div className="header-accordion gradient-background" onClick={() => toggleAccordion('recebidores')}>2. Cadastro dos Contatos da Campanha</div>
-                {accordionState.recebidores && <div className="body">
+                {accordionState.recebidores && 
+                <div className="body" style={{width:"100%"}}>
                     <div style={{ width: "90%", display:"flex", flexDirection:"column", textAlign: "left" }}>
                         <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
                             <span style={{ fontSize: "16px" }}>Clientes</span>
@@ -431,14 +448,28 @@ export function Accordion() {
                         </div>
                         <div style={{marginTop:"17px", marginBottom:"12px", flexDirection:"column"}}>
                             <div style={{marginBottom:"-7px"}}>
-                                <input type="radio" name="clientes" value="unico" onChange={signInClients} className="input-spaces" checked={typeClient === false} />
+                                <input 
+                                    type="radio" 
+                                    name="clientes" 
+                                    value="unico" 
+                                    onChange={signInClients} 
+                                    className="input-spaces" 
+                                    checked={typeClient === false} 
+                                />
                                 <span className="blue-text"><strong>Cadastrar Contato Individualmente:</strong></span>
                             </div>
                             <span style={{ fontSize: "11px", fontStyle: "italic", marginLeft:"25px" }}> "Selecione esta opção se deseja adicionar contatos um a um manualmente para esta campanha."</span>
                         </div>
                         <div style={{marginBottom:"17px",display:"flex", flexDirection:"column"}}>
                             <div>
-                                <input type="radio" name="clientes" value="multiplos" onChange={signInClients} className="input-spaces" checked={typeClient === true} />
+                                <input 
+                                    type="radio" 
+                                    name="clientes" 
+                                    value="multiplos" 
+                                    onChange={signInClients} 
+                                    className="input-spaces" 
+                                    checked={typeClient === true}                                    
+                                />
                                 <span className="blue-text"><strong>Upload de Planilha de Contatos:</strong></span>
                             </div>
                             <span style={{ fontSize: "11px", fontStyle: "italic", marginLeft:"25px" }}> "Escolha esta opção para fazer upload de uma planilha com vários contatos de uma só vez para esta campanha."</span>
@@ -495,7 +526,7 @@ export function Accordion() {
                                         <input className="input-values" value={payload3} onChange={e => setPayload3(e.target.value)} />
                                     </div>
                                 }
-                                <button onClick={addCustomerToSendTemplate} style={{ fontSize: "12px", backgroundColor: "#0171BD", border: "1px solid #FFF", width: "120px", height: "30px", marginRight: "5px" }}>Adicionar cliente</button>
+                                <button onClick={addCustomerToSendTemplate} style={{ width: "120px", height: "30px", marginRight: "5px" }} className="button-next">Adicionar cliente</button>
                             </div>
                             <div style={{ maxHeight: "400px", overflowY: 'auto', marginBottom: "10px" }}>
                                 <table style={{ margin: "20px" }}>
@@ -534,12 +565,19 @@ export function Accordion() {
                             <Alert message={"Você deverá preencher as variáveis para que não ocorra erro no envio"} />
                         </div>}
                     {typeClient &&
-                        <div>
-                            <input type="file" onChange={handleFileUpload} style={{ backgroundColor: "#0D5388", color: "#FFF", borderRadius: "20px" }} />
+                        <div>                            
+                            <input 
+                                type="file" 
+                                onChange={handleFileUpload} 
+                                style={{ backgroundColor: "#0D5388", color: "#FFF", borderRadius: "20px", display:"none" }} 
+                                ref={fileInputRef}
+                            />
+                            <input type="text" value={fileName} disabled style={{width:"300px"}}/>
+                            <button type="button" style={{width:"150px"}} onClick={() => fileInputRef.current?.click()} className="button-blue">Escolher arquivo</button>
                             <div style={{ maxHeight: "400px", overflowY: 'auto', marginBottom: "10px" }}>
                                 <table style={{ margin: "20px" }}>
                                     <thead>
-                                        <tr style={{ backgroundColor: '#0D5388', fontSize: "12px" }}>
+                                        <tr style={{ fontSize: "12px" }}>
                                             {fileData.length > 0 && fileData[0].map((cell, index) => (
                                                 <th key={index}>{cell}</th>
                                             ))}
@@ -557,28 +595,37 @@ export function Accordion() {
                                 </table>
                             </div>
                         </div>}
+                    <div style={{width:"100%", textAlign:"right"}}>
+                        <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('disparo')}>Próximo</button>
+                    </div>
                 </div>}
             </div>
             <div className="modo-disparo">
                 <div className="header-accordion gradient-background" onClick={() => toggleAccordion('disparo')}>3. Modo de Disparo</div>
-                {accordionState.disparo && <div className="body">
-                    <div className="line">
-                        <input type="radio" name="disparo" value="imediato" onChange={handleMode} className="input-spaces" checked={mode === false} /><span>Imediato</span>
-                        <input type="radio" name="disparo" value="agendado" onChange={handleMode} className="input-spaces" checked={mode === true} /><span>Agendado</span>
+                {accordionState.disparo && 
+                <div>
+                    <div className="body">
+                        <div className="line">
+                            <input type="radio" name="disparo" value="imediato" onChange={handleMode} className="input-spaces" checked={mode === false} /><span>Imediato</span>
+                            <input type="radio" name="disparo" value="agendado" onChange={handleMode} className="input-spaces" checked={mode === true} /><span>Agendado</span>
+                        </div>
+                        {mode && <div style={{ display: "flex", flexDirection: "row" }}>
+                            <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
+                                <span className="span-title">Data</span>
+                                <input type="date" value={dates} onChange={e => setDate((e.target as HTMLInputElement).value)} className="input-values" />
+                            </div>
+                            <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
+                                <span className="span-title">Horário</span>
+                                <input type="time" value={hours} onChange={e => setHours((e.target as HTMLInputElement).value)} className="input-values" />
+                            </div>
+                        </div>}
+                        {!mode && <div>
+                            <Alert message="Neste modo, após salvar a campanha, o disparo começará a ser realizado, não podendo ser cancelado." />
+                        </div>}
                     </div>
-                    {mode && <div style={{ display: "flex", flexDirection: "row" }}>
-                        <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
-                            <span className="span-title">Data</span>
-                            <input type="date" onChange={e => setDate((e.target as HTMLInputElement).value)} className="input-values" />
-                        </div>
-                        <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
-                            <span className="span-title">Horário</span>
-                            <input type="time" onChange={e => setHours((e.target as HTMLInputElement).value)} className="input-values" />
-                        </div>
-                    </div>}
-                    {!mode && <div>
-                        <Alert message="Neste modo, após salvar a campanha, o disparo começará a ser realizado, não podendo ser cancelado." />
-                    </div>}
+                    <div style={{width:"100%", textAlign:"right"}}>
+                        <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('revisar')}>Próximo</button>
+                    </div>
                 </div>}
             </div>
             <div className="revisar">
@@ -594,7 +641,6 @@ export function Accordion() {
                         <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Cancelar")}>Cancelar</button>
                         <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Salvar")}>Salvar</button>
                     </div>
-
                 </div>}
             </div>
         </div >

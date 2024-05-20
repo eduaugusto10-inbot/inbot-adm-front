@@ -3,28 +3,10 @@ import api from "../../../utils/api";
 import { useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { adjustTime, mask } from "../../../utils/utils";
-import { ICustomer } from "../../types";
+import { Filters, ICustomer } from "../../types";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Pie } from "react-chartjs-2";
 import './style.css'
-interface Filters {
-    telefone: string;
-    variable_1: string;
-    variable_2: string;
-    variable_3: string;
-    variable_4: string;
-    variable_5: string;
-    variable_6: string;
-    variable_7: string;
-    variable_8: string;
-    variable_9: string;
-    status: {
-        aguardando: boolean;
-        enviado: boolean;
-        erro: boolean;
-    };
-    // Adicione outros filtros aqui, se necessário
-}
 
 export function TriggerDetails() {
     ChartJS.register(ArcElement, Tooltip, Legend);
