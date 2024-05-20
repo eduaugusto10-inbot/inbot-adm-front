@@ -5,7 +5,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { errorCancelTrigger, successCancelTrigger, waitingMessage } from "../../../Components/Toastify";
 import { adjustTime, adjustTimeWithout3Hour } from "../../../utils/utils";
-import { Filters, ITriggerList } from "../../types";
+import { Filters, ITriggerList, ITriggerListFilter } from "../../types";
 import loupe from '../../../img/loupe.png'
 
 export function TriggerList() {
@@ -20,23 +20,20 @@ export function TriggerList() {
 
     const [triggerList, setTriggerList] = useState<ITriggerList[]>([])
     const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+    const [hoveredRowMenu, setHoveredRowMenu] = useState<number | null>(null);
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [selectedRow, setSelectedRow] = useState<number | null>(null);
+    const [selectedRowMenu, setSelectedRowMenu] = useState<number | null>(null);
     const [filtro, setFiltro] = useState<string>('');
     const menuRef = useRef<HTMLDivElement>(null);
     const [profilePic, setProfilePic] = useState<string>("")
-    const [filters, setFilters] = useState<Filters>({
-        telefone: '',
-        variable_1: '',
-        variable_2: '',
-        variable_3: '',
-        variable_4: '',
-        variable_5: '',
-        variable_6: '',
-        variable_7: '',
-        variable_8: '',
-        variable_9: '',
+    const [filters, setFilters] = useState<ITriggerListFilter>({
+        campaign_name: '',
+        template_name: '',
+        type_trigger: '',
+        time_trigger: '',
+        data_criacao: '',
         status: {
             aguardando: true,
             enviado: true,
@@ -74,10 +71,22 @@ export function TriggerList() {
         };
     }, []);
 
-    const dadosFiltrados = triggerList.filter(trigger =>
-        trigger.campaign_name.toLowerCase().includes(filtro.toLowerCase()) ||
-        trigger.template_name.toLowerCase().includes(filtro.toLowerCase())
-      );
+    const dadosFiltrados = triggerList.filter(trigger => {
+        console.log(trigger)
+
+        if (trigger.template_name !== null && filtro !== '' && !trigger.template_name.toLowerCase().includes(filtro.toLowerCase()) 
+        && (trigger.campaign_name !== null && filtro !== '' && !trigger.campaign_name.toLowerCase().includes(filtro.toLowerCase()))){
+            return false;
+        }
+        if (
+            (filters.status.aguardando && trigger.status === 'aguardando') ||
+            (filters.status.enviado && trigger.status === 'enviado') ||
+            (filters.status.erro && trigger.status === 'erro')
+        ) {
+            return true;
+        }
+            return false;
+        });
 
       const handleFiltroChange = (e: ChangeEvent<HTMLInputElement>) => {
         setFiltro(e.target.value);
@@ -97,6 +106,13 @@ export function TriggerList() {
 
     const handleMouseLeave = () => {
         setHoveredRow(null);
+    };
+    const handleMouseEnterMenu = (index: number) => {
+        setHoveredRowMenu(index);
+    };
+
+    const handleMouseLeaveMenu = () => {
+        setHoveredRowMenu(null);
     };
 
     const history = useNavigate();
@@ -170,11 +186,12 @@ export function TriggerList() {
         });
     };
 
+
     return (
-        <div>
+        <div style={{width:"80%"}}>
             <ToastContainer />
             <div>
-                <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
+                <div style={{ display: "flex", flexDirection: "row", width: "100%", minWidth:"100%" }}>
                     <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
                 </div>
                     <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "90%" }} className="title_2024">Gerenciar Campanhas</h1>
@@ -185,14 +202,14 @@ export function TriggerList() {
                         <img src={loupe} alt="" width={20} height={20}/>
                     </button>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", margin: "10px" }}>
-                                <span style={{ color: "#002080" }}>Status</span>
-                                <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
-                                    <div><input type="checkbox" onChange={() => handleStatusChange('aguardando')} checked={filters.status.aguardando} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Aguardando</span></div>
-                                    <div><input type="checkbox" onChange={() => handleStatusChange('enviado')} checked={filters.status.enviado} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Enviado</span></div>
-                                    <div><input type="checkbox" onChange={() => handleStatusChange('erro')} checked={filters.status.erro} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Erro</span></div>
-                                </div>
-                            </div>
+                <div style={{ display: "flex", flexDirection: "column", width:"20%", minWidth:"20%", margin: "10px", border:"1px solid #ddd" }}>
+                    <span style={{ color: "#002080", fontWeight:"bolder" }}>Status</span>
+                    <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
+                        <div><input type="checkbox" onChange={() => handleStatusChange('aguardando')} checked={filters.status.aguardando} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Aguardando</span></div>
+                        <div><input type="checkbox" onChange={() => handleStatusChange('enviado')} checked={filters.status.enviado} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Enviado</span></div>
+                        <div><input type="checkbox" onChange={() => handleStatusChange('erro')} checked={filters.status.erro} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Erro</span></div>
+                    </div>
+                </div>
                 <div className="table-container">
                 <table className="table-2024 fixed-header-table">
                     <thead>
@@ -216,7 +233,6 @@ export function TriggerList() {
                                 >
                                     <td><span>{trigger.campaign_name}</span></td>
                                     <td><span>{trigger.template_name}</span></td>
-                                    {/* <td><span>{trigger.type_trigger}</span></td> */}
                                     <td><span>{trigger.data_criacao ? adjustTime(trigger.data_criacao) : "--"}</span></td>
                                     <td><span>{trigger.time_trigger ? adjustTimeWithout3Hour(trigger.time_trigger) : "--"}</span></td>
                                     <td><div id="statusCells" style={{ borderRadius: "20px", backgroundColor: statusBackgroundColor(trigger.status), padding: "7px" }}><span style={{ fontSize: "12px", fontWeight: "bolder", color: statusColor(trigger.status) }}>{statusName(trigger.status)}</span></div></td>
@@ -237,17 +253,18 @@ export function TriggerList() {
                             border: '1px solid #ccc',
                             padding: '5px',
                             backgroundColor: '#fff',
+                            borderRadius:"20px"
                         }}
-                    ><li className="blue-text dropdown-show no-bullets">
+                    ><li className="blue-text no-bullets">
                                 {statusNameView(selectedRow)==="aguardando" && (
-                                <ul style={{ cursor: "pointer", borderBottom: "1px solid #000", backgroundColor: hoveredRow === selectedRow ? '#f0f0f0' : 'white' }}
-                                    onMouseEnter={() => handleMouseEnter(selectedRow)}
-                                    onMouseLeave={handleMouseLeave}> <td onClick={() => changeStatus(selectedRow)}>Cancelar disparo</td>
+                                <ul key={1} style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRowMenu === 1 ? '#ddd' : 'white', padding:"12px 16px" }}
+                                    onMouseEnter={() => handleMouseEnterMenu(1)}
+                                    onMouseLeave={handleMouseLeaveMenu}> <td onClick={() => changeStatus(selectedRow)}>Cancelar disparo</td>
                                 </ul>
                             )}
-                                <ul style={{ cursor: "pointer", borderBottom: "1px solid #000", backgroundColor: hoveredRow === selectedRow ? '#f0f0f0' : 'white' }}
-                                    onMouseEnter={() => handleMouseEnter(selectedRow)}
-                                    onMouseLeave={handleMouseLeave}> <td onClick={() => detailedTrigger(selectedRow)}>Detalhes</td>
+                                <ul key={2} style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRowMenu === 2 ? '#ddd' : 'white', padding:"12px 16px" }}
+                                    onMouseEnter={() => handleMouseEnterMenu(2)}
+                                    onMouseLeave={handleMouseLeaveMenu}> <td onClick={() => detailedTrigger(selectedRow)}>Detalhes</td>
                                 </ul>
                         </li>
                     </div>

@@ -408,7 +408,7 @@ export function Accordion() {
             <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
             <ToastContainer />
             <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
-                <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-17px" }} />
+                <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-37px" }} />
             </div>
             <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%" }} className="title_2024">Criar Campanha</h1>
             <hr className="hr_color" />

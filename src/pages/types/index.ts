@@ -219,3 +219,16 @@ export interface Filters {
         erro: boolean;
     };
 }
+
+export interface ITriggerListFilter {
+    campaign_name: string;
+    template_name: string;
+    type_trigger: string;
+    time_trigger: string;
+    data_criacao: string;
+    status: {
+        aguardando: boolean;
+        enviado: boolean;
+        erro: boolean;
+    };
+}

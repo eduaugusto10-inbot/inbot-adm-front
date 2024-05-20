@@ -22,6 +22,7 @@ export function ListAll() {
     const [templates, setTemplates] = useState<ITemplateList[]>([])
     const [phone, setPhone] = useState<string>("")
     const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+    const [hoveredRowMenu, setHoveredRowMenu] = useState<number | null>(null);
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [profilePic, setProfilePic] = useState<string>("")
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
@@ -82,9 +83,15 @@ export function ListAll() {
     const handleMouseEnter = (index: number) => {
         setHoveredRow(index);
     };
+    const handleMouseEnterMenu = (index: number) => {
+        setHoveredRowMenu(index);
+    };
 
     const handleMouseLeave = () => {
         setHoveredRow(null);
+    };
+    const handleMouseLeaveMenu = () => {
+        setHoveredRowMenu(null);
     };
 
     const history = useNavigate();
@@ -187,7 +194,7 @@ export function ListAll() {
       };
 
     return (
-        <div>
+        <div style={{width:"80%"}}>
             <ToastContainer />
             <div>
                 <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
@@ -254,19 +261,19 @@ export function ListAll() {
                             backgroundColor: '#fff',
                             borderRadius:"20px"
                         }}
-                    ><ul className="blue-text" style={{listStyleType:"none", padding:"0px", margin:"0px", fontWeight:"bolder", fontSize:"12.6px"}}>
-                                <li style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRow === selectedRow ? '#e4e4e4' : 'white', padding:"12px 16px" }}
-                                    onMouseEnter={() => handleMouseEnter(selectedRow)}
-                                    onMouseLeave={handleMouseLeave}><td onClick={() => sendtemplate(selectedRow)}>Criar campanha</td></li>
-                                <li style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRow === selectedRow ? '#e4e4e4' : 'white', padding:"12px 16px" }}
-                                    onMouseEnter={() => handleMouseEnter(selectedRow)}
-                                    onMouseLeave={handleMouseLeave}> <td onClick={() => loadTemplate(selectedRow)}>Visualizar</td></li>
-                                <li style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRow === selectedRow ? '#e4e4e4' : 'white', padding:"12px 16px" }}
-                                    onMouseEnter={() => handleMouseEnter(selectedRow)}
-                                    onMouseLeave={handleMouseLeave}><td onClick={() => sendtemplate(selectedRow)}>Duplicar</td></li>
-                                <li style={{ cursor: "pointer", backgroundColor: hoveredRow === selectedRow ? '#e4e4e4' : 'white', padding:"12px 16px" }}
-                                    onMouseEnter={() => handleMouseEnter(selectedRow)}
-                                    onMouseLeave={handleMouseLeave}><td onClick={() => deletetemplate(selectedRow)}>Deletar</td></li>
+                    ><ul className="blue-text no-bullets">
+                                <li key={1} style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRowMenu === 1 ? '#e4e4e4' : 'white', padding:"12px 16px" }}
+                                    onMouseEnter={() => handleMouseEnterMenu(1)}
+                                    onMouseLeave={handleMouseLeaveMenu}><td onClick={() => sendtemplate(selectedRow)}>Criar campanha</td></li>
+                                <li key={2} style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRowMenu === 2 ? '#e4e4e4' : 'white', padding:"12px 16px" }}
+                                    onMouseEnter={() => handleMouseEnterMenu(2)}
+                                    onMouseLeave={handleMouseLeaveMenu}> <td onClick={() => loadTemplate(selectedRow)}>Visualizar</td></li>
+                                <li key={3} style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRowMenu === 3 ? '#e4e4e4' : 'white', padding:"12px 16px" }}
+                                    onMouseEnter={() => handleMouseEnterMenu(3)}
+                                    onMouseLeave={handleMouseLeaveMenu}><td onClick={() => sendtemplate(selectedRow)}>Duplicar</td></li>
+                                <li key={4} style={{ cursor: "pointer", backgroundColor: hoveredRowMenu === 4 ? '#e4e4e4' : 'white', padding:"12px 16px" }}
+                                    onMouseEnter={() => handleMouseEnterMenu(4)}
+                                    onMouseLeave={handleMouseLeaveMenu}><td onClick={() => deletetemplate(selectedRow)}>Deletar</td></li>
                         </ul>
                     </div>
                 )}

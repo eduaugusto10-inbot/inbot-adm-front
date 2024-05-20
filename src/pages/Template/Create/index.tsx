@@ -426,7 +426,7 @@ export function CreateTemplateAccordion() {
                 <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
                 <ToastContainer />
                 <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
-                    <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-17px" }} />
+                    <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-37px" }} />
                 </div>
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", marginLeft:"65px" }} className="title_2024">Criar Template</h1>
                 <hr className="hr_color"/>
@@ -435,7 +435,7 @@ export function CreateTemplateAccordion() {
                     {accordionState.config &&
                     <div className="column" style={{width:"100%"}}>
                         <div style={{ display: "flex", flexDirection: "row", textAlign: "left", backgroundColor: "#f1f1f1", width: "100%" }}>
-                            <div className="input" style={{ justifyContent: "center" }}>
+                            <div className="input" style={{ justifyContent: "center"}}>
                                 <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
                                     <span className="span-title">Nome</span>
                                     <input type="text"
@@ -443,6 +443,7 @@ export function CreateTemplateAccordion() {
                                         maxLength={512}
                                         name="templateName"
                                         value={templateName}
+                                        style={{width:"350px"}}
                                         onChange={e => setTemplateName(removeAccentsAndCommas(e.target.value).replace(/\s/g, '').toLowerCase())}
                                     />
                                     <a data-tooltip-id="my-tooltip-multiline" data-tooltip-html="Utilizar apenas letras, números e underline.<br /> Não utilizar espaços, acentuações e virgulas.<br />Exemplo correto: template_1">
@@ -452,7 +453,7 @@ export function CreateTemplateAccordion() {
                                 </div>
                                 <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
                                     <span className="span-title">Categoria</span>
-                                    <select className="input-values" value={templateType} onChange={e => setTemplateType(e.target.value)}>
+                                    <select className="input-values" style={{width:"350px"}} value={templateType} onChange={e => setTemplateType(e.target.value)}>
                                         <option>---</option>
                                         <option value={"AUTHENTICATION"}>Autenticação</option>
                                         <option value={"UTILITY"}>Utilitário</option>
@@ -465,6 +466,7 @@ export function CreateTemplateAccordion() {
                                         className="input-values"
                                         value={mask(phone)}
                                         disabled
+                                        style={{width:"350px"}}
                                     />
                                 </div>
                                 <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
@@ -473,6 +475,7 @@ export function CreateTemplateAccordion() {
                                         className="input-values"
                                         value={botId ?? ""}
                                         disabled
+                                        style={{width:"350px"}}
                                     />
                                 </div>
                             </div>
@@ -486,8 +489,8 @@ export function CreateTemplateAccordion() {
                                 </div>
                             </div>
                             </div>
-                            <div style={{width:"100%", textAlign:"right"}}>
-                                <button className="button-next" onClick={() => toggleAccordion('header')}>Próximo</button>
+                            <div style={{width:"100%", textAlign:"right", marginTop:"20px"}}> 
+                                <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('header')}>Próximo</button>
                             </div>
                         </div>}
                 </div>
@@ -549,7 +552,7 @@ export function CreateTemplateAccordion() {
 
                         }
                         <div style={{width:"100%", textAlign:"right"}}>
-                            <button className="button-next" onClick={() => toggleAccordion('body')}>Próximo</button>
+                            <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('body')}>Próximo</button>
                         </div>
                     </div>}
                 </div>
@@ -592,7 +595,7 @@ export function CreateTemplateAccordion() {
                             </div>
                         </div>
                         <div style={{width:"100%", textAlign:"right"}}>
-                            <button className="button-next" onClick={() => toggleAccordion('footer')}>Próximo</button>
+                            <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('footer')}>Próximo</button>
                         </div>
                     </div>}
                 </div>
@@ -622,7 +625,7 @@ export function CreateTemplateAccordion() {
                             <Alert message="No rodapé você não poderá inserir variável." />
                         </div>
                         <div style={{width:"100%", textAlign:"right"}}>
-                            <button className="button-next" onClick={() => toggleAccordion('botao')}>Próximo</button>
+                            <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('botao')}>Próximo</button>
                         </div>
                     </div>}
                 </div>
