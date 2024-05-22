@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import alert from '../../../img/help.png'
 import 'react-tooltip/dist/react-tooltip.css'
 import { Tooltip } from 'react-tooltip'
@@ -29,6 +29,7 @@ export function CreateTemplateAccordion() {
     }
     var botId = searchParams.get('bot_id') ?? "0";
 
+    const location = useLocation()
     const [templateName, setTemplateName] = useState<string>("")
     const [templateType, setTemplateType] = useState<string>("")
     const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
@@ -78,6 +79,15 @@ export function CreateTemplateAccordion() {
                     })
                     .catch(error => console.log(error))
             })
+    }, []);
+    useEffect(() => {
+        if(location?.state?.duplicated){
+            setTemplate(prevState => ({
+                ...prevState,
+                "body": location?.state?.bodyText,
+            }));
+            console.log(location?.state)
+        }
     }, []);
 
     const toggleAccordion = (key: keyof AccordionStateCreate) => {

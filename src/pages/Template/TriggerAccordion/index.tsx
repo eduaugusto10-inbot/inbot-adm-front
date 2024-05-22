@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { read, utils } from "xlsx";
-import { errorCampaingEmpty, errorSheets, errorTriggerMode, successCreateTrigger, waitingMessage, errorNoRecipient } from "../../../Components/Toastify";
+import { errorCampaingEmpty, errorDuplicatedPhone, errorEmptyVariable, errorPhoneEmpty, errorSheets, errorTriggerMode, successCreateTrigger, waitingMessage, errorNoRecipient } from "../../../Components/Toastify";
 import api from "../../../utils/api";
 import { ToastContainer } from "react-toastify";
 import './index.css'
@@ -99,6 +99,30 @@ export function Accordion() {
     };
 
     const addCustomerToSendTemplate = () => {
+        let emptyVariable = false;
+        let duplicatedPhone = false;
+        if(clientNumber===""){
+            errorPhoneEmpty()
+            return;
+        }
+        variables.forEach(variable => {
+            if (variable?.text === "") {
+                emptyVariable = true;
+            }
+        });
+        listVariables.forEach(variable =>{
+            if(variable.phone===clientNumber){
+                duplicatedPhone = true;
+            }
+        })
+        if(emptyVariable){
+            errorEmptyVariable();
+            return;
+        }
+        if(duplicatedPhone){
+            errorDuplicatedPhone();
+            return;
+        }
         setListVariables(prevState => [
             ...prevState,
             {
@@ -402,7 +426,17 @@ export function Accordion() {
             BackToList();
         }
     };
-    console.log(templateName)
+
+    const sheetsVariables = () => {
+        console.log("Star")
+        let total = 0;
+        fileData[1].forEach((value) => {
+            console.log(value)
+            if (value !== "") total++;
+        });
+        return total -1;
+    };
+    
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "50px" }}>
             <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
@@ -437,7 +471,7 @@ export function Accordion() {
                         <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('recebidores')}>Próximo</button>
                     </div>}
             </div>
-            <div className="config-recebidores" style={{ maxHeight: "680px" }}>
+            <div className="config-recebidores" style={{ maxHeight: "1080px" }}>
                 <div className="header-accordion gradient-background" onClick={() => toggleAccordion('recebidores')}>2. Cadastro dos Contatos da Campanha</div>
                 {accordionState.recebidores && 
                 <div className="body" style={{width:"100%"}}>
@@ -528,19 +562,19 @@ export function Accordion() {
                                 }
                                 <button onClick={addCustomerToSendTemplate} style={{ width: "120px", height: "30px", marginRight: "5px" }} className="button-next">Adicionar cliente</button>
                             </div>
-                            <div style={{ maxHeight: "400px", overflowY: 'auto', marginBottom: "10px" }}>
-                                <table style={{ margin: "20px" }}>
+                            <div style={{ maxHeight: "500px", overflowY: 'auto', marginBottom: "10px" }}>
+                                <table style={{ margin: "20px", width:"95%" }}>
                                     <thead>
-                                        <tr style={{ backgroundColor: '#0D5388', fontSize: "12px" }}>
+                                        <tr style={{ backgroundColor: '#0D5388', fontSize: "12px", width:"100%" }}>
                                             <th style={{color:"#FFF"}}>Telefone</th>
-                                            <th style={{color:"#FFF"}}>Variável 1</th>
-                                            <th style={{color:"#FFF"}}>Variável 2</th>
-                                            <th style={{color:"#FFF"}}>Variável 3</th>
-                                            <th style={{color:"#FFF"}}>Variável 4</th>
-                                            <th style={{color:"#FFF"}}>Variável 5</th>
-                                            <th style={{color:"#FFF"}}>Variável 6</th>
-                                            <th style={{color:"#FFF"}}>Variável 7</th>
-                                            <th style={{color:"#FFF"}}>Variável 8</th>
+                                            {variables.length>0 && <th style={{color:"#FFF"}}>Variável 1</th>}
+                                            {variables.length>1 && <th style={{color:"#FFF"}}>Variável 2</th>}
+                                            {variables.length>2 && <th style={{color:"#FFF"}}>Variável 3</th>}
+                                            {variables.length>3 && <th style={{color:"#FFF"}}>Variável 4</th>}
+                                            {variables.length>4 && <th style={{color:"#FFF"}}>Variável 5</th>}
+                                            {variables.length>5 && <th style={{color:"#FFF"}}>Variável 6</th>}
+                                            {variables.length>6 && <th style={{color:"#FFF"}}>Variável 7</th>}
+                                            {variables.length>7 && <th style={{color:"#FFF"}}>Variável 8</th>}
                                             <th style={{color:"#FFF"}}>Link midia</th>
                                         </tr>
                                     </thead>
@@ -548,14 +582,14 @@ export function Accordion() {
                                         {listVariables.length > 0 && listVariables.map((unicVariable, rowIndex) => (
                                             <tr key={rowIndex}>
                                                 <th>{unicVariable.phone}</th>
-                                                <th>{unicVariable.variable_1}</th>
-                                                <th>{unicVariable.variable_2}</th>
-                                                <th>{unicVariable.variable_3}</th>
-                                                <th>{unicVariable.variable_4}</th>
-                                                <th>{unicVariable.variable_5}</th>
-                                                <th>{unicVariable.variable_6}</th>
-                                                <th>{unicVariable.variable_7}</th>
-                                                <th>{unicVariable.variable_8}</th>
+                                                {variables.length>0 && <th>{unicVariable.variable_1}</th>}
+                                                {variables.length>0 && <th>{unicVariable.variable_2}</th>}
+                                                {variables.length>0 && <th>{unicVariable.variable_3}</th>}
+                                                {variables.length>0 && <th>{unicVariable.variable_4}</th>}
+                                                {variables.length>0 && <th>{unicVariable.variable_5}</th>}
+                                                {variables.length>0 && <th>{unicVariable.variable_6}</th>}
+                                                {variables.length>0 && <th>{unicVariable.variable_7}</th>}
+                                                {variables.length>0 && <th>{unicVariable.variable_8}</th>}
                                                 <th>{unicVariable.media_url}</th>
                                             </tr>
                                         ))}
@@ -593,6 +627,7 @@ export function Accordion() {
                                         ))}
                                     </tbody>
                                 </table>
+                                {sheetsVariables()===variables.length ? "Planilha correta" : `Planilha com erro, o template precisa de ${variables.length} variável(is) e sua planilha possui ${sheetsVariables()}`}
                             </div>
                         </div>}
                     <div style={{width:"100%", textAlign:"right"}}>
@@ -632,10 +667,10 @@ export function Accordion() {
                 <div className="header-accordion gradient-background" onClick={() => toggleAccordion('revisar')}>4. Resumo e salvar</div>
                 {accordionState.revisar && <div className="body">
                     <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
-                        <span>Template: {templateName}</span>
-                        <span>Telefone do disparo: {mask(phone)}</span>
-                        <span>Data e hora do disparo: {triggerMode} - {dates} - {hours}</span>
-                        <span>Quantidade de disparos: {typeClient === false ? listVariables.length : ""}</span>
+                        <span className="span-title-resume">Template: {templateName}</span>
+                        <span className="span-title-resume">Telefone do disparo: {mask(phone)}</span>
+                        <span className="span-title-resume">Data e hora do disparo: {triggerMode} - {dates} - {hours}</span>
+                        <span className="span-title-resume">Quantidade de disparos: {typeClient === false ? listVariables.length : ""}</span>
                     </div>
                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", width: "100%" }}>
                         <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Cancelar")}>Cancelar</button>

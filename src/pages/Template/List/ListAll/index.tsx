@@ -168,7 +168,7 @@ export function ListAll() {
                 SendTemplate(templates[id].name, encontrarMaiorNumero(element.parameters[0].text), hasManyButtons(templates[id].components), hasMedia(templates[id].components))
         });
     }
-    const deletetemplate = (id: number) => {
+    const deleteTemplate = (id: number) => {
         setMenuOpen(false);
         waitingMessage()
         api.delete(`https://whatsapp.smarters.io/api/v1/messageTemplates/${templates[id].name}`, { headers: { 'Authorization': token } })
@@ -183,6 +183,28 @@ export function ListAll() {
                 errorMessage()
                 console.log(error)
             })
+    }
+    const duplicaTemplate = (id: number) => {
+        setMenuOpen(false);
+        let variableQuantity = 0;
+        let bodyText = "";
+        templates[id].components.forEach((element: any) => {
+            if (element.type === "body"){
+                variableQuantity = encontrarMaiorNumero(element.parameters[0].text);
+                bodyText = element.parameters[0].text;
+            }
+        });
+        history(`/template-create?bot_id=${botId}`, { 
+            state: { 
+                duplicated: true,
+                variableQuantity: variableQuantity, 
+                urlLogo: profilePic, 
+                phone: phone, 
+                headerConfig: hasMedia(templates[id].components), 
+                qtButtons: hasManyButtons(templates[id].components),
+                bodyText: bodyText
+            } 
+        });
     }
 
     const dadosFiltrados = templates.filter(template =>
@@ -201,9 +223,9 @@ export function ListAll() {
                     {isLoading ? (<div className="spinner-container">
                         <div className="spinner"></div>
                     </div>)
-                        : <img onLoad={handleImageLoad} src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-30px" }} />}
+                        : <img onLoad={handleImageLoad} src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />}
                 </div>
-                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%", marginLeft:"65px" }} className="title_2024">Gerenciar Templates</h1>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "90%", marginLeft:"65px" }} className="title_2024">Gerenciar Templates</h1>
                 <hr className="hr_color" />
                 <div style={{margin:"20px"}}>
                     <input onChange={handleFiltroChange} value={filtro} type="text" style={{borderRight:"none", width:"300px", borderRadius:"20px 0px 0px 20px", paddingLeft:"20px"}} placeholder="Buscar por nome ou template"/>
@@ -270,10 +292,10 @@ export function ListAll() {
                                     onMouseLeave={handleMouseLeaveMenu}> <td onClick={() => loadTemplate(selectedRow)}>Visualizar</td></li>
                                 <li key={3} style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRowMenu === 3 ? '#e4e4e4' : 'white', padding:"12px 16px" }}
                                     onMouseEnter={() => handleMouseEnterMenu(3)}
-                                    onMouseLeave={handleMouseLeaveMenu}><td onClick={() => sendtemplate(selectedRow)}>Duplicar</td></li>
+                                    onMouseLeave={handleMouseLeaveMenu}><td onClick={() => duplicaTemplate(selectedRow)}>Duplicar</td></li>
                                 <li key={4} style={{ cursor: "pointer", backgroundColor: hoveredRowMenu === 4 ? '#e4e4e4' : 'white', padding:"12px 16px" }}
                                     onMouseEnter={() => handleMouseEnterMenu(4)}
-                                    onMouseLeave={handleMouseLeaveMenu}><td onClick={() => deletetemplate(selectedRow)}>Deletar</td></li>
+                                    onMouseLeave={handleMouseLeaveMenu}><td onClick={() => deleteTemplate(selectedRow)}>Deletar</td></li>
                         </ul>
                     </div>
                 )}

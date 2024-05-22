@@ -148,3 +148,11 @@ padding: 9px;
   justify-content: center;
   align-items: center;
 }
+.span-title-resume{
+  margin-top: 10px;
+  color: #0D5388;
+  font-size: 16px;
+  font-weight: bolder;
+  border-radius: 7px;
+  display: flex;
+}
