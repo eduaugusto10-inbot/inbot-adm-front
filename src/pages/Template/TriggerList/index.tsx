@@ -7,6 +7,7 @@ import { errorCancelTrigger, successCancelTrigger, waitingMessage } from "../../
 import { adjustTime, adjustTimeWithout3Hour } from "../../../utils/utils";
 import { Filters, ITriggerList, ITriggerListFilter } from "../../types";
 import loupe from '../../../img/loupe.png'
+import filter from '../../../img/filtro.png'
 
 export function TriggerList() {
 
@@ -24,8 +25,10 @@ export function TriggerList() {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [selectedRow, setSelectedRow] = useState<number | null>(null);
-    const [selectedRowMenu, setSelectedRowMenu] = useState<number | null>(null);
     const [filtro, setFiltro] = useState<string>('');
+    const [showFilter, setShowFilter] = useState<boolean>(false)
+    const [startDate, setStartDate] = useState<string>("")
+    const [endDate, setEndDate] = useState<string>("")
     const menuRef = useRef<HTMLDivElement>(null);
     const [profilePic, setProfilePic] = useState<string>("")
     const [filters, setFilters] = useState<ITriggerListFilter>({
@@ -72,10 +75,17 @@ export function TriggerList() {
     }, []);
 
     const dadosFiltrados = triggerList.filter(trigger => {
-        console.log(trigger)
 
         if (trigger.template_name !== null && filtro !== '' && !trigger.template_name.toLowerCase().includes(filtro.toLowerCase()) 
         && (trigger.campaign_name !== null && filtro !== '' && !trigger.campaign_name.toLowerCase().includes(filtro.toLowerCase()))){
+            return false;
+        }
+        if(startDate !== "" && trigger.data_criacao < startDate ){
+            console.log(trigger.data_criacao+" "+startDate+" "+trigger.data_criacao >= startDate)
+            return false;
+        }
+        if(endDate !== "" && trigger.data_criacao > endDate ){
+            console.log(trigger.data_criacao+" "+startDate+" "+trigger.data_criacao >= startDate)
             return false;
         }
         if (
@@ -85,6 +95,7 @@ export function TriggerList() {
         ) {
             return true;
         }
+
             return false;
         });
 
@@ -185,7 +196,20 @@ export function TriggerList() {
             },
         });
     };
-
+    const filterClear = () => {
+        setShowFilter(!showFilter)
+        setEndDate("")
+        setStartDate("")
+        setFilters({
+            ...filters,
+            status: {
+                ...filters.status,
+                "aguardando": true,
+                "erro": true,
+                "enviado": true,
+            },
+        });
+    }
 
     return (
         <div style={{width:"80%"}}>
@@ -196,20 +220,37 @@ export function TriggerList() {
                 </div>
                     <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "90%" }} className="title_2024">Gerenciar Campanhas</h1>
                 <hr className="hr_color2024" />
-                <div style={{margin:"20px"}}>
+                <div className="row" style={{margin:"20px", display:"flex", justifyContent:"flex-end", alignItems:"end"}}>
                     <input onChange={handleFiltroChange} value={filtro} type="text" style={{borderRight:"none", width:"300px", borderRadius:"20px 0px 0px 20px", paddingLeft:"20px"}} placeholder="Buscar por nome ou template"/>
                     <button style={{borderLeft:"none", borderRadius:"0px 20px 20px 0px", width:"50px"}}>
                         <img src={loupe} alt="" width={20} height={20}/>
                     </button>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", width:"20%", minWidth:"20%", margin: "10px", border:"1px solid #ddd" }}>
-                    <span style={{ color: "#002080", fontWeight:"bolder" }}>Status</span>
-                    <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
-                        <div><input type="checkbox" onChange={() => handleStatusChange('aguardando')} checked={filters.status.aguardando} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Aguardando</span></div>
-                        <div><input type="checkbox" onChange={() => handleStatusChange('enviado')} checked={filters.status.enviado} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Enviado</span></div>
-                        <div><input type="checkbox" onChange={() => handleStatusChange('erro')} checked={filters.status.erro} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Erro</span></div>
+                    <div style={{width:"40px", cursor:"pointer"}}>
+                        <img src={filter} alt="imagem de filtro" onClick={filterClear} />
                     </div>
                 </div>
+                {showFilter && 
+                <div className="column" style={{ backgroundColor: "#F0F0F0", border: "1px solid #ccc", height: "250px", margin: "20px", borderRadius: "20px" }}>
+                <div style={{ display:"flex", flexDirection:"row", fontWeight: "bolder", backgroundColor: "#F0F0F0", height: "250px", margin: "20px", borderRadius: "20px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", width:"20%", minWidth:"20%", margin: "10px" }}>
+                        <span style={{ color: "#002080", fontWeight:"bolder" }}>Status</span>
+                        <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
+                            <div><input type="checkbox" onChange={() => handleStatusChange('aguardando')} checked={filters.status.aguardando} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Aguardando</span></div>
+                            <div><input type="checkbox" onChange={() => handleStatusChange('enviado')} checked={filters.status.enviado} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Enviado</span></div>
+                            <div><input type="checkbox" onChange={() => handleStatusChange('erro')} checked={filters.status.erro} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Erro</span></div>
+                        </div>
+                    </div>
+                    <div className="column" style={{ color: "#002080", fontWeight:"bolder", margin: "10px" }}>
+                        <span style={{paddingLeft:"10px"}}>Data inicial</span>
+                        <input className="input-filters" style={{width:"300px", height:"30px", paddingLeft:"10px"}} onChange={(e)=>setStartDate(e.target.value)} id="start-date" type="date" />
+                        <span style={{paddingLeft:"10px"}}>Data final</span>
+                        <input className="input-filters" style={{width:"300px", height:"30px", paddingLeft:"10px"}} onChange={(e)=>setEndDate(e.target.value)} id="end-date" type="date" />
+                    </div>
+                    </div>
+                    <div style={{width:"100%", textAlign:"end", margin:"0px 0px 20px -20px"}}>
+                        <button className="button-blue" onClick={filterClear}>Fechar</button>
+                    </div>
+                </div>}
                 <div className="table-container">
                 <table className="table-2024 fixed-header-table">
                     <thead>
