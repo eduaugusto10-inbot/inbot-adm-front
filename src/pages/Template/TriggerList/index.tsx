@@ -8,6 +8,7 @@ import { adjustTime, adjustTimeWithout3Hour } from "../../../utils/utils";
 import { Filters, ITriggerList, ITriggerListFilter } from "../../types";
 import loupe from '../../../img/loupe.png'
 import filter from '../../../img/filtro.png'
+import { months, years } from "../../../utils/textAux";
 
 export function TriggerList() {
 
@@ -26,7 +27,7 @@ export function TriggerList() {
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [selectedRow, setSelectedRow] = useState<number | null>(null);
     const [filtro, setFiltro] = useState<string>('');
-    const [showFilter, setShowFilter] = useState<boolean>(false)
+    const [showFilter, setShowFilter] = useState<boolean>(true)
     const [startDate, setStartDate] = useState<string>("")
     const [endDate, setEndDate] = useState<string>("")
     const menuRef = useRef<HTMLDivElement>(null);
@@ -225,31 +226,60 @@ export function TriggerList() {
                     <button style={{borderLeft:"none", borderRadius:"0px 20px 20px 0px", width:"50px"}}>
                         <img src={loupe} alt="" width={20} height={20}/>
                     </button>
-                    <div style={{width:"40px", cursor:"pointer"}}>
+                    {/* <div style={{width:"40px", cursor:"pointer"}}>
                         <img src={filter} alt="imagem de filtro" onClick={filterClear} />
-                    </div>
+                    </div> */}
                 </div>
                 {showFilter && 
                 <div className="column" style={{ backgroundColor: "#F0F0F0", border: "1px solid #ccc", height: "250px", margin: "20px", borderRadius: "20px" }}>
-                <div style={{ display:"flex", flexDirection:"row", fontWeight: "bolder", backgroundColor: "#F0F0F0", height: "250px", margin: "20px", borderRadius: "20px" }}>
-                    <div style={{ display: "flex", flexDirection: "column", width:"20%", minWidth:"20%", margin: "10px" }}>
-                        <span style={{ color: "#002080", fontWeight:"bolder" }}>Status</span>
-                        <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
-                            <div><input type="checkbox" onChange={() => handleStatusChange('aguardando')} checked={filters.status.aguardando} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Aguardando</span></div>
-                            <div><input type="checkbox" onChange={() => handleStatusChange('enviado')} checked={filters.status.enviado} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Enviado</span></div>
-                            <div><input type="checkbox" onChange={() => handleStatusChange('erro')} checked={filters.status.erro} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Erro</span></div>
+                <div style={{ display:"flex", flexDirection:"column", fontWeight: "bolder", backgroundColor: "#F0F0F0", height: "250px", margin: "20px", borderRadius: "20px" }}>
+                <div style={{margin:"10px 20px", textAlign:"left"}}>
+            <span style={{ color: "#002080", fontWeight:"bolder" }}>Data de criação</span>
+            <select name="" id="" className="input-values litle-input" >
+                {[...Array(31).keys()].map(i => (
+                    <option key={i+1} value={(i+1).toString()}>{i+1}</option>
+                ))}
+            </select>
+            <select name="" id="" className="input-values litle-input" >
+                {months.map(month =>(
+                    <option value="">{month}</option>
+                ))}
+            </select>
+            <select name="" id="" className="input-values litle-input" >
+                {years.map(year=>(
+                    <option value="">{year}</option>
+                ))}
+            </select>
+            <span style={{ color: "#002080", fontWeight:"bolder", margin:"0px 10px 0px 10px" }}>Até</span>
+            <select name="" id="" className="input-values litle-input" >
+                {[...Array(31).keys()].map(i => (
+                    <option key={i+1} value={(i+1).toString()}>{i+1}</option>
+                ))}
+            </select>
+            <select name="" id="" className="input-values litle-input" >
+                {months.map(month =>(
+                    <option value="">{month}</option>
+                ))}
+            </select>
+            <select name="" id="" className="input-values litle-input" >
+                {years.map(year=>(
+                    <option value="">{year}</option>
+                ))}
+            </select>
+            <button className="button-blue">Buscar</button>
+        </div>
+                    <div style={{ display: "flex", flexDirection: "column", width:"20%", minWidth:"20%", margin: "10px 0px 0px 20px" }}>
+                        <div className="row-align" style={{marginBottom:"30px"}}>
+                            <span style={{ color: "#002080", fontWeight:"bolder" }}>Status</span>
+                            <div className={filters.status.aguardando ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer", marginLeft:"20px"}} onClick={()=>""}><span className={filters.status.aguardando ? "number_button_gradient" : "number_button_gradient-gray"} style={{width: "100px",height:"30px",fontSize:"14px", borderRadius: "15px"}} onClick={() => handleStatusChange('aguardando')}>Aguardando</span></div>
+                            <div className={filters.status.enviado ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer"}} onClick={()=>""}><span className={filters.status.enviado ? "number_button_gradient" : "number_button_gradient-gray"} style={{width: "100px",height:"30px",fontSize:"14px", borderRadius: "15px"}} onClick={() => handleStatusChange('enviado')}>Enviado</span></div>
+                            <div className={filters.status.erro ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer"}} onClick={()=>""}><span className={filters.status.erro ? "number_button_gradient" : "number_button_gradient-gray"} style={{width: "100px",height:"30px",fontSize:"14px", borderRadius: "15px"}} onClick={() => handleStatusChange('erro')}>Erro</span></div>
                         </div>
                     </div>
-                    <div className="column" style={{ color: "#002080", fontWeight:"bolder", margin: "10px" }}>
-                        <span style={{paddingLeft:"10px"}}>Data inicial</span>
-                        <input className="input-filters" style={{width:"300px", height:"30px", paddingLeft:"10px"}} onChange={(e)=>setStartDate(e.target.value)} id="start-date" type="date" />
-                        <span style={{paddingLeft:"10px"}}>Data final</span>
-                        <input className="input-filters" style={{width:"300px", height:"30px", paddingLeft:"10px"}} onChange={(e)=>setEndDate(e.target.value)} id="end-date" type="date" />
                     </div>
-                    </div>
-                    <div style={{width:"100%", textAlign:"end", margin:"0px 0px 20px -20px"}}>
+                    {/* <div style={{width:"100%", textAlign:"end", margin:"0px 0px 20px -20px"}}>
                         <button className="button-blue" onClick={filterClear}>Fechar</button>
-                    </div>
+                    </div> */}
                 </div>}
                 <div className="table-container">
                 <table className="table-2024 fixed-header-table">

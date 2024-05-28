@@ -187,6 +187,13 @@ table th:nth-child(even) {
   padding: 2px;
   animation: rotate 2s linear infinite; 
 }
+.border_gradient-gray {
+  display: inline-block;
+  position: relative;
+  border: 1px solid #9b9b9b;
+  border-radius: 15px;
+  padding: 2px; 
+}
    
    .border_gradient::after {
        content: "";
@@ -203,6 +210,13 @@ table th:nth-child(even) {
        filter: blur(10px);
        opacity: 0.5;
    }
+   .border_gradient-gray::after {
+       content: "";
+       position: absolute;
+       border-radius: 15px;
+       border: 1px solid #f0f0f0;
+       z-index: -1;
+   }
 
    .number_button_gradient {
     background-color: #fff;
@@ -214,6 +228,16 @@ table th:nth-child(even) {
      text-align: center;
      font-weight: bold;
      color: #3366ff;
+    }
+   .number_button_gradient-gray {
+    background-color: #f0f0f0;
+     display: inline-block;
+     width: 25px;
+     height: 25px;
+     line-height: 25px;
+     text-align: center;
+     font-weight: bold;
+     color: #9b9b9b;
     }
 
 .color-text-label {
@@ -310,4 +334,16 @@ table th:nth-child(even) {
   padding: 10px 30px;
   cursor: pointer;
   font-weight: bolder;
+}
+
+.disabled-button {
+  color: #9b9b9b;
+  border: 1px solid #9b9b9b;
+  padding: 10px;
+  width: 100px;
+  height: 30px;
+}
+
+.disabled-div-button {
+  width: 120px;
 }

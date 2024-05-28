@@ -23,7 +23,7 @@ export function Accordion() {
 
     const history = useNavigate();
     function BackToList() {
-        history(`/template-list?bot_id=${localStorage.getItem("botId")}`);
+        history(`/template-list?bot_id=${botId}`);
     }
 
     const [accordionState, setAccordionState] = useState<AccordionState>({
@@ -58,7 +58,7 @@ export function Accordion() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [fileName, setFileName] = useState('');
     useEffect(() => {
-        api.get(`/whatsapp/trigger-bot/${localStorage.getItem("botId")}`)
+        api.get(`/whatsapp/trigger-bot/${botId}`)
             .then(resp => setTriggerNames(resp.data))
             .catch(error => console.log(error))
     }, [])
@@ -375,7 +375,7 @@ export function Accordion() {
             "typeTrigger": triggerMode,
             "timeTrigger": triggerMode === "agendado" ? `${dates} ${hours}` : null,
             "status": "aguardando",
-            "botId": localStorage.getItem("botId"),
+            "botId": botId,
             "phoneTrigger": phone
         }
 
