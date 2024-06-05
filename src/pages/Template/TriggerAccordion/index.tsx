@@ -430,10 +430,12 @@ export function Accordion() {
     const sheetsVariables = () => {
         console.log("Star")
         let total = 0;
-        fileData[1].forEach((value) => {
-            console.log(value)
-            if (value !== "") total++;
-        });
+        if(fileData.length > 0){
+            fileData[1].forEach((value) => {
+                console.log(value)
+                if (value !== "") total++;
+            });
+        }
         return total -1;
     };
     
