@@ -430,17 +430,15 @@ export function Accordion() {
     const sheetsVariables = () => {
         console.log("Star")
         let total = 0;
-        if(fileData.length > 0){
-            fileData[1].forEach((value) => {
-                console.log(value)
-                if (value !== "") total++;
-            });
-        }
+        fileData[1].forEach((value) => {
+            console.log(value)
+            if (value !== "") total++;
+        });
         return total -1;
     };
     
     return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "50px" }}>
+        <div className="container-trigger">
             <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
             <ToastContainer />
             <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
@@ -519,7 +517,11 @@ export function Accordion() {
                                     className="input-values"
                                     type="number"
                                     value={clientNumber}
-                                    onChange={(event) => setClientNumber(event.target.valueAsNumber)}
+                                    onChange={(event) => {
+                                        const newValue = event.target.value;
+                                        const newValueNR = parseInt(newValue.replace(/\D/g, ""))
+                                        setClientNumber(newValueNR)
+                                    }}
                                 />
                             </div>
                             <span className="span-title" style={{ marginTop: "10px", height: "50px" }}>Variáveis</span>
