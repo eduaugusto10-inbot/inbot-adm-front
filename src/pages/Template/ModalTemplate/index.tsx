@@ -29,7 +29,7 @@ export function ModalTemplate(props: any) {
                 <div className="overlay-text">
                     <div className="texts">
                         <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', backgroundColor: "none" }}>{findText(props.modalTemplate.components, "header")}</label>
-                        <label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {findText(props.modalTemplate.components, "body")}</label>
+                        <label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {findText(props.modalTemplate.components, "body").length > 50 ? findText(props.modalTemplate.components, "body").slice(0,256) + "...veja mais": findText(props.modalTemplate.components, "body")}</label>
                         <label className="footer" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', fontSize: "12px" }}>{findText(props.modalTemplate.components, "footer")}</label>
                         {findButton(props.modalTemplate.components, "button") !== undefined && findButton(props.modalTemplate.components, "button").map((button: { text: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; }) => (
                             <div className="quickReply-texts">

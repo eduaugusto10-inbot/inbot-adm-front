@@ -284,16 +284,16 @@ export function ListAll() {
                             borderRadius:"20px"
                         }}
                     ><ul className="blue-text no-bullets">
-                                <li key={1} style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRowMenu === 1 ? '#e4e4e4' : 'white', padding:"12px 16px" }}
+                                <li key={1} className="menu-line" style={{backgroundColor: hoveredRowMenu === 1 ? '#e4e4e4' : 'white'}}
                                     onMouseEnter={() => handleMouseEnterMenu(1)}
                                     onMouseLeave={handleMouseLeaveMenu}><td onClick={() => sendtemplate(selectedRow)}>Criar campanha</td></li>
-                                <li key={2} style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRowMenu === 2 ? '#e4e4e4' : 'white', padding:"12px 16px" }}
+                                <li key={2} className="menu-line" style={{ backgroundColor: hoveredRowMenu === 2 ? '#e4e4e4' : 'white'}}
                                     onMouseEnter={() => handleMouseEnterMenu(2)}
                                     onMouseLeave={handleMouseLeaveMenu}> <td onClick={() => loadTemplate(selectedRow)}>Visualizar</td></li>
-                                <li key={3} style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRowMenu === 3 ? '#e4e4e4' : 'white', padding:"12px 16px" }}
+                                <li key={3} className="menu-line" style={{ backgroundColor: hoveredRowMenu === 3 ? '#e4e4e4' : 'white'}}
                                     onMouseEnter={() => handleMouseEnterMenu(3)}
                                     onMouseLeave={handleMouseLeaveMenu}><td onClick={() => duplicaTemplate(selectedRow)}>Duplicar</td></li>
-                                <li key={4} style={{ cursor: "pointer", backgroundColor: hoveredRowMenu === 4 ? '#e4e4e4' : 'white', padding:"12px 16px" }}
+                                <li key={4} className="menu-line" style={{ backgroundColor: hoveredRowMenu === 4 ? '#e4e4e4' : 'white'}}
                                     onMouseEnter={() => handleMouseEnterMenu(4)}
                                     onMouseLeave={handleMouseLeaveMenu}><td onClick={() => deleteTemplate(selectedRow)}>Deletar</td></li>
                         </ul>

@@ -32,6 +32,7 @@ export function CreateTemplateAccordion() {
     const location = useLocation()
     const [templateName, setTemplateName] = useState<string>("")
     const [templateType, setTemplateType] = useState<string>("")
+    const [showTemplate, setShowTempalte] = useState<boolean>(true)
     const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
         config: true,
         header: false,
@@ -712,7 +713,12 @@ export function CreateTemplateAccordion() {
                     </div>
                 </div>
             </div >
-            <div className="image-container rigth fixed" style={{ position: "fixed", color: "#000", alignContent: "end", textAlign: "end", right: "20px", bottom: "0px" }}>
+            {!showTemplate && 
+            <div className="image-container rigth fixed"  style={{ position: "fixed", color: "#000", alignContent: "end", textAlign: "end", right: "20px", bottom: "0px" }}>
+                <button  style={{width:"150px", height:"40px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={()=> setShowTempalte(!showTemplate)}>Exibir template</button>
+            </div>}
+            {showTemplate &&
+            <div onClick={()=> setShowTempalte(!showTemplate)} className="image-container rigth fixed" style={{ position: "fixed", color: "#000", alignContent: "end", textAlign: "end", right: "20px", bottom: "0px" }}>
                 <img src={whatsappBackground} alt="Logo" width={350} height={600} />
                 <div className="overlay-text">
                     <div className="texts">
@@ -720,7 +726,7 @@ export function CreateTemplateAccordion() {
                         {typeOfHeader === "image" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={midia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
                         {typeOfHeader === "document" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={midia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
                         {typeOfHeader === "video" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><video width="160" height="120" controls><source src={midia} type="video/mp4" /></video></label>}
-                        {<label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {handleChangeText(template.body)}</label>}
+                        {<label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {handleChangeText(template.body).length > 256 ? handleChangeText(template.body).slice(0,256)+"...veja mais" : handleChangeText(template.body)}</label>}
                         {<label className="footer" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', fontSize: "12px" }}>{template.footer}</label>}
                         {typeOfButtons !== "cta" && <div className="quickReply-texts">
                             {buttons.length > 0 && (<div className="quick-reply"><label >{buttons[0].text}</label></div>)}
@@ -733,7 +739,7 @@ export function CreateTemplateAccordion() {
                         </div>}
                     </div>
                 </div>
-            </div>
+            </div>}
         </div>
     );
 }
