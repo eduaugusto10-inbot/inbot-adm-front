@@ -511,6 +511,9 @@ export function Accordion() {
                                     checked={typeClient === true}                                    
                                 />
                                 <span className="blue-text"><strong>Upload de Planilha de Contatos:</strong></span>
+                                <a href="/files/Modelo.xlsx" download="Modelo - Planilha Contatos para Campanhas.xlsx">
+                                  <button className="button-next">Planilha exemplo</button>
+                                </a>
                             </div>
                             <span style={{ fontSize: "11px", fontStyle: "italic", marginLeft:"25px" }}> "Escolha esta opção para fazer upload de uma planilha com vários contatos de uma só vez para esta campanha."</span>
                         </div>
