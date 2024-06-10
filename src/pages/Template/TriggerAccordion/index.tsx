@@ -57,6 +57,7 @@ export function Accordion() {
     const [profilePic, setProfilePic] = useState("")
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [fileName, setFileName] = useState('');
+    const [newXlsFile, setNewXlsFile] = useState<boolean>(false)
     useEffect(() => {
         api.get(`/whatsapp/trigger-bot/${botId}`)
             .then(resp => setTriggerNames(resp.data))
@@ -147,6 +148,7 @@ export function Accordion() {
     };
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNewXlsFile(true)
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -428,8 +430,12 @@ export function Accordion() {
     };
 
     const sheetsVariables = () => {
-        console.log("Star")
         let total = 0;
+        console.log("Eduardo")
+        console.log(fileData[1])
+        if(fileData[1]===undefined){
+            return total -1;
+        }
         fileData[1].forEach((value) => {
             console.log(value)
             if (value !== "") total++;
