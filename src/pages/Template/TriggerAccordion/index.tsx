@@ -10,6 +10,8 @@ import { AccordionState, IListVariables, ITemplateList, IVariables } from "../..
 import { mask } from "../../../utils/utils";
 import Modal from "../../../Components/Modal";
 import useModal from "../../../Components/Modal/useModal";
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
 
 export function Accordion() {
 
@@ -522,7 +524,23 @@ export function Accordion() {
                         <div style={{ display: "flex", flexDirection: "column", width: "90%" }}>
                             <div style={{ display: "flex", flexDirection: "row" }}>
                                 <span className="span-title">Telefone </span>
-                                <input
+                                <PhoneInput
+                                    defaultCountry="br"
+                                    value={clientNumber.toString()}
+                                    onChange={(event) => {
+                                        const newValueNR = parseInt(event.replace(/\D/g, ""))
+                                        setClientNumber(newValueNR)
+                                    }}
+                                    inputStyle={{
+                                        width: "250px",
+                                        height: "40px",
+                                        border: "1px solid #A8A8A8",
+                                        marginLeft: "5px",
+                                        padding: "5px",
+                                        borderRadius: "20px",
+                                    }}
+                                />
+                                {/* <input
                                     className="input-values"
                                     type="number"
                                     value={clientNumber}
@@ -531,7 +549,7 @@ export function Accordion() {
                                         const newValueNR = parseInt(newValue.replace(/\D/g, ""))
                                         setClientNumber(newValueNR)
                                     }}
-                                />
+                                /> */}
                             </div>
                             <span className="span-title" style={{ marginTop: "10px", height: "50px" }}>Variáveis</span>
                             <div style={{ display: "flex", flexDirection: "column" }}>
