@@ -440,7 +440,9 @@ export function CreateTemplateAccordion() {
                     <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-37px" }} />
                 </div>
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", marginLeft:"65px" }} className="title_2024">Criar Template</h1>
+                <br/>
                 <hr className="hr_color"/>
+                <br/>
                 <div className="config-template">
                     <div className="header-accordion gradient-background" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
                     {accordionState.config &&

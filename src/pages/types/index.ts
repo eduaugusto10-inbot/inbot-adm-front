@@ -170,6 +170,7 @@ export interface AccordionState {
 }
 
 export interface ICustomer {
+    engagement: string;
     phone: string
     status: string
     data_criacao: string

@@ -24,17 +24,17 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
     botao: false
 });
   useEffect(() => {
-    api.get(`/customfields/403`, {
+    api.get(`/customfields/571`, {
         headers: { 
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJib3RfaWQiOjQwMywiaWF0IjoxNzE1Nzk0ODYwfQ.hoGj0zCeUZQIbaCVT5gF8pjVJsaEeMAGXLM6565Rh1w'
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJib3RfaWQiOjU3MSwiaWF0IjoxNzE3NDQwMjE2fQ.hfp_mKgnDpioTHUzhDI6Zy59sCi05tO-CWDgdLdVwHE'
       }})
     .then(resp => {
         console.log(resp.data.data)
         setCustomFields(resp.data.data)
     })
-    api.get(`/customer/403`, {
+    api.get(`/customer/571`, {
         headers: { 
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJib3RfaWQiOjQwMywiaWF0IjoxNzE1Nzk0ODYwfQ.hoGj0zCeUZQIbaCVT5gF8pjVJsaEeMAGXLM6565Rh1w'
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJib3RfaWQiOjU3MSwiaWF0IjoxNzE3NDQwMjE2fQ.hfp_mKgnDpioTHUzhDI6Zy59sCi05tO-CWDgdLdVwHE'
       }})
     .then(resp => {
         console.log(resp.data.data)
@@ -123,7 +123,7 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
     };
   return (
     <div style={{backgroundColor:"#ebebeb", padding:"10px 100px 100px 100px"}}>
-        <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width: "90%", marginLeft:"65px" }} className="title_2024">Gestão de Usuários</h1>
+        <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", marginLeft:"65px" }} className="title_2024">Gestão de Usuários</h1>
         <hr className="hr_color" />
         <div className="config-template" style={{width:"100%"}}>
         <div className="header-accordion gradient-background" style={{width:"100%", borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>Adicionar Usuários</div>      

@@ -216,11 +216,13 @@ export function TriggerList() {
         <div style={{width:"80%"}}>
             <ToastContainer />
             <div>
-                <div style={{ display: "flex", flexDirection: "row", width: "100%", minWidth:"100%" }}>
-                    <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
+                <div>
+                    <div style={{ display: "flex", flexDirection: "row", width: "100%", minWidth:"100%" }}>
+                        <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
+                    </div>
+                    <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488" }} className="title_2024">Gerenciar Campanhas</h1>
                 </div>
-                    <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "90%" }} className="title_2024">Gerenciar Campanhas</h1>
-                <hr className="hr_color2024" />
+                <hr className="hr_color" />
                 <div className="row" style={{margin:"20px", display:"flex", justifyContent:"flex-end", alignItems:"end"}}>
                     <input onChange={handleFiltroChange} value={filtro} type="text" style={{borderRight:"none", width:"300px", borderRadius:"20px 0px 0px 20px", paddingLeft:"20px"}} placeholder="Buscar por nome ou template"/>
                     <button style={{borderLeft:"none", borderRadius:"0px 20px 20px 0px", width:"50px"}}>

@@ -163,7 +163,7 @@ export function TriggerDetails() {
                 <div style={{ display: "flex", flexDirection: "row", width: "100%", padding: "20px 0px 0px 20px" }}>
                     <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
                 </div>
-                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "90%", marginLeft:"40px" }} className="title_2024">Detalhes da Campanha</h1>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", marginLeft:"40px" }} className="title_2024">Detalhes da Campanha</h1>
                 <hr className="hr_color" />
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                     <div style={{ width: "250px", backgroundColor: "#F0F0F0", height: "300px", border: "1px solid #ccc", margin: "20px", borderRadius: "20px" }}>
@@ -216,6 +216,7 @@ export function TriggerDetails() {
                             <th className="cells">Status</th>
                             <th className="cells">Horário do criação</th>
                             <th className="cells">Horário do envio</th>
+                            <th className="cells">Engajamento</th>
                             <th className="cells">Log</th>
                         </tr>
                     </thead>
@@ -234,6 +235,7 @@ export function TriggerDetails() {
                             <td><span style={{ fontSize: "12px" }}>{customer.status}</span></td>
                             <td><span style={{ fontSize: "12px" }}>{adjustTime(customer.data_criacao)}</span></td>
                             <td><span style={{ fontSize: "12px" }}>{customer.data_disparo ? adjustTime(customer.data_disparo) : "----"}</span></td>
+                            <td><span style={{ fontSize: "12px" }}>{customer.engagement ? adjustTime(customer.engagement) : "----"}</span></td>
                             <td><span style={{ fontSize: "12px" }}> -- </span></td>
                         </tr>
                     ))}
