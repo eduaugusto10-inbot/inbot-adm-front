@@ -432,7 +432,7 @@ export function CreateTemplateAccordion() {
         }
     };
     return (
-        <div style={{ width: "80vw" }}>
+        <div style={{ width: "80vw", display:"flex", flexDirection:"column", alignItems:"center" }}>
             <div style={{width:"900px"}}>
                 <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
                 <ToastContainer />
@@ -440,14 +440,13 @@ export function CreateTemplateAccordion() {
                     <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-37px" }} />
                 </div>
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", marginLeft:"65px" }} className="title_2024">Criar Template</h1>
+                <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
                 <br/>
-                <hr className="hr_color"/>
-                <br/>
-                <div className="config-template">
-                    <div className="header-accordion gradient-background" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
+                <div className="config-template" style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
+                    <div className="header-accordion gradient-background" style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
                     {accordionState.config &&
-                    <div className="column" style={{width:"100%"}}>
-                        <div style={{ display: "flex", flexDirection: "row", textAlign: "left", backgroundColor: "#f1f1f1", width: "100%" }}>
+                    <div className="column accordeon-new" >
+                        <div style={{ display: "flex", flexDirection: "row", textAlign: "left", backgroundColor: "#FFF", width: "100%" }}>
                             <div className="input" style={{ justifyContent: "center"}}>
                                 <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
                                     <span className="span-title">Nome</span>
@@ -473,8 +472,8 @@ export function CreateTemplateAccordion() {
                                         <option value={"MARKETING"}>Marketing</option>
                                     </select>
                                 </div>
-                                <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
-                                    <span className="span-title" style={{ textAlign: "center" }}>Tel. Origem</span>
+                                <div style={{ display: "flex", flexDirection: "row", margin: "10px", textAlign: "left" }}>
+                                    <span className="span-title" style={{ textAlign: "left" }}>Tel. Origem</span>
                                     <input type="text"
                                         className="input-values"
                                         value={mask(phone)}
@@ -483,7 +482,7 @@ export function CreateTemplateAccordion() {
                                     />
                                 </div>
                                 <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
-                                    <span className="span-title">Bot ID</span>
+                                    <span className="span-title" style={{ textAlign: "left" }}>Bot ID</span>
                                     <input type="text"
                                         className="input-values"
                                         value={botId ?? ""}
@@ -492,7 +491,7 @@ export function CreateTemplateAccordion() {
                                     />
                                 </div>
                             </div>
-                            <div style={{ width: "340px", display: "flex", flexDirection: "row", textAlign: "left", marginLeft: "20px", borderLeft: "2px solid #FFF", paddingLeft: "10px", backgroundColor: "#DAE7F0" }}>
+                            <div className="card_2024" style={{ width: "340px", display: "flex", flexDirection: "row", textAlign: "left", marginLeft: "20px" }}>
                                 <div style={{ margin: "10px" }}>
                                     <img src={alert} width={25} alt="alerta" />
                                 </div>
@@ -507,10 +506,11 @@ export function CreateTemplateAccordion() {
                             </div>
                         </div>}
                 </div>
-                <div className="config-recebidores" style={{ maxHeight: "600px" }}>
+                <div className="config-recebidores" style={{ maxHeight: "95%", display:"flex", flexDirection:"column", alignItems:"center" }}>
                     <div className="header-accordion gradient-background" onClick={() => toggleAccordion('header')}>2. Cabeçalho</div>
-                    {accordionState.header && <div className="body" style={{width:"100%"}}>
-                        <div className="radio row-align">
+                    {accordionState.header && 
+                    <div className="body accordeon-new" style={{width:"90%"}}>
+                        <div className="radio row-align ">
                             <div className="row-align" onChange={headerRadio}><input type="radio" value="text" name="header" checked={typeOfHeader === 'text'} /><span className="padding-5">Texto</span></div>
                             <div className="row-align" onChange={headerRadio}><input type="radio" value="image" name="header" checked={typeOfHeader === 'image'} /><span className="padding-5">Imagem</span></div>
                             <div className="row-align" onChange={headerRadio}><input type="radio" value="document" name="header" checked={typeOfHeader === 'document'} /><span className="padding-5">Documento</span></div>
@@ -569,20 +569,20 @@ export function CreateTemplateAccordion() {
                         </div>
                     </div>}
                 </div>
-                <div className="modo-disparo">
+                <div className="modo-disparo" style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
                     <div className="header-accordion gradient-background" onClick={() => toggleAccordion('body')}>3. Corpo da Mensagem</div>
-                    {accordionState.body && <div className="body" style={{width:"100%"}}>
+                    {accordionState.body && <div className="body accordeon-new" style={{width:"90%"}}>
                         <div style={{ display: "flex", flexDirection: "column", width: "100%", textAlign: "initial", paddingLeft: "20px" }}>
                             <span className="bolder">Corpo da Mensagem</span>
                             <span style={{ fontSize: "11px", marginBottom: "20px", fontStyle: "italic" }}>Este é o principal conteúdo de texto no seu template.</span>
                             <span>Corpo da mensagem</span>
-
+ 
                             <textarea
                                 maxLength={1024}
                                 name="body"
                                 value={template.body}
                                 onChange={handleInputChange}
-                                style={{ width: "90%", borderRadius: "20px" }}
+                                style={{ width: "90%", borderRadius: "8px", padding:"9px" }}
                             />
 
                             <div style={{ width: "87%", textAlign: "end" }}>
@@ -612,9 +612,9 @@ export function CreateTemplateAccordion() {
                         </div>
                     </div>}
                 </div>
-                <div className="revisar">
+                <div className="revisar" style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
                     <div className="header-accordion gradient-background" onClick={() => toggleAccordion('footer')}>4. Rodapé</div>
-                    {accordionState.footer && <div className="body" style={{width:"100%"}}>
+                    {accordionState.footer && <div className="body accordeon-new" style={{width:"90%"}}>
                         <div style={{ display: "flex", flexDirection: "column", width: "100%", textAlign: "initial", paddingLeft: "20px" }}>
                             <div className="radio row-align">
                                 <div className="row-align" onChange={rodapeRadio}><input type="radio" name="Texto" value="rodape" checked={rodapeType === 'rodape'} /><span className="padding-5">Texto</span></div>
@@ -642,10 +642,10 @@ export function CreateTemplateAccordion() {
                         </div>
                     </div>}
                 </div>
-                <div className="revisar">
+                <div className="revisar" style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
                     <div className="header-accordion gradient-background" onClick={() => toggleAccordion('botao')}>5. Botões</div>
-                    {accordionState.botao && <div className="body">
-                        <div style={{ width: "100%", marginBottom: "20px", paddingLeft: "20px" }}>
+                    {accordionState.botao && <div className="body accordeon-new">
+                        <div style={{ width: "90%", marginBottom: "20px", paddingLeft: "20px" }}>
                             <div className="radio row-align">
                                 <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="quickReply" name="quickReply" checked={typeOfButtons === 'quickReply'}/><span className="padding-5">Resposta rápida</span></div>
                                 <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="cta" name="quickReply" checked={typeOfButtons === 'cta'} /><span className="padding-5">CTA</span></div>
@@ -709,17 +709,17 @@ export function CreateTemplateAccordion() {
                                 </div>
                             }</div>
                     </div>}
+                </div>
                     <div style={{ flexDirection: "row", textAlign: "end", alignContent: "end", alignItems: "end" }}>
                         <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Cancelar")}>Cancelar</button>
                         <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Salvar")}>Salvar</button>
                     </div>
-                </div>
             </div >
-            {!showTemplate && 
+            {showTemplate && 
             <div className="image-container rigth fixed"  style={{ position: "fixed", color: "#000", alignContent: "end", textAlign: "end", right: "20px", bottom: "0px" }}>
                 <button  style={{width:"150px", height:"40px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={()=> setShowTempalte(!showTemplate)}>Exibir template</button>
             </div>}
-            {showTemplate &&
+            {!showTemplate &&
             <div onClick={()=> setShowTempalte(!showTemplate)} className="image-container rigth fixed" style={{ position: "fixed", color: "#000", alignContent: "end", textAlign: "end", right: "20px", bottom: "0px" }}>
                 <img src={whatsappBackground} alt="Logo" width={350} height={600} />
                 <div className="overlay-text">

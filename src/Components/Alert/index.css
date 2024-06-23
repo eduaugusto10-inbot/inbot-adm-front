@@ -1,10 +1,10 @@
 .container-alert {
     display: flex;
     flex-direction: row;
-    background-color: #DAE7F0;
-    margin: 10px;
-    border: 7px;
-    border-radius: 20px
+    background-color: #f1f1f1;
+    margin: 12px;
+    border: 1px solid #d8d8d8;
+    border-radius: 15px
 }
 
 .span-12 {

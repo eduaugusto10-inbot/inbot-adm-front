@@ -59,7 +59,6 @@ export function Accordion() {
     const [profilePic, setProfilePic] = useState("")
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [fileName, setFileName] = useState('');
-    const [newXlsFile, setNewXlsFile] = useState<boolean>(false)
     useEffect(() => {
         api.get(`/whatsapp/trigger-bot/${botId}`)
             .then(resp => setTriggerNames(resp.data))
@@ -78,7 +77,6 @@ export function Accordion() {
                 api.get("https://whatsapp.smarters.io/api/v1/settings", { headers: { 'Authorization': token } })
                     .then(res => {
                         setProfilePic(res.data.data.profile_pic)
-                        // handleImageLoad()
                     })
                     .catch(error => console.log(error))               
                 api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
@@ -150,7 +148,6 @@ export function Accordion() {
     };
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNewXlsFile(true)
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -450,14 +447,16 @@ export function Accordion() {
             <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
             <ToastContainer />
             <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
-                <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-37px" }} />
+                <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-37px" }} />
             </div>
-            <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69" }} className="title_2024">Criar Campanha</h1>
-            <hr className="hr_color" />
+            <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", marginLeft:"65px" }} className="title_2024">Criar Campanha</h1>
+            <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
+            <br/>
             <div>
-                <div className="header-accordion gradient-background" style={{ borderRadius: "20px 20px 0px 0px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
+                <div className="header-accordion gradient-background" style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
                 {accordionState.config &&
-                <div style={{textAlign:"right"}}>
+                <div className="body-no-background" style={{width:"100%"}}>
+                <div className="accordeon-new" style={{width:"90%", textAlign:"right"}}>
                     <div className="body line" style={{ display: "flex", justifyContent: "space-around", flexDirection: "row", alignContent: "center" }}>
                         <div>
                             <div style={{ display: "flex", flexDirection: "row" }}>
@@ -477,12 +476,14 @@ export function Accordion() {
                         </div>
                         </div>
                         <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('recebidores')}>Próximo</button>
-                    </div>}
+                    </div>
+                </div>}
             </div>
             <div className="config-recebidores" style={{ maxHeight: "1080px" }}>
                 <div className="header-accordion gradient-background" onClick={() => toggleAccordion('recebidores')}>2. Cadastro dos Contatos da Campanha</div>
                 {accordionState.recebidores && 
-                <div className="body" style={{width:"100%"}}>
+                <div className="body-no-background" style={{width:"100%"}}>
+                <div  className="accordeon-new" style={{width:"90%", padding:"0px 15px"}}>
                     <div style={{ width: "90%", display:"flex", flexDirection:"column", textAlign: "left" }}>
                         <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
                             <span style={{ fontSize: "16px" }}>Clientes</span>
@@ -540,16 +541,6 @@ export function Accordion() {
                                         borderRadius: "20px",
                                     }}
                                 />
-                                {/* <input
-                                    className="input-values"
-                                    type="number"
-                                    value={clientNumber}
-                                    onChange={(event) => {
-                                        const newValue = event.target.value;
-                                        const newValueNR = parseInt(newValue.replace(/\D/g, ""))
-                                        setClientNumber(newValueNR)
-                                    }}
-                                /> */}
                             </div>
                             <span className="span-title" style={{ marginTop: "10px", height: "50px" }}>Variáveis</span>
                             <div style={{ display: "flex", flexDirection: "column" }}>
@@ -591,7 +582,7 @@ export function Accordion() {
                                         <input className="input-values" value={payload3} onChange={e => setPayload3(e.target.value)} />
                                     </div>
                                 }
-                                <button onClick={addCustomerToSendTemplate} style={{ width: "120px", height: "30px", marginRight: "5px" }} className="button-next">Adicionar cliente</button>
+                                <button onClick={addCustomerToSendTemplate} style={{ width: "170px", height: "30px", marginRight: "5px" }} className="button-next">Adicionar contato</button>
                             </div>
                             <div style={{ maxHeight: "500px", overflowY: 'auto', marginBottom: "10px" }}>
                                 <table style={{ margin: "20px", width:"95%" }}>
@@ -664,12 +655,14 @@ export function Accordion() {
                     <div style={{width:"100%", textAlign:"right"}}>
                         <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('disparo')}>Próximo</button>
                     </div>
+                    </div>
                 </div>}
             </div>
             <div className="modo-disparo">
                 <div className="header-accordion gradient-background" onClick={() => toggleAccordion('disparo')}>3. Modo de Disparo</div>
                 {accordionState.disparo && 
-                <div>
+                <div className="body-no-background" style={{width:"100%"}}>
+                <div className="accordeon-new">
                     <div className="body">
                         <div className="line">
                             <input type="radio" name="disparo" value="imediato" onChange={handleMode} className="input-spaces" checked={mode === false} /><span>Imediato</span>
@@ -692,24 +685,30 @@ export function Accordion() {
                     <div style={{width:"100%", textAlign:"right"}}>
                         <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('revisar')}>Próximo</button>
                     </div>
+                </div>
                 </div>}
             </div>
             <div className="revisar">
                 <div className="header-accordion gradient-background" onClick={() => toggleAccordion('revisar')}>4. Resumo e salvar</div>
-                {accordionState.revisar && <div className="body">
-                    <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
-                        <span className="span-title-resume">Template: {templateName}</span>
-                        <span className="span-title-resume">Telefone do disparo: {mask(phone)}</span>
-                        <span className="span-title-resume">Data e hora do disparo: {triggerMode} - {dates} - {hours}</span>
-                        <span className="span-title-resume">Quantidade de disparos: {typeClient === false ? listVariables.length : ""}</span>
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", width: "100%" }}>
-                        <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Cancelar")}>Cancelar</button>
-                        <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Salvar")}>Salvar</button>
-                    </div>
-                </div>}
-            </div>
-        </div >
+                    {accordionState.revisar && 
+                    <div className="body-no-background" style={{width:"100%"}}>
+                        <div className="accordeon-new" style={{padding:"0px 15px 15px 10px"}}>
+                            <div style={{ justifyContent: "center"}}>
+                                <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
+                                    <span className="span-title-resume">Template: {templateName}</span>
+                                    <span className="span-title-resume">Telefone do disparo: {mask(phone)}</span>
+                                    <span className="span-title-resume">Data e hora do disparo: {triggerMode} - {dates} - {hours}</span>
+                                    <span className="span-title-resume">Quantidade de disparos: {typeClient === false ? listVariables.length : ""}</span>
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", width: "100%" }}>
+                                    <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Cancelar")}>Cancelar</button>
+                                    <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Salvar")}>Salvar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>}
+                </div>
+            </div >
     );
 }
 

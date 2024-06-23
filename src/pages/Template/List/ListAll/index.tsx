@@ -223,26 +223,26 @@ export function ListAll() {
                     {isLoading ? (<div className="spinner-container">
                         <div className="spinner"></div>
                     </div>)
-                        : <img onLoad={handleImageLoad} src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />}
+                        : <img onLoad={handleImageLoad} src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-30px" }} />}
                 </div>
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "90%", marginLeft:"65px" }} className="title_2024">Gerenciar Templates</h1>
-                <hr className="hr_color" />
+                <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
                 <div style={{margin:"20px"}}>
                     <input onChange={handleFiltroChange} value={filtro} type="text" style={{borderRight:"none", width:"300px", borderRadius:"20px 0px 0px 20px", paddingLeft:"20px"}} placeholder="Buscar por nome ou template"/>
                     <button style={{borderLeft:"none", borderRadius:"0px 20px 20px 0px", width:"50px"}}>
                         <img src={loupe} alt="" width={20} height={20}/>
                     </button>
                 </div>
-                <div className="table-container">
+                <div>
                 <table className="table-2024 fixed-header-table" style={{textAlign:"left"}}>
                     <thead>
                         <tr className="cells">
-                            <th className="cells" style={{borderRight:"1px solid #aaa"}}>ID do template</th>
+                            {/* <th className="cells" style={{borderRight:"1px solid #aaa"}}>ID do template</th> */}
                             <th className="cells">Nome do template</th>
-                            <th className="cells">Status</th>
-                            <th className="cells">Categoria</th>
-                            <th className="cells">Idioma</th>
-                            <th className="cells">Menu</th>
+                            <th className="cells" style={{textAlign:"center"}}>Status</th>
+                            <th className="cells" style={{textAlign:"center"}}>Categoria</th>
+                            <th className="cells" style={{textAlign:"center"}}>Idioma</th>
+                            <th className="cells" style={{textAlign:"center"}}>Menu</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -253,12 +253,12 @@ export function ListAll() {
                                 onMouseEnter={() => handleMouseEnter(index)}
                                 onMouseLeave={handleMouseLeave}
                             >
-                                <td className="cells"><span style={{ color: "blue", fontSize: "12px" }}>{template.ID}</span></td>
+                                {/* <td className="cells"><span style={{ color: "blue", fontSize: "12px" }}>{template.ID}</span></td> */}
                                 <td><span>{template.name}</span></td>
-                                <td><div style={{ borderRadius: "20px", backgroundColor: template.status === "APPROVED" ? "#F2FFED" : template.status === "PENDING" ? "gray" : "#FFECEC", padding: "7px" }}><span style={{ fontSize: "12px", color: template.status === "APPROVED" ? "green" : template.status === "PENDING" ? "yellow" : "red", fontWeight: "bolder" }}>{template.status === "APPROVED" ? "Aprovado" : template.status === "PENDING" ? "Pendente" : "Rejeitado"}</span></div></td>
-                                <td><span>{template.category}</span></td>
-                                <td><span>{template.language}</span></td>
-                                <td><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>
+                                <td style={{textAlign:"center"}}><div style={{ borderRadius: "20px", backgroundColor: template.status === "APPROVED" ? "#F2FFED" : template.status === "PENDING" ? "gray" : "#FFECEC", padding: "7px" }}><span style={{ fontSize: "12px", color: template.status === "APPROVED" ? "green" : template.status === "PENDING" ? "yellow" : "red", fontWeight: "bolder" }}>{template.status === "APPROVED" ? "Aprovado" : template.status === "PENDING" ? "Pendente" : "Rejeitado"}</span></div></td>
+                                <td style={{textAlign:"center"}}><span>{template.category}</span></td>
+                                <td style={{textAlign:"center"}}><span>{template.language}</span></td>
+                                <td style={{textAlign:"center"}}><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>
                             </tr>
                         ))}
                     </tbody>
@@ -293,7 +293,7 @@ export function ListAll() {
                                 <li key={3} className="menu-line" style={{ backgroundColor: hoveredRowMenu === 3 ? '#e4e4e4' : 'white'}}
                                     onMouseEnter={() => handleMouseEnterMenu(3)}
                                     onMouseLeave={handleMouseLeaveMenu}><td onClick={() => duplicaTemplate(selectedRow)}>Duplicar</td></li>
-                                <li key={4} className="menu-line" style={{ backgroundColor: hoveredRowMenu === 4 ? '#e4e4e4' : 'white'}}
+                                <li key={4} className="menu-line" style={{ backgroundColor: hoveredRowMenu === 4 ? '#e4e4e4' : 'white', borderBottom:"none"}}
                                     onMouseEnter={() => handleMouseEnterMenu(4)}
                                     onMouseLeave={handleMouseLeaveMenu}><td onClick={() => deleteTemplate(selectedRow)}>Deletar</td></li>
                         </ul>

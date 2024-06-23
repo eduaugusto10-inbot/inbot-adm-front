@@ -318,7 +318,7 @@ table th:nth-child(even) {
 .button-next{
   height: 30px;
   border-radius:10px;
-  background-color:#0275D8;
+  background-color:#0d5388;
   color:#FFF;
   font-size:13.6px;
   border: none;
@@ -332,9 +332,12 @@ table th:nth-child(even) {
   color: #FFF;
   border: 1px solid #FFF;
   text-align: left;
-  padding: 10px 30px;
+  padding: 7px;
   cursor: pointer;
   font-weight: bolder;
+  border-radius: 20px;
+  margin-top: 10px;
+  padding-left: 20px;
 }
 
 .disabled-button {
@@ -347,4 +350,11 @@ table th:nth-child(even) {
 
 .disabled-div-button {
   width: 120px;
+}
+
+.card_2024 {
+  border-radius: 15px;
+  background-color: #f1f1f1;
+  border: 1px solid #d8d8d8;
+  margin: 12px;
 }

@@ -30,3 +30,12 @@
 
 
 
+
+.accordeon-new {
+  width: 90%;
+  background-color: #FFF;
+  border-left: 1px solid #c0c0c0;
+  border-right: 1px solid #c0c0c0;
+  border-bottom: 1px solid #c0c0c0;
+  border-radius: 0px 0px 20px 20px;
+}

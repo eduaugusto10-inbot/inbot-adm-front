@@ -164,13 +164,9 @@ export function TriggerDetails() {
                     <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
                 </div>
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", marginLeft:"40px" }} className="title_2024">Detalhes da Campanha</h1>
-                <hr className="hr_color" />
+                <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-                    <div style={{ width: "250px", backgroundColor: "#F0F0F0", height: "300px", border: "1px solid #ccc", margin: "20px", borderRadius: "20px" }}>
-                        <span style={{ fontWeight: "bolder", color: "#002080" }}>Resumo do Disparo</span>
-                        <Pie data={dataPie} />
-                    </div>
-                    <div style={{ fontWeight: "bolder", backgroundColor: "#F0F0F0", border: "1px solid #ccc", height: "250px", margin: "20px", borderRadius: "20px" }}>
+                    <div style={{ fontWeight: "bolder", height: "250px", margin: "20px" }}>
                         <span style={{ color: "#002080" }}>Filtros</span>
                         <div style={{ display: "flex", flexDirection: "row" }}>
                             <div style={{ display: "flex", flexDirection: "column", margin: "10px" }}>
@@ -198,11 +194,15 @@ export function TriggerDetails() {
                             </div>
                         </div>
                     </div>
+                    <div style={{ width: "250px", backgroundColor: "#F0F0F0", height: "300px", border: "1px solid #ccc", margin: "20px", borderRadius: "20px" }}>
+                        <span style={{ fontWeight: "bolder", color: "#002080" }}>Resumo do Disparo</span>
+                        <Pie data={dataPie} />
+                    </div>
                 </div>
-                <div style={{display:"flex",flexDirection:"column"}}>
-                <table>
+                <div style={{ display:"flex",flexDirection:"column" }}>
+                <table className="table-2024 fixed-header-table" style={{minWidth:"90%"}}>
                     <thead>
-                        <tr className="cells" style={{ backgroundColor: "#010043", fontSize: "12px" }}>
+                        <tr className="cells" style={{ fontSize: "12px" }}>
                             <th className="cells">Telefone</th>
                             {filteredCustomers[0]?.variable_1!==null &&<th className="cells">Var. 1</th>}
                             {filteredCustomers[0]?.variable_2!==null &&<th className="cells">Var. 2</th>}
@@ -213,7 +213,7 @@ export function TriggerDetails() {
                             {filteredCustomers[0]?.variable_7!==null &&<th className="cells">Var. 7</th>}
                             {filteredCustomers[0]?.variable_8!==null &&<th className="cells">Var. 8</th>}
                             {filteredCustomers[0]?.variable_9!==null &&<th className="cells">Var. 9</th>}
-                            <th className="cells">Status</th>
+                            <th className="cells" style={{width:"100px"}}>Status</th>
                             <th className="cells">Horário do criação</th>
                             <th className="cells">Horário do envio</th>
                             <th className="cells">Engajamento</th>

@@ -218,23 +218,20 @@ export function TriggerList() {
             <div>
                 <div>
                     <div style={{ display: "flex", flexDirection: "row", width: "100%", minWidth:"100%" }}>
-                        <img src={profilePic} width={100} height={100} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
+                        <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
                     </div>
                     <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488" }} className="title_2024">Gerenciar Campanhas</h1>
                 </div>
-                <hr className="hr_color" />
+                <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
                 <div className="row" style={{margin:"20px", display:"flex", justifyContent:"flex-end", alignItems:"end"}}>
                     <input onChange={handleFiltroChange} value={filtro} type="text" style={{borderRight:"none", width:"300px", borderRadius:"20px 0px 0px 20px", paddingLeft:"20px"}} placeholder="Buscar por nome ou template"/>
                     <button style={{borderLeft:"none", borderRadius:"0px 20px 20px 0px", width:"50px"}}>
                         <img src={loupe} alt="" width={20} height={20}/>
                     </button>
-                    {/* <div style={{width:"40px", cursor:"pointer"}}>
-                        <img src={filter} alt="imagem de filtro" onClick={filterClear} />
-                    </div> */}
                 </div>
                 {showFilter && 
-                <div className="column" style={{ backgroundColor: "#F0F0F0", border: "1px solid #ccc", height: "250px", margin: "20px", borderRadius: "20px" }}>
-                <div style={{ display:"flex", flexDirection:"column", fontWeight: "bolder", backgroundColor: "#F0F0F0", height: "250px", margin: "20px", borderRadius: "20px" }}>
+                <div className="column" style={{ height: "250px", margin: "20px", borderRadius: "20px" }}>
+                <div style={{ display:"flex", flexDirection:"column", fontWeight: "bolder", height: "250px", margin: "20px", borderRadius: "20px" }}>
                 <div style={{margin:"10px 20px", textAlign:"left"}}>
             <span style={{ color: "#002080", fontWeight:"bolder" }}>Data de criação</span>
             <select name="" id="" className="input-values litle-input" >
@@ -283,7 +280,7 @@ export function TriggerList() {
                         <button className="button-blue" onClick={filterClear}>Fechar</button>
                     </div> */}
                 </div>}
-                <div className="table-container">
+                <div>
                 <table className="table-2024 fixed-header-table">
                     <thead>
                         <tr className="cells">
@@ -335,7 +332,7 @@ export function TriggerList() {
                                     onMouseLeave={handleMouseLeaveMenu}> <td onClick={() => changeStatus(selectedRow)}>Cancelar disparo</td>
                                 </ul>
                             )}
-                                <ul key={2} style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRowMenu === 2 ? '#ddd' : 'white', padding:"12px 16px" }}
+                                <ul key={2} style={{ cursor: "pointer",  backgroundColor: hoveredRowMenu === 2 ? '#ddd' : 'white', padding:"12px 16px", margin:"0" }}
                                     onMouseEnter={() => handleMouseEnterMenu(2)}
                                     onMouseLeave={handleMouseLeaveMenu}> <td onClick={() => detailedTrigger(selectedRow)}>Detalhes</td>
                                 </ul>
