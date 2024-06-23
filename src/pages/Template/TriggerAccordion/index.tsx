@@ -408,12 +408,12 @@ export function Accordion() {
     const handleButtonName = (wichButton: string) => {
         if (wichButton === "Salvar") {
             setButtonA("Fechar")
-            setButtonB("Confirmar")
-            setTextToModal("Tem certeza que deseja salvar")
+            setButtonB("Salvar")
+            setTextToModal("Você deseja salvar?")
         } else if (wichButton === "Cancelar") {
             setButtonA("Fechar")
             setButtonB("Voltar")
-            setTextToModal("Tem certeza que deseja voltar")
+            setTextToModal("Você deseja voltar?")
         }
         toggle();
     }
