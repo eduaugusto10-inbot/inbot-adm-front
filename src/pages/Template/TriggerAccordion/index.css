@@ -138,7 +138,10 @@
     padding-left: 15px;
     border-radius: 20px !important;
 }
-
+.title-blue {
+  color: #0D5388;
+  font-size: 16px;
+}
 .span-title{
     color: #0D5388;
     font-size: 16px;

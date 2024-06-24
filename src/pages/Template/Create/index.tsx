@@ -260,6 +260,7 @@ export function CreateTemplateAccordion() {
     }
 
     const createPayload = () => {
+        console.log(headers)
         if (headers === undefined) {
             errorMessageHeader()
             return;
@@ -411,7 +412,7 @@ export function CreateTemplateAccordion() {
           .replace(/[~´`^"']/g, '');
       }
     const handleButtonClick = (buttonId: string) => {
-        if (buttonId === "Confirmar") {
+        if (buttonId === "Salvar") {
             createPayload()
         } else if (buttonId === "Fechar") {
             toggle()
@@ -496,7 +497,7 @@ export function CreateTemplateAccordion() {
                                     <img src={alert} width={25} alt="alerta" />
                                 </div>
                                 <div style={{ display: "flex", flexDirection: "column", minHeight: "200px" }}>
-                                    <span style={{ padding: "10px", fontSize: "16px" }} className="bolder">{templateType === "AUTHENTICATION" ? "Autenticação" : templateType === "UTILITY" ? "Utilitário" : templateType === "MARKETING" ? "Marketing" : "Início"}</span>
+                                    <span style={{ padding: "10px", fontSize: "16px" }} className="title-blue bolder">{templateType === "AUTHENTICATION" ? "Autenticação" : templateType === "UTILITY" ? "Utilitário" : templateType === "MARKETING" ? "Marketing" : "Início"}</span>
                                     <span style={{ marginRight: "50px", fontSize: "11px" }}>{selectTemplate(templateType)}</span>
                                 </div>
                             </div>
@@ -573,7 +574,7 @@ export function CreateTemplateAccordion() {
                     <div className="header-accordion gradient-background" onClick={() => toggleAccordion('body')}>3. Corpo da Mensagem</div>
                     {accordionState.body && <div className="body accordeon-new" style={{width:"90%"}}>
                         <div style={{ display: "flex", flexDirection: "column", width: "100%", textAlign: "initial", paddingLeft: "20px" }}>
-                            <span className="bolder">Corpo da Mensagem</span>
+                            <span className="title-blue bolder">Corpo da Mensagem</span>
                             <span style={{ fontSize: "11px", marginBottom: "20px", fontStyle: "italic" }}>Este é o principal conteúdo de texto no seu template.</span>
                             <span>Corpo da mensagem</span>
  
@@ -621,7 +622,7 @@ export function CreateTemplateAccordion() {
                                 <div className="row-align" onChange={rodapeRadio}><input type="radio" name="Texto" value="srodape" checked={rodapeType === 'srodape'}/><span className="padding-5">Sem rodapé</span></div>
                             </div>
 
-                            {!rodape && <div>
+                            {!rodape && <div style={{width:"100%"}}>
                                 <input type="text"
                                     maxLength={60}
                                     style={{ width: "90%" }}
