@@ -418,7 +418,7 @@ export function Accordion() {
         toggle();
     }
     const handleButtonClick = (buttonId: string) => {
-        if (buttonId === "Confirmar") {
+        if (buttonId === "Salvar") {
             createTrigger()
         } else if (buttonId === "Fechar") {
             toggle()
