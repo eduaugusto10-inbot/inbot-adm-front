@@ -1,11 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
 import api from "../../../utils/api";
 import './style.css'
-import { adjustTime, mask } from "../../../utils/utils";
+import { adjustTime, adjustTimeWithout3Hour, mask } from "../../../utils/utils";
 import { AccordionStateCreate } from "../../types";
 import { months, years } from "../../../utils/textAux";
 import { read, utils } from "xlsx";
+import { DownloadTableExcel } from 'react-export-table-to-excel';
+import { useSearchParams } from "react-router-dom";
+
 export function UserManagerList() {
+
+    const [searchParams, setSearchParams] = useSearchParams();
+    if (searchParams.get('bot_id') === null) {
+        window.location.href = "https://in.bot/inbot-admin";
+    }
+    var botId = searchParams.get('bot_id') ?? "0";
+    const now = new Date();
 const [customers, setCustomers] = useState<any>([])
 const [customFields, setCustomFields] = useState<any>([])
 const [qtyCustomer, setQtyCustomer] = useState<number>(0)
@@ -15,7 +25,19 @@ const [fileName, setFileName] = useState('');
 const [showValues, setShowValues] = useState<Boolean>(false)
 const fileInputRef = useRef<HTMLInputElement>(null);
 const [fileData, setFileData] = useState<any[][]>([]);
+const [searchButton, setSearchButton] = useState<boolean>(false)
 const [savedValues, setSavedValues] = useState([]);
+const [initDate, setInitDate] = useState({
+    day: now.getDate(),
+    month: now.getMonth() + 1,
+    year: now.getFullYear()
+})
+const [finalDate, setFinalDate] = useState({
+    day: now.getDate() + 1,
+    month: now.getMonth() + 1,
+    year: now.getFullYear()
+})
+const tableRef = useRef(null);
 const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
     config: true,
     header: false,
@@ -24,24 +46,17 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
     botao: false
 });
   useEffect(() => {
-    api.get(`/customfields/571`, {
-        headers: { 
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJib3RfaWQiOjU3MSwiaWF0IjoxNzE3NDQwMjE2fQ.hfp_mKgnDpioTHUzhDI6Zy59sCi05tO-CWDgdLdVwHE'
-      }})
+    setSearchButton(false)
+    api.get(`/customfields-parameters/${botId}`)
     .then(resp => {
-        console.log(resp.data.data)
         setCustomFields(resp.data.data)
     })
-    api.get(`/customer/571`, {
-        headers: { 
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJib3RfaWQiOjU3MSwiaWF0IjoxNzE3NDQwMjE2fQ.hfp_mKgnDpioTHUzhDI6Zy59sCi05tO-CWDgdLdVwHE'
-      }})
+    api.get(`/customer-parameters/${botId}?initialDate=${initDate.year}-${initDate.month}-${initDate.day}&finalDate=${finalDate.year}-${finalDate.month}-${finalDate.day}`)
     .then(resp => {
-        console.log(resp.data.data)
         setCustomers(resp.data.data)
         setQtyCustomer(resp.data.data.length)
     })
-  },[])
+  },[searchButton])
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -99,8 +114,6 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
       };
 
       const handleSave = (index: number) => {
-        const editedData = editedValues[index];
-        console.log("Valores editados da linha:", editedData);
         setEditMode(prevEditMode => {
           const newEditMode = [...prevEditMode];
           newEditMode[index] = false;
@@ -121,6 +134,16 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
             [key]: !prevState[key]
         }));
     };
+
+    const nameAndValue = (value: any ,index: any) => {
+        let resp = '';
+        for(let data of value){
+            if(customFields[index].id === data.id){
+                resp = data.value;
+            }
+        }
+        return resp;
+    }
   return (
     <div style={{backgroundColor:"#ebebeb", padding:"10px 100px 100px 100px"}}>
         <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", marginLeft:"65px" }} className="title_2024">Gestão de Usuários</h1>
@@ -210,38 +233,38 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
         <div className="header-accordion gradient-background" style={{width:"100%", borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>Base de Usuários</div>                  
         <div style={{margin:"10px 20px", textAlign:"left"}}>
             <span className="color-text-label">Data de cadastro</span>
-            <select name="" id="" className="input-values litle-input" >
+            <select value={initDate.day} onChange={e => setInitDate(prevState => ({...prevState,day: Number(e.target.value) }))} className="input-values litle-input" >
                 {[...Array(31).keys()].map(i => (
                     <option key={i+1} value={(i+1).toString()}>{i+1}</option>
                 ))}
             </select>
-            <select name="" id="" className="input-values litle-input" >
-                {months.map(month =>(
-                    <option value="">{month}</option>
+            <select value={initDate.month} onChange={e => setInitDate(prevState => ({...prevState,month: Number(e.target.value) }))} className="input-values litle-input" >
+                {months.map((month,key) =>(
+                    <option value={key+1}>{month}</option>
                 ))}
             </select>
-            <select name="" id="" className="input-values litle-input" >
+            <select value={initDate.year} onChange={e => setInitDate(prevState => ({...prevState,year: Number(e.target.value) }))} className="input-values litle-input" >
                 {years.map(year=>(
-                    <option value="">{year}</option>
+                    <option value={year}>{year}</option>
                 ))}
             </select>
             <span>Até</span>
-            <select name="" id="" className="input-values litle-input" >
+            <select value={finalDate.day} onChange={e => setFinalDate(prevState => ({...prevState,day: Number(e.target.value) }))} className="input-values litle-input">
                 {[...Array(31).keys()].map(i => (
                     <option key={i+1} value={(i+1).toString()}>{i+1}</option>
                 ))}
             </select>
-            <select name="" id="" className="input-values litle-input" >
-                {months.map(month =>(
-                    <option value="">{month}</option>
+            <select value={finalDate.month} onChange={e => setFinalDate(prevState => ({...prevState,month: Number(e.target.value) }))} className="input-values litle-input" >
+                {months.map((month,key) =>(
+                    <option value={key+1}>{month}</option>
                 ))}
             </select>
-            <select name="" id="" className="input-values litle-input" >
+            <select value={finalDate.year} onChange={e => setFinalDate(prevState => ({...prevState,year: Number(e.target.value) }))} className="input-values litle-input" >
                 {years.map(year=>(
-                    <option value="">{year}</option>
+                    <option value={year}>{year}</option>
                 ))}
             </select>
-            <button className="button-blue">Buscar</button>
+            <button className="button-blue" onClick={() => setSearchButton(true)}>Buscar</button>
         </div>
         <div className="row-align" style={{marginBottom:"30px"}}>
             <span className="color-text-label" style={{padding:"0px 50px 0px 20px"}}>Status:</span>
@@ -278,12 +301,21 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
                 <option value="">{customField.customName}</option>
             ))}
         </select>
-        <table className="table-2024" style={{marginTop:"20px"}}>
+        <DownloadTableExcel
+                    filename="users table"
+                    sheet="users"
+                    currentTableRef={tableRef.current}
+                >
+
+                   <button className="button-blue" style={{width:"150px"}}> Exportar excel </button>
+
+                </DownloadTableExcel>
+        <table className="table-2024" style={{marginTop:"20px"}} ref={tableRef}>
             <thead>
             <tr>
                 <th className="cells" style={{padding:"0px 50px 0px", borderRight:"1px solid #aaa"}}>Telefone</th>
                 <th className="cells">Nome</th>
-                {customFields.map((fields:any)=>(
+                {customFields.map((fields:any, key:any)=>(
                     <th className="cells">{fields.customName}</th>
                 ))}
                 <th className="cells">Data Cadastro</th>
@@ -296,11 +328,10 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
                 <tr key={customer.id}>
                     <td style={{ border:"1px solid #aaa"}}><span style={{fontSize: "12px" }}>{editMode[index] ? <input type="text" value={editedValues[index]?.phone ?? customer.phone} onChange={(e) => handleChange(e, index, 'phone')}/> : mask(editedValues[index]?.phone ?? customer.phone)}</span></td>
                     <td style={{ border:"1px solid #aaa"}} className="cells"><span style={{fontSize: "12px" }}>{editMode[index] ? <input type="text" value={editedValues[index]?.name ?? customer.name} onChange={(e) => handleChange(e, index, 'name')}/> : editedValues[index]?.name ?? customer.name}</span></td>
-                    <td style={{ border:"1px solid #aaa"}} className="cells"><span style={{fontSize: "12px" }}>{editMode[index] ? <input type="text" value={editedValues[index]?.name ?? customer.name} onChange={(e) => handleChange(e, index, 'name')}/> : editedValues[index]?.name ?? customer.name}</span></td>
-                    {customer.customFields && Object.keys(customer.customFields).map((key) => (
-                    <td style={{ border:"1px solid #aaa"}} key={key}><span style={{fontSize: "12px" }}>{editMode[index] ? <input type="text" value={editedValues[index]?.[key] ?? customer.customFields[key]} onChange={(e) => handleChange(e, index, key)} /> : editedValues[index]?.[key] ?? customer.customFields[key] ?? "--"}</span></td>
+                    {customer.customFields && customer.customFields.map((cf: {id: any, value: any; },key:any) => (
+                    <td style={{ border:"1px solid #aaa"}} key={key}><span style={{fontSize: "12px" }}>{nameAndValue(customer.customFields, key)==='' ? "--" : nameAndValue(customer.customFields, key)}</span></td>
                 ))}
-                    <td style={{ border:"1px solid #aaa"}}><span style={{fontSize:"12px"}}>{adjustTime(customer.createdAt)}</span></td>
+                    <td style={{ border:"1px solid #aaa"}}><span style={{fontSize:"12px"}}>{adjustTimeWithout3Hour(customer.createdAt)}</span></td>
                     <td style={{ border:"1px solid #aaa"}}>
                 {editMode[index] ? (
                   <button onClick={() => handleSave(index)}>Save</button>
