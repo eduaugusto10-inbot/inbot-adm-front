@@ -202,7 +202,7 @@ export function TriggerDetails() {
                 <div style={{ display:"flex",flexDirection:"column" }}>
                 <table className="table-2024 fixed-header-table" style={{minWidth:"90%"}}>
                     <thead>
-                        <tr className="cells" style={{ fontSize: "12px" }}>
+                        <tr className="cells table-2024 border-bottom-zero" style={{ fontSize: "12px" }}>
                             <th className="cells">Telefone</th>
                             {filteredCustomers[0]?.variable_1!==null &&<th className="cells">Var. 1</th>}
                             {filteredCustomers[0]?.variable_2!==null &&<th className="cells">Var. 2</th>}
@@ -220,8 +220,8 @@ export function TriggerDetails() {
                             <th className="cells">Log</th>
                         </tr>
                     </thead>
-                    {filteredCustomers.map(customer => (
-                        <tr>
+                    {filteredCustomers.map((customer, index) => (
+                        <tr key={index} style={{backgroundColor:  index % 2 === 0 ? '#ecebeb' : 'white'}}>
                             <td><span style={{ fontSize: "12px" }}>{mask(customer.phone)}</span></td>
                             {customer.variable_1!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_1}</span></td>}
                             {customer.variable_2!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_2}</span></td>}

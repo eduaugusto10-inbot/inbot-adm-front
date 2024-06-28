@@ -281,9 +281,9 @@ export function TriggerList() {
                     </div> */}
                 </div>}
                 <div>
-                <table className="table-2024 fixed-header-table">
+                <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF"}}>
                     <thead>
-                        <tr className="cells">
+                        <tr className="cells table-2024 border-bottom-zero">
                             <th className="cells">Nome</th>
                             <th className="cells">Template</th>
                             <th className="cells">Data criação</th>
@@ -297,7 +297,7 @@ export function TriggerList() {
                             <React.Fragment key={index}>
                                 <tr
                                     key={index}
-                                    style={{ border: '1px solid #0171BD', backgroundColor: hoveredRow === index ? '#F9F9F9' : 'white' }}
+                                    style={{ border: '1px solid #0171BD', backgroundColor:  index % 2 === 0 ? '#ecebeb' : 'white' }}
                                     onMouseEnter={() => handleMouseEnter(index)}
                                     onMouseLeave={handleMouseLeave}
                                 >
@@ -321,18 +321,18 @@ export function TriggerList() {
                             top: menuPosition.top,
                             left: menuPosition.left,
                             border: '1px solid #ccc',
-                            padding: '5px',
                             backgroundColor: '#fff',
                             borderRadius:"20px"
                         }}
                     ><li className="blue-text no-bullets">
                                 {statusNameView(selectedRow)==="aguardando" && (
-                                <ul key={1} style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRowMenu === 1 ? '#ddd' : 'white', padding:"12px 16px" }}
+                                <ul key={1} style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRowMenu === 1 ? '#ddd' : 'white', padding:"12px 16px", margin:"0px", borderTopRightRadius:"20px", borderTopLeftRadius:"20px" }}
                                     onMouseEnter={() => handleMouseEnterMenu(1)}
                                     onMouseLeave={handleMouseLeaveMenu}> <td onClick={() => changeStatus(selectedRow)}>Cancelar disparo</td>
                                 </ul>
                             )}
-                                <ul key={2} style={{ cursor: "pointer",  backgroundColor: hoveredRowMenu === 2 ? '#ddd' : 'white', padding:"12px 16px", margin:"0" }}
+                                <ul key={2} style={{ cursor: "pointer",  backgroundColor: hoveredRowMenu === 2 ? '#ddd' : 'white', padding:"12px 16px", margin:"0", 
+                                        borderRadius:  statusNameView(selectedRow)==="aguardando" ? "": "20px", borderBottomRightRadius:"20px", borderBottomLeftRadius:"20px" }}
                                     onMouseEnter={() => handleMouseEnterMenu(2)}
                                     onMouseLeave={handleMouseLeaveMenu}> <td onClick={() => detailedTrigger(selectedRow)}>Detalhes</td>
                                 </ul>

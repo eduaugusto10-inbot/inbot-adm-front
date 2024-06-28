@@ -64,7 +64,7 @@ export function Configuration(){
                     <div style={{display:"flex", flexDirection:"column", alignContent:"center", alignItems:"center"}}>
       <table className="table-2024" style={{ margin: '20px' }}>
         <thead>
-          <tr>
+          <tr className="table-2024 border-bottom-zero">
             <th className="cells" style={{ padding: '0px 50px 0px', borderRight: '1px solid #aaa' }}>Nome do Campo</th>
             <th className="cells">Tipo</th>
             <th className="cells">Status</th>

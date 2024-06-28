@@ -157,7 +157,7 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
             <div>
                 <table className="table-2024" style={{margin:"20px"}}>
                     <thead>
-                    <tr>
+                    <tr className="table-2024" style={{borderBottom: "0px"}}>
                         <th className="cells" style={{padding:"0px 50px 0px", borderRight:"1px solid #aaa"}}>Telefone</th>
                         <th className="cells">Nome</th>
                         {customFields.map((fields:any)=>(
@@ -202,7 +202,7 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
             <div>
                 <table className="table-2024" style={{margin:"20px"}}>
                     <thead>
-                    <tr>
+                    <tr className="table-2024"  style={{borderBottom: "0px"}}>
                         <th className="cells" style={{padding:"0px 50px 0px", borderRight:"1px solid #aaa"}}>Telefone</th>
                         <th className="cells">Nome</th>
                         {customFields.map((fields:any)=>(
@@ -312,7 +312,7 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
                 </DownloadTableExcel>
         <table className="table-2024" style={{marginTop:"20px"}} ref={tableRef}>
             <thead>
-            <tr>
+            <tr className="table-2024" style={{borderBottom: "0px"}}>
                 <th className="cells" style={{padding:"0px 50px 0px", borderRight:"1px solid #aaa"}}>Telefone</th>
                 <th className="cells">Nome</th>
                 {customFields.map((fields:any, key:any)=>(

@@ -236,7 +236,7 @@ export function ListAll() {
                 <div>
                 <table className="table-2024 fixed-header-table" style={{textAlign:"left"}}>
                     <thead>
-                        <tr className="cells">
+                        <tr className="cells table-2024 border-bottom-zero">
                             {/* <th className="cells" style={{borderRight:"1px solid #aaa"}}>ID do template</th> */}
                             <th className="cells">Nome do template</th>
                             <th className="cells" style={{textAlign:"center"}}>Status</th>
@@ -249,7 +249,7 @@ export function ListAll() {
                         {dadosFiltrados.map((template, index) => (
                             <tr
                                 key={index}
-                                style={{ border: '1px solid #0171BD', backgroundColor: hoveredRow === index ? '#e4e4e4' : 'white' }}
+                                style={{ border: '1px solid #0171BD', backgroundColor: index % 2 === 0 ? '#e4e4e4' : 'white' }}
                                 onMouseEnter={() => handleMouseEnter(index)}
                                 onMouseLeave={handleMouseLeave}
                             >
@@ -279,12 +279,11 @@ export function ListAll() {
                             top: menuPosition.top,
                             left: menuPosition.left,
                             border: '1px solid #ccc',
-                            padding: '5px',
                             backgroundColor: '#fff',
                             borderRadius:"20px"
                         }}
                     ><ul className="blue-text no-bullets">
-                                <li key={1} className="menu-line" style={{backgroundColor: hoveredRowMenu === 1 ? '#e4e4e4' : 'white'}}
+                                <li key={1} className="menu-line" style={{backgroundColor: hoveredRowMenu === 1 ? '#e4e4e4' : 'white', borderTopRightRadius:"20px", borderTopLeftRadius:"20px" }}
                                     onMouseEnter={() => handleMouseEnterMenu(1)}
                                     onMouseLeave={handleMouseLeaveMenu}><td onClick={() => sendtemplate(selectedRow)}>Criar campanha</td></li>
                                 <li key={2} className="menu-line" style={{ backgroundColor: hoveredRowMenu === 2 ? '#e4e4e4' : 'white'}}
@@ -293,7 +292,7 @@ export function ListAll() {
                                 <li key={3} className="menu-line" style={{ backgroundColor: hoveredRowMenu === 3 ? '#e4e4e4' : 'white'}}
                                     onMouseEnter={() => handleMouseEnterMenu(3)}
                                     onMouseLeave={handleMouseLeaveMenu}><td onClick={() => duplicaTemplate(selectedRow)}>Duplicar</td></li>
-                                <li key={4} className="menu-line" style={{ backgroundColor: hoveredRowMenu === 4 ? '#e4e4e4' : 'white', borderBottom:"none"}}
+                                <li key={4} className="menu-line" style={{ backgroundColor: hoveredRowMenu === 4 ? '#e4e4e4' : 'white', borderBottom:"none", borderBottomRightRadius:"20px", borderBottomLeftRadius:"20px"}}
                                     onMouseEnter={() => handleMouseEnterMenu(4)}
                                     onMouseLeave={handleMouseLeaveMenu}><td onClick={() => deleteTemplate(selectedRow)}>Deletar</td></li>
                         </ul>
