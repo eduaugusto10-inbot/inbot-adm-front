@@ -12,6 +12,7 @@ import Modal from "../../../Components/Modal";
 import useModal from "../../../Components/Modal/useModal";
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
+import chevron from '../../../img/right-chevron.png'
 
 export function Accordion() {
 
@@ -449,15 +450,17 @@ export function Accordion() {
             <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
                 <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-37px" }} />
             </div>
-            <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", marginLeft:"65px" }} className="title_2024">Criar Campanha</h1>
+            <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Criar Campanha</h1>
             <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
             <br/>
             <div>
-                <div className="header-accordion gradient-background" style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
+                <div className={`accordion_head ${accordionState.config ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>1. Configuração
+                <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.config ?"-90deg" : "90deg"}} /></div>
+                </div>
                 {accordionState.config &&
                 <div className="body-no-background" style={{width:"100%"}}>
                 <div className="accordeon-new" style={{width:"90%", textAlign:"right"}}>
-                    <div className="body line" style={{ display: "flex", justifyContent: "space-around", flexDirection: "row", alignContent: "center" }}>
+                    <div className="body line" style={{ display: "flex", justifyContent: "space-around", flexDirection: "row", alignContent: "center", backgroundColor: "#FFF" }}>
                         <div>
                             <div style={{ display: "flex", flexDirection: "row" }}>
                                 <span className="span-title">Nome da campanha</span>
@@ -480,7 +483,8 @@ export function Accordion() {
                 </div>}
             </div>
             <div className="config-recebidores" style={{ maxHeight: "1080px" }}>
-                <div className="header-accordion gradient-background" onClick={() => toggleAccordion('recebidores')}>2. Cadastro dos Contatos da Campanha</div>
+                <div className={`accordion_head ${accordionState.recebidores ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('recebidores')}>2. Cadastro dos Contatos da Campanha 
+                    <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.recebidores ?"-90deg" : "90deg"}} /></div></div>
                 {accordionState.recebidores && 
                 <div className="body-no-background" style={{width:"100%"}}>
                 <div  className="accordeon-new" style={{width:"90%", padding:"0px 15px"}}>
@@ -659,11 +663,13 @@ export function Accordion() {
                 </div>}
             </div>
             <div className="modo-disparo">
-                <div className="header-accordion gradient-background" onClick={() => toggleAccordion('disparo')}>3. Modo de Disparo</div>
+                <div className={`accordion_head ${accordionState.disparo ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('disparo')}>3. Modo de Disparo
+                <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.disparo ?"-90deg" : "90deg"}} /></div>
+                </div>
                 {accordionState.disparo && 
                 <div className="body-no-background" style={{width:"100%"}}>
                 <div className="accordeon-new">
-                    <div className="body">
+                    <div className="body" style={{ backgroundColor: "#FFF"}}>
                         <div className="line">
                             <input type="radio" name="disparo" value="imediato" onChange={handleMode} className="input-spaces" checked={mode === false} /><span>Imediato</span>
                             <input type="radio" name="disparo" value="agendado" onChange={handleMode} className="input-spaces" checked={mode === true} /><span>Agendado</span>
@@ -689,7 +695,9 @@ export function Accordion() {
                 </div>}
             </div>
             <div className="revisar">
-                <div className="header-accordion gradient-background" onClick={() => toggleAccordion('revisar')}>4. Resumo e salvar</div>
+                <div className={`accordion_head ${accordionState.revisar ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('revisar')}>4. Resumo e salvar
+                <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.revisar ?"-90deg" : "90deg"}} /></div>
+                </div>
                     {accordionState.revisar && 
                     <div className="body-no-background" style={{width:"100%"}}>
                         <div className="accordeon-new" style={{padding:"0px 15px 15px 10px"}}>
@@ -697,7 +705,7 @@ export function Accordion() {
                                 <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
                                     <span className="span-title-resume">Template: {templateName}</span>
                                     <span className="span-title-resume">Telefone do disparo: {mask(phone)}</span>
-                                    <span className="span-title-resume">Data e hora do disparo: {triggerMode} - {dates} - {hours}</span>
+                                    <span className="span-title-resume">Data e hora do disparo: {triggerMode} - {mask(dates)} - {hours}</span>
                                     <span className="span-title-resume">Quantidade de disparos: {typeClient === false ? listVariables.length : ""}</span>
                                 </div>
                                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", width: "100%" }}>

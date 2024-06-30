@@ -220,7 +220,7 @@ export function TriggerList() {
                     <div style={{ display: "flex", flexDirection: "row", width: "100%", minWidth:"100%" }}>
                         <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
                     </div>
-                    <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488" }} className="title_2024">Gerenciar Campanhas</h1>
+                    <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width:"100%" }} className="title_2024">Gerenciar Campanhas</h1>
                 </div>
                 <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
                 <div className="row" style={{margin:"20px", display:"flex", justifyContent:"flex-end", alignItems:"end"}}>

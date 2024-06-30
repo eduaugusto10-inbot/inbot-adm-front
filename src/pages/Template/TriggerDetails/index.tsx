@@ -163,7 +163,7 @@ export function TriggerDetails() {
                 <div style={{ display: "flex", flexDirection: "row", width: "100%", padding: "20px 0px 0px 20px" }}>
                     <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
                 </div>
-                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", marginLeft:"40px" }} className="title_2024">Detalhes da Campanha</h1>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width:"100%" }} className="title_2024">Detalhes da Campanha</h1>
                 <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                     <div style={{ fontWeight: "bolder", height: "250px", margin: "20px" }}>

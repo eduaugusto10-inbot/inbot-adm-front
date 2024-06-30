@@ -225,7 +225,7 @@ export function ListAll() {
                     </div>)
                         : <img onLoad={handleImageLoad} src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-30px" }} />}
                 </div>
-                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "90%", marginLeft:"65px" }} className="title_2024">Gerenciar Templates</h1>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "100%" }} className="title_2024">Gerenciar Templates</h1>
                 <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
                 <div style={{margin:"20px"}}>
                     <input onChange={handleFiltroChange} value={filtro} type="text" style={{borderRight:"none", width:"300px", borderRadius:"20px 0px 0px 20px", paddingLeft:"20px"}} placeholder="Buscar por nome ou template"/>
@@ -249,13 +249,13 @@ export function ListAll() {
                         {dadosFiltrados.map((template, index) => (
                             <tr
                                 key={index}
-                                style={{ border: '1px solid #0171BD', backgroundColor: index % 2 === 0 ? '#e4e4e4' : 'white' }}
+                                style={{ border: '1px solid #0171BD', backgroundColor: index % 2 === 0 ? '#e4e4e4' : '#FFF' }}
                                 onMouseEnter={() => handleMouseEnter(index)}
                                 onMouseLeave={handleMouseLeave}
                             >
                                 {/* <td className="cells"><span style={{ color: "blue", fontSize: "12px" }}>{template.ID}</span></td> */}
                                 <td><span>{template.name}</span></td>
-                                <td style={{textAlign:"center"}}><div style={{ borderRadius: "20px", backgroundColor: template.status === "APPROVED" ? "#F2FFED" : template.status === "PENDING" ? "gray" : "#FFECEC", padding: "7px" }}><span style={{ fontSize: "12px", color: template.status === "APPROVED" ? "green" : template.status === "PENDING" ? "yellow" : "red", fontWeight: "bolder" }}>{template.status === "APPROVED" ? "Aprovado" : template.status === "PENDING" ? "Pendente" : "Rejeitado"}</span></div></td>
+                                <td style={{textAlign:"center"}}><div style={{ borderRadius: "20px", padding: "7px" }}><span style={{ color: template.status === "APPROVED" ? "green" : template.status === "PENDING" ? "yellow" : "red" }}>{template.status === "APPROVED" ? "Aprovado" : template.status === "PENDING" ? "Pendente" : "Rejeitado"}</span></div></td>
                                 <td style={{textAlign:"center"}}><span>{template.category}</span></td>
                                 <td style={{textAlign:"center"}}><span>{template.language}</span></td>
                                 <td style={{textAlign:"center"}}><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>

@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import alert from '../../../img/help.png'
+import alert from "../../../img/help_blue.png"
 import 'react-tooltip/dist/react-tooltip.css'
 import { Tooltip } from 'react-tooltip'
 import { erroMessageQuickReply, errorMessageHeader, errorMessageFooter, errorMessageBody, waitingMessage, successCreateTemplate, errorMessage } from "../../../Components/Toastify";
@@ -15,7 +15,7 @@ import { AccordionStateCreate, ButtonQR, IButton, IFooter, IHeader, IObject, ITe
 import { mask } from "../../../utils/utils";
 import useModal from "../../../Components/Modal/useModal";
 import Modal from "../../../Components/Modal";
-
+import chevron from "../../../img/right-chevron.png"
 export function CreateTemplateAccordion() {
 
     const history = useNavigate();
@@ -440,11 +440,13 @@ export function CreateTemplateAccordion() {
                 <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
                     <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-37px" }} />
                 </div>
-                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", marginLeft:"65px" }} className="title_2024">Criar Template</h1>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Criar Template</h1>
                 <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
                 <br/>
                 <div className="config-template" style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
-                    <div className="header-accordion gradient-background" style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>1. Configuração</div>
+                    <div className={`accordion_head ${accordionState.config ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>1. Configuração
+                    <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.config ?"-90deg" : "90deg"}} /></div>
+                    </div>
                     {accordionState.config &&
                     <div className="column accordeon-new" >
                         <div style={{ display: "flex", flexDirection: "row", textAlign: "left", backgroundColor: "#FFF", width: "100%" }}>
@@ -469,7 +471,7 @@ export function CreateTemplateAccordion() {
                                     <select className="input-values" style={{width:"350px"}} value={templateType} onChange={e => setTemplateType(e.target.value)}>
                                         <option>---</option>
                                         <option value={"AUTHENTICATION"}>Autenticação</option>
-                                        <option value={"UTILITY"}>Utilitário</option>
+                                        <option value={"UTILITY"}>Utilidade</option>
                                         <option value={"MARKETING"}>Marketing</option>
                                     </select>
                                 </div>
@@ -508,9 +510,11 @@ export function CreateTemplateAccordion() {
                         </div>}
                 </div>
                 <div className="config-recebidores" style={{ maxHeight: "95%", display:"flex", flexDirection:"column", alignItems:"center" }}>
-                    <div className="header-accordion gradient-background" onClick={() => toggleAccordion('header')}>2. Cabeçalho</div>
+                    <div className={`accordion_head ${accordionState.header ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('header')}>2. Cabeçalho
+                    <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.header ?"-90deg" : "90deg"}} /></div>
+                    </div>
                     {accordionState.header && 
-                    <div className="body accordeon-new" style={{width:"90%"}}>
+                    <div className="body accordeon-new" style={{width:"90%", backgroundColor: "#FFF"}}>
                         <div className="radio row-align ">
                             <div className="row-align" onChange={headerRadio}><input type="radio" value="text" name="header" checked={typeOfHeader === 'text'} /><span className="padding-5">Texto</span></div>
                             <div className="row-align" onChange={headerRadio}><input type="radio" value="image" name="header" checked={typeOfHeader === 'image'} /><span className="padding-5">Imagem</span></div>
@@ -571,14 +575,14 @@ export function CreateTemplateAccordion() {
                     </div>}
                 </div>
                 <div className="modo-disparo" style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
-                    <div className="header-accordion gradient-background" onClick={() => toggleAccordion('body')}>3. Corpo da Mensagem</div>
-                    {accordionState.body && <div className="body accordeon-new" style={{width:"90%"}}>
-                        <div style={{ display: "flex", flexDirection: "column", width: "100%", textAlign: "initial", paddingLeft: "20px" }}>
-                            <span className="title-blue bolder">Corpo da Mensagem</span>
+                    <div className={`accordion_head ${accordionState.body ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('body')}>3. Corpo da Mensagem
+                    <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.body ?"-90deg" : "90deg"}} /></div>
+                    </div>
+                    {accordionState.body && <div className="body accordeon-new" style={{width:"90%", backgroundColor: "#FFF"}}>
+                        <div style={{ display: "flex", flexDirection: "column", width: "100%", textAlign: "initial", paddingLeft: "20px", backgroundColor: "#FFF" }}>
+                            <span className="title-blue bolder" style={{marginTop:"10px"}}>Corpo da Mensagem</span>
                             <span style={{ fontSize: "11px", marginBottom: "20px", fontStyle: "italic" }}>Este é o principal conteúdo de texto no seu template.</span>
-                            <span>Corpo da mensagem</span>
- 
-                            <textarea
+                             <textarea
                                 maxLength={1024}
                                 name="body"
                                 value={template.body}
@@ -597,26 +601,29 @@ export function CreateTemplateAccordion() {
                                 display: 'grid',
                                 gridTemplateColumns: 'repeat(2, 1fr)', // Duas colunas de largura igual
                                 gridTemplateRows: 'repeat(4, auto)', // Quatro linhas com altura automática
-                                gap: '10px' // Espaçamento entre as células
+                                gap: '10px', // Espaçamento entre as células
+                                marginTop:"10px"
                             }}>
                                 {variables.map((variable, index) => (
-                                    <div style={{ display: "flex", flexDirection: "row" }}>
-                                        <span className="span-title-variables">{index + 1}.  </span> <input value={variable.text} type="text" name={variable.id.toString()} id="" onChange={handleInputVariable} className="input-values" /><img src={minus} alt="minus" width={20} height={20} style={{ cursor: "pointer", marginTop: "15px" }} onClick={() => handleDeleteVariables(variable.id)} />
+                                    <div style={{ display: "flex", flexDirection: "row", alignItems:"center" }}>
+                                        <span className="span-title-variables">{index + 1}.  </span> <input value={variable.text} type="text" name={variable.id.toString()} id="" onChange={handleInputVariable} className="input-values" style={{height:"26px"}} /><div className="minus-delete" onClick={() => handleDeleteVariables(variable.id)}>-</div>
                                     </div>
 
                                 ))
                                 }
                             </div>
                         </div>
-                        <div style={{width:"100%", textAlign:"right"}}>
+                        <div style={{width:"100%", textAlign:"right", marginTop:"10px"}}>
                             <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('footer')}>Próximo</button>
                         </div>
                     </div>}
                 </div>
                 <div className="revisar" style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
-                    <div className="header-accordion gradient-background" onClick={() => toggleAccordion('footer')}>4. Rodapé</div>
-                    {accordionState.footer && <div className="body accordeon-new" style={{width:"90%"}}>
-                        <div style={{ display: "flex", flexDirection: "column", width: "100%", alignItems:"center" }}>
+                    <div className={`accordion_head ${accordionState.footer ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('footer')}>4. Rodapé
+                    <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.footer ?"-90deg" : "90deg"}} /></div>
+                    </div>
+                    {accordionState.footer && <div className="body accordeon-new" style={{width:"90%", backgroundColor: "#FFF"}}>
+                        <div style={{ display: "flex", flexDirection: "column", width: "100%", alignItems:"center", backgroundColor: "#FFF" }}>
                             <div className="radio row-align">
                                 <div className="row-align" onChange={rodapeRadio}><input type="radio" name="Texto" value="rodape" checked={rodapeType === 'rodape'} /><span className="padding-5">Texto</span></div>
                                 <div className="row-align" onChange={rodapeRadio}><input type="radio" name="Texto" value="srodape" checked={rodapeType === 'srodape'}/><span className="padding-5">Sem rodapé</span></div>
@@ -644,10 +651,12 @@ export function CreateTemplateAccordion() {
                     </div>}
                 </div>
                 <div className="revisar" style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
-                    <div className="header-accordion gradient-background" onClick={() => toggleAccordion('botao')}>5. Botões</div>
-                    {accordionState.botao && <div className="body accordeon-new">
-                        <div style={{ width: "100%", marginBottom: "20px", paddingLeft: "20px" }}>
-                            <div style={{ display:"flex", flexDirection:"column",alignItems:"center", paddingLeft:"-20px"}}>
+                    <div className={`accordion_head ${accordionState.botao ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('botao')}>5. Botões
+                    <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.botao ?"-90deg" : "90deg"}} /></div>
+                    </div>
+                    {accordionState.botao && <div className="body accordeon-new" style={{backgroundColor: "#FFF"}}>
+                        <div style={{ width: "100%", marginBottom: "20px", paddingLeft: "20px", backgroundColor: "#FFF" }}>
+                            <div style={{ display:"flex", flexDirection:"column",alignItems:"center", paddingLeft:"-20px", backgroundColor: "#FFF"}}>
                                 <div className="radio" style={{ display:"flex", flexDirection:"row"}}>
                                     <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="quickReply" name="quickReply" checked={typeOfButtons === 'quickReply'}/><span className="padding-5">Resposta rápida</span></div>
                                     <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="cta" name="quickReply" checked={typeOfButtons === 'cta'} /><span className="padding-5">CTA</span></div>
@@ -661,10 +670,10 @@ export function CreateTemplateAccordion() {
                                     </div>
                                     {buttons.map((button, index) => (
                                         <div className="container-configure" key={button.id}>
-                                            <div className="row-align">
+                                            <div className="row-align" style={{ marginTop:"10px"}}>
                                                 <div>
-                                                    <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
-                                                        <span className="span-title">Texto
+                                                    <div style={{ display: "flex", flexDirection: "row", alignItems:"center" }}>
+                                                        <span className="span-title" style={{ width:"70px", justifyContent:"flex-start" }}>Texto
                                                         <a data-tooltip-id="no-emoji" data-tooltip-html="Não utilizar emojis.">
                                                             <img src={alert} width={15} height={15} alt="alerta" style={{marginBottom:"15px"}} />
                                                         </a></span>
@@ -674,8 +683,8 @@ export function CreateTemplateAccordion() {
                                                             onChange={e => handleAddButtonText(e, button.id.toString())}
                                                             maxLength={20}
                                                             name={button.id.toString()}
-                                                            className="input-values" />
-                                                        <img src={minus} alt="minus" width={20} height={20} onClick={() => handleDeleteItem(button.id)} style={{ cursor: "pointer", marginTop: "15px" }} />
+                                                            className="input-values" style={{ height:"26px"}}/>
+                                                            <div className="minus-delete" onClick={() => handleDeleteItem(button.id)}>-</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -691,19 +700,20 @@ export function CreateTemplateAccordion() {
                                     {buttonsCTA.map((button, index) => (
                                         <div className="container-configure" style={{ width: "100%" }} key={button.id}>
                                             <div className="row-align">
-                                                <div style={{ display: "flex", flexDirection: "row" }}>
-                                                    <span className="span-title" style={{ marginTop: " 13px" }}>Tipo
+                                                <div style={{ display: "flex", flexDirection: "row", alignItems:"center", marginTop: " 13px", }}>
+                                                    <span className="span-title" style={{ width:"60px", justifyContent:"flex-start" }}>Tipo
                                                         <a data-tooltip-id="no-emoji" data-tooltip-html="Não utilizar emojis.">
                                                             <img src={alert} width={15} height={15} alt="alerta" style={{marginBottom:"15px"}} />
                                                         </a></span>
                                                         <Tooltip id="no-emoji" />
-                                                    <select style={{ width: "100px" }} className="input-values" name={button.id.toString()} onChange={e => handleAddButtonText(e, button.id.toString())}>
+                                                    <select style={{ width: "100px", height:"26px" }} className="input-values" name={button.id.toString()} onChange={e => handleAddButtonText(e, button.id.toString())}>
                                                         <option>--</option>
                                                         <option value={"staticURL"}>URL</option>
                                                         <option value={"phoneNumber"}>Telefone</option>
                                                     </select>
-                                                    <input type="text" className="input-values" name="text" onChange={e => handleAddButtonText(e, button.id.toString())} placeholder="Nome do botão" />
-                                                    <input type="text" className="input-values" name="url_phone" onChange={e => handleAddButtonText(e, button.id.toString())} /><img src={minus} alt="minus" width={20} height={20} onClick={() => handleDeleteItem(button.id)} style={{ cursor: "pointer", marginTop: "15px" }} />
+                                                    <input type="text" className="input-values" style={{height:"26px"}} name="text" onChange={e => handleAddButtonText(e, button.id.toString())} placeholder="Nome do botão" />
+                                                    <input type="text" className="input-values" style={{height:"26px"}} name="url_phone" onChange={e => handleAddButtonText(e, button.id.toString())} />
+                                                    <div className="minus-delete" onClick={() => handleDeleteItem(button.id)}>-</div>
                                                 </div>
                                             </div>
                                         </div>
