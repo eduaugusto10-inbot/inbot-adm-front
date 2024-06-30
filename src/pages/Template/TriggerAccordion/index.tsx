@@ -705,7 +705,7 @@ export function Accordion() {
                                 <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
                                     <span className="span-title-resume">Template: {templateName}</span>
                                     <span className="span-title-resume">Telefone do disparo: {mask(phone)}</span>
-                                    <span className="span-title-resume">Data e hora do disparo: {triggerMode} - {mask(dates)} - {hours}</span>
+                                    <span className="span-title-resume">Data e hora do disparo: {triggerMode} - {dates} - {hours}</span>
                                     <span className="span-title-resume">Quantidade de disparos: {typeClient === false ? listVariables.length : ""}</span>
                                 </div>
                                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", width: "100%" }}>
