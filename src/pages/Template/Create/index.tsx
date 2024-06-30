@@ -706,7 +706,7 @@ export function CreateTemplateAccordion() {
                                                             <img src={alert} width={15} height={15} alt="alerta" style={{marginBottom:"15px"}} />
                                                         </a></span>
                                                         <Tooltip id="no-emoji" />
-                                                    <select style={{ width: "100px", height:"26px" }} className="input-values" name={button.id.toString()} onChange={e => handleAddButtonText(e, button.id.toString())}>
+                                                    <select  className="input-values" style={{ width: "100px", height:"26px", padding: "0px" }} name={button.id.toString()} onChange={e => handleAddButtonText(e, button.id.toString())}>
                                                         <option>--</option>
                                                         <option value={"staticURL"}>URL</option>
                                                         <option value={"phoneNumber"}>Telefone</option>
