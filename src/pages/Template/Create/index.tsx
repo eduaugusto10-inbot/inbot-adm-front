@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import alert from "../../../img/help_blue.png"
 import 'react-tooltip/dist/react-tooltip.css'
 import { Tooltip } from 'react-tooltip'
-import { erroMessageQuickReply, errorMessageHeader, errorMessageFooter, errorMessageBody, waitingMessage, successCreateTemplate, errorMessage } from "../../../Components/Toastify";
+import { erroMessageQuickReply, errorMessageHeader, errorMessageFooter, errorMessageBody, waitingMessage, successCreateTemplate, errorMessage, errorMessageConfig } from "../../../Components/Toastify";
 import strings from '../strings.json'
 import api from "../../../utils/api";
 import { ToastContainer } from "react-toastify";
@@ -51,6 +51,8 @@ export function CreateTemplateAccordion() {
     const [typeOfButtons, setTypeOfButtons] = useState<string>('without')
     const [phone, setPhone] = useState<string>("")
     const [profilePic, setProfilePic] = useState<string>("")
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [fileName, setFileName] = useState('');
 
     const selectTemplate = (e: string) => {
         switch (e) {
@@ -259,6 +261,25 @@ export function CreateTemplateAccordion() {
         });
     }
 
+    const validatedPayload = () => {
+        if (templateName.length === 0 || templateType === ""){
+            errorMessageConfig()
+            return;
+        }
+        if (headers === undefined) {
+            errorMessageHeader()
+            return;
+        }
+        if (template.footer === "" && rodape === false) {
+            errorMessageFooter()
+            return;
+        }
+        if (template.body === "") {
+            errorMessageBody()
+            return;
+        }
+        handleButtonName("Salvar")
+    }
     const createPayload = () => {
         console.log(headers)
         if (headers === undefined) {
@@ -423,7 +444,9 @@ export function CreateTemplateAccordion() {
     };
     const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
         const imagemSelecionada = event.target.files?.[0];
+        console.log(event.target.files?.[0].name)
         if (imagemSelecionada) {
+            setFileName(imagemSelecionada.name)
             const reader = new FileReader();
             reader.onload = () => {
                 const dataUrl = reader.result as string;
@@ -469,7 +492,7 @@ export function CreateTemplateAccordion() {
                                 <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
                                     <span className="span-title" style={{ justifyContent:"flex-start" }}>Categoria</span>
                                     <select className="input-values" style={{width:"350px"}} value={templateType} onChange={e => setTemplateType(e.target.value)}>
-                                        <option>---</option>
+                                        <option value="">---</option>
                                         <option value={"AUTHENTICATION"}>Autenticação</option>
                                         <option value={"UTILITY"}>Utilidade</option>
                                         <option value={"MARKETING"}>Marketing</option>
@@ -494,14 +517,16 @@ export function CreateTemplateAccordion() {
                                     />
                                 </div>
                             </div>
-                            <div className="card_2024" style={{ width: "340px", display: "flex", flexDirection: "row", textAlign: "left", marginLeft: "20px" }}>
-                                <div style={{ margin: "10px" }}>
-                                    <img src={alert} width={25} alt="alerta" />
+                            <div className="card_2024" style={{ width: "340px", display: "flex", flexDirection: "column", textAlign: "left", marginLeft: "20px" }}>
+                                <div style={{display:"flex", flexDirection:"row", height:"50px"}}>
+                                    <div style={{ margin: "10px" }}>
+                                        <img src={alert} width={20} alt="alerta" />
+                                    </div>
+                                    <div style={{ display: "flex", flexDirection: "column", minHeight: "200px" }}>
+                                        <span style={{ padding: "10px", fontSize: "16px" }} className="title-blue bolder">{templateType === "AUTHENTICATION" ? "Autenticação" : templateType === "UTILITY" ? "Utilitário" : templateType === "MARKETING" ? "Marketing" : "Início"}</span>
+                                    </div>
                                 </div>
-                                <div style={{ display: "flex", flexDirection: "column", minHeight: "200px" }}>
-                                    <span style={{ padding: "10px", fontSize: "16px" }} className="title-blue bolder">{templateType === "AUTHENTICATION" ? "Autenticação" : templateType === "UTILITY" ? "Utilitário" : templateType === "MARKETING" ? "Marketing" : "Início"}</span>
-                                    <span style={{ marginRight: "50px", fontSize: "11px" }}>{selectTemplate(templateType)}</span>
-                                </div>
+                                    <span style={{ margin: "10px", fontSize: "11px" }}>{selectTemplate(templateType)}</span>
                             </div>
                             </div>
                             <div style={{width:"100%", textAlign:"right", marginTop:"20px"}}> 
@@ -544,21 +569,25 @@ export function CreateTemplateAccordion() {
                         }
                         {typeOfHeader === "image" &&
                             <div className="container-configure">
-                                <input type="file"
-                                    accept="image"
-                                    name="header"
-                                    onChange={handleImageUpload}
-                                />
+                                <div style={{display: "flex", flexDirection:"row", width:"100%", alignItems:"center", alignContent:"center"}}>
+                                    <input
+                                        type="file"
+                                        accept="image"
+                                        name="header"
+                                        id="myFile" 
+                                        onChange={handleImageUpload} 
+                                        ref={fileInputRef}                                  
+                                        style={{ display: 'none' }}
+                                    />
+                                    <input type="text" value={fileName} style={{width:"100%", borderRadius:"7px", border:"1px solid #d8d8d8"}} disabled/>
+                                    <button type="button" onClick={() => fileInputRef.current?.click()} className="button-blue" style={{marginLeft:"10px"}}>Anexar</button>
+                                </div>
                                 <Alert message={"Você vai inserir a url da imagem no momento em que for disparar a mensagem."} />
                             </div>
 
                         }
                         {typeOfHeader === "document" &&
                             <div className="container-configure">
-                                <input type="file"
-                                    accept="file"
-                                    name="header"
-                                />
                                 <Alert message={"Você vai inserir a url da documento no momento em que for disparar a mensagem."} />
                             </div>
 
@@ -723,7 +752,7 @@ export function CreateTemplateAccordion() {
                             }</div>
                     <div style={{ width:"100%", flexDirection: "row", textAlign: "end", alignContent: "end", alignItems: "end", padding:"15px" }}>
                         <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Cancelar")}>Cancelar</button>
-                        <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Salvar")}>Salvar</button>
+                        <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => validatedPayload()}>Salvar</button>
                     </div>
                     </div>}
                 </div>

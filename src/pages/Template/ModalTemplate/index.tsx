@@ -24,7 +24,7 @@ export function ModalTemplate(props: any) {
 
     return (
         <div>
-            <div style={{ position: "fixed", alignContent: "end", textAlign: "end", right: "100px", bottom: "0px" }}>
+            <div style={{ position: "fixed", alignContent: "end", textAlign: "end", right: "100px", bottom: "0px", zIndex:"2" }}>
                 <img src={whatsappBackground} alt="Logo" width={350} height={600} />
                 <div className="overlay-text">
                     <div className="texts">

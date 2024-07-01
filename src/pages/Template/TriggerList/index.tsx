@@ -267,12 +267,12 @@ export function TriggerList() {
             </select>
             <button className="button-blue">Buscar</button>
         </div>
-                    <div style={{ display: "flex", flexDirection: "column", width:"20%", minWidth:"20%", margin: "10px 0px 0px 20px" }}>
-                        <div className="row-align" style={{marginBottom:"30px"}}>
+                    <div style={{ display: "flex", flexDirection: "column", width:"100%", margin: "10px 0px 0px 20px" }}>
+                        <div className="row-align" style={{marginBottom:"30px", alignItems:"center"}}>
                             <span style={{ color: "#002080", fontWeight:"bolder" }}>Status</span>
-                            <div className={filters.status.aguardando ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer", marginLeft:"20px"}} onClick={()=>""}><span className={filters.status.aguardando ? "number_button_gradient" : "number_button_gradient-gray"} style={{width: "100px",height:"30px",fontSize:"14px", borderRadius: "15px"}} onClick={() => handleStatusChange('aguardando')}>Aguardando</span></div>
-                            <div className={filters.status.enviado ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer"}} onClick={()=>""}><span className={filters.status.enviado ? "number_button_gradient" : "number_button_gradient-gray"} style={{width: "100px",height:"30px",fontSize:"14px", borderRadius: "15px"}} onClick={() => handleStatusChange('enviado')}>Enviado</span></div>
-                            <div className={filters.status.erro ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer"}} onClick={()=>""}><span className={filters.status.erro ? "number_button_gradient" : "number_button_gradient-gray"} style={{width: "100px",height:"30px",fontSize:"14px", borderRadius: "15px"}} onClick={() => handleStatusChange('erro')}>Erro</span></div>
+                            <div className={filters.status.aguardando ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer", marginLeft:"20px"}} onClick={()=>""}><span className={filters.status.aguardando ? "number_button_gradient" : "number_button_gradient-gray"} style={{width: "100px",height:"30px",fontSize:"14px", borderRadius: "7px"}} onClick={() => handleStatusChange('aguardando')}>Aguardando</span></div>
+                            <div className={filters.status.enviado ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer"}} onClick={()=>""}><span className={filters.status.enviado ? "number_button_gradient" : "number_button_gradient-gray"} style={{width: "100px",height:"30px",fontSize:"14px", borderRadius: "7px"}} onClick={() => handleStatusChange('enviado')}>Enviado</span></div>
+                            <div className={filters.status.erro ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer"}} onClick={()=>""}><span className={filters.status.erro ? "number_button_gradient" : "number_button_gradient-gray"} style={{width: "100px",height:"30px",fontSize:"14px", borderRadius: "7px"}} onClick={() => handleStatusChange('erro')}>Erro</span></div>
                         </div>
                     </div>
                     </div>

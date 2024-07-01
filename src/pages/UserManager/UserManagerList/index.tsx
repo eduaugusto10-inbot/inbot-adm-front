@@ -186,19 +186,19 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
                     </tbody>
                 </table>
             </div>
-            <div>
+            <div> 
                 <span className="color-text-label">Selecione o arquivo:</span>
                 <div>
-                <input
-                    type="file"
-                    id="myFile"
-                    onChange={handleFileUpload}
-                    ref={fileInputRef}
-                    style={{ display: 'none' }}
-                />
-                <input type="text" value={fileName} disabled/>
-      <button type="button" onClick={() => fileInputRef.current?.click()} className="button-blue">Anexar</button>
-      <button type="button" onClick={showXlsValues} className="button-blue">Carregar</button>
+                    <input
+                        type="file"
+                        id="myFile"
+                        onChange={handleFileUpload}
+                        ref={fileInputRef}
+                        style={{ display: 'none' }}
+                    />
+                    <input type="text" value={fileName} disabled/>
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="button-blue">Anexar</button>
+                    <button type="button" onClick={showXlsValues} className="button-blue">Carregar</button>
             <div>
                 <table className="table-2024" style={{margin:"20px"}}>
                     <thead>

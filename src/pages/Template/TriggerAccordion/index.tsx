@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { read, utils } from "xlsx";
-import { errorCampaingEmpty, errorDuplicatedPhone, errorEmptyVariable, errorPhoneEmpty, errorSheets, errorTriggerMode, successCreateTrigger, waitingMessage, errorNoRecipient } from "../../../Components/Toastify";
+import { errorCampaingEmpty, errorDuplicatedPhone, errorEmptyVariable, errorPhoneEmpty, errorSheets, errorTriggerMode, successCreateTrigger, waitingMessage, errorNoRecipient, errorMessageConfig } from "../../../Components/Toastify";
 import api from "../../../utils/api";
 import { ToastContainer } from "react-toastify";
 import './index.css'
@@ -39,7 +39,7 @@ export function Accordion() {
     const [clientNumber, setClientNumber] = useState<number | ''>('');
     const [typeClient, setTypeClients] = useState<boolean>(false);
     const [mode, setMode] = useState<boolean>(false);
-    const [triggerMode, setTriggerMode] = useState<string>("")
+    const [triggerMode, setTriggerMode] = useState<string>("imediato")
     const [campaignName, setCampaignName] = useState<string>("")
     const [dates, setDate] = useState<string>("")
     const [hours, setHours] = useState<string>("")
@@ -60,6 +60,7 @@ export function Accordion() {
     const [profilePic, setProfilePic] = useState("")
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [fileName, setFileName] = useState('');
+    const [createTriggerMenu, setCreateTriggerMenu] = useState(false)
     useEffect(() => {
         api.get(`/whatsapp/trigger-bot/${botId}`)
             .then(resp => setTriggerNames(resp.data))
@@ -70,7 +71,7 @@ export function Accordion() {
         if (searchParams.get('bot_id') === null) {
             window.location.href = "https://in.bot/inbot-admin";
         }
-        setTemplateName(location?.state?.templateName)
+
         api.get(`/whats-botid/${botId}`)
             .then(resp => {
                 const token = resp.data.accessToken;
@@ -83,10 +84,16 @@ export function Accordion() {
                 api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
                     .then(resp => {
                         setTemplates(resp.data.data.messageTemplates)
+                        setCreateTriggerMenu(true)
                     })
             })
+            
     }, []);
 
+    useEffect(() => {
+        loadNewTemplate(location?.state?.templateID)
+    }, [createTriggerMenu])
+    
     const toggleAccordion = (key: keyof AccordionState) => {
         setAccordionState({
             config: false,
@@ -323,7 +330,9 @@ export function Accordion() {
 
     const loadNewTemplate = (e:any) =>{
         setVariables([])
+        console.log(templates)
         templates.forEach((template: ITemplateList) => {
+            console.log(e)
             if(template.ID===e){
                 setTemplateName(template.name);   
                 template.components.forEach((element: any) => {
@@ -418,6 +427,25 @@ export function Accordion() {
         }
         toggle();
     }
+    const validatedPayload = () => {
+        if(campaignName.length === 0 ){
+            errorMessageConfig()
+            return;
+        }
+        if((listVariables.length === 0 && !typeClient) || (fileData.length === 0 && typeClient)){
+            errorNoRecipient()
+            return;
+        }
+        if (campaignName.length === 0) {
+            errorCampaingEmpty()
+            return;
+        }
+        if (triggerMode.length === 0) {
+            errorTriggerMode()
+            return;
+        }
+        handleButtonName("Salvar")
+    }
     const handleButtonClick = (buttonId: string) => {
         if (buttonId === "Salvar") {
             createTrigger()
@@ -472,8 +500,8 @@ export function Accordion() {
                             <span className="span-title">Selecionar template </span>
                             <select name="" id="" className="input-values" onChange={e=>loadNewTemplate(e.target.value)}>
                                     <option value="">{templateName ?? "--"}</option>
-                                {templates.map(template => (
-                                    <option value={template.ID}>{template.name}</option>
+                                {templates.map((template, key) => (
+                                    <option key={key} value={template.ID}>{template.name}</option>
                                 ))}
                             </select>
                         </div>
@@ -526,7 +554,7 @@ export function Accordion() {
                         </div>
                     </div>
                     {!typeClient &&
-                        <div style={{ display: "flex", flexDirection: "column", width: "90%" }}>
+                        <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
                             <div style={{ display: "flex", flexDirection: "row" }}>
                                 <span className="span-title">Telefone </span>
                                 <PhoneInput
@@ -588,20 +616,20 @@ export function Accordion() {
                                 }
                                 <button onClick={addCustomerToSendTemplate} style={{ width: "170px", height: "30px", marginRight: "5px" }} className="button-next">Adicionar contato</button>
                             </div>
-                            <div style={{ maxHeight: "500px", overflowY: 'auto', marginBottom: "10px" }}>
-                                <table style={{ margin: "20px", width:"95%" }}>
+                            <div style={{ maxHeight: "500px", overflowY: 'auto', marginBottom: "10px", display: "flex", flexDirection:"column", alignItems: "center", padding:"10px 0px" }}>
+                                <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", width:"97%", padding:"10px"}}>
                                     <thead>
-                                        <tr style={{ backgroundColor: '#0D5388', fontSize: "12px", width:"100%" }}>
-                                            <th style={{color:"#FFF"}}>Telefone</th>
-                                            {variables.length>0 && <th style={{color:"#FFF"}}>Variável 1</th>}
-                                            {variables.length>1 && <th style={{color:"#FFF"}}>Variável 2</th>}
-                                            {variables.length>2 && <th style={{color:"#FFF"}}>Variável 3</th>}
-                                            {variables.length>3 && <th style={{color:"#FFF"}}>Variável 4</th>}
-                                            {variables.length>4 && <th style={{color:"#FFF"}}>Variável 5</th>}
-                                            {variables.length>5 && <th style={{color:"#FFF"}}>Variável 6</th>}
-                                            {variables.length>6 && <th style={{color:"#FFF"}}>Variável 7</th>}
-                                            {variables.length>7 && <th style={{color:"#FFF"}}>Variável 8</th>}
-                                            <th style={{color:"#FFF"}}>Link midia</th>
+                                        <tr  className="cells table-2024 border-bottom-zero">
+                                            <th  className="cells" style={{fontSize:"10px"}}>Telefone</th>
+                                            {variables.length>0 && <th  className="cells" style={{fontSize:"10px"}}>Variável 1</th>}
+                                            {variables.length>1 && <th  className="cells" style={{fontSize:"10px"}}>Variável 2</th>}
+                                            {variables.length>2 && <th  className="cells" style={{fontSize:"10px"}}>Variável 3</th>}
+                                            {variables.length>3 && <th  className="cells" style={{fontSize:"10px"}}>Variável 4</th>}
+                                            {variables.length>4 && <th  className="cells" style={{fontSize:"10px"}}>Variável 5</th>}
+                                            {variables.length>5 && <th  className="cells" style={{fontSize:"10px"}}>Variável 6</th>}
+                                            {variables.length>6 && <th  className="cells" style={{fontSize:"10px"}}>Variável 7</th>}
+                                            {variables.length>7 && <th  className="cells" style={{fontSize:"10px"}}>Variável 8</th>}
+                                            <th  className="cells" style={{fontSize:"10px"}}>Link midia</th>
                                         </tr>
                                     </thead>
                                     <tbody style={{ backgroundColor: '#F9F9F9', fontSize: "12px" }}>
@@ -609,13 +637,13 @@ export function Accordion() {
                                             <tr key={rowIndex}>
                                                 <th>{unicVariable.phone}</th>
                                                 {variables.length>0 && <th>{unicVariable.variable_1}</th>}
-                                                {variables.length>0 && <th>{unicVariable.variable_2}</th>}
-                                                {variables.length>0 && <th>{unicVariable.variable_3}</th>}
-                                                {variables.length>0 && <th>{unicVariable.variable_4}</th>}
-                                                {variables.length>0 && <th>{unicVariable.variable_5}</th>}
-                                                {variables.length>0 && <th>{unicVariable.variable_6}</th>}
-                                                {variables.length>0 && <th>{unicVariable.variable_7}</th>}
-                                                {variables.length>0 && <th>{unicVariable.variable_8}</th>}
+                                                {variables.length>1 && <th>{unicVariable.variable_2}</th>}
+                                                {variables.length>2 && <th>{unicVariable.variable_3}</th>}
+                                                {variables.length>3 && <th>{unicVariable.variable_4}</th>}
+                                                {variables.length>4 && <th>{unicVariable.variable_5}</th>}
+                                                {variables.length>5 && <th>{unicVariable.variable_6}</th>}
+                                                {variables.length>6 && <th>{unicVariable.variable_7}</th>}
+                                                {variables.length>7 && <th>{unicVariable.variable_8}</th>}
                                                 <th>{unicVariable.media_url}</th>
                                             </tr>
                                         ))}
@@ -710,7 +738,7 @@ export function Accordion() {
                                 </div>
                                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", width: "100%" }}>
                                     <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Cancelar")}>Cancelar</button>
-                                    <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Salvar")}>Salvar</button>
+                                    <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => validatedPayload()}>Salvar</button>
                                 </div>
                             </div>
                         </div>

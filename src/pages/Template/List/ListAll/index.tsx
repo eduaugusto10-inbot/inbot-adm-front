@@ -95,9 +95,9 @@ export function ListAll() {
     };
 
     const history = useNavigate();
-    function SendTemplate(name: string, variableQuantity: number, qtButtons: number, headerConfig: string | null) {
+    function SendTemplate(name: string, variableQuantity: number, qtButtons: number, headerConfig: string | null, templateID: string) {
         console.log(headerConfig)
-        history(`/template-trigger?bot_id=${botId}`, { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: profilePic, phone: phone, headerConfig: headerConfig, qtButtons: qtButtons } });
+        history(`/template-trigger?bot_id=${botId}`, { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: profilePic, phone: phone, headerConfig: headerConfig, qtButtons: qtButtons, templateID: templateID } });
     }
 
     const loadTemplate = (id: number) => {
@@ -165,7 +165,7 @@ export function ListAll() {
     const sendtemplate = (id: number) => {
         templates[id].components.forEach((element: any) => {
             if (element.type === "body")
-                SendTemplate(templates[id].name, encontrarMaiorNumero(element.parameters[0].text), hasManyButtons(templates[id].components), hasMedia(templates[id].components))
+                SendTemplate(templates[id].name, encontrarMaiorNumero(element.parameters[0].text), hasManyButtons(templates[id].components), hasMedia(templates[id].components), templates[id].ID)
         });
     }
     const deleteTemplate = (id: number) => {
@@ -256,7 +256,7 @@ export function ListAll() {
                                 {/* <td className="cells"><span style={{ color: "blue", fontSize: "12px" }}>{template.ID}</span></td> */}
                                 <td><span>{template.name}</span></td>
                                 <td style={{textAlign:"center"}}><div style={{ borderRadius: "20px", padding: "7px" }}><span style={{ color: template.status === "APPROVED" ? "green" : template.status === "PENDING" ? "yellow" : "red" }}>{template.status === "APPROVED" ? "Aprovado" : template.status === "PENDING" ? "Pendente" : "Rejeitado"}</span></div></td>
-                                <td style={{textAlign:"center"}}><span>{template.category}</span></td>
+                                <td style={{textAlign:"center"}}><span>{template.category.toLowerCase()}</span></td>
                                 <td style={{textAlign:"center"}}><span>{template.language}</span></td>
                                 <td style={{textAlign:"center"}}><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>
                             </tr>

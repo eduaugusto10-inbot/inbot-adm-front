@@ -144,7 +144,7 @@ table th:nth-child(even) {
 }
 
 .hr_color {
-  height: 1.5px;
+  height: 2.5px;
   background-image: linear-gradient(to right, #a050e0, #80a0ff);
   border: 0px;
 }
@@ -184,16 +184,17 @@ table th:nth-child(even) {
      var(--GlowBorder1,#57dcef) 99%
     );
    
-  border-radius: 15px;
+  border-radius: 10px;
   padding: 2px;
   animation: rotate 2s linear infinite; 
 }
 .border_gradient-gray {
   display: inline-block;
   position: relative;
-  border: 1px solid #9b9b9b;
-  border-radius: 15px;
-  padding: 2px; 
+  border: 2px solid #9b9b9b;
+  border-radius: 7px;
+  padding: 2px 8px ; 
+  height: 28px;
 }
    
    .border_gradient::after {
@@ -220,18 +221,17 @@ table th:nth-child(even) {
    }
 
    .number_button_gradient {
-    background-color: #fff;
-     border-radius: 50%;
-     display: inline-block;
-     width: 25px;
-     height: 25px;
-     line-height: 25px;
-     text-align: center;
-     font-weight: bold;
-     color: #3366ff;
+      background-color: #fff;
+      border-radius: 50%;
+      display: inline-block;
+      width: 25px;
+      height: 25px;
+      line-height: 25px;
+      text-align: center;
+      font-weight: bold;
+      color: #89aee7;
     }
    .number_button_gradient-gray {
-    background-color: #f0f0f0;
      display: inline-block;
      width: 25px;
      height: 25px;
