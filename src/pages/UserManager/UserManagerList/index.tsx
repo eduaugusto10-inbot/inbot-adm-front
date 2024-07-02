@@ -27,6 +27,7 @@ const fileInputRef = useRef<HTMLInputElement>(null);
 const [fileData, setFileData] = useState<any[][]>([]);
 const [searchButton, setSearchButton] = useState<boolean>(false)
 const [savedValues, setSavedValues] = useState([]);
+const [loadFinished, setLoadFinished] = useState(true)
 const [initDate, setInitDate] = useState({
     day: now.getDate(),
     month: now.getMonth() + 1,
@@ -55,6 +56,7 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
     .then(resp => {
         setCustomers(resp.data.data)
         setQtyCustomer(resp.data.data.length)
+        setLoadFinished(true)
     })
   },[searchButton])
 
@@ -135,10 +137,10 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
         }));
     };
 
-    const nameAndValue = (value: any ,index: any) => {
+    const nameAndValue = (value: any ,field: any) => {
         let resp = '';
         for(let data of value){
-            if(customFields[index].id === data.id){
+            if(field === data.id){
                 resp = data.value;
             }
         }
@@ -169,17 +171,17 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
                     </thead>
                     <tbody>
                         <tr>
-                            <td style={{ border:"1px solid #aaa", padding:"0px", margin:"0px"}} className="cells"><input type="text" style={{width:"90%", border:"none"}} /></td>
-                            <td style={{ border:"1px solid #aaa", padding:"5px", margin:"0px"}} className="cells"><input type="text"  style={{width:"90%", border:"none"}}/></td>
+                            <td style={{ padding:"0px", margin:"0px"}} className="cells border-gray"><input type="text" style={{width:"90%", border:"none"}} /></td>
+                            <td style={{ padding:"5px", margin:"0px"}} className="cells border-gray"><input type="text"  style={{width:"90%", border:"none"}}/></td>
                             {customFields.map(()=>(
-                                <td className="cells" style={{ border:"1px solid #aaa", padding:"0px", margin:"0px"}}><input type="text"  style={{width:"90%", border:"none"}} /></td>
+                                <td className="cells border-gray" style={{ padding:"0px", margin:"0px"}}><input type="text"  style={{width:"90%", border:"none"}} /></td>
                             ))}
-                            <td style={{ border:"1px solid #aaa"}}>
+                            <td className="border-gray">
                                 <select name="" id=""  style={{width:"90%", border:"none"}}>
                                     <option value="">Ativo</option>    
                                     <option value="">Inativo</option>    
                                 </select></td>
-                            <td style={{ border:"1px solid #aaa"}}>
+                            <td className="border-gray">
                             <button onClick={() => handleSave(0)}>Save</button>
                     </td>
                         </tr>
@@ -216,7 +218,7 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
                         {fileData.length > 0 && fileData.slice(1).map((row, rowIndex) => (
                             <tr key={rowIndex} >
                                 {row.map((cell, cellIndex) => (
-                                    <td key={cellIndex}  style={{ border:"1px solid #aaa"}}><span style={{fontSize: "12px" }}>{cell}</span></td>
+                                    <td key={cellIndex}  className="border-gray"><span style={{fontSize: "12px" }}>{cell}</span></td>
                                 ))}
                             </tr>
                         ))}
@@ -226,8 +228,8 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
         </div>
             </div>
             <div style={{ flexDirection: "row", textAlign: "end", alignContent: "end", alignItems: "end" }}>
-                <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => ""}>Cancelar</button>
-                <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => ""}>Salvar</button>
+                <button className="button-cancel" onClick={() => ""}>Cancelar</button>
+                <button className="button-save" onClick={() => ""}>Salvar</button>
             </div>
         </div>
         <div className="header-accordion gradient-background" style={{width:"100%", borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>Base de Usuários</div>                  
@@ -264,7 +266,11 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
                     <option value={year}>{year}</option>
                 ))}
             </select>
-            <button className="button-blue" onClick={() => setSearchButton(true)}>Buscar</button>
+            <button className="button-blue" onClick={() => {
+                    setSearchButton(true)
+                    setLoadFinished(false)
+                }} 
+                disabled={!loadFinished}>{loadFinished ? "Buscar" : <div className="in_loader"></div>}</button>
         </div>
         <div className="row-align" style={{marginBottom:"30px"}}>
             <span className="color-text-label" style={{padding:"0px 50px 0px 20px"}}>Status:</span>
@@ -310,29 +316,31 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
                    <button className="button-blue" style={{width:"150px"}}> Exportar excel </button>
 
                 </DownloadTableExcel>
-        <table className="table-2024" style={{marginTop:"20px"}} ref={tableRef}>
+        <table className="table-2024 fixed-header-table" style={{marginTop:"20px"}} ref={tableRef}>
             <thead>
-            <tr className="table-2024" style={{borderBottom: "0px"}}>
+            <tr className="table-2024 border-bottom-zero">
                 <th className="cells" style={{padding:"0px 50px 0px", borderRight:"1px solid #aaa"}}>Telefone</th>
                 <th className="cells">Nome</th>
                 {customFields.map((fields:any, key:any)=>(
-                    <th className="cells">{fields.customName}</th>
+                    <th key={key} className="cells">{fields.customName}</th>
                 ))}
                 <th className="cells">Data Cadastro</th>
-                <th className="cells">Status</th>
+                {/* <th className="cells">Status</th> */}
                 <th className="cells">Gerenciar</th>
             </tr>
             </thead>
             <tbody>
+                
             {customers.map((customer: any, index: number) => (
-                <tr key={customer.id}>
-                    <td style={{ border:"1px solid #aaa"}}><span style={{fontSize: "12px" }}>{editMode[index] ? <input type="text" value={editedValues[index]?.phone ?? customer.phone} onChange={(e) => handleChange(e, index, 'phone')}/> : mask(editedValues[index]?.phone ?? customer.phone)}</span></td>
-                    <td style={{ border:"1px solid #aaa"}} className="cells"><span style={{fontSize: "12px" }}>{editMode[index] ? <input type="text" value={editedValues[index]?.name ?? customer.name} onChange={(e) => handleChange(e, index, 'name')}/> : editedValues[index]?.name ?? customer.name}</span></td>
-                    {customer.customFields && customer.customFields.map((cf: {id: any, value: any; },key:any) => (
-                    <td style={{ border:"1px solid #aaa"}} key={key}><span style={{fontSize: "12px" }}>{nameAndValue(customer.customFields, key)==='' ? "--" : nameAndValue(customer.customFields, key)}</span></td>
-                ))}
-                    <td style={{ border:"1px solid #aaa"}}><span style={{fontSize:"12px"}}>{adjustTimeWithout3Hour(customer.createdAt)}</span></td>
-                    <td style={{ border:"1px solid #aaa"}}>
+                <tr key={customer.id}
+                style={{ border: '1px solid #0171BD', backgroundColor: index % 2 === 0 ? '#e4e4e4' : '#FFF' }}>
+                    <td className="border-gray"><span style={{fontSize: "12px" }}>{editMode[index] ? <input type="text" value={editedValues[index]?.phone ?? customer.phone} onChange={(e) => handleChange(e, index, 'phone')}/> : mask(editedValues[index]?.phone ?? customer.phone)}</span></td>
+                    <td className="cells border-gray"><span style={{fontSize: "12px" }}>{editMode[index] ? <input type="text" value={editedValues[index]?.name ?? customer.name} onChange={(e) => handleChange(e, index, 'name')}/> : editedValues[index]?.name ?? customer.name}</span></td>
+                    {customFields.map((fields:any, key:any)=>(
+                    <td className="border-gray" key={key}><span style={{fontSize: "12px" }}>{nameAndValue(customer.customFields, fields.id) ?? '--'}</span></td>
+                ))}                    
+                    <td className="border-gray"><span style={{fontSize:"12px"}}>{adjustTimeWithout3Hour(customer.createdAt)}</span></td>
+                    <td className="border-gray">
                 {editMode[index] ? (
                   <button onClick={() => handleSave(index)}>Save</button>
                 ) : (

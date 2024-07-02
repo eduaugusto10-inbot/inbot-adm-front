@@ -456,16 +456,16 @@ export function CreateTemplateAccordion() {
         }
     };
     return (
-        <div style={{ width: "80vw", display:"flex", flexDirection:"column", alignItems:"center" }}>
-            <div style={{width:"900px"}}>
-                <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
-                <ToastContainer />
+        <div style={{ width: "95%", display:"flex", flexDirection:"column", alignItems:"center", padding:"10px 0px" }}>
                 <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
                     <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-37px" }} />
                 </div>
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Criar Template</h1>
                 <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
                 <br/>
+            <div style={{width:"900px"}}>
+                <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
+                <ToastContainer />
                 <div className="config-template" style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
                     <div className={`accordion_head ${accordionState.config ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>1. Configuração
                     <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.config ?"-90deg" : "90deg"}} /></div>
@@ -751,8 +751,8 @@ export function CreateTemplateAccordion() {
                                 </div>
                             }</div>
                     <div style={{ width:"100%", flexDirection: "row", textAlign: "end", alignContent: "end", alignItems: "end", padding:"15px" }}>
-                        <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Cancelar")}>Cancelar</button>
-                        <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => validatedPayload()}>Salvar</button>
+                        <button className="button-cancel" onClick={() => handleButtonName("Cancelar")}>Cancelar</button>
+                        <button className="button-save" onClick={() => validatedPayload()}>Salvar</button>
                     </div>
                     </div>}
                 </div>

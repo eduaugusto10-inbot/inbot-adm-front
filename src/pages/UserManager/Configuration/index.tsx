@@ -74,23 +74,23 @@ export function Configuration(){
         <tbody>
         {customFields.map((customField:any, index) => (
             <tr key={index}>
-                <td style={{ border: '1px solid #aaa' }}>{customField?.customName}</td>
-                <td style={{ border: '1px solid #aaa' }}>{customField?.type}</td>
-                <td style={{ border: '1px solid #aaa' }}>{customField?.status ?? "Ativo"}</td>
+                <td className="border-gray">{customField?.customName}</td>
+                <td className="border-gray">{customField?.type}</td>
+                <td className="border-gray">{customField?.status ?? "Ativo"}</td>
             </tr>
         ))}
         {savedValues.map((savedValue, index) => (
             <tr key={index}>
-                <td style={{ border: '1px solid #aaa' }}>{savedValue.nomeCampo}</td>
-                <td style={{ border: '1px solid #aaa' }}>{savedValue.tipo}</td>
-                <td style={{ border: '1px solid #aaa' }}>{savedValue.status}</td>
+                <td className="border-gray">{savedValue.nomeCampo}</td>
+                <td className="border-gray">{savedValue.tipo}</td>
+                <td className="border-gray">{savedValue.status}</td>
             </tr>
         ))}
           <tr>
-            <td style={{ border: '1px solid #aaa', padding: '0px', margin: '0px' }} className="cells">
+            <td style={{ padding: '0px', margin: '0px' }} className="cells border-gray">
               <input type="text" style={{ width: '90%', border: 'none' }} value={nomeCampo} onChange={(e) => checkEnableButton(e.target.value, "nameField")} />
             </td>
-            <td style={{ border: '1px solid #aaa' }}>
+            <td className="border-gray">
               <select value={tipo} onChange={(e) => checkEnableButton(e.target.value, "type")} style={{ width: '90%', border: 'none' }}>
                 <option value="">--</option>
                 <option value="Texto">Texto</option>
@@ -100,14 +100,14 @@ export function Configuration(){
                 <option value="Horário">Horário</option>
               </select>
             </td>
-            <td style={{ border: '1px solid #aaa' }}>
+            <td className="border-gray">
               <select value={status} onChange={(e) => checkEnableButton(e.target.value,"status")} style={{ width: '90%', border: 'none' }}>
               <option value="">--</option>
                 <option value="Ativo">Ativo</option>
                 <option value="Inativo">Inativo</option>
               </select>
             </td>
-            <td style={{ border: '1px solid #aaa' }}>
+            <td className="border-gray">
               <button onClick={handleSave} disabled={!buttonSaveStatus}>Save</button>
             </td>
           </tr>
@@ -116,8 +116,8 @@ export function Configuration(){
       </div>
     </div>
                     <div style={{ flexDirection: "row", textAlign: "end", alignContent: "end", alignItems: "end" }}>
-                        <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => ""}>Cancelar</button>
-                        <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => ""}>Salvar</button>
+                        <button className="button-cancel" onClick={() => ""}>Cancelar</button>
+                        <button className="button-save" onClick={() => ""}>Salvar</button>
                     </div>                 
                 </div>
             </div>

@@ -214,7 +214,7 @@ export function AddNumber() {
                 </div>
                 <div>
                     <button onClick={BackToHome} className='button'>Voltar</button>
-                    <button type="submit" className='button'>Salvar</button>
+                    <button type="submit" className='button-save'>Salvar</button>
                 </div>
             </form>
         </div>

@@ -472,7 +472,7 @@ export function Accordion() {
     };
     
     return (
-        <div className="container-trigger">
+        <div className="container-trigger" style={{width:"95%", padding:"10px 0px"}}>
             <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
             <ToastContainer />
             <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
@@ -490,14 +490,14 @@ export function Accordion() {
                 <div className="accordeon-new" style={{width:"90%", textAlign:"right"}}>
                     <div className="body line" style={{ display: "flex", justifyContent: "space-around", flexDirection: "row", alignContent: "center", backgroundColor: "#FFF" }}>
                         <div>
-                            <div style={{ display: "flex", flexDirection: "row" }}>
-                                <span className="span-title">Nome da campanha</span>
+                            <div style={{ display: "flex", flexDirection: "column" }}>
+                                <span className="span-title" style={{width:"100%", justifyContent:"left", marginLeft:"12px"}}>Nome da campanha</span>
                                 <input className="input-values" type="text" value={campaignName} onChange={e => handleCampaignName(e.target.value)} />
                             </div>
                             {errorMessage && <p style={{ color: 'red', fontSize: "10px", fontWeight: "bolder" }}>{errorMessage}</p>}
                         </div>
-                        <div style={{ display: "flex", flexDirection: "row" }}>
-                            <span className="span-title">Selecionar template </span>
+                        <div style={{ display: "flex", flexDirection: "column" }}>
+                            <span className="span-title" style={{width:"100%", justifyContent:"left", marginLeft:"12px"}}>Selecionar template </span>
                             <select name="" id="" className="input-values" onChange={e=>loadNewTemplate(e.target.value)}>
                                     <option value="">{templateName ?? "--"}</option>
                                 {templates.map((template, key) => (
@@ -737,8 +737,8 @@ export function Accordion() {
                                     <span className="span-title-resume">Quantidade de disparos: {typeClient === false ? listVariables.length : ""}</span>
                                 </div>
                                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", width: "100%" }}>
-                                    <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => handleButtonName("Cancelar")}>Cancelar</button>
-                                    <button style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} onClick={() => validatedPayload()}>Salvar</button>
+                                    <button className="button-cancel" onClick={() => handleButtonName("Cancelar")}>Cancelar</button>
+                                    <button className="button-save" onClick={() => validatedPayload()}>Salvar</button>
                                 </div>
                             </div>
                         </div>

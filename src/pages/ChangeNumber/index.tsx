@@ -76,7 +76,7 @@ export function ChangeDeleteNumber() {
                         />
                         <button
                             onClick={handleImage}
-                            className='button'
+                            className='button-blue'
                             style={{ margin: "7px" }}>Enviar imagem</button>
                     </div>
                     <div className='left-side'>
@@ -247,9 +247,9 @@ export function ChangeDeleteNumber() {
                     </div>
                 </div>
                 <div>
-                    <button onClick={BackToHome} className='button'>Voltar</button>
+                    <button onClick={BackToHome} className='button-cancel'>Voltar</button>
                     {/*<button className='button'>Deletar</button>*/}
-                    <button type="submit" className='button'>Salvar</button>
+                    <button type="submit" className='button-save'>Salvar</button>
                 </div>
             </form>
         </div>

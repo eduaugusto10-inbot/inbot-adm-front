@@ -216,7 +216,7 @@ export function ListAll() {
       };
 
     return (
-        <div style={{width:"80%"}}>
+        <div style={{width:"95%", padding:"10px 0px"}}>
             <ToastContainer />
             <div>
                 <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
