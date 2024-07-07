@@ -157,7 +157,7 @@ export function TriggerDetails() {
         return false;
     });
     return (
-        <div>
+        <div className="width-95-perc">
             <ToastContainer />
             <div>
                 <div style={{ display: "flex", flexDirection: "row", width: "100%", padding: "20px 0px 0px 20px" }}>
@@ -168,8 +168,8 @@ export function TriggerDetails() {
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                     <div style={{ fontWeight: "bolder", height: "250px", margin: "20px" }}>
                         <span style={{ color: "#002080" }}>Filtros</span>
-                        <div style={{ display: "flex", flexDirection: "row" }}>
-                            <div style={{ display: "flex", flexDirection: "column", margin: "10px" }}>
+                        <div className="row-align">
+                            <div className="column-align" style={{ margin: "10px" }}>
                                 <span style={{ color: "#002080" }}>Status</span>
                                 <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
                                     <div><input type="checkbox" onChange={() => handleStatusChange('aguardando')} checked={filters.status.aguardando} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Aguardando</span></div>
@@ -202,7 +202,7 @@ export function TriggerDetails() {
                 <div style={{ display:"flex",flexDirection:"column" }}>
                 <table className="table-2024 fixed-header-table" style={{minWidth:"90%"}}>
                     <thead>
-                        <tr className="cells table-2024 border-bottom-zero" style={{ fontSize: "12px" }}>
+                        <tr className="cells table-2024 border-bottom-zero font-size-12">
                             <th className="cells">Telefone</th>
                             {filteredCustomers[0]?.variable_1!==null &&<th className="cells">Var. 1</th>}
                             {filteredCustomers[0]?.variable_2!==null &&<th className="cells">Var. 2</th>}
@@ -222,21 +222,21 @@ export function TriggerDetails() {
                     </thead>
                     {filteredCustomers.map((customer, index) => (
                         <tr key={index} style={{backgroundColor:  index % 2 === 0 ? '#ecebeb' : 'white'}}>
-                            <td><span style={{ fontSize: "12px" }}>{mask(customer.phone)}</span></td>
-                            {customer.variable_1!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_1}</span></td>}
-                            {customer.variable_2!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_2}</span></td>}
-                            {customer.variable_3!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_3}</span></td>}
-                            {customer.variable_4!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_4}</span></td>}
-                            {customer.variable_5!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_5}</span></td>}
-                            {customer.variable_6!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_6}</span></td>}
-                            {customer.variable_7!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_7}</span></td>}
-                            {customer.variable_8!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_8}</span></td>}
-                            {customer.variable_9!==null &&<td><span style={{ fontSize: "12px" }}>{customer.variable_9}</span></td>}
-                            <td><span style={{ fontSize: "12px" }}>{customer.status}</span></td>
-                            <td><span style={{ fontSize: "12px" }}>{adjustTime(customer.data_criacao)}</span></td>
-                            <td><span style={{ fontSize: "12px" }}>{customer.data_disparo ? adjustTime(customer.data_disparo) : "----"}</span></td>
-                            <td><span style={{ fontSize: "12px" }}>{customer.engagement ? adjustTime(customer.engagement) : "----"}</span></td>
-                            <td><span style={{ fontSize: "12px" }}> -- </span></td>
+                            <td><span className="font-size-12">{mask(customer.phone)}</span></td>
+                            {customer.variable_1!==null &&<td><span className="font-size-12">{customer.variable_1}</span></td>}
+                            {customer.variable_2!==null &&<td><span className="font-size-12">{customer.variable_2}</span></td>}
+                            {customer.variable_3!==null &&<td><span className="font-size-12">{customer.variable_3}</span></td>}
+                            {customer.variable_4!==null &&<td><span className="font-size-12">{customer.variable_4}</span></td>}
+                            {customer.variable_5!==null &&<td><span className="font-size-12">{customer.variable_5}</span></td>}
+                            {customer.variable_6!==null &&<td><span className="font-size-12">{customer.variable_6}</span></td>}
+                            {customer.variable_7!==null &&<td><span className="font-size-12">{customer.variable_7}</span></td>}
+                            {customer.variable_8!==null &&<td><span className="font-size-12">{customer.variable_8}</span></td>}
+                            {customer.variable_9!==null &&<td><span className="font-size-12">{customer.variable_9}</span></td>}
+                            <td><span className="font-size-12">{customer.status}</span></td>
+                            <td><span className="font-size-12">{adjustTime(customer.data_criacao)}</span></td>
+                            <td><span className="font-size-12">{customer.data_disparo ? adjustTime(customer.data_disparo) : "----"}</span></td>
+                            <td><span className="font-size-12">{customer.engagement ? adjustTime(customer.engagement) : "----"}</span></td>
+                            <td><span className="font-size-12"> -- </span></td>
                         </tr>
                     ))}
                 </table>

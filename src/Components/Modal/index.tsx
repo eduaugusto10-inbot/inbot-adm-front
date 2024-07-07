@@ -27,7 +27,7 @@ export default function Modal(props: ModalType) {
                                 onClick={() => handleButtonClick(props.buttonA)}
                                 style={{color:"#a06060", fontWeight:"bolder", cursor:"pointer"}}>X</span>
                         </div>
-                        <div style={{ display: "flex", flexDirection: "column", height:"100%" }}>
+                        <div className="column-align" style={{ height:"100%" }}>
                             <h4 style={{ paddingBottom:"20px", color:"#0d5388" }}>{props.question}</h4>
                             <span></span>
                             <span style={{ color:"#0d5388", fontWeight:"bold" }}>Essa ação não poderá ser desfeita.</span>

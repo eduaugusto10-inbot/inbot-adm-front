@@ -30,6 +30,8 @@ export function ListAll() {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [filtro, setFiltro] = useState<string>('');
     const [token, setToken] = useState<string>('')
+    const [sortType, setSortType] = useState<string>("")
+    const [sortOrder, setOrderSort] = useState<string>("")
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -215,11 +217,37 @@ export function ListAll() {
         setFiltro(e.target.value);
       };
 
+      const handleInitSort = (value: string, orderBy: string) => {
+        setSortType(value)
+        setOrderSort(orderBy)
+    }
+    const handleSort = (outrosDadosFiltrados: any) => {
+
+            const sortedItems = [...outrosDadosFiltrados];
+            if(sortType === ""){
+                return sortedItems;
+            }
+            if (sortOrder === "asc") {
+                sortedItems.sort((a, b) => {
+                  const valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : 'Z';
+                  const valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : 'Z';
+                  return valorA.localeCompare(valorB);
+                });
+              } else if (sortOrder === "desc") {
+                sortedItems.sort((a, b) => {
+                  const valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : 'Z';
+                  const valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : 'Z';
+                  return valorB.localeCompare(valorA);
+                });
+            }
+            return sortedItems
+    }
+
     return (
         <div style={{width:"95%", padding:"10px 0px"}}>
             <ToastContainer />
             <div>
-                <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
+                <div className="row-align" style={{ width: "100%" }}>
                     {isLoading ? (<div className="spinner-container">
                         <div className="spinner"></div>
                     </div>)
@@ -237,16 +265,15 @@ export function ListAll() {
                 <table className="table-2024 fixed-header-table" style={{textAlign:"left"}}>
                     <thead>
                         <tr className="cells table-2024 border-bottom-zero">
-                            {/* <th className="cells" style={{borderRight:"1px solid #aaa"}}>ID do template</th> */}
-                            <th className="cells">Nome do template</th>
-                            <th className="cells" style={{textAlign:"center"}}>Status</th>
-                            <th className="cells" style={{textAlign:"center"}}>Categoria</th>
-                            <th className="cells" style={{textAlign:"center"}}>Idioma</th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Nome do template</span> <div><div className="triangle-up" onClick={()=>handleInitSort("name","asc")}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("name","desc")}></div></div></div></th>
+                            <th className="cells" style={{textAlign:"center"}}><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Status</span> <div><div className="triangle-up" onClick={()=>handleInitSort("status","asc")}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("status","desc")}></div></div></div></th>
+                            <th className="cells" style={{textAlign:"center"}}><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Categoria</span> <div><div className="triangle-up" onClick={()=>handleInitSort("category","asc")}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("category","desc")}></div></div></div></th>
+                            <th className="cells" style={{textAlign:"center"}}><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Idioma</span> <div><div className="triangle-up" onClick={()=>handleInitSort("language","asc")}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("language","desc")}></div></div></div></th>
                             <th className="cells" style={{textAlign:"center"}}>Menu</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {dadosFiltrados.map((template, index) => (
+                        {handleSort(dadosFiltrados).map((template, index) => (
                             <tr
                                 key={index}
                                 style={{ border: '1px solid #0171BD', backgroundColor: index % 2 === 0 ? '#e4e4e4' : '#FFF' }}

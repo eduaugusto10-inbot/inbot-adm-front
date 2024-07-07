@@ -29,7 +29,7 @@ export function AllPhones() {
         <div style={{margin:"10px 0px"}}>
             <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "100%" }} className="title_2024">Gestão de Números WhatsApp</h1>
             <div className="hr_color" style={{width:"100%", marginTop:"10px"}}></div>
-            <div style={{width:"100%", display:"flex", flexDirection:"row" }}>
+            <div className='row-align' style={{ width:"100%" }}>
                 <button onClick={AddNewPhone} className='button-blue' style={{margin:"20px 0px"}}>Adicionar</button>
             </div>
             <table className="table-2024 fixed-header-table" style={{textAlign:"left"}}>

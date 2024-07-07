@@ -25,6 +25,9 @@ export const successCancelTrigger = () => toast.success("Disparo cancelado com s
 export const errorMessage = () => toast.error("Erro no sistema, tente mais tarde", {
     theme: "colored"
 });
+export const errorMessageDefault = (message: string) => toast.error(message, {
+    theme: "colored"
+});
 export const errorMessageDelete = () => toast.error("Erro ao deletar número", {
     theme: "colored"
 });

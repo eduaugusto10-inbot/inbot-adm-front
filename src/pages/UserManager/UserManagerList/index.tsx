@@ -27,14 +27,17 @@ const fileInputRef = useRef<HTMLInputElement>(null);
 const [fileData, setFileData] = useState<any[][]>([]);
 const [searchButton, setSearchButton] = useState<boolean>(false)
 const [savedValues, setSavedValues] = useState([]);
+const [sortType, setSortType] = useState<string>("")
+const [sortOrder, setOrderSort] = useState<string>("")
 const [loadFinished, setLoadFinished] = useState(true)
+const [isCustomFields, setIsCustomFields] = useState(false)
 const [initDate, setInitDate] = useState({
     day: now.getDate(),
     month: now.getMonth() + 1,
     year: now.getFullYear()
 })
 const [finalDate, setFinalDate] = useState({
-    day: now.getDate() + 1,
+    day: now.getDate(),
     month: now.getMonth() + 1,
     year: now.getFullYear()
 })
@@ -46,13 +49,22 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
     footer: false,
     botao: false
 });
+
+const getDaysInMonth = (year: number, month: number): number => {
+    return new Date(year, month, 0).getDate();
+};
+
   useEffect(() => {
+    const qtyDaysInit = getDaysInMonth(initDate.year, initDate.month)
+    const qtyDaysFinal = getDaysInMonth(finalDate.year, finalDate.month)
+    const finalDay = qtyDaysFinal < finalDate.day ? qtyDaysFinal : finalDate.day
+    const initDay = qtyDaysFinal < initDate.day ? qtyDaysInit : initDate.day
     setSearchButton(false)
     api.get(`/customfields-parameters/${botId}`)
     .then(resp => {
         setCustomFields(resp.data.data)
     })
-    api.get(`/customer-parameters/${botId}?initialDate=${initDate.year}-${initDate.month}-${initDate.day}&finalDate=${finalDate.year}-${finalDate.month}-${finalDate.day}`)
+    api.get(`/customer-parameters/${botId}?initialDate=${initDate.year}-${initDate.month}-${initDay}&finalDate=${finalDate.year}-${finalDate.month}-${finalDay}`)
     .then(resp => {
         setCustomers(resp.data.data)
         setQtyCustomer(resp.data.data.length)
@@ -146,18 +158,59 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
         }
         return resp;
     }
+
+    const handleInitSort = (value: string, orderBy: string, isCustomFields: boolean) => {
+        setSortType(value)
+        setOrderSort(orderBy)
+        setIsCustomFields(isCustomFields)
+    }
+    const handleSort = (outrosDadosFiltrados: any) => {
+
+            const sortedItems = [...outrosDadosFiltrados];
+            if(sortType === ""){
+                return sortedItems;
+            }
+            if (sortOrder === "asc") {
+                sortedItems.sort((a, b) => {
+                  let valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : 'Z';
+                  let valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : 'Z';
+                    if(isCustomFields){
+                        valorA = getCustomFieldValue(a, sortType);
+                        valorB = getCustomFieldValue(b, sortType);
+                    }
+                  return valorA.localeCompare(valorB);
+                });
+              } else if (sortOrder === "desc") {
+                sortedItems.sort((a, b) => {
+                  let valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : 'Z';
+                  let valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : 'Z';
+                  if(isCustomFields){
+                        valorA = getCustomFieldValue(a, sortType);
+                        valorB = getCustomFieldValue(b, sortType);
+                  }
+                  return valorB.localeCompare(valorA);
+                });
+            }
+            return sortedItems
+    }
+
+    const getCustomFieldValue = (item: any, customFieldId: string) => {
+        const customField = item.customFields.find((field: { id: string; }) => field.id === customFieldId);
+        return customField ? customField.value : "";
+    };
+
   return (
-    <div style={{backgroundColor:"#ebebeb", padding:"10px 100px 100px 100px"}}>
+    <div className="width-95-perc" style={{backgroundColor:"#ebebeb", padding:"10px 100px 100px 100px"}}>
         <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Gestão de Usuários</h1>
         <hr className="hr_color" />
         <div className="config-template" style={{width:"100%"}}>
         <div className="header-accordion gradient-background" style={{width:"100%", borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>Adicionar Usuários</div>      
         <div>
-            <input type="radio" id="addUsersType"/><span>Cadastrar usuários individualmente</span>
-            <input type="radio" id="addUsersType"/><span>Upload de planilha de usuários</span>
+            <input type="radio" id="addUsersType"/><span style={{padding:"9px"}}>Cadastrar usuários individualmente</span>
+            <input type="radio" id="addUsersType"/><span style={{padding:"9px"}}>Upload de planilha de usuários</span>
             <button className="button-blue">Download</button>
-            <div>
-                <table className="table-2024" style={{margin:"20px"}}>
+            <div style={{ overflowX:"auto" }}>
+                <table className="table-2024" style={{width:"100%", margin:"20px"}}>
                     <thead>
                     <tr className="table-2024" style={{borderBottom: "0px"}}>
                         <th className="cells" style={{padding:"0px 50px 0px", borderRight:"1px solid #aaa"}}>Telefone</th>
@@ -199,10 +252,10 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
                         style={{ display: 'none' }}
                     />
                     <input type="text" value={fileName} disabled/>
-                    <button type="button" onClick={() => fileInputRef.current?.click()} className="button-blue">Anexar</button>
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="button-blue" style={{margin:"9px"}}>Anexar</button>
                     <button type="button" onClick={showXlsValues} className="button-blue">Carregar</button>
-            <div>
-                <table className="table-2024" style={{margin:"20px"}}>
+            <div style={{ overflowX:"auto" }}>
+                <table className="table-2024" style={{width:"100%", margin:"20px"}}>
                     <thead>
                     <tr className="table-2024"  style={{borderBottom: "0px"}}>
                         <th className="cells" style={{padding:"0px 50px 0px", borderRight:"1px solid #aaa"}}>Telefone</th>
@@ -214,11 +267,11 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
                         <th className="cells">Gerenciar</th>
                     </tr>
                     </thead>
-                    {showValues && <tbody style={{ backgroundColor: '#F9F9F9', fontSize: "12px" }}>
+                    {showValues && <tbody className="font-size-12" style={{ backgroundColor: '#F9F9F9' }}>
                         {fileData.length > 0 && fileData.slice(1).map((row, rowIndex) => (
                             <tr key={rowIndex} >
                                 {row.map((cell, cellIndex) => (
-                                    <td key={cellIndex}  className="border-gray"><span style={{fontSize: "12px" }}>{cell}</span></td>
+                                    <td key={cellIndex}  className="border-gray"><span className="font-size-12">{cell}</span></td>
                                 ))}
                             </tr>
                         ))}
@@ -236,9 +289,9 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
         <div style={{margin:"10px 20px", textAlign:"left"}}>
             <span className="color-text-label">Data de cadastro</span>
             <select value={initDate.day} onChange={e => setInitDate(prevState => ({...prevState,day: Number(e.target.value) }))} className="input-values litle-input" >
-                {[...Array(31).keys()].map(i => (
-                    <option key={i+1} value={(i+1).toString()}>{i+1}</option>
-                ))}
+            {[...Array(31).keys()].map(i => (
+                <option key={i+1} value={(i+1).toString()}>{i+1}</option>
+            ))}
             </select>
             <select value={initDate.month} onChange={e => setInitDate(prevState => ({...prevState,month: Number(e.target.value) }))} className="input-values litle-input" >
                 {months.map((month,key) =>(
@@ -274,9 +327,9 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
         </div>
         <div className="row-align" style={{marginBottom:"30px"}}>
             <span className="color-text-label" style={{padding:"0px 50px 0px 20px"}}>Status:</span>
-            <div className="border_gradient" style={{marginRight:"10px"}} onClick={()=>""}><span className="number_button_gradient" style={{width: "80px",height:"25px",fontSize:"14px", borderRadius: "15px"}}>Todos</span></div>
-            <div className="border_gradient" style={{marginRight:"10px"}} onClick={()=>""}><span className="number_button_gradient" style={{width: "80px",height:"25px",fontSize:"14px", borderRadius: "15px"}}>Ativos</span></div>
-            <div className="border_gradient" onClick={()=>""}><span className="number_button_gradient" style={{width: "80px",height:"25px",fontSize:"14px", borderRadius: "15px"}}>Inativos</span></div>
+            <div className="border_gradient margin-rigth-10" onClick={()=>""}><span className="number_button_gradient" style={{width: "80px",height:"25px",fontSize:"14px", borderRadius: "6px", cursor:"pointer"}}>Todos</span></div>
+            <div className="border_gradient margin-rigth-10" onClick={()=>""}><span className="number_button_gradient" style={{width: "80px",height:"25px",fontSize:"14px", borderRadius: "6px", cursor:"pointer"}}>Ativos</span></div>
+            <div className="border_gradient" onClick={()=>""}><span className="number_button_gradient" style={{width: "80px",height:"25px",fontSize:"14px", borderRadius: "6px", cursor:"pointer"}}>Inativos</span></div>
         </div>
         <div className="row-align">
             <div className="column-align left-align" style={{marginLeft:"20px"}}>
@@ -297,47 +350,38 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
             </div>
         </div>
         <hr className="hr_color" />
-        <span className="color-text-label">{qtyCustomerCounter(qtyCustomer)}</span><span style={{fontSize:"12px", paddingLeft:"20px"}}>Ordenar por</span>
-        <select name="" id="" className="input-values" style={{border:"none", height:"30px", width:"300px"}}>
-            <option value="Escolha uma opção">Escolha uma opção</option>
-            <option value="Telefone">Telefone</option>
-            <option value="Nome">Nome</option>
-            <option value="E-mail">E-mail</option>
-            {customFields.map((customField: any) => (
-                <option value="">{customField.customName}</option>
-            ))}
-        </select>
-        <DownloadTableExcel
-                    filename="users table"
-                    sheet="users"
-                    currentTableRef={tableRef.current}
-                >
-
-                   <button className="button-blue" style={{width:"150px"}}> Exportar excel </button>
-
-                </DownloadTableExcel>
-        <table className="table-2024 fixed-header-table" style={{marginTop:"20px"}} ref={tableRef}>
+        <div className="row-align" style={{justifyContent: "space-between"}}>
+            <span className="color-text-label font-size-12">{qtyCustomerCounter(qtyCustomer)}</span>
+            <DownloadTableExcel
+                filename="users table"
+                sheet="users"
+                currentTableRef={tableRef.current}>
+                    <button className="button-blue" style={{width:"150px", margin:"1px"}}> Exportar excel </button>
+            </DownloadTableExcel>
+        </div>
+                <div style={{ overflowX:"auto" }}>
+        <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", marginTop:"20px"}} ref={tableRef}>
             <thead>
-            <tr className="table-2024 border-bottom-zero">
-                <th className="cells" style={{padding:"0px 50px 0px", borderRight:"1px solid #aaa"}}>Telefone</th>
-                <th className="cells">Nome</th>
+            <tr className="cells table-2024 border-bottom-zero">
+                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Telefone</span> <div><div className="triangle-up" onClick={()=>handleInitSort("phone","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("phone","desc",false)}></div></div></div></th>
+                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Nome</span> <div><div className="triangle-up" onClick={()=>handleInitSort("name","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("name","desc",false)}></div></div></div></th>
                 {customFields.map((fields:any, key:any)=>(
-                    <th key={key} className="cells">{fields.customName}</th>
+                    <th key={key} className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>{fields.customName}</span> <div><div className="triangle-up" onClick={()=>handleInitSort(fields.id,"asc",true)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort(fields.id,"desc",true)}></div></div></div></th>
                 ))}
-                <th className="cells">Data Cadastro</th>
+                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Data Cadastro</span> <div><div className="triangle-up" onClick={()=>handleInitSort("createdAt","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("createdAt","desc",false)}></div></div></div></th>
                 {/* <th className="cells">Status</th> */}
                 <th className="cells">Gerenciar</th>
             </tr>
             </thead>
             <tbody>
                 
-            {customers.map((customer: any, index: number) => (
+            {handleSort(customers).map((customer: any, index: number) => (
                 <tr key={customer.id}
                 style={{ border: '1px solid #0171BD', backgroundColor: index % 2 === 0 ? '#e4e4e4' : '#FFF' }}>
-                    <td className="border-gray"><span style={{fontSize: "12px" }}>{editMode[index] ? <input type="text" value={editedValues[index]?.phone ?? customer.phone} onChange={(e) => handleChange(e, index, 'phone')}/> : mask(editedValues[index]?.phone ?? customer.phone)}</span></td>
-                    <td className="cells border-gray"><span style={{fontSize: "12px" }}>{editMode[index] ? <input type="text" value={editedValues[index]?.name ?? customer.name} onChange={(e) => handleChange(e, index, 'name')}/> : editedValues[index]?.name ?? customer.name}</span></td>
+                    <td className="border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.phone ?? customer.phone} onChange={(e) => handleChange(e, index, 'phone')}/> : mask(editedValues[index]?.phone ?? customer.phone)}</span></td>
+                    <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.name ?? customer.name} onChange={(e) => handleChange(e, index, 'name')}/> : editedValues[index]?.name ?? customer.name}</span></td>
                     {customFields.map((fields:any, key:any)=>(
-                    <td className="border-gray" key={key}><span style={{fontSize: "12px" }}>{nameAndValue(customer.customFields, fields.id) ?? '--'}</span></td>
+                    <td className="border-gray" key={key}><span className="font-size-12">{nameAndValue(customer.customFields, fields.id) ?? '--'}</span></td>
                 ))}                    
                     <td className="border-gray"><span style={{fontSize:"12px"}}>{adjustTimeWithout3Hour(customer.createdAt)}</span></td>
                     <td className="border-gray">
@@ -351,6 +395,7 @@ const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
             ))}
             </tbody>
         </table>
+        </div>
         </div>
     </div>
     

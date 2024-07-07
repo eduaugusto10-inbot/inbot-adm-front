@@ -193,7 +193,7 @@ table th:nth-child(even) {
   position: relative;
   border: 2px solid #9b9b9b;
   border-radius: 7px;
-  padding: 2px 8px ; 
+  /* padding: 2px 8px ;  */
   height: 28px;
 }
    
@@ -475,4 +475,33 @@ table th:nth-child(even) {
   height: 16px;
   -webkit-animation: loader_spin 2s linear infinite;
   animation: loader_spin 2s linear infinite;
+}
+
+.margin-rigth-10 {
+  margin-right: 10px;
+}
+
+.font-size-12 {
+  font-size: 12px;
+}
+
+.width-95-perc {
+  width: 95%;
+}
+
+
+.triangle-up {
+  width: 7px;
+  height: 7px;
+  background-color: #0d5388;
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  cursor: pointer;
+}
+
+.triangle-down {
+  width: 7px;
+  height: 7px;
+  background-color: #0d5388;
+  clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
+  cursor: pointer;
 }

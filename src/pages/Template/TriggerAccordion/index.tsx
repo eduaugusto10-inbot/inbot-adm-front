@@ -472,7 +472,7 @@ export function Accordion() {
     };
     
     return (
-        <div className="container-trigger" style={{width:"95%", padding:"10px 0px"}}>
+        <div className="container-trigger width-95-perc" style={{ padding:"10px 0px"}}>
             <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
             <ToastContainer />
             <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
@@ -665,13 +665,13 @@ export function Accordion() {
                             <div style={{ maxHeight: "400px", overflowY: 'auto', marginBottom: "10px" }}>
                                 <table style={{ margin: "20px" }}>
                                     <thead>
-                                        <tr style={{ fontSize: "12px" }}>
+                                        <tr className="font-size-12">
                                             {fileData.length > 0 && fileData[0].map((cell, index) => (
                                                 <th key={index}>{cell}</th>
                                             ))}
                                         </tr>
                                     </thead>
-                                    <tbody style={{ backgroundColor: '#F9F9F9', fontSize: "12px" }}>
+                                    <tbody className="font-size-12" style={{ backgroundColor: '#F9F9F9'}}>
                                         {fileData.length > 0 && fileData.slice(1).map((row, rowIndex) => (
                                             <tr key={rowIndex}>
                                                 {row.map((cell, cellIndex) => (

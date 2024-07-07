@@ -3,7 +3,7 @@ import { ICustomerData, defaultCustomerData } from '../types';
 import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { ToastContainer } from "react-toastify";
-import { successMessageChange, errorMessage } from '../../Components/Toastify'
+import { successMessageChange, errorMessage, errorMessageDefault } from '../../Components/Toastify'
 import { mask } from '../../utils/utils';
 
 export function AddNumber() {
@@ -31,8 +31,8 @@ export function AddNumber() {
                 setTimeout(() => history("/"), 2000)
             })
             .catch(error => {
-                errorMessage();
-                console.log(error)
+                console.log(error.response.data.name)
+                errorMessageDefault(error.response.data.name);
             })
     };
 

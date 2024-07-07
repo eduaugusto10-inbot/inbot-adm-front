@@ -53,7 +53,7 @@ export function Configuration(){
       }
 
     return(
-        <div style={{width:"100%",backgroundColor:"#ebebeb", padding:"10px 100px 100px 100px"}}>
+        <div className="width-95-perc" style={{ backgroundColor:"#ebebeb", padding:"10px 100px 100px 100px"}}>
             <ToastContainer />
             <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Gestão de Usuários - Configuração BD</h1>
             <hr className="hr_color" />
@@ -61,7 +61,7 @@ export function Configuration(){
                 <div className="header-accordion gradient-background" style={{width:"100%", borderRadius: "20px" }} onClick={() => ""}>Configurações dos Campos</div>      
                 <div>
                 <div>
-                    <div style={{display:"flex", flexDirection:"column", alignContent:"center", alignItems:"center"}}>
+                    <div className="column-align" style={{ alignContent:"center", alignItems:"center"}}>
       <table className="table-2024" style={{ margin: '20px' }}>
         <thead>
           <tr className="table-2024 border-bottom-zero">

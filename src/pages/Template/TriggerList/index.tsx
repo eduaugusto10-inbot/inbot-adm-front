@@ -31,6 +31,8 @@ export function TriggerList() {
     const [startDate, setStartDate] = useState<string>("")
     const [endDate, setEndDate] = useState<string>("")
     const menuRef = useRef<HTMLDivElement>(null);
+    const [sortType, setSortType] = useState<string>("")
+    const [sortOrder, setOrderSort] = useState<string>("")
     const [profilePic, setProfilePic] = useState<string>("")
     const [filters, setFilters] = useState<ITriggerListFilter>({
         campaign_name: '',
@@ -75,8 +77,8 @@ export function TriggerList() {
         };
     }, []);
 
-    const dadosFiltrados = triggerList.filter(trigger => {
-
+    let dadosFiltrados = triggerList.filter(trigger => {
+        
         if (trigger.template_name !== null && filtro !== '' && !trigger.template_name.toLowerCase().includes(filtro.toLowerCase()) 
         && (trigger.campaign_name !== null && filtro !== '' && !trigger.campaign_name.toLowerCase().includes(filtro.toLowerCase()))){
             return false;
@@ -99,6 +101,32 @@ export function TriggerList() {
 
             return false;
         });
+
+        const handleInitSort = (value: string, orderBy: string) => {
+            setSortType(value)
+            setOrderSort(orderBy)
+        }
+        const handleSort = (outrosDadosFiltrados: any) => {
+
+                const sortedItems = [...outrosDadosFiltrados];
+                if(sortType === ""){
+                    return sortedItems;
+                }
+                if (sortOrder === "asc") {
+                    sortedItems.sort((a, b) => {
+                      const valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : 'Z';
+                      const valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : 'Z';
+                      return valorA.localeCompare(valorB);
+                    });
+                  } else if (sortOrder === "desc") {
+                    sortedItems.sort((a, b) => {
+                      const valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : 'Z';
+                      const valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : 'Z';
+                      return valorB.localeCompare(valorA);
+                    });
+                }
+                return sortedItems
+        }
 
       const handleFiltroChange = (e: ChangeEvent<HTMLInputElement>) => {
         setFiltro(e.target.value);
@@ -197,20 +225,6 @@ export function TriggerList() {
             },
         });
     };
-    const filterClear = () => {
-        setShowFilter(!showFilter)
-        setEndDate("")
-        setStartDate("")
-        setFilters({
-            ...filters,
-            status: {
-                ...filters.status,
-                "aguardando": true,
-                "erro": true,
-                "enviado": true,
-            },
-        });
-    }
 
     return (
         <div style={{width:"95%", padding:"10px 0px"}}>
@@ -230,10 +244,10 @@ export function TriggerList() {
                     </button>
                 </div>
                 {showFilter && 
-                <div className="column" style={{ height: "250px", margin: "20px", borderRadius: "20px" }}>
-                <div style={{ display:"flex", flexDirection:"column", fontWeight: "bolder", height: "250px", margin: "20px", borderRadius: "20px" }}>
+                <div className="column" style={{ margin: "20px", borderRadius: "20px" }}>
+                <div style={{ display:"flex", flexDirection:"column", fontWeight: "bolder", margin: "20px", borderRadius: "20px" }}>
                 <div style={{margin:"10px 20px", textAlign:"left"}}>
-            <span style={{ color: "#002080", fontWeight:"bolder" }}>Data de criação</span>
+            <span style={{ color: "#002080", fontWeight:"bolder" }}>Data de criação: </span>
             <select name="" id="" className="input-values litle-input" >
                 {[...Array(31).keys()].map(i => (
                     <option key={i+1} value={(i+1).toString()}>{i+1}</option>
@@ -249,7 +263,7 @@ export function TriggerList() {
                     <option value="">{year}</option>
                 ))}
             </select>
-            <span style={{ color: "#002080", fontWeight:"bolder", margin:"0px 10px 0px 10px" }}>Até</span>
+            <span style={{ color: "#002080", fontWeight:"bolder", margin:"0px 10px 0px 10px" }}>até</span>
             <select name="" id="" className="input-values litle-input" >
                 {[...Array(31).keys()].map(i => (
                     <option key={i+1} value={(i+1).toString()}>{i+1}</option>
@@ -269,7 +283,7 @@ export function TriggerList() {
         </div>
                     <div style={{ display: "flex", flexDirection: "column", width:"100%", margin: "10px 0px 0px 20px" }}>
                         <div className="row-align" style={{marginBottom:"30px", alignItems:"center"}}>
-                            <span style={{ color: "#002080", fontWeight:"bolder" }}>Status</span>
+                            <span style={{ color: "#002080", fontWeight:"bolder" }}>Status: </span>
                             <div className={filters.status.aguardando ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer", marginLeft:"20px"}} onClick={()=>""}><span className={filters.status.aguardando ? "number_button_gradient" : "number_button_gradient-gray"} style={{width: "100px",height:"30px",fontSize:"14px", borderRadius: "7px"}} onClick={() => handleStatusChange('aguardando')}>Aguardando</span></div>
                             <div className={filters.status.enviado ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer"}} onClick={()=>""}><span className={filters.status.enviado ? "number_button_gradient" : "number_button_gradient-gray"} style={{width: "100px",height:"30px",fontSize:"14px", borderRadius: "7px"}} onClick={() => handleStatusChange('enviado')}>Enviado</span></div>
                             <div className={filters.status.erro ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer"}} onClick={()=>""}><span className={filters.status.erro ? "number_button_gradient" : "number_button_gradient-gray"} style={{width: "100px",height:"30px",fontSize:"14px", borderRadius: "7px"}} onClick={() => handleStatusChange('erro')}>Erro</span></div>
@@ -284,16 +298,16 @@ export function TriggerList() {
                 <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF"}}>
                     <thead>
                         <tr className="cells table-2024 border-bottom-zero">
-                            <th className="cells">Nome</th>
-                            <th className="cells">Template</th>
-                            <th className="cells">Data criação</th>
-                            <th className="cells">Data de envio</th>
-                            <th className="cells">Status</th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Nome</span> <div><div className="triangle-up" onClick={()=>handleInitSort("campaign_name","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("campaign_name","desc")}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Template</span> <div><div className="triangle-up" onClick={()=>handleInitSort("template_name","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("template_name","desc")}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data criação</span> <div><div className="triangle-up" onClick={()=>handleInitSort("data_criacao","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("data_criacao","desc")}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data de envio</span> <div><div className="triangle-up" onClick={()=>handleInitSort("time_trigger","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("time-trigger","desc")}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Status</span> <div><div className="triangle-up" onClick={()=>handleInitSort("status","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("status","desc")}></div></div></div></th>
                             <th className="cells">Opções</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {dadosFiltrados.map((trigger, index) => (
+                        {handleSort(dadosFiltrados).map((trigger, index) => (
                             <React.Fragment key={index}>
                                 <tr
                                     key={index}
