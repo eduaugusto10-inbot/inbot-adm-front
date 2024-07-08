@@ -33,7 +33,6 @@ export function TriggerList() {
     const menuRef = useRef<HTMLDivElement>(null);
     const [sortType, setSortType] = useState<string>("")
     const [sortOrder, setOrderSort] = useState<string>("")
-    const [profilePic, setProfilePic] = useState<string>("")
     const [filters, setFilters] = useState<ITriggerListFilter>({
         campaign_name: '',
         template_name: '',
@@ -51,16 +50,6 @@ export function TriggerList() {
         if (searchParams.get('bot_id') === null) {
             window.location.href = "https://in.bot/inbot-admin";
         }
-        api.get(`/whats-botid/${botId}`)
-            .then(resp => {
-                const token = resp.data.accessToken;
-                api.get("https://whatsapp.smarters.io/api/v1/settings", { headers: { 'Authorization': token } })
-                    .then(res => {
-                        setProfilePic(res.data.data.profile_pic)
-                        // handleImageLoad()
-                    })
-                    .catch(error => console.log(error))
-            })
     }, []);
 
     useEffect(() => {
@@ -166,7 +155,7 @@ export function TriggerList() {
 
     function detailedTrigger(id: number) {
         const triggerId = triggerList[id].id;
-        history("/trigger-details", { state: { triggerId: triggerId, urlLogo: profilePic } });
+        history("/trigger-details", { state: { triggerId: triggerId, urlLogo: "" } });
     }
     const changeStatus = (id: number) => {
         waitingMessage()
@@ -231,9 +220,6 @@ export function TriggerList() {
             <ToastContainer />
             <div>
                 <div>
-                    <div style={{ display: "flex", flexDirection: "row", width: "100%", minWidth:"100%" }}>
-                        <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-30px" }} />
-                    </div>
                     <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width:"100%" }} className="title_2024">Gerenciar Campanhas</h1>
                 </div>
                 <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
@@ -319,7 +305,7 @@ export function TriggerList() {
                                     <td><span>{trigger.template_name}</span></td>
                                     <td><span>{trigger.data_criacao ? adjustTime(trigger.data_criacao) : "--"}</span></td>
                                     <td><span>{trigger.time_trigger ? adjustTimeWithout3Hour(trigger.time_trigger) : "--"}</span></td>
-                                    <td><div id="statusCells" style={{ borderRadius: "20px", backgroundColor: statusBackgroundColor(trigger.status), padding: "7px" }}><span style={{ fontSize: "12px", fontWeight: "bolder", color: statusColor(trigger.status) }}>{statusName(trigger.status)}</span></div></td>
+                                    <td><div id="statusCells" style={{ borderRadius: "20px", padding: "7px" }}><span style={{ fontWeight: "bolder", color: statusColor(trigger.status) }}>{statusName(trigger.status)}</span></div></td>
                                     <td><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>
                                 </tr>
                             </React.Fragment>

@@ -50,7 +50,6 @@ export function CreateTemplateAccordion() {
     const [buttonsCTA, setButtonsCTA] = useState<IButton[]>([])
     const [typeOfButtons, setTypeOfButtons] = useState<string>('without')
     const [phone, setPhone] = useState<string>("")
-    const [profilePic, setProfilePic] = useState<string>("")
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [fileName, setFileName] = useState('');
 
@@ -74,14 +73,7 @@ export function CreateTemplateAccordion() {
         api.get(`/whats-botid/${botId}`)
             .then(resp => {
                 setPhone(resp.data.number)
-                const token = resp.data.accessToken;
-                api.get("https://whatsapp.smarters.io/api/v1/settings", { headers: { 'Authorization': token } })
-                    .then(res => {
-                        setProfilePic(res.data.data.profile_pic)
-                        // handleImageLoad()
-                    })
-                    .catch(error => console.log(error))
-            })
+            }).catch(error => console.log(error))
     }, []);
     useEffect(() => {
         if(location?.state?.duplicated){
@@ -457,9 +449,6 @@ export function CreateTemplateAccordion() {
     };
     return (
         <div className="column-align width-95-perc" style={{ alignItems:"center", padding:"10px 0px" }}>
-                <div className="row-align" style={{ width: "100%" }}>
-                    <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-37px" }} />
-                </div>
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Criar Template</h1>
                 <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
                 <br/>

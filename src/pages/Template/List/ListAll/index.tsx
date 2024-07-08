@@ -24,7 +24,6 @@ export function ListAll() {
     const [hoveredRow, setHoveredRow] = useState<number | null>(null);
     const [hoveredRowMenu, setHoveredRowMenu] = useState<number | null>(null);
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
-    const [profilePic, setProfilePic] = useState<string>("")
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [selectedRow, setSelectedRow] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -46,14 +45,8 @@ export function ListAll() {
                 api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
                     .then(resp => {
                         setTemplates(resp.data.data.messageTemplates)
-                    })
-                api.get("https://whatsapp.smarters.io/api/v1/settings", { headers: { 'Authorization': token } })
-                    .then(res => {
-                        setProfilePic(res.data.data.profile_pic)
-                        handleImageLoad()
-                    })
-                    .catch(error => console.log(error))
-            })
+                    }).catch(error => console.log(error))                   
+            }).catch(error => console.log(error))
     }, []);
 
     useEffect(() => {
@@ -99,7 +92,7 @@ export function ListAll() {
     const history = useNavigate();
     function SendTemplate(name: string, variableQuantity: number, qtButtons: number, headerConfig: string | null, templateID: string) {
         console.log(headerConfig)
-        history(`/template-trigger?bot_id=${botId}`, { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: profilePic, phone: phone, headerConfig: headerConfig, qtButtons: qtButtons, templateID: templateID } });
+        history(`/template-trigger?bot_id=${botId}`, { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: "", phone: phone, headerConfig: headerConfig, qtButtons: qtButtons, templateID: templateID } });
     }
 
     const loadTemplate = (id: number) => {
@@ -200,7 +193,7 @@ export function ListAll() {
             state: { 
                 duplicated: true,
                 variableQuantity: variableQuantity, 
-                urlLogo: profilePic, 
+                urlLogo: "", 
                 phone: phone, 
                 headerConfig: hasMedia(templates[id].components), 
                 qtButtons: hasManyButtons(templates[id].components),
@@ -247,12 +240,6 @@ export function ListAll() {
         <div style={{width:"95%", padding:"10px 0px"}}>
             <ToastContainer />
             <div>
-                <div className="row-align" style={{ width: "100%" }}>
-                    {isLoading ? (<div className="spinner-container">
-                        <div className="spinner"></div>
-                    </div>)
-                        : <img onLoad={handleImageLoad} src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-30px" }} />}
-                </div>
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "100%" }} className="title_2024">Gerenciar Templates</h1>
                 <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
                 <div style={{margin:"20px"}}>

@@ -268,7 +268,7 @@ table th:nth-child(even) {
   background-color:#0d5388;
   color:#fff;
   font-weight:bolder;
-  border-radius:20px;
+  border-radius:8px;
   font-size:12px;
   border:none;
   width:70px;

@@ -41,8 +41,8 @@ export function Accordion() {
     const [mode, setMode] = useState<boolean>(false);
     const [triggerMode, setTriggerMode] = useState<string>("imediato")
     const [campaignName, setCampaignName] = useState<string>("")
-    const [dates, setDate] = useState<string>("")
-    const [hours, setHours] = useState<string>("")
+    const [dates, setDate] = useState<string>(new Date().toISOString().slice(0, 10));
+    const [hours, setHours] = useState<string>(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
     const [variables, setVariables] = useState<IVariables[]>([])
     const [listVariables, setListVariables] = useState<IListVariables[]>([])
     const [triggerNames, setTriggerNames] = useState<any>([])
@@ -57,7 +57,6 @@ export function Accordion() {
     const [variableQty, setVariableQty] = useState<number>(0)
     const [phone, setPhone] = useState("")
     const [templateName, setTemplateName] = useState("")
-    const [profilePic, setProfilePic] = useState("")
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [fileName, setFileName] = useState('');
     const [createTriggerMenu, setCreateTriggerMenu] = useState(false)
@@ -75,12 +74,7 @@ export function Accordion() {
         api.get(`/whats-botid/${botId}`)
             .then(resp => {
                 const token = resp.data.accessToken;
-                setPhone(resp.data.number)
-                api.get("https://whatsapp.smarters.io/api/v1/settings", { headers: { 'Authorization': token } })
-                    .then(res => {
-                        setProfilePic(res.data.data.profile_pic)
-                    })
-                    .catch(error => console.log(error))               
+                setPhone(resp.data.number)              
                 api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
                     .then(resp => {
                         setTemplates(resp.data.data.messageTemplates)
@@ -471,13 +465,15 @@ export function Accordion() {
         return total -1;
     };
     
+    function formatDate(dateString: string): string {
+        const [year, month, day] = dateString.split('-').map(Number);
+        return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
+      }
+
     return (
         <div className="container-trigger width-95-perc" style={{ padding:"10px 0px"}}>
             <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
             <ToastContainer />
-            <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
-                <img src={profilePic} width={60} height={60} alt='logo da empresa' style={{ marginBottom: "-37px" }} />
-            </div>
             <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Criar Campanha</h1>
             <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
             <br/>
@@ -518,8 +514,7 @@ export function Accordion() {
                 <div  className="accordeon-new" style={{width:"90%", padding:"0px 15px"}}>
                     <div style={{ width: "90%", display:"flex", flexDirection:"column", textAlign: "left" }}>
                         <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
-                            <span style={{ fontSize: "16px" }}>Clientes</span>
-                            <span style={{ fontSize: "11px", fontStyle: "italic" }}>Adicione clientes que receberão os templates, poderá fazer upload de uma planilha ou inserir um número manualmente.</span>
+                            <span style={{ fontSize: "14px" }}>Adicione os contatos que receberão as mensagens. Você pode importar uma lista ou adicionar manualmente.</span>
                         </div>
                         <div style={{marginTop:"17px", marginBottom:"12px", flexDirection:"column"}}>
                             <div style={{marginBottom:"-7px"}}>
@@ -547,7 +542,7 @@ export function Accordion() {
                                 />
                                 <span className="blue-text"><strong>Upload de Planilha de Contatos:</strong></span>
                                 <a href="/files/Modelo.xlsx" download="Modelo - Planilha Contatos para Campanhas.xlsx">
-                                  <button className="button-next">Planilha exemplo</button>
+                                  <button className="button-blue" style={{marginLeft:"12px", width:"120px"}}>Planilha exemplo</button>
                                 </a>
                             </div>
                             <span style={{ fontSize: "11px", fontStyle: "italic", marginLeft:"25px" }}> "Escolha esta opção para fazer upload de uma planilha com vários contatos de uma só vez para esta campanha."</span>
@@ -555,7 +550,7 @@ export function Accordion() {
                     </div>
                     {!typeClient &&
                         <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-                            <div style={{ display: "flex", flexDirection: "row" }}>
+                            <div style={{ display: "flex", flexDirection: "row",alignItems: "center" }}>
                                 <span className="span-title">Telefone </span>
                                 <PhoneInput
                                     defaultCountry="br"
@@ -566,16 +561,19 @@ export function Accordion() {
                                     }}
                                     inputStyle={{
                                         width: "250px",
-                                        height: "40px",
+                                        height: "30px",
                                         border: "1px solid #A8A8A8",
                                         marginLeft: "5px",
                                         padding: "5px",
-                                        borderRadius: "20px",
+                                        borderRadius: "8px",
+                                        alignItems: "center",
                                     }}
                                 />
                             </div>
-                            <span className="span-title" style={{ marginTop: "10px", height: "50px" }}>Variáveis</span>
                             <div style={{ display: "flex", flexDirection: "column" }}>
+                            {variables.length > 0 && 
+                            <>
+                                <span className="span-title" style={{ marginTop: "10px", height: "50px" }}>Variáveis</span>
                                 <div style={{
                                     display: 'grid',
                                     gridTemplateColumns: 'repeat(2, 1fr)',
@@ -589,7 +587,7 @@ export function Accordion() {
 
                                     ))
                                     }
-                                </div>
+                                </div></>}
                                 {headerConfig !== "text" && headerConfig !== null &&
                                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
                                         <span className="span-title">Link {headerConfig === "document" ? "documento" : headerConfig === "image" ? "imagem" : "video"}</span>
@@ -614,7 +612,9 @@ export function Accordion() {
                                         <input className="input-values" value={payload3} onChange={e => setPayload3(e.target.value)} />
                                     </div>
                                 }
-                                <button onClick={addCustomerToSendTemplate} style={{ width: "170px", height: "30px", marginRight: "5px" }} className="button-next">Adicionar contato</button>
+                                <div style={{width:"100%", textAlign:"end", paddingRight:"10px", paddingBottom:"20px"}}>
+                                    <button onClick={addCustomerToSendTemplate} style={{ width: "150px",  marginRight: "5px" }} className="button-blue">Adicionar contato</button>
+                                </div>
                             </div>
                             <div style={{ maxHeight: "500px", overflowY: 'auto', marginBottom: "10px", display: "flex", flexDirection:"column", alignItems: "center", padding:"10px 0px" }}>
                                 <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", width:"97%", padding:"10px"}}>
@@ -660,8 +660,8 @@ export function Accordion() {
                                 style={{ backgroundColor: "#0D5388", color: "#FFF", borderRadius: "20px", display:"none" }} 
                                 ref={fileInputRef}
                             />
-                            <input type="text" value={fileName} disabled style={{width:"300px"}}/>
-                            <button type="button" style={{width:"150px"}} onClick={() => fileInputRef.current?.click()} className="button-blue">Escolher arquivo</button>
+                            <input type="text" value={fileName} disabled style={{width:"300px", borderRadius:"8px"}}/>
+                            <button type="button" style={{width:"120px", marginLeft:"7px"}} onClick={() => fileInputRef.current?.click()} className="button-blue">Escolher arquivo</button>
                             <div style={{ maxHeight: "400px", overflowY: 'auto', marginBottom: "10px" }}>
                                 <table style={{ margin: "20px" }}>
                                     <thead>
@@ -705,11 +705,21 @@ export function Accordion() {
                         {mode && <div style={{ display: "flex", flexDirection: "row" }}>
                             <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
                                 <span className="span-title">Data</span>
-                                <input type="date" value={dates} onChange={e => setDate((e.target as HTMLInputElement).value)} className="input-values" />
+                                <input 
+                                    type="date" 
+                                    min={new Date().toISOString().slice(0, 10)}
+                                    value={dates} onChange={e => setDate((e.target as HTMLInputElement).value)} 
+                                    className="input-values" 
+                                />
                             </div>
                             <div style={{ display: "flex", flexDirection: "row", margin: "10px" }}>
                                 <span className="span-title">Horário</span>
-                                <input type="time" value={hours} onChange={e => setHours((e.target as HTMLInputElement).value)} className="input-values" />
+                                <input 
+                                    type="time" 
+                                    min={new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    value={hours} onChange={e => setHours((e.target as HTMLInputElement).value)} 
+                                    className="input-values" 
+                                />
                             </div>
                         </div>}
                         {!mode && <div>
@@ -733,7 +743,7 @@ export function Accordion() {
                                 <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
                                     <span className="span-title-resume">Template: {templateName}</span>
                                     <span className="span-title-resume">Telefone do disparo: {mask(phone)}</span>
-                                    <span className="span-title-resume">Data e hora do disparo: {triggerMode} - {dates} - {hours}</span>
+                                    <span className="span-title-resume">Data e hora do disparo: {triggerMode==="imediato" ? "imediato" : `agendado dia ${formatDate(dates)} às ${hours}`}</span>
                                     <span className="span-title-resume">Quantidade de disparos: {typeClient === false ? listVariables.length : ""}</span>
                                 </div>
                                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", width: "100%" }}>
