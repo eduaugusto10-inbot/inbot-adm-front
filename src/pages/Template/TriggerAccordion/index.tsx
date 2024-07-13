@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { read, utils } from "xlsx";
-import { errorCampaingEmpty, errorDuplicatedPhone, errorEmptyVariable, errorPhoneEmpty, errorSheets, errorTriggerMode, successCreateTrigger, waitingMessage, errorNoRecipient, errorMessageConfig } from "../../../Components/Toastify";
+import { errorCampaingEmpty, errorDuplicatedPhone, errorEmptyVariable, errorPhoneEmpty, errorSheets, errorTriggerMode, successCreateTrigger, waitingMessage, errorNoRecipient, errorMessageConfig, errorMidiaEmpty } from "../../../Components/Toastify";
 import api from "../../../utils/api";
 import { ToastContainer } from "react-toastify";
 import './index.css'
@@ -26,7 +26,7 @@ export function Accordion() {
 
     const history = useNavigate();
     function BackToList() {
-        history(`/template-list?bot_id=${botId}`);
+        history(`/trigger-list?bot_id=${botId}`);
     }
 
     const [accordionState, setAccordionState] = useState<AccordionState>({
@@ -106,6 +106,10 @@ export function Accordion() {
         let duplicatedPhone = false;
         if(clientNumber===""){
             errorPhoneEmpty()
+            return;
+        }
+        if(urlMidia==="") {
+            errorMidiaEmpty()
             return;
         }
         variables.forEach(variable => {
@@ -513,9 +517,7 @@ export function Accordion() {
                 <div className="body-no-background" style={{width:"100%"}}>
                 <div  className="accordeon-new" style={{width:"90%", padding:"0px 15px"}}>
                     <div style={{ width: "90%", display:"flex", flexDirection:"column", textAlign: "left" }}>
-                        <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
-                            <span style={{ fontSize: "14px" }}>Adicione os contatos que receberão as mensagens. Você pode importar uma lista ou adicionar manualmente.</span>
-                        </div>
+                            <span style={{ fontSize: "14px", paddingTop:"14px" }}>Adicione os contatos que receberão as mensagens. Você pode importar uma lista ou adicionar manualmente.</span>
                         <div style={{marginTop:"17px", marginBottom:"12px", flexDirection:"column"}}>
                             <div style={{marginBottom:"-7px"}}>
                                 <input 
@@ -591,7 +593,7 @@ export function Accordion() {
                                 {headerConfig !== "text" && headerConfig !== null &&
                                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
                                         <span className="span-title">Link {headerConfig === "document" ? "documento" : headerConfig === "image" ? "imagem" : "video"}</span>
-                                        <input className="input-values" value={urlMidia} onChange={e => setURLMidia(e.target.value)} />
+                                        <input className="input-values" value={urlMidia.replace(/\s+/g, '')} onChange={e => setURLMidia(e.target.value.replace(/\s+/g, ''))} />
                                     </div>
                                 }
                                 {qtButtons > 0 &&

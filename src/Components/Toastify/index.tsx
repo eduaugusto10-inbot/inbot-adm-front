@@ -43,6 +43,9 @@ export const errorSheets = () => toast.error("Coluna telefone não esta correta"
 export const errorPhoneEmpty = () => toast.error("Telefone não pode ser vazio", {
     theme: "colored"
 });
+export const errorMidiaEmpty = () => toast.error("Link não pode ser vazio", {
+    theme: "colored"
+});
 export const errorEmptyVariable = () => toast.error("Variável não pode ser vazio", {
     theme: "colored"
 });

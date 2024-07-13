@@ -31,6 +31,7 @@ export function ListAll() {
     const [token, setToken] = useState<string>('')
     const [sortType, setSortType] = useState<string>("")
     const [sortOrder, setOrderSort] = useState<string>("")
+    const [buttonsDuplicated, setButtonsDuplicated] = useState<any>()
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -149,6 +150,7 @@ export function ListAll() {
         let buttons = 0;
         headerElement.forEach((element: any) => {
             if (element.type === "button") {
+                setButtonsDuplicated(element.parameters)
                 if (element.parameters[0].type === "quickReply") {
                     buttons = element.parameters.length;
                 }
@@ -195,8 +197,10 @@ export function ListAll() {
                 variableQuantity: variableQuantity, 
                 urlLogo: "", 
                 phone: phone, 
+                category:templates[id].category,
                 headerConfig: hasMedia(templates[id].components), 
                 qtButtons: hasManyButtons(templates[id].components),
+                buttons: buttonsDuplicated,
                 bodyText: bodyText
             } 
         });

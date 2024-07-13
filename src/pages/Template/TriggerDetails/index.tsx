@@ -17,6 +17,8 @@ export function TriggerDetails() {
     const [waiting, setWaiting] = useState<number>(0)
     const [send, setSend] = useState<number>(0)
     const [erro, setErro] = useState<number>(0)
+    const [engagements, setEngagements] = useState<number>(0)
+    const [notEngagements, setNotEngagements] = useState<number>(0)
     const [filters, setFilters] = useState<Filters>({
         telefone: '',
         variable_1: '',
@@ -55,15 +57,35 @@ export function TriggerDetails() {
             },
         ],
     };
+    const dataEngagement = {
+        labels: ["Engajado", "Não engajado"],
+        datasets: [
+            {
+                label: 'Quantidade',
+                data: [engagements, notEngagements],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                ],
+                borderWidth: 1,
+            },
+        ],
+    };
 
 
     useEffect(() => {
         api.get(`/whats-customer/${triggerId}`)
             .then(resp => {
                 setCustomerStatus(resp.data.data)
+                console.log(resp.data.data)
                 let aguardando = 0;
                 let erro = 0;
                 let enviado = 0;
+                let totalEngagement = 0;
                 for (let i = 0; i < resp.data.data.length; i++) {
                     if (resp.data.data[i].status === "enviado") {
                         enviado++;
@@ -72,10 +94,16 @@ export function TriggerDetails() {
                     } else {
                         aguardando++;
                     }
+                    if(resp.data.data[i].engagement!==null) {
+                        totalEngagement++;
+                    }
                 }
                 setWaiting(aguardando);
                 setErro(erro);
                 setSend(enviado);
+                const total = aguardando + erro + enviado;
+                setEngagements(totalEngagement)
+                setNotEngagements(total - totalEngagement)
             })
             .catch(error => console.log(error))
     }, [])
@@ -177,13 +205,11 @@ export function TriggerDetails() {
                                 <span style={{ color: "#002080" }}>Telefone</span><input className="input-filters" type="text" value={filters.telefone} onChange={handleTelefoneChange} placeholder="Digite o telefone..." />
                                 <span style={{ color: "#002080" }}>Variável 1</span><input className="input-filters" type="text" value={filters.variable_1} onChange={handleVariable1Change} placeholder="Digite valor..." />
                                 <span style={{ color: "#002080" }}>Variável 2</span><input className="input-filters" type="text" value={filters.variable_2} onChange={handleVariable2Change} placeholder="Digite valor..." />
-                            </div>
-                            <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
                                 <span style={{ color: "#002080" }}>Variável 3</span><input className="input-filters" type="text" value={filters.variable_3} onChange={handleVariable3Change} placeholder="Digite valor..." />
                                 <span style={{ color: "#002080" }}>Variável 4</span><input className="input-filters" type="text" value={filters.variable_4} onChange={handleVariable4Change} placeholder="Digite valor..." />
-                                <span style={{ color: "#002080" }}>Variável 5</span><input className="input-filters" type="text" value={filters.variable_5} onChange={handleVariable5Change} placeholder="Digite valor..." />
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
+                                <span style={{ color: "#002080" }}>Variável 5</span><input className="input-filters" type="text" value={filters.variable_5} onChange={handleVariable5Change} placeholder="Digite valor..." />
                                 <span style={{ color: "#002080" }}>Variável 6</span><input className="input-filters" type="text" value={filters.variable_6} onChange={handleVariable6Change} placeholder="Digite valor..." />
                                 <span style={{ color: "#002080" }}>Variável 7</span><input className="input-filters" type="text" value={filters.variable_7} onChange={handleVariable7Change} placeholder="Digite valor..." />
                                 <span style={{ color: "#002080" }}>Variável 8</span><input className="input-filters" type="text" value={filters.variable_8} onChange={handleVariable8Change} placeholder="Digite valor..." />
@@ -194,9 +220,13 @@ export function TriggerDetails() {
                         <span style={{ fontWeight: "bolder", color: "#002080" }}>Resumo do Disparo</span>
                         <Pie data={dataPie} />
                     </div>
+                    <div style={{ width: "250px", backgroundColor: "#F0F0F0", height: "300px", border: "1px solid #ccc", margin: "20px", borderRadius: "20px" }}>
+                        <span style={{ fontWeight: "bolder", color: "#002080" }}>Engajamento</span>
+                        <Pie data={dataEngagement} />
+                    </div>
                 </div>
-                <div style={{ display:"flex",flexDirection:"column" }}>
-                <table className="table-2024 fixed-header-table" style={{minWidth:"90%"}}>
+                <div className="column-align" style={{ padding:"20px" }}>
+                <table className="table-2024 fixed-header-table" style={{ minWidth: "90%" }}>
                     <thead>
                         <tr className="cells table-2024 border-bottom-zero font-size-12">
                             <th className="cells">Telefone</th>

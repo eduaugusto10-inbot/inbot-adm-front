@@ -9,7 +9,7 @@ import api from "../../../utils/api";
 import { ToastContainer } from "react-toastify";
 import whatsappBackground from '../../../img/background_1.png';
 import './index.css'
-import minus from '../../../img/minus.png';
+import attached from '../../../img/attachment.png'
 import Alert from "../../../Components/Alert";
 import { AccordionStateCreate, ButtonQR, IButton, IFooter, IHeader, IObject, ITemplate, IVariables, templateValue } from "../../types";
 import { mask } from "../../../utils/utils";
@@ -77,11 +77,24 @@ export function CreateTemplateAccordion() {
     }, []);
     useEffect(() => {
         if(location?.state?.duplicated){
+            location.state.duplicated = false
             setTemplate(prevState => ({
                 ...prevState,
                 "body": location?.state?.bodyText,
             }));
             console.log(location?.state)
+            const totalVariable = location.state.variableQuantity;
+            setTemplateType(location?.state?.category)
+            for(let i=0;i<totalVariable;i++) {
+                if (variables.length < 8) {
+                    const newVariables: IVariables = {
+                        id: Date.now(),
+                        value: `${variables.length + 1}`,
+                        text: ""
+                    };
+                    setVariables(prevVariables => [...prevVariables, newVariables]);
+                }
+            }
         }
     }, []);
 
@@ -435,6 +448,7 @@ export function CreateTemplateAccordion() {
         }
     };
     const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
+
         const imagemSelecionada = event.target.files?.[0];
         console.log(event.target.files?.[0].name)
         if (imagemSelecionada) {
@@ -757,7 +771,7 @@ export function CreateTemplateAccordion() {
                     <div className="texts">
                         {typeOfHeader === "text" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{template.header}</label>}
                         {typeOfHeader === "image" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={midia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
-                        {typeOfHeader === "document" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={midia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
+                        {typeOfHeader === "document" && <div className="column-align" style={{padding:"10px"}}><label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={attached} style={{ maxWidth: '100%', maxHeight: '200px', border:"1px solid #c3c3c3", borderRadius:"8px"}} alt="" /></label></div>}
                         {typeOfHeader === "video" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><video width="160" height="120" controls><source src={midia} type="video/mp4" /></video></label>}
                         {<label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {handleChangeText(template.body).length > 256 ? handleChangeText(template.body).slice(0,256)+"...veja mais" : handleChangeText(template.body)}</label>}
                         {<label className="footer font-size-12" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{template.footer}</label>}
