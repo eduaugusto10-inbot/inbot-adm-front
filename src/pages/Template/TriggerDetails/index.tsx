@@ -226,7 +226,7 @@ export function TriggerDetails() {
                     </div>
                 </div>
                 <div className="column-align" style={{ padding:"20px" }}>
-                <table className="table-2024 fixed-header-table" style={{ minWidth: "90%" }}>
+                <table className="table-2024 fixed-header-table" style={{ minWidth: "90%",flexShrink: "0" }}>
                     <thead>
                         <tr className="cells table-2024 border-bottom-zero font-size-12">
                             <th className="cells">Telefone</th>

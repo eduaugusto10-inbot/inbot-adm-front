@@ -17,16 +17,29 @@ export function TriggerList() {
     }
     
     var botId = searchParams.get('bot_id') ?? "0";
-
+    const now = new Date();
     const [triggerList, setTriggerList] = useState<ITriggerList[]>([])
     const [hoveredRowMenu, setHoveredRowMenu] = useState<number | null>(null);
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [selectedRow, setSelectedRow] = useState<number | null>(null);
     const [filtro, setFiltro] = useState<string>('');
+    const [dataTreat, setDataTreat] = useState<any>(triggerList)
+    const [isCustomFields, setIsCustomFields] = useState(false)
     const menuRef = useRef<HTMLDivElement>(null);
     const [sortType, setSortType] = useState<string>("")
     const [sortOrder, setOrderSort] = useState<string>("")
+    const [changeDateFilter, setChangeDateFilter] = useState<boolean>(false)
+    const [initDate, setInitDate] = useState({
+        day: 1,
+        month: 1,
+        year: 2024
+    })
+    const [finalDate, setFinalDate] = useState({
+        day: now.getDate(),
+        month: now.getMonth() + 1,
+        year: now.getFullYear()
+    })
     const [filters, setFilters] = useState<ITriggerListFilter>({
         campaign_name: '',
         template_name: '',
@@ -60,27 +73,32 @@ export function TriggerList() {
         };
     }, []);
 
-    let dadosFiltrados = triggerList.filter(trigger => {
-        
-        if (trigger.template_name !== null && filtro !== '' && !trigger.template_name.toLowerCase().includes(filtro.toLowerCase()) 
-        && (trigger.campaign_name !== null && filtro !== '' && !trigger.campaign_name.toLowerCase().includes(filtro.toLowerCase()))){
-            return false;
-        }
-
-        if (
-            (filters.status.aguardando && trigger.status === 'aguardando') ||
-            (filters.status.enviado && trigger.status === 'enviado') ||
-            (filters.status.erro && trigger.status === 'erro')
-        ) {
-            return true;
-        }
-
+    const filtersByStatus = () => {
+        const dadosFiltrados = triggerList.filter((trigger: any) => { 
+    
+            if (trigger.template_name !== null && filtro !== '' && !trigger.template_name.toLowerCase().includes(filtro.toLowerCase()) 
+            && (trigger.campaign_name !== null && filtro !== '' && !trigger.campaign_name.toLowerCase().includes(filtro.toLowerCase()))){
+                return false;
+            }
+    
+            if (
+                (filters.status.aguardando && trigger.status === 'aguardando') ||
+                (filters.status.enviado && trigger.status === 'enviado') ||
+                (filters.status.erro && trigger.status === 'erro')
+            ) {
+                return true;
+            }
+    
             return false;
         });
+    
+        setDataTreat(filterByDate(dadosFiltrados))
+    };
 
-        const handleInitSort = (value: string, orderBy: string) => {
+        const handleInitSort = (value: string, orderBy: string, isCustomFields: boolean) => {
             setSortType(value)
             setOrderSort(orderBy)
+            setIsCustomFields(isCustomFields)
         }
         const handleSort = (outrosDadosFiltrados: any) => {
 
@@ -88,24 +106,54 @@ export function TriggerList() {
                 if(sortType === ""){
                     return sortedItems;
                 }
-                if (sortOrder === "asc") {
-                    sortedItems.sort((a, b) => {
-                      const valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : 'Z';
-                      const valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : 'Z';
-                      return valorA.localeCompare(valorB);
-                    });
-                  } else if (sortOrder === "desc") {
-                    sortedItems.sort((a, b) => {
-                      const valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : 'Z';
-                      const valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : 'Z';
-                      return valorB.localeCompare(valorA);
-                    });
+                if(sortType==="total" || sortType==="erro" || sortType==="enviado") {
+                    if (sortOrder === "asc") {
+                        sortedItems.sort((a, b) => {
+                        const valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : Infinity;
+                        const valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : Infinity;
+                        return valorA - valorB;
+                        });
+                    } else if (sortOrder === "desc") {
+                        sortedItems.sort((a, b) => {
+                        const valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : Infinity;
+                        const valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : Infinity;
+                        return valorB - valorA;
+                        });
+                    }
+                } else {
+                    if (sortOrder === "asc") {
+                        sortedItems.sort((a, b) => {
+                        const valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : 'Z';
+                        const valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : 'Z';
+                        return valorA.localeCompare(valorB);
+                        });
+                    } else if (sortOrder === "desc") {
+                        sortedItems.sort((a, b) => {
+                        const valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : 'Z';
+                        const valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : 'Z';
+                        return valorB.localeCompare(valorA);
+                        });
+                    }                    
                 }
                 return sortedItems
         }
 
+        const filterByDate = (values: any) => {
+            const dadosFiltrados = values.filter((trigger: any) => {
+                const triggerDate = new Date(trigger.data_criacao);
+
+                const dataInicial = new Date(initDate.year, initDate.month - 1, initDate.day,0,0,0);
+                const dataFinal = new Date(finalDate.year, finalDate.month - 1, finalDate.day,23,59,59);
+    
+                return triggerDate >= dataInicial && triggerDate <= dataFinal;
+            });
+            return dadosFiltrados;
+            
+        };
+
       const handleFiltroChange = (e: ChangeEvent<HTMLInputElement>) => {
         setFiltro(e.target.value);
+        setChangeDateFilter(previous => !previous)
       };
 
     const handleOptionClick = (index: number, event: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
@@ -130,6 +178,7 @@ export function TriggerList() {
         api.get(`/whatsapp/trigger-bot/${botId}`)
             .then(resp => {
                 setTriggerList(resp.data.data)
+                setDataTreat(resp.data.data)
             })
     }, []);
 
@@ -182,7 +231,12 @@ export function TriggerList() {
                 [statusKey]: !filters.status[statusKey],
             },
         });
+        setChangeDateFilter(previous => !previous)
     };
+
+    useEffect(() => {
+        filtersByStatus()
+    },[changeDateFilter])
 
     return (
         <div style={{width:"95%", padding:"10px 0px"}}>
@@ -199,43 +253,43 @@ export function TriggerList() {
                     </button>
                 </div>
                 <div className="column" style={{ margin: "20px", borderRadius: "20px" }}>
-                <div style={{ display:"flex", flexDirection:"column", fontWeight: "bolder", margin: "20px", borderRadius: "20px" }}>
-                <div style={{margin:"10px 20px", textAlign:"left"}}>
+                <div style={{ display:"flex", flexDirection:"column", fontWeight: "bolder", borderRadius: "20px" }}>
+            <div style={{margin:"10px 0px", textAlign:"left"}}>
             <span style={{ color: "#002080", fontWeight:"bolder" }}>Data de criação: </span>
-            <select name="" id="" className="input-values litle-input" >
+            <select value={initDate.day} onChange={e => setInitDate(prevState => ({...prevState,day: Number(e.target.value) }))} className="input-values litle-input" >
                 {[...Array(31).keys()].map(i => (
                     <option key={i+1} value={(i+1).toString()}>{i+1}</option>
                 ))}
             </select>
-            <select name="" id="" className="input-values litle-input" >
-                {months.map(month =>(
-                    <option value="">{month}</option>
+            <select value={initDate.month} onChange={e => setInitDate(prevState => ({...prevState,month: Number(e.target.value) }))} className="input-values litle-input" >
+                {months.map((month, key) =>(
+                    <option value={key+1}>{month}</option>
                 ))}
             </select>
-            <select name="" id="" className="input-values litle-input" >
+            <select value={initDate.year} onChange={e => setInitDate(prevState => ({...prevState,year: Number(e.target.value) }))} className="input-values litle-input" >
                 {years.map(year=>(
-                    <option value="">{year}</option>
+                    <option value={year}>{year}</option>
                 ))}
             </select>
             <span style={{ color: "#002080", fontWeight:"bolder", margin:"0px 10px 0px 10px" }}>até</span>
-            <select name="" id="" className="input-values litle-input" >
+            <select value={finalDate.day} onChange={e => setFinalDate(prevState => ({...prevState,day: Number(e.target.value) }))} className="input-values litle-input" >
                 {[...Array(31).keys()].map(i => (
                     <option key={i+1} value={(i+1).toString()}>{i+1}</option>
                 ))}
             </select>
-            <select name="" id="" className="input-values litle-input" >
-                {months.map(month =>(
-                    <option value="">{month}</option>
+            <select value={finalDate.month} onChange={e => setFinalDate(prevState => ({...prevState,month: Number(e.target.value) }))} className="input-values litle-input" >
+                {months.map((month, key) =>(
+                    <option value={key+1}>{month}</option>
                 ))}
             </select>
-            <select name="" id="" className="input-values litle-input" >
+            <select value={finalDate.year} onChange={e => setFinalDate(prevState => ({...prevState,year: Number(e.target.value) }))} className="input-values litle-input" >
                 {years.map(year=>(
-                    <option value="">{year}</option>
+                    <option value={year}>{year}</option>
                 ))}
             </select>
-            <button className="button-blue">Buscar</button>
+            <button onClick={()=>setChangeDateFilter(previous => !previous)} className="button-blue">Buscar</button>
         </div>
-                    <div style={{ display: "flex", flexDirection: "column", width:"100%", margin: "10px 0px 0px 20px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", width:"100%", margin: "10px 0px" }}>
                         <div className="row-align" style={{marginBottom:"30px", alignItems:"center"}}>
                             <span style={{ color: "#002080", fontWeight:"bolder" }}>Status: </span>
                             <div className={filters.status.aguardando ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer", marginLeft:"20px"}} onClick={()=>""}><span className={filters.status.aguardando ? "number_button_gradient" : "number_button_gradient-gray"} style={{width: "100px",height:"30px",fontSize:"14px", borderRadius: "7px"}} onClick={() => handleStatusChange('aguardando')}>Aguardando</span></div>
@@ -249,19 +303,19 @@ export function TriggerList() {
                 <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF"}}>
                     <thead>
                         <tr className="cells table-2024 border-bottom-zero">
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Nome</span> <div><div className="triangle-up" onClick={()=>handleInitSort("campaign_name","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("campaign_name","desc")}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Template</span> <div><div className="triangle-up" onClick={()=>handleInitSort("template_name","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("template_name","desc")}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data criação</span> <div><div className="triangle-up" onClick={()=>handleInitSort("data_criacao","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("data_criacao","desc")}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data de envio</span> <div><div className="triangle-up" onClick={()=>handleInitSort("time_trigger","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("time-trigger","desc")}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Status</span> <div><div className="triangle-up" onClick={()=>handleInitSort("status","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("status","desc")}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total da campanha</span> <div><div className="triangle-up" onClick={()=>handleInitSort("status","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("status","desc")}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de Sucesso</span> <div><div className="triangle-up" onClick={()=>handleInitSort("status","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("status","desc")}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de Erro</span> <div><div className="triangle-up" onClick={()=>handleInitSort("status","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("status","desc")}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Nome</span> <div><div className="triangle-up" onClick={()=>handleInitSort("campaign_name","asc",false)}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("campaign_name","desc",false)}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Template</span> <div><div className="triangle-up" onClick={()=>handleInitSort("template_name","asc",false)}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("template_name","desc",false)}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data criação</span> <div><div className="triangle-up" onClick={()=>handleInitSort("data_criacao","asc",false)}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("data_criacao","desc",false)}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data de envio</span> <div><div className="triangle-up" onClick={()=>handleInitSort("time_trigger","asc",false)}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("time-trigger","desc",false)}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Status</span> <div><div className="triangle-up" onClick={()=>handleInitSort("status","asc",false)}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("status","desc",false)}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total da campanha</span> <div><div className="triangle-up" onClick={()=>handleInitSort("total","asc",false)}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("total","desc",false)}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de Sucesso</span> <div><div className="triangle-up" onClick={()=>handleInitSort("enviado","asc",false)}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("enviado","desc",false)}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de Erro</span> <div><div className="triangle-up" onClick={()=>handleInitSort("erro","asc",false)}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc",false)}></div></div></div></th>
                             <th className="cells">Opções</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {handleSort(dadosFiltrados).map((trigger, index) => (
+                        {handleSort(dataTreat).map((trigger: any, index: number) => (
                             <React.Fragment key={index}>
                                 <tr
                                     key={index}
