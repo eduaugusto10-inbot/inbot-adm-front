@@ -32,16 +32,16 @@ export default function Modal(props: ModalType) {
             {props.isOpen && (
                 <div ref={props.modalRef} className="modal-overlay" onClick={clickOutModal}>
                     <div onClick={(e) => e.stopPropagation()} className="modal-box">
-                        <div style={{width:"100%", textAlign:"end"}}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", width: "100%" }}>
+                            <h4 style={{ paddingBottom: "12px", color: "#0d5388" }}>{props.question}</h4>
                             <span 
                                 onClick={() => handleButtonClick(props.buttonA)}
-                                style={{color:"#a06060", fontWeight:"bolder", cursor:"pointer"}}>X</span>
+                                style={{ color: "#a06060", fontWeight: "bolder", cursor: "pointer", justifySelf: "end" }}>X</span>
                         </div>
-                        <div className="column-align" style={{ height:"100%" }}>
-                            <h4 style={{ paddingBottom:"20px", color:"#0d5388" }}>{props.question}</h4>
+                        <div className="column-align">
                             <span></span>
                             <span style={{ color:"#0d5388", fontWeight:"bold" }}>Essa ação não poderá ser desfeita.</span>
-                            <div style={{ marginTop: "auto", display: "flex", justifyContent: "center", marginBottom: "10px" }}>
+                            <div style={{ marginTop: "30px", display: "flex", justifyContent: "center" }}>
                                 <button onClick={() => handleButtonClickSave(props.buttonB)} style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: loading ? "#c3c3c3" : "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }} disabled={loading} >{loading ? <div className="in_loader"></div> : props.buttonB}</button>
                             </div>
                         </div>

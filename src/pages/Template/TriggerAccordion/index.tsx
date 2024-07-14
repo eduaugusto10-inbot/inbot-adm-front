@@ -457,7 +457,6 @@ export function Accordion() {
 
     const sheetsVariables = () => {
         let total = 0;
-        console.log("Eduardo")
         console.log(fileData[1])
         if(fileData[1]===undefined){
             return total -1;

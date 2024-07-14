@@ -466,7 +466,7 @@ export function CreateTemplateAccordion() {
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Criar Template</h1>
                 <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
                 <br/>
-            <div style={{width:"900px"}}>
+            <div style={{width:"100vw"}}>
                 <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
                 <ToastContainer />
                 <div className="config-template column-align" style={{ alignItems:"center" }}>
@@ -474,7 +474,7 @@ export function CreateTemplateAccordion() {
                     <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.config ?"-90deg" : "90deg"}} /></div>
                     </div>
                     {accordionState.config &&
-                    <div className="column accordeon-new" >
+                    <div className="column accordeon-new" style={{width:"800px"}} >
                         <div className="row-align" style={{ textAlign: "left", backgroundColor: "#FFF", width: "100%" }}>
                             <div className="input" style={{ justifyContent: "center"}}>
                                 <div className="row-align" style={{ margin: "10px" }}>
@@ -542,7 +542,7 @@ export function CreateTemplateAccordion() {
                     <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.header ?"-90deg" : "90deg"}} /></div>
                     </div>
                     {accordionState.header && 
-                    <div className="body accordeon-new" style={{width:"90%", backgroundColor: "#FFF"}}>
+                    <div className="body accordeon-new" style={{ backgroundColor: "#FFF"}}>
                         <div className="radio row-align ">
                             <div className="row-align" onChange={headerRadio}><input type="radio" value="text" name="header" checked={typeOfHeader === 'text'} /><span className="padding-5">Texto</span></div>
                             <div className="row-align" onChange={headerRadio}><input type="radio" value="image" name="header" checked={typeOfHeader === 'image'} /><span className="padding-5">Imagem</span></div>
@@ -610,7 +610,7 @@ export function CreateTemplateAccordion() {
                     <div className={`accordion_head ${accordionState.body ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('body')}>3. Corpo da Mensagem
                     <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.body ?"-90deg" : "90deg"}} /></div>
                     </div>
-                    {accordionState.body && <div className="body accordeon-new" style={{width:"90%", backgroundColor: "#FFF"}}>
+                    {accordionState.body && <div className="body accordeon-new" style={{ backgroundColor: "#FFF"}}>
                         <div className="column-align" style={{ width: "100%", textAlign: "initial", paddingLeft: "20px", backgroundColor: "#FFF" }}>
                             <span className="title-blue bolder" style={{marginTop:"10px"}}>Corpo da Mensagem</span>
                             <span style={{ fontSize: "11px", marginBottom: "20px", fontStyle: "italic" }}>Este é o principal conteúdo de texto no seu template.</span>
@@ -654,7 +654,7 @@ export function CreateTemplateAccordion() {
                     <div className={`accordion_head ${accordionState.footer ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('footer')}>4. Rodapé
                     <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.footer ?"-90deg" : "90deg"}} /></div>
                     </div>
-                    {accordionState.footer && <div className="body accordeon-new" style={{width:"90%", backgroundColor: "#FFF"}}>
+                    {accordionState.footer && <div className="body accordeon-new" style={{ backgroundColor: "#FFF"}}>
                         <div style={{ display: "flex", flexDirection: "column", width: "100%", alignItems:"center", backgroundColor: "#FFF" }}>
                             <div className="radio row-align">
                                 <div className="row-align" onChange={rodapeRadio}><input type="radio" name="Texto" value="rodape" checked={rodapeType === 'rodape'} /><span className="padding-5">Texto</span></div>
