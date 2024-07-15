@@ -108,7 +108,9 @@ export function Accordion() {
             errorPhoneEmpty()
             return;
         }
-        if(urlMidia==="") {
+        const itemsToCheck = ["document", "image", "video"];
+        const hasItem = itemsToCheck.some(item => headerConfig?.includes(item));
+        if(urlMidia==="" && hasItem) {
             errorMidiaEmpty()
             return;
         }
