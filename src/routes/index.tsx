@@ -9,6 +9,7 @@ import TriggerList from "../pages/Template/TriggerList"
 import TriggerDetails from "../pages/Template/TriggerDetails"
 import UserManagerList from "../pages/UserManager/UserManagerList"
 import Configuration from "../pages/UserManager/Configuration"
+import WarningNoWhats from "../pages/Template/WarningNoWhats"
 
 const Router = () => (
     <HashRouter>
@@ -17,6 +18,7 @@ const Router = () => (
             <Route path='/change' element={<ChangeDeleteNumber />} />
             <Route path='/template-create' element={<CreateTemplateAccordion />} />
             <Route path='/template-list' element={<ListAll />} />
+            <Route path='/template-warning-no-whats' element={<WarningNoWhats />} />
             <Route path='/trigger-list' element={<TriggerList />} />
             <Route path='/template-trigger' element={<Accordion />} />
             <Route path="/trigger-details" element={<TriggerDetails />} />

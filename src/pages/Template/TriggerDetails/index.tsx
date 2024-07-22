@@ -34,6 +34,7 @@ export function TriggerDetails() {
             aguardando: true,
             enviado: true,
             erro: true,
+            cancelado: true,
         }
     });
 
@@ -188,7 +189,9 @@ export function TriggerDetails() {
             <ToastContainer />
             <div>
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width:"100%" }} className="title_2024">Detalhes da Campanha</h1>
-                <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
+                <div className="column-align" style={{alignItems:"center"}}>
+                    <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
+                </div>
                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                     <div style={{ fontWeight: "bolder", height: "250px", margin: "20px" }}>
                         <span style={{ color: "#002080" }}>Filtros</span>

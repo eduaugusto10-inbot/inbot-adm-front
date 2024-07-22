@@ -13,6 +13,9 @@ import useModal from "../../../Components/Modal/useModal";
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 import chevron from '../../../img/right-chevron.png'
+import info from "../../../img/circle-info-solid.svg"
+import 'react-tooltip/dist/react-tooltip.css'
+import { Tooltip } from 'react-tooltip'
 
 export function Accordion() {
 
@@ -110,6 +113,7 @@ export function Accordion() {
         }
         const itemsToCheck = ["document", "image", "video"];
         const hasItem = itemsToCheck.some(item => headerConfig?.includes(item));
+        console.log(hasItem)
         if(urlMidia==="" && hasItem) {
             errorMidiaEmpty()
             return;
@@ -517,7 +521,7 @@ export function Accordion() {
                 {accordionState.recebidores && 
                 <div className="body-no-background" style={{width:"100%"}}>
                 <div  className="accordeon-new" style={{width:"90%", padding:"0px 15px"}}>
-                    <div style={{ width: "90%", display:"flex", flexDirection:"column", textAlign: "left" }}>
+                    <div style={{ width: "100%", display:"flex", flexDirection:"column", textAlign: "left" }}>
                             <span style={{ fontSize: "14px", paddingTop:"14px" }}>Adicione os contatos que receberão as mensagens. Você pode importar uma lista ou adicionar manualmente.</span>
                         <div style={{marginTop:"17px", marginBottom:"12px", flexDirection:"column"}}>
                             <div style={{marginBottom:"-7px"}}>
@@ -563,7 +567,7 @@ export function Accordion() {
                                         setClientNumber(newValueNR)
                                     }}
                                     inputStyle={{
-                                        width: "250px",
+                                        width: "212px",
                                         height: "30px",
                                         border: "1px solid #A8A8A8",
                                         marginLeft: "5px",
@@ -575,22 +579,21 @@ export function Accordion() {
                             </div>
                             <div style={{ display: "flex", flexDirection: "column" }}>
                             {variables.length > 0 && 
-                            <>
-                                <span className="span-title" style={{ marginTop: "10px", height: "50px" }}>Variáveis</span>
-                                <div style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(2, 1fr)',
-                                    gridTemplateRows: 'repeat(4, auto)',
-                                    gap: '10px'
-                                }}>                                        
+                            
+                                
+                                <div style={{textAlign:"left"}}>                                        
                                     {variables.map((variable, index) => (
-                                        <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", margin: "10px" }}>
-                                            <span className="span-title-variables" >{index + 1}.  </span> <input value={variable.text} type="text" name={variable.id.toString()} id="" onChange={handleInputVariable} className="input-values" />
+                                        <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
+                                            <span className="span-title">Variáveis {index + 1}</span><input value={variable.text} type="text" name={variable.id.toString()} id="" onChange={handleInputVariable} className="input-values" />
+                                            <a style={{alignContent:"center"}}  data-tooltip-id="no-emoji" data-tooltip-html="Você deverá preencher a variáveL para que não ocorra erro no envio">
+                                                <img src={info} width={15} height={15} alt="alerta"/>
+                                            </a>
+                                        <Tooltip id="no-emoji" />
                                         </div>
 
                                     ))
                                     }
-                                </div></>}
+                                </div>}
                                 {headerConfig !== "text" && headerConfig !== null &&
                                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
                                         <span className="span-title">Link {headerConfig === "document" ? "documento" : headerConfig === "image" ? "imagem" : "video"}</span>
@@ -601,18 +604,30 @@ export function Accordion() {
                                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
                                         <span className="span-title">Payload 1</span>
                                         <input className="input-values" value={payload1} onChange={e => setPayload1(e.target.value)} />
+                                        <a style={{alignContent:"center"}} data-tooltip-id="no-emoji" data-tooltip-html="Payload não podem ser iguais!">
+                                                <img src={info} width={15} height={15} alt="alerta" />
+                                            </a>
+                                            <Tooltip id="no-emoji" />
                                     </div>
                                 }
                                 {qtButtons > 1 &&
                                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
                                         <span className="span-title">Payload 2</span>
                                         <input className="input-values" value={payload2} onChange={e => setPayload2(e.target.value)} />
+                                        <a style={{alignContent:"center"}}  data-tooltip-id="no-emoji" data-tooltip-html="Payload não podem ser iguais!">
+                                                <img src={info} width={15} height={15} alt="alerta"/>
+                                            </a>
+                                            <Tooltip id="no-emoji" />
                                     </div>
                                 }
                                 {qtButtons > 2 &&
                                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
                                         <span className="span-title">Payload</span>
                                         <input className="input-values" value={payload3} onChange={e => setPayload3(e.target.value)} />
+                                        <a style={{alignContent:"center"}}  data-tooltip-id="no-emoji" data-tooltip-html="Payload não podem ser iguais!">
+                                                <img src={info} width={15} height={15} alt="alerta"/>
+                                            </a>
+                                        <Tooltip id="no-emoji" />
                                     </div>
                                 }
                                 <div style={{width:"100%", textAlign:"end", paddingRight:"10px", paddingBottom:"20px"}}>
@@ -653,7 +668,7 @@ export function Accordion() {
                                     </tbody>
                                 </table>
                             </div>
-                            <Alert message={"Você deverá preencher as variáveis para que não ocorra erro no envio"} />
+                            {/* <Alert message={"Você deverá preencher as variáveis para que não ocorra erro no envio"} /> */}
                         </div>}
                     {typeClient &&
                         <div>                            

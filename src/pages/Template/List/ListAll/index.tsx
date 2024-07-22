@@ -245,7 +245,9 @@ export function ListAll() {
             <ToastContainer />
             <div>
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "100%" }} className="title_2024">Gerenciar Templates</h1>
-                <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
+                <div className="column-align" style={{alignItems:"center"}}>
+                    <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
+                </div>
                 <div style={{margin:"20px"}}>
                     <input onChange={handleFiltroChange} value={filtro} type="text" style={{borderRight:"none", width:"300px", borderRadius:"20px 0px 0px 20px", paddingLeft:"20px"}} placeholder="Buscar por nome ou template"/>
                     <button style={{borderLeft:"none", borderRadius:"0px 20px 20px 0px", width:"50px"}}>
@@ -256,7 +258,7 @@ export function ListAll() {
                 <table className="table-2024 fixed-header-table" style={{textAlign:"left"}}>
                     <thead>
                         <tr className="cells table-2024 border-bottom-zero">
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Nome do template</span> <div><div className="triangle-up" onClick={()=>handleInitSort("name","asc")}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("name","desc")}></div></div></div></th>
+                            <th className="cells" style={{width:"100px"}}><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Nome do template</span> <div><div className="triangle-up" onClick={()=>handleInitSort("name","asc")}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("name","desc")}></div></div></div></th>
                             <th className="cells" style={{textAlign:"center"}}><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Status</span> <div><div className="triangle-up" onClick={()=>handleInitSort("status","asc")}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("status","desc")}></div></div></div></th>
                             <th className="cells" style={{textAlign:"center"}}><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Categoria</span> <div><div className="triangle-up" onClick={()=>handleInitSort("category","asc")}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("category","desc")}></div></div></div></th>
                             <th className="cells" style={{textAlign:"center"}}><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Idioma</span> <div><div className="triangle-up" onClick={()=>handleInitSort("language","asc")}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("language","desc")}></div></div></div></th>
@@ -271,8 +273,7 @@ export function ListAll() {
                                 onMouseEnter={() => handleMouseEnter(index)}
                                 onMouseLeave={handleMouseLeave}
                             >
-                                {/* <td className="cells"><span style={{ color: "blue", fontSize: "12px" }}>{template.ID}</span></td> */}
-                                <td><span>{template.name}</span></td>
+                                <td style={{width:"100px"}}><span>{template.name}</span></td>
                                 <td style={{textAlign:"center"}}><div style={{ borderRadius: "20px", padding: "7px" }}><span style={{ color: template.status === "APPROVED" ? "green" : template.status === "PENDING" ? "yellow" : "red" }}>{template.status === "APPROVED" ? "Aprovado" : template.status === "PENDING" ? "Pendente" : "Rejeitado"}</span></div></td>
                                 <td style={{textAlign:"center"}}><span>{template.category.toLowerCase()}</span></td>
                                 <td style={{textAlign:"center"}}><span>{template.language}</span></td>

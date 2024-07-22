@@ -32,7 +32,7 @@ export function TriggerList() {
     const [changeDateFilter, setChangeDateFilter] = useState<boolean>(false)
     const [initDate, setInitDate] = useState({
         day: 1,
-        month: 1,
+        month: now.getMonth() + 1,
         year: 2024
     })
     const [finalDate, setFinalDate] = useState({
@@ -50,6 +50,7 @@ export function TriggerList() {
             aguardando: true,
             enviado: true,
             erro: true,
+            cancelado: true,
         }
     });
     
@@ -84,7 +85,8 @@ export function TriggerList() {
             if (
                 (filters.status.aguardando && trigger.status === 'aguardando') ||
                 (filters.status.enviado && trigger.status === 'enviado') ||
-                (filters.status.erro && trigger.status === 'erro')
+                (filters.status.erro && trigger.status === 'erro') ||
+                (filters.status.cancelado && trigger.status === 'cancelado')
             ) {
                 return true;
             }
@@ -208,6 +210,8 @@ export function TriggerList() {
                 return "Enviado"
             case "aguardando":
                 return "Aguardando"
+            case "erro":
+                return "Erro"
             default:
                 return "Cancelado"
         }
@@ -217,7 +221,9 @@ export function TriggerList() {
             case "enviado":
                 return "green"
             case "aguardando":
-                return "yellow"
+                return "orange"
+            case "cancelado":
+                return "gray"
             default:
                 return "red"
         }
@@ -245,8 +251,10 @@ export function TriggerList() {
                 <div>
                     <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width:"100%" }} className="title_2024">Gerenciar Campanhas</h1>
                 </div>
-                <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
-                <div className="row" style={{margin:"20px", display:"flex", justifyContent:"flex-end", alignItems:"end"}}>
+                <div className="column-align" style={{alignItems:"center"}}>
+                    <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
+                </div>
+                <div className="row" style={{margin:"20px", display:"flex", alignItems:"end"}}>
                     <input onChange={handleFiltroChange} value={filtro} type="text" style={{borderRight:"none", width:"300px", borderRadius:"20px 0px 0px 20px", paddingLeft:"20px"}} placeholder="Buscar por nome ou template"/>
                     <button style={{borderLeft:"none", borderRadius:"0px 20px 20px 0px", width:"50px"}}>
                         <img src={loupe} alt="" width={20} height={20}/>
@@ -295,12 +303,16 @@ export function TriggerList() {
                             <div className={filters.status.aguardando ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer", marginLeft:"20px"}} onClick={()=>""}><span className={filters.status.aguardando ? "number_button_gradient" : "number_button_gradient-gray"} style={{width: "100px",height:"30px",fontSize:"14px", borderRadius: "7px"}} onClick={() => handleStatusChange('aguardando')}>Aguardando</span></div>
                             <div className={filters.status.enviado ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer"}} onClick={()=>""}><span className={filters.status.enviado ? "number_button_gradient" : "number_button_gradient-gray"} style={{width: "100px",height:"30px",fontSize:"14px", borderRadius: "7px"}} onClick={() => handleStatusChange('enviado')}>Enviado</span></div>
                             <div className={filters.status.erro ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer"}} onClick={()=>""}><span className={filters.status.erro ? "number_button_gradient" : "number_button_gradient-gray"} style={{width: "100px",height:"30px",fontSize:"14px", borderRadius: "7px"}} onClick={() => handleStatusChange('erro')}>Erro</span></div>
+                            <div className={filters.status.cancelado ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer"}} onClick={()=>""}><span className={filters.status.cancelado ? "number_button_gradient" : "number_button_gradient-gray"} style={{width: "100px",height:"30px",fontSize:"14px", borderRadius: "7px"}} onClick={() => handleStatusChange('cancelado')}>Cancelado</span></div>
                         </div>
                     </div>
                     </div>
                 </div>
                 <div>
-                <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF"}}>
+                <div style={{textAlign:"left"}}>
+                    <span style={{ color: "#002080", fontWeight:"bolder" }}>{dataTreat.length} resultados encontrados</span>
+                </div>
+                <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", marginTop:"12px"}}>
                     <thead>
                         <tr className="cells table-2024 border-bottom-zero">
                             <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Nome</span> <div><div className="triangle-up" onClick={()=>handleInitSort("campaign_name","asc",false)}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("campaign_name","desc",false)}></div></div></div></th>

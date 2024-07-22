@@ -202,7 +202,9 @@ const getDaysInMonth = (year: number, month: number): number => {
   return (
     <div className="width-95-perc" style={{backgroundColor:"#ebebeb", padding:"10px 100px 100px 100px"}}>
         <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Gestão de Usuários</h1>
-        <hr className="hr_color" />
+        <div className="column-align" style={{alignItems:"center"}}>
+            <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
+        </div>
         <div className="config-template" style={{width:"100%"}}>
         <div className="header-accordion gradient-background" style={{width:"100%", borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>Adicionar Usuários</div>      
         <div>
@@ -349,7 +351,9 @@ const getDaysInMonth = (year: number, month: number): number => {
                 <input name="" id="" className="input-values" style={{border:"none", height:"30px", width:"300px"}}/>
             </div>
         </div>
-        <hr className="hr_color" />
+        <div className="column-align" style={{alignItems:"center"}}>
+            <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
+        </div>
         <div className="row-align" style={{justifyContent: "space-between"}}>
             <span className="color-text-label font-size-12">{qtyCustomerCounter(qtyCustomer)}</span>
             <DownloadTableExcel

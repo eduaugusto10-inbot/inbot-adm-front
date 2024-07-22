@@ -56,7 +56,9 @@ export function Configuration(){
         <div className="width-95-perc" style={{ backgroundColor:"#ebebeb", padding:"10px 100px 100px 100px"}}>
             <ToastContainer />
             <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Gestão de Usuários - Configuração BD</h1>
-            <hr className="hr_color" />
+            <div className="column-align" style={{alignItems:"center"}}>
+              <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
+            </div>
             <div className="config-template" style={{width:"100%"}}>
                 <div className="header-accordion gradient-background" style={{width:"100%", borderRadius: "20px" }} onClick={() => ""}>Configurações dos Campos</div>      
                 <div>

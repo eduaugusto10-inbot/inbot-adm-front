@@ -464,7 +464,9 @@ export function CreateTemplateAccordion() {
     return (
         <div className="column-align width-95-perc" style={{ alignItems:"center", padding:"10px 0px" }}>
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Criar Template</h1>
-                <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
+                <div className="column-align" style={{alignItems:"center"}}>
+                    <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
+                </div>
                 <br/>
             <div style={{width:"100vw"}}>
                 <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>

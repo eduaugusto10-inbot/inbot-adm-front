@@ -218,6 +218,7 @@ export interface Filters {
         aguardando: boolean;
         enviado: boolean;
         erro: boolean;
+        cancelado: boolean;
     };
 }
 
@@ -231,5 +232,6 @@ export interface ITriggerListFilter {
         aguardando: boolean;
         enviado: boolean;
         erro: boolean;
+        cancelado: boolean;
     };
 }

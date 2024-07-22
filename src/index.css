@@ -148,6 +148,17 @@ table th:nth-child(even) {
   background-image: linear-gradient(to right, #a050e0, #80a0ff);
   border: 0px;
 }
+.div_color {
+  position: relative; /* Necessário para o pseudo-elemento */
+  width: 300px;
+  border: 2px solid;
+  border-image: linear-gradient(to right, #a050e0, #80a0ff) 1;
+  padding: 20px;
+  border-radius: 10px;
+  border-collapse: collapse;
+  background: white; /* Defina a cor de fundo do elemento principal */
+  z-index: 1;
+}
 
 .btn-grey {
   background-color: #006699 !important;
