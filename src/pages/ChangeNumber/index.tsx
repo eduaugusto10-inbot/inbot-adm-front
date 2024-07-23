@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ICustomerData, IPayload, defaultCustomerData } from '../types';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../utils/api';
 import { ToastContainer } from "react-toastify";
 import { successMessageChange, errorMessage, successMessageImg, errorMessageImg } from '../../Components/Toastify'
@@ -8,6 +8,11 @@ import { mask } from '../../utils/utils';
 
 export function ChangeDeleteNumber() {
 
+    const [searchParams, setSearchParams] = useSearchParams();
+    if (searchParams.get('bot_id') === null) {
+        window.location.href = "https://in.bot/inbot-admin";
+    }
+    
     const history = useNavigate();
     const location = useLocation()
     const [customerData, setCustomerData] = useState<ICustomerData>(defaultCustomerData);

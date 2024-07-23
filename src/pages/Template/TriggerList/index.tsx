@@ -185,12 +185,14 @@ export function TriggerList() {
     }, []);
 
     function detailedTrigger(id: number) {
-        const triggerId = triggerList[id].id;
+        const sortTrigger = handleSort(dataTreat);
+        const triggerId = sortTrigger[id].id;
         history("/trigger-details", { state: { triggerId: triggerId, urlLogo: "" } });
     }
     const changeStatus = (id: number) => {
+        const sortTrigger = handleSort(dataTreat)
         waitingMessage()
-        const triggerId = triggerList[id].id;
+        const triggerId = sortTrigger[id].id;
 
         api.put(`/whatsapp/trigger/${triggerId}`)
             .then(resp => {
@@ -202,7 +204,8 @@ export function TriggerList() {
             })
     }
     const statusNameView = (id: number) => {
-        return triggerList[id].status;
+        const sortTrigger = handleSort(dataTreat);
+        return sortTrigger[id].status;
     }
     function statusName(status: string) {
         switch (status) {

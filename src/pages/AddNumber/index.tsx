@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ICustomerData, defaultCustomerData } from '../types';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../utils/api';
 import { ToastContainer } from "react-toastify";
 import { successMessageChange, errorMessage, errorMessageDefault } from '../../Components/Toastify'
@@ -8,6 +8,11 @@ import { mask } from '../../utils/utils';
 
 export function AddNumber() {
 
+    const [searchParams, setSearchParams] = useSearchParams();
+    if (searchParams.get('bot_id') === null) {
+        window.location.href = "https://in.bot/inbot-admin";
+    }
+    
     const history = useNavigate();
     function BackToHome() {
         history("/");

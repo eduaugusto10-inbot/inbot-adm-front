@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react';
 import api from '../utils/api';
 import { ICustomerData } from './types';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { mask } from '../utils/utils';
 
 export function AllPhones() {
+
+    const [searchParams, setSearchParams] = useSearchParams();
+    if (searchParams.get('bot_id') === null) {
+        window.location.href = "https://in.bot/inbot-admin";
+    }
+    
     const history = useNavigate();
     const [customerData, setCustomerData] = useState<ICustomerData[]>([])
 

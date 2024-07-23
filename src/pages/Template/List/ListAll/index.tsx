@@ -64,10 +64,6 @@ export function ListAll() {
         };
     }, []);
 
-    const handleImageLoad = () => {
-        setIsLoading(false);
-    };
-
     const handleOptionClick = (index: number, event: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
         event.stopPropagation();
         setSelectedRow(index);
@@ -160,15 +156,17 @@ export function ListAll() {
     }
 
     const sendtemplate = (id: number) => {
-        templates[id].components.forEach((element: any) => {
+        const sortTemplates = handleSort(dadosFiltrados);
+        sortTemplates[id].components.forEach((element: any) => {
             if (element.type === "body")
-                SendTemplate(templates[id].name, encontrarMaiorNumero(element.parameters[0].text), hasManyButtons(templates[id].components), hasMedia(templates[id].components), templates[id].ID)
+                SendTemplate(sortTemplates[id].name, encontrarMaiorNumero(element.parameters[0].text), hasManyButtons(sortTemplates[id].components), hasMedia(sortTemplates[id].components), sortTemplates[id].ID)
         });
     }
     const deleteTemplate = (id: number) => {
+        const sortTemplates = handleSort(dadosFiltrados);
         setMenuOpen(false);
         waitingMessage()
-        api.delete(`https://whatsapp.smarters.io/api/v1/messageTemplates/${templates[id].name}`, { headers: { 'Authorization': token } })
+        api.delete(`https://whatsapp.smarters.io/api/v1/messageTemplates/${sortTemplates[id].name}`, { headers: { 'Authorization': token } })
             .then(res => {
                 successMessageDeleteTemplate()
                 api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
@@ -182,10 +180,11 @@ export function ListAll() {
             })
     }
     const duplicaTemplate = (id: number) => {
+        const sortTemplates = handleSort(dadosFiltrados);
         setMenuOpen(false);
         let variableQuantity = 0;
         let bodyText = "";
-        templates[id].components.forEach((element: any) => {
+        sortTemplates[id].components.forEach((element: any) => {
             if (element.type === "body"){
                 variableQuantity = encontrarMaiorNumero(element.parameters[0].text);
                 bodyText = element.parameters[0].text;
@@ -197,9 +196,9 @@ export function ListAll() {
                 variableQuantity: variableQuantity, 
                 urlLogo: "", 
                 phone: phone, 
-                category:templates[id].category,
-                headerConfig: hasMedia(templates[id].components), 
-                qtButtons: hasManyButtons(templates[id].components),
+                category:sortTemplates[id].category,
+                headerConfig: hasMedia(sortTemplates[id].components), 
+                qtButtons: hasManyButtons(sortTemplates[id].components),
                 buttons: buttonsDuplicated,
                 bodyText: bodyText
             } 
