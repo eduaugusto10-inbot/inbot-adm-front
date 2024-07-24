@@ -9,7 +9,7 @@ import { mask } from '../../utils/utils';
 export function ChangeDeleteNumber() {
 
     const [searchParams, setSearchParams] = useSearchParams();
-    if (searchParams.get('bot_id') === null) {
+    if (searchParams.get('token') === null) {
         window.location.href = "https://in.bot/inbot-admin";
     }
     
