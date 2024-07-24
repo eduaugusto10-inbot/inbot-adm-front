@@ -7,12 +7,7 @@ import { successMessageChange, errorMessage, successMessageImg, errorMessageImg 
 import { mask } from '../../utils/utils';
 
 export function ChangeDeleteNumber() {
-
-    const [searchParams, setSearchParams] = useSearchParams();
-    if (searchParams.get('token') === null) {
-        window.location.href = "https://in.bot/inbot-admin";
-    }
-    
+  
     const history = useNavigate();
     const location = useLocation()
     const [customerData, setCustomerData] = useState<ICustomerData>(defaultCustomerData);

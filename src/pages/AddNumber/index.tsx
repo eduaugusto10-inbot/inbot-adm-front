@@ -7,12 +7,7 @@ import { successMessageChange, errorMessage, errorMessageDefault } from '../../C
 import { mask } from '../../utils/utils';
 
 export function AddNumber() {
-
-    const [searchParams, setSearchParams] = useSearchParams();
-    if (searchParams.get('token') === null) {
-        window.location.href = "https://in.bot/inbot-admin";
-    }
-    
+   
     const history = useNavigate();
     function BackToHome() {
         history("/");
