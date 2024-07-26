@@ -14,7 +14,7 @@ export function ChangeDeleteNumber() {
     const [profilePic, setProfilePic] = useState<string>('');
 
     function BackToHome() {
-        history("/#/?token=123");
+        history("/?token=123&bot_id=403");
     }
     useEffect(() => {
         api.get(`/whats/${location.state.phoneNumber}`)
@@ -29,7 +29,7 @@ export function ChangeDeleteNumber() {
         api.put(`/whats/${location.state.phoneNumber}`, customerData)
             .then(res => {
                 successMessageChange();
-                setTimeout(() => history("/#/?token=123"), 2000)
+                setTimeout(() => history("/?token=123&bot_id=403"), 2000)
             })
             .catch(error => {
                 errorMessage()

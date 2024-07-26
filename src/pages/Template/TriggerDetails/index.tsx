@@ -108,6 +108,43 @@ export function TriggerDetails() {
             })
             .catch(error => console.log(error))
     }, [])
+    useEffect(() => {
+        const fetchData = () => {
+        api.get(`/whats-customer/${triggerId}`)
+            .then(resp => {
+                setCustomerStatus(resp.data.data)
+                console.log(resp.data.data)
+                let aguardando = 0;
+                let erro = 0;
+                let enviado = 0;
+                let totalEngagement = 0;
+                for (let i = 0; i < resp.data.data.length; i++) {
+                    if (resp.data.data[i].status === "enviado") {
+                        enviado++;
+                    } else if (resp.data.data[i].status === "erro") {
+                        erro++;
+                    } else {
+                        aguardando++;
+                    }
+                    if(resp.data.data[i].engagement!==null) {
+                        totalEngagement++;
+                    }
+                }
+                setWaiting(aguardando);
+                setErro(erro);
+                setSend(enviado);
+                const total = aguardando + erro + enviado;
+                setEngagements(totalEngagement)
+                setNotEngagements(total - totalEngagement)
+            })
+            .catch(error => console.log(error))
+        };
+
+        const intervalId = setInterval(fetchData, 15000);
+
+        fetchData();
+        return () => clearInterval(intervalId);
+    }, [])
     const handleTelefoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFilters({ ...filters, telefone: (event.target.value) });
     };

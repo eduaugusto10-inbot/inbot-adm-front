@@ -93,7 +93,7 @@ export function ListAll() {
     }
 
     const loadTemplate = (id: number) => {
-        setModalObject(templates[id])
+        setModalObject(templates[id]) 
         if (!modal) {
             setModal(prevState => !prevState)
         }
@@ -142,6 +142,17 @@ export function ListAll() {
         });
         return headerType;
     }
+
+    const findButton = (obj: any, type: string) => {
+        let response = []
+        for (let index = 0; index < obj.length; index++) {
+            if (obj[index].type === type) {
+                response.push(obj[index].parameters);
+            }
+        }
+        return response[0];
+    }
+
     const hasManyButtons = (headerElement: any) => {
         let buttons = 0;
         headerElement.forEach((element: any) => {
@@ -190,6 +201,8 @@ export function ListAll() {
                 bodyText = element.parameters[0].text;
             }
         });
+        const buttonsTexts = findButton(sortTemplates[id].components, "button")
+
         history(`/template-create?bot_id=${botId}`, { 
             state: { 
                 duplicated: true,
@@ -200,7 +213,8 @@ export function ListAll() {
                 headerConfig: hasMedia(sortTemplates[id].components), 
                 qtButtons: hasManyButtons(sortTemplates[id].components),
                 buttons: buttonsDuplicated,
-                bodyText: bodyText
+                bodyText: bodyText,
+                buttonsContent: buttonsTexts
             } 
         });
     }

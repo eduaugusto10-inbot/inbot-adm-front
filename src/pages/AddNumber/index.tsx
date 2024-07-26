@@ -10,7 +10,7 @@ export function AddNumber() {
    
     const history = useNavigate();
     function BackToHome() {
-        history("/#/?token=123");
+        history("/?token=123&bot_id=123");
     }
     const [newNumber, setNewNumber] = useState<ICustomerData>(defaultCustomerData);
     const [imagem, setImagem] = useState<string>("");
@@ -28,7 +28,7 @@ export function AddNumber() {
         api.post('/whats', newNumber)
             .then(res => {
                 successMessageChange();
-                setTimeout(() => history("/#/?token=123"), 2000)
+                setTimeout(() => history("/?token=123&bot_id=403"), 2000)
             })
             .catch(error => {
                 console.log(error.response.data.name)

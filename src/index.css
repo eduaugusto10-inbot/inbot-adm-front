@@ -149,15 +149,10 @@ table th:nth-child(even) {
   border: 0px;
 }
 .div_color {
-  position: relative; /* Necessário para o pseudo-elemento */
-  width: 300px;
-  border: 2px solid;
-  border-image: linear-gradient(to right, #a050e0, #80a0ff) 1;
-  padding: 20px;
-  border-radius: 10px;
-  border-collapse: collapse;
-  background: white; /* Defina a cor de fundo do elemento principal */
-  z-index: 1;
+  position: relative;
+  background: linear-gradient(to right, #a050e0, #80a0ff);
+  padding: 2px;
+  border-radius: 8px;
 }
 
 .btn-grey {
@@ -172,7 +167,6 @@ table th:nth-child(even) {
 
 .table-2024 {
   box-shadow: 0 0 0 1.5px #30c;
-  /* the table border  */
   border-radius: 10px;
   border-collapse: collapse;
 }
@@ -181,31 +175,18 @@ table th:nth-child(even) {
   background: linear-gradient(90deg, #000f48, #013473, #0171bd);
 }
 
-
 .border_gradient {
-  display: inline-block;
-  position: relative;
-  background-image: conic-gradient(
-     from var(--gradient-angle),
-     var(--GlowBorder1,#57dcef) 0,
-     var(--GlowBorder2,#51e6ff) 12.5%,
-     var(--GlowBorder3,#4939b4) 25%,
-     var(--GlowBorder4,#47059e) 29.21%,
-     var(--GlowBorder5,#8230ef) 74.83%,
-     var(--GlowBorder1,#57dcef) 99%
-    );
-   
-  border-radius: 10px;
-  padding: 2px;
-  animation: rotate 2s linear infinite; 
+    position: relative;
+    background: linear-gradient(to right, #a050e0, #80a0ff);
+    padding: 1px;
+    border-radius: 8px;
 }
+
 .border_gradient-gray {
-  display: inline-block;
   position: relative;
-  border: 2px solid #9b9b9b;
+  border: 1px solid #9b9b9b;
   border-radius: 7px;
-  /* padding: 2px 8px ;  */
-  height: 28px;
+  padding: 1px 4px ; 
 }
    
    .border_gradient::after {
@@ -232,23 +213,15 @@ table th:nth-child(even) {
    }
 
    .number_button_gradient {
-      background-color: #fff;
-      border-radius: 50%;
-      display: inline-block;
-      width: 25px;
-      height: 25px;
-      line-height: 25px;
-      text-align: center;
-      font-weight: bold;
-      color: #89aee7;
+    background: #FFF;
+    padding: 5px 8px;
+    border-radius: 6px;
+    color: #89AEE7;
     }
+
    .number_button_gradient-gray {
-     display: inline-block;
-     width: 25px;
-     height: 25px;
-     line-height: 25px;
-     text-align: center;
-     font-weight: bold;
+    padding: 1px 3px;
+    border-radius: 6px;
      color: #9b9b9b;
     }
 

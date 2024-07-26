@@ -638,7 +638,7 @@ export function Accordion() {
                                 <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", width:"97%", padding:"10px"}}>
                                     <thead>
                                         <tr  className="cells table-2024 border-bottom-zero">
-                                            <th  className="cells" style={{fontSize:"10px"}}>Telefone</th>
+                                            <th  className="cells" style={{fontSize:"10px"}}><div style={{background:"#FFF", padding:"35px", borderRadius:"6px"}}>Telefone</div></th>
                                             {variables.length>0 && <th  className="cells" style={{fontSize:"10px"}}>Variável 1</th>}
                                             {variables.length>1 && <th  className="cells" style={{fontSize:"10px"}}>Variável 2</th>}
                                             {variables.length>2 && <th  className="cells" style={{fontSize:"10px"}}>Variável 3</th>}

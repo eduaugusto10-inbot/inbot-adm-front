@@ -94,7 +94,44 @@ export function CreateTemplateAccordion() {
                     };
                     setVariables(prevVariables => [...prevVariables, newVariables]);
                 }
-            }
+            } 
+            const buttonsContent = location.state.buttonsContent;
+            let countButtons = 0;
+            let buttonsData:any = []
+            let typeBtn = ''
+            location.state.buttonsContent.map((element:any) => {
+                if (element.type === "quickReply") {
+                    if (buttonsContent.length < 3) {
+                        const newButtons: IButton = {
+                            id: Date.now()+countButtons,
+                            value: `Button ${countButtons + 1}`,
+                            text: element.text
+                        };
+                        setTypeOfButtons("quickReply")
+                        typeBtn = 'quickReply'
+                        buttonsData = [...buttonsData, newButtons]                        
+                    }
+                }
+                if (element.type === "cta" || element.type === 'staticURL') {
+                    if (buttonsContent.length < 2) {
+                        const newButtons: IButton = {
+                            id: Date.now()+countButtons,
+                            value: `Button ${countButtons + 1}`,
+                            text: element.text,
+                            type: element.type,
+                            url_phone: element.url
+                        };
+                        setTypeOfButtons("cta")
+                        typeBtn = 'cta'
+                        buttonsData = [...buttonsData, newButtons]                        
+                    }
+                };
+                countButtons++;
+            })
+            console.log(buttonsCTA)
+            console.log(buttons)
+            
+            typeBtn ==='cta' ? setButtonsCTA(buttonsData) : setButtons(buttonsData)
         }
     }, []);
 
@@ -740,13 +777,13 @@ export function CreateTemplateAccordion() {
                                                             <img src={alert} width={15} height={15} alt="alerta" style={{marginBottom:"15px"}} />
                                                         </a></span>
                                                         <Tooltip id="no-emoji" />
-                                                    <select  className="input-values" style={{ width: "100px", height:"26px", padding: "0px" }} name={button.id.toString()} onChange={e => handleAddButtonText(e, button.id.toString())}>
+                                                    <select  className="input-values" value={button.type} style={{ width: "100px", height:"26px", padding: "0px" }} name={button.id.toString()} onChange={e => handleAddButtonText(e, button.id.toString())}>
                                                         <option>--</option>
                                                         <option value={"staticURL"}>URL</option>
                                                         <option value={"phoneNumber"}>Telefone</option>
                                                     </select>
-                                                    <input type="text" className="input-values" style={{height:"26px"}} name="text" onChange={e => handleAddButtonText(e, button.id.toString())} placeholder="Nome do botão" />
-                                                    <input type="text" className="input-values" style={{height:"26px"}} name="url_phone" onChange={e => handleAddButtonText(e, button.id.toString())} />
+                                                    <input type="text" className="input-values" style={{height:"26px"}} value={button.text} name="text" onChange={e => handleAddButtonText(e, button.id.toString())} placeholder="Nome do botão" />
+                                                    <input type="text" className="input-values" style={{height:"26px"}} value={button.url_phone} name="url_phone" onChange={e => handleAddButtonText(e, button.id.toString())} />
                                                     <div className="minus-delete" onClick={() => handleDeleteItem(button.id)}>-</div>
                                                 </div>
                                             </div>
