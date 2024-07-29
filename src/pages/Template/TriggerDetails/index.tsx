@@ -302,7 +302,7 @@ export function TriggerDetails() {
                             <td><span className="font-size-12">{adjustTime(customer.data_criacao)}</span></td>
                             <td><span className="font-size-12">{customer.data_disparo ? adjustTime(customer.data_disparo) : "----"}</span></td>
                             <td><span className="font-size-12">{customer.engagement ? adjustTime(customer.engagement) : "----"}</span></td>
-                            <td><span className="font-size-12"> -- </span></td>
+                            <td><span className="font-size-12">{customer.log ?? "----"}</span></td>
                         </tr>
                     ))}
                 </table>

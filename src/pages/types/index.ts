@@ -189,6 +189,7 @@ export interface ICustomer {
     payload_1?: string
     payload_2?: string
     payload_3?: string
+    log?:string;
 }
 
 export interface AccordionStateCreate {
