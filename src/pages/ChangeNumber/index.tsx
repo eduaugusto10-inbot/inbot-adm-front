@@ -53,7 +53,7 @@ export function ChangeDeleteNumber() {
         api.post('/whats/image', { "image": profilePic, "phoneNumber": customerData.number })
             .then(res => {
                 successMessageImg();
-                setTimeout(() => history("/"), 2000)
+                setTimeout(() => history("/?token=123&bot_id=403"), 2000)
             })
             .catch(error => {
                 errorMessageImg();
