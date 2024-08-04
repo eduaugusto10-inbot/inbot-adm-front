@@ -199,6 +199,11 @@ export interface AccordionStateCreate {
     footer: boolean,
     botao: boolean
 }
+export interface AccordionStateWhats {
+    inbot: boolean,
+    smarters: boolean,
+    finish: boolean
+}
 export interface ButtonQR {
     type: string;
     parameters: { type?: string; text: string }[];
