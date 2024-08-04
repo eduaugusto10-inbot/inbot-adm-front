@@ -605,8 +605,8 @@ export function Accordion() {
                                         <span className="span-title">Payload 1</span>
                                         <input className="input-values" value={payload1} onChange={e => setPayload1(e.target.value)} />
                                         <a style={{alignContent:"center"}} data-tooltip-id="no-emoji" data-tooltip-html="Payload não podem ser iguais!">
-                                                <img src={info} width={15} height={15} alt="alerta" />
-                                            </a>
+                                            <img src={info} width={15} height={15} alt="alerta" />
+                                        </a>
                                             <Tooltip id="no-emoji" />
                                     </div>
                                 }
@@ -677,7 +677,36 @@ export function Accordion() {
                                 onChange={handleFileUpload} 
                                 style={{ backgroundColor: "#0D5388", color: "#FFF", borderRadius: "20px", display:"none" }} 
                                 ref={fileInputRef}
-                            />
+                            />{qtButtons > 0 &&
+                                <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
+                                    <span className="span-title">Payload 1</span>
+                                    <input className="input-values" value={payload1} onChange={e => setPayload1(e.target.value)} />
+                                    <a style={{alignContent:"center"}} data-tooltip-id="no-emoji" data-tooltip-html="Payload não podem ser iguais!">
+                                            <img src={info} width={15} height={15} alt="alerta" />
+                                        </a>
+                                        <Tooltip id="no-emoji" />
+                                </div>
+                            }
+                            {qtButtons > 1 &&
+                                <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
+                                    <span className="span-title">Payload 2</span>
+                                    <input className="input-values" value={payload2} onChange={e => setPayload2(e.target.value)} />
+                                    <a style={{alignContent:"center"}}  data-tooltip-id="no-emoji" data-tooltip-html="Payload não podem ser iguais!">
+                                            <img src={info} width={15} height={15} alt="alerta"/>
+                                        </a>
+                                        <Tooltip id="no-emoji" />
+                                </div>
+                            }
+                            {qtButtons > 2 &&
+                                <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
+                                    <span className="span-title">Payload</span>
+                                    <input className="input-values" value={payload3} onChange={e => setPayload3(e.target.value)} />
+                                    <a style={{alignContent:"center"}}  data-tooltip-id="no-emoji" data-tooltip-html="Payload não podem ser iguais!">
+                                            <img src={info} width={15} height={15} alt="alerta"/>
+                                        </a>
+                                    <Tooltip id="no-emoji" />
+                                </div>
+                            }
                             <input type="text" value={fileName} disabled style={{width:"300px", borderRadius:"8px"}}/>
                             <button type="button" style={{width:"120px", marginLeft:"7px"}} onClick={() => fileInputRef.current?.click()} className="button-blue">Escolher arquivo</button>
                             <div style={{ maxHeight: "400px", overflowY: 'auto', marginBottom: "10px" }}>
@@ -699,7 +728,7 @@ export function Accordion() {
                                         ))}
                                     </tbody>
                                 </table>
-                                {sheetsVariables()===variables.length ? "Planilha correta" : `Planilha com erro, o template precisa de ${variables.length} variável(is) e sua planilha possui ${sheetsVariables()}`}
+                                {sheetsVariables()===variables.length ? "Planilha correta" : `Planilha com erro, o template precisa de ${variables.length} variável(is) e sua planilha possui ${sheetsVariables()=== -1 ? 0 : sheetsVariables() }`}
                             </div>
                         </div>}
                     <div style={{width:"100%", textAlign:"right"}}>
