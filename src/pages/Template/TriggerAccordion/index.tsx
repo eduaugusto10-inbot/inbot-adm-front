@@ -40,8 +40,9 @@ export function Accordion() {
     });
     const [fileData, setFileData] = useState<any[][]>([]);
     const [clientNumber, setClientNumber] = useState<number | ''>('');
-    const [typeClient, setTypeClients] = useState<boolean>(false);
+    const [typeClient, setTypeClients] = useState<boolean>();
     const [mode, setMode] = useState<boolean>(false);
+    const [showType, setShowType] = useState<boolean>(false)
     const [triggerMode, setTriggerMode] = useState<string>("imediato")
     const [campaignName, setCampaignName] = useState<string>("")
     const [dates, setDate] = useState<string>(new Date().toISOString().slice(0, 10));
@@ -251,6 +252,7 @@ export function Accordion() {
     const signInClients = (e: any) => {
         const value = e.target.value === "unico"
         setTypeClients(!value)
+        setShowType(true)
     }
     const handleMode = (e: any) => {
         const value = e.target.value === "imediato";
@@ -334,6 +336,14 @@ export function Accordion() {
 
     const loadNewTemplate = (e:any) =>{
         setVariables([])
+        setPayload1("")
+        setPayload2("")
+        setPayload3("")
+        setURLMidia("")
+        setTriggerMode("")
+        setFileData([])
+        setListVariables([])
+        setFileName("")
         console.log(templates)
         templates.forEach((template: ITemplateList) => {
             console.log(e)
@@ -536,27 +546,8 @@ export function Accordion() {
                                 <span className="blue-text"><strong>Cadastrar Contato Individualmente:</strong></span>
                             </div>
                             <span style={{ fontSize: "11px", fontStyle: "italic", marginLeft:"25px" }}> "Selecione esta opção se deseja adicionar contatos um a um manualmente para esta campanha."</span>
-                        </div>
-                        <div style={{marginBottom:"17px",display:"flex", flexDirection:"column"}}>
-                            <div>
-                                <input 
-                                    type="radio" 
-                                    name="clientes" 
-                                    value="multiplos" 
-                                    onChange={signInClients} 
-                                    className="input-spaces" 
-                                    checked={typeClient === true}                                    
-                                />
-                                <span className="blue-text"><strong>Upload de Planilha de Contatos:</strong></span>
-                                <a href="/files/Modelo.xlsx" download="Modelo - Planilha Contatos para Campanhas.xlsx">
-                                  <button className="button-blue" style={{marginLeft:"12px", width:"120px"}}>Planilha exemplo</button>
-                                </a>
-                            </div>
-                            <span style={{ fontSize: "11px", fontStyle: "italic", marginLeft:"25px" }}> "Escolha esta opção para fazer upload de uma planilha com vários contatos de uma só vez para esta campanha."</span>
-                        </div>
-                    </div>
-                    {!typeClient &&
-                        <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+                            {!typeClient && showType &&
+                        <div style={{ display: "flex", flexDirection: "column", width: "100%", marginTop:"20px" }}>
                             <div style={{ display: "flex", flexDirection: "row",alignItems: "center" }}>
                                 <span className="span-title">Telefone </span>
                                 <PhoneInput
@@ -578,9 +569,7 @@ export function Accordion() {
                                 />
                             </div>
                             <div style={{ display: "flex", flexDirection: "column" }}>
-                            {variables.length > 0 && 
-                            
-                                
+                            {variables.length > 0 &&                                                             
                                 <div style={{textAlign:"left"}}>                                        
                                     {variables.map((variable, index) => (
                                         <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
@@ -647,7 +636,7 @@ export function Accordion() {
                                             {variables.length>5 && <th  className="cells" style={{fontSize:"10px"}}>Variável 6</th>}
                                             {variables.length>6 && <th  className="cells" style={{fontSize:"10px"}}>Variável 7</th>}
                                             {variables.length>7 && <th  className="cells" style={{fontSize:"10px"}}>Variável 8</th>}
-                                            <th  className="cells" style={{fontSize:"10px"}}>Link midia</th>
+                                            {headerConfig !== "text" && headerConfig !== null &&<th  className="cells" style={{fontSize:"10px"}}>Link midia</th>}
                                         </tr>
                                     </thead>
                                     <tbody style={{ backgroundColor: '#F9F9F9', fontSize: "12px" }}>
@@ -670,7 +659,26 @@ export function Accordion() {
                             </div>
                             {/* <Alert message={"Você deverá preencher as variáveis para que não ocorra erro no envio"} /> */}
                         </div>}
-                    {typeClient &&
+                        </div>
+                        <div style={{marginBottom:"17px",display:"flex", flexDirection:"column"}}>
+                            <div>
+                                <input 
+                                    type="radio" 
+                                    name="clientes" 
+                                    value="multiplos" 
+                                    onChange={signInClients} 
+                                    className="input-spaces" 
+                                    checked={typeClient === true}                                    
+                                />
+                                <span className="blue-text"><strong>Upload de Planilha de Contatos:</strong></span>
+                                <a href="/files/Modelo.xlsx" download="Modelo - Planilha Contatos para Campanhas.xlsx">
+                                  <button className="button-blue" style={{marginLeft:"12px", width:"120px"}}>Planilha exemplo</button>
+                                </a>
+                            </div>
+                            <span style={{ fontSize: "11px", fontStyle: "italic", marginLeft:"25px" }}> "Escolha esta opção para fazer upload de uma planilha com vários contatos de uma só vez para esta campanha."</span>
+                        </div>
+                    </div>                
+                    {typeClient && showType &&
                         <div>                            
                             <input 
                                 type="file" 
