@@ -191,7 +191,14 @@ export interface ICustomer {
     payload_3?: string
     log?:string;
 }
-
+export interface AccordionUserManager {
+    new: boolean,
+    base: boolean
+}
+export interface AccordionTable {
+    individual: boolean,
+    sheets: boolean
+}
 export interface AccordionStateCreate {
     config: boolean,
     header: boolean,

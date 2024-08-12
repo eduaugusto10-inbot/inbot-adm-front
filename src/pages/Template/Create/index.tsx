@@ -782,7 +782,10 @@ export function CreateTemplateAccordion() {
                                                         <option value={"staticURL"}>URL</option>
                                                         <option value={"phoneNumber"}>Telefone</option>
                                                     </select>
-                                                    <input type="text" className="input-values" style={{height:"26px"}} value={button.text} name="text" onChange={e => handleAddButtonText(e, button.id.toString())} placeholder="Nome do botão" />
+                                                    <div className="column-align" style={{textAlign:"right", paddingTop:button.type==="staticURL" ? "24px" : "0px"}}>
+                                                        <input type="text" className="input-values" maxLength={23} style={{height:"26px"}} value={button.text} name="text" onChange={e => handleAddButtonText(e, button.id.toString())} placeholder="Nome do botão" />
+                                                        {button.type==="staticURL" && <span style={{marginRight:"15px"}}>{button.text.length}/23</span>}
+                                                    </div>
                                                     <input type="text" className="input-values" style={{height:"26px"}} value={button.url_phone} name="url_phone" onChange={e => handleAddButtonText(e, button.id.toString())} />
                                                     <div className="minus-delete" onClick={() => handleDeleteItem(button.id)}>-</div>
                                                 </div>

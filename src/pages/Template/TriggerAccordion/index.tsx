@@ -336,11 +336,11 @@ export function Accordion() {
 
     const loadNewTemplate = (e:any) =>{
         setVariables([])
-        setPayload1("")
-        setPayload2("")
-        setPayload3("")
+        setPayload1(undefined)
+        setPayload2(undefined)
+        setPayload3(undefined)
         setURLMidia("")
-        setTriggerMode("")
+        setTriggerMode("imediato")
         setFileData([])
         setListVariables([])
         setFileName("")

@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import api from "../../../utils/api";
 import './style.css'
-import { adjustTime, adjustTimeWithout3Hour, mask } from "../../../utils/utils";
-import { AccordionStateCreate } from "../../types";
+import { adjustTimeWithout3Hour, mask } from "../../../utils/utils";
+import { AccordionTable, AccordionUserManager } from "../../types";
 import { months, years } from "../../../utils/textAux";
 import { read, utils } from "xlsx";
 import { DownloadTableExcel } from 'react-export-table-to-excel';
 import { useSearchParams } from "react-router-dom";
-
+import axios from "axios";
 export function UserManagerList() {
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -26,7 +26,6 @@ const [showValues, setShowValues] = useState<Boolean>(false)
 const fileInputRef = useRef<HTMLInputElement>(null);
 const [fileData, setFileData] = useState<any[][]>([]);
 const [searchButton, setSearchButton] = useState<boolean>(false)
-const [savedValues, setSavedValues] = useState([]);
 const [sortType, setSortType] = useState<string>("")
 const [sortOrder, setOrderSort] = useState<string>("")
 const [loadFinished, setLoadFinished] = useState(true)
@@ -42,13 +41,12 @@ const [finalDate, setFinalDate] = useState({
     year: now.getFullYear()
 })
 const tableRef = useRef(null);
-const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
-    config: true,
-    header: false,
-    body: false,
-    footer: false,
-    botao: false
+const [accordionState, setAccordionState] = useState<AccordionUserManager>({
+    new: false,
+    base: false
 });
+const [accordionTable, setAccordionTable] = useState<Boolean>(false)
+
 
 const getDaysInMonth = (year: number, month: number): number => {
     return new Date(year, month, 0).getDate();
@@ -71,6 +69,32 @@ const getDaysInMonth = (year: number, month: number): number => {
         setLoadFinished(true)
     })
   },[searchButton])
+
+const saveCustomer = async (data: any) => {
+    let access = ""
+    let token = ""
+    await axios.get(`https://api.inbot.com.br/user-manager/v1/customer-manager/access-key/${botId}`)
+        .then(resp => access = resp.data.key)
+    await axios.post(`https://api.inbot.com.br/user-manager/v1/token`,{botId: botId}, {headers:{"x-api-key": access}})
+        .then(resp => token = resp.data.token)
+    let config = {
+    method: 'post',
+    maxBodyLength: Infinity,
+    url: 'https://api.inbot.com.br/user-manager/v1/customer',
+    headers: { 
+        'Content-Type': 'application/json', 
+        'Authorization': `Bearer ${token}`
+    },
+        data : data
+    };
+    await axios.request(config).then((response: any) => {
+        console.log(JSON.stringify(response.data));
+    })
+    .catch((error:any) => {
+        console.log(error);
+    });
+
+}
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -135,13 +159,10 @@ const getDaysInMonth = (year: number, month: number): number => {
         });
       };
 
-      const toggleAccordion = (key: keyof AccordionStateCreate) => {
+      const toggleAccordion = (key: keyof AccordionUserManager) => {
         setAccordionState({
-            config: false,
-            header: false,
-            body: false,
-            footer: false,
-            botao: false
+            new: false,
+            base: false
         })
         setAccordionState(prevState => ({
             ...prevState,
@@ -149,6 +170,35 @@ const getDaysInMonth = (year: number, month: number): number => {
         }));
     };
 
+    const createJson = () => {
+        const headers = ['phone', 'name', 'email'];
+        customFields.map((fields:any)=>(
+            headers.push(fields.id)
+        ))
+        const jsonData: any = []
+        fileData.slice(1).map((row, rowIndex) => {
+
+          const obj: any = {};
+          const customFields: any = []
+          row.forEach((cell, columnIndex) => {
+            obj['botId'] = botId;
+            if(columnIndex < 3) {
+                obj[headers[columnIndex]] = cell; 
+            }
+            if(columnIndex > 2){
+                customFields.push({id : headers[columnIndex], value: cell})
+            }
+          });
+          obj["customFields"] = customFields
+          if(obj?.name) {
+            jsonData.push(obj)
+          }
+        });
+        console.log(jsonData); 
+        jsonData.forEach((element: any) => {
+            saveCustomer(element)
+        });
+    }
     const nameAndValue = (value: any ,field: any) => {
         let resp = '';
         for(let data of value){
@@ -199,6 +249,10 @@ const getDaysInMonth = (year: number, month: number): number => {
         return customField ? customField.value : "";
     };
 
+    const handleMode = () => {
+        setAccordionTable(!accordionTable)
+    }
+
   return (
     <div className="width-95-perc" style={{backgroundColor:"#ebebeb", padding:"10px 100px 100px 100px"}}>
         <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Gestão de Usuários</h1>
@@ -206,17 +260,20 @@ const getDaysInMonth = (year: number, month: number): number => {
             <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
         </div>
         <div className="config-template" style={{width:"100%"}}>
-        <div className="header-accordion gradient-background" style={{width:"100%", borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>Adicionar Usuários</div>      
+        <div className="header-accordion gradient-background" style={{width:"100%", borderRadius: "20px" }} onClick={() => toggleAccordion('new')}>Adicionar Usuários</div>      
+        {accordionState.new && 
         <div>
-            <input type="radio" id="addUsersType"/><span style={{padding:"9px"}}>Cadastrar usuários individualmente</span>
-            <input type="radio" id="addUsersType"/><span style={{padding:"9px"}}>Upload de planilha de usuários</span>
+            <input type="radio" id="addUsersType" onChange={handleMode} checked={accordionTable === true}/><span style={{padding:"9px"}}>Cadastrar usuários individualmente</span>
+            <input type="radio" id="addUsersType" onChange={handleMode} checked={accordionTable === false}/><span style={{padding:"9px"}}>Upload de planilha de usuários</span>
             <button className="button-blue">Download</button>
-            <div style={{ overflowX:"auto" }}>
+            {accordionTable &&
+                <div style={{ overflowX:"auto" }}>
                 <table className="table-2024" style={{width:"100%", margin:"20px"}}>
                     <thead>
                     <tr className="table-2024" style={{borderBottom: "0px"}}>
                         <th className="cells" style={{padding:"0px 50px 0px", borderRight:"1px solid #aaa"}}>Telefone</th>
                         <th className="cells">Nome</th>
+                        <th className="cells">E-mail</th>
                         {customFields.map((fields:any)=>(
                             <th className="cells">{fields.customName}</th>
                         ))}
@@ -242,8 +299,9 @@ const getDaysInMonth = (year: number, month: number): number => {
                         </tr>
                     </tbody>
                 </table>
-            </div>
-            <div> 
+            </div>}
+            {!accordionTable &&
+                <div> 
                 <span className="color-text-label">Selecione o arquivo:</span>
                 <div>
                     <input
@@ -262,6 +320,7 @@ const getDaysInMonth = (year: number, month: number): number => {
                     <tr className="table-2024"  style={{borderBottom: "0px"}}>
                         <th className="cells" style={{padding:"0px 50px 0px", borderRight:"1px solid #aaa"}}>Telefone</th>
                         <th className="cells">Nome</th>
+                        <th className="cells">E-mail</th>
                         {customFields.map((fields:any)=>(
                             <th className="cells">{fields.customName}</th>
                         ))}
@@ -280,126 +339,129 @@ const getDaysInMonth = (year: number, month: number): number => {
                     </tbody>}
                 </table>
             </div>
-        </div>
             </div>
             <div style={{ flexDirection: "row", textAlign: "end", alignContent: "end", alignItems: "end" }}>
                 <button className="button-cancel" onClick={() => ""}>Cancelar</button>
-                <button className="button-save" onClick={() => ""}>Salvar</button>
+                <button className="button-save" onClick={() => createJson()}>Salvar</button>
             </div>
-        </div>
-        <div className="header-accordion gradient-background" style={{width:"100%", borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>Base de Usuários</div>                  
-        <div style={{margin:"10px 20px", textAlign:"left"}}>
-            <span className="color-text-label">Data de cadastro</span>
-            <select value={initDate.day} onChange={e => setInitDate(prevState => ({...prevState,day: Number(e.target.value) }))} className="input-values litle-input" >
-            {[...Array(31).keys()].map(i => (
-                <option key={i+1} value={(i+1).toString()}>{i+1}</option>
-            ))}
-            </select>
-            <select value={initDate.month} onChange={e => setInitDate(prevState => ({...prevState,month: Number(e.target.value) }))} className="input-values litle-input" >
-                {months.map((month,key) =>(
-                    <option value={key+1}>{month}</option>
-                ))}
-            </select>
-            <select value={initDate.year} onChange={e => setInitDate(prevState => ({...prevState,year: Number(e.target.value) }))} className="input-values litle-input" >
-                {years.map(year=>(
-                    <option value={year}>{year}</option>
-                ))}
-            </select>
-            <span>Até</span>
-            <select value={finalDate.day} onChange={e => setFinalDate(prevState => ({...prevState,day: Number(e.target.value) }))} className="input-values litle-input">
+            </div>}
+        </div>}
+            <div className="header-accordion gradient-background" style={{width:"100%", borderRadius: "20px" }} onClick={() => toggleAccordion('base')}>Base de Usuários</div>                  
+            {accordionState.base && 
+            <div>
+                <div style={{margin:"10px 20px", textAlign:"left"}}>
+                <span className="color-text-label">Data de cadastro</span>
+                <select value={initDate.day} onChange={e => setInitDate(prevState => ({...prevState,day: Number(e.target.value) }))} className="input-values litle-input" >
                 {[...Array(31).keys()].map(i => (
                     <option key={i+1} value={(i+1).toString()}>{i+1}</option>
                 ))}
-            </select>
-            <select value={finalDate.month} onChange={e => setFinalDate(prevState => ({...prevState,month: Number(e.target.value) }))} className="input-values litle-input" >
-                {months.map((month,key) =>(
-                    <option value={key+1}>{month}</option>
-                ))}
-            </select>
-            <select value={finalDate.year} onChange={e => setFinalDate(prevState => ({...prevState,year: Number(e.target.value) }))} className="input-values litle-input" >
-                {years.map(year=>(
-                    <option value={year}>{year}</option>
-                ))}
-            </select>
-            <button className="button-blue" onClick={() => {
-                    setSearchButton(true)
-                    setLoadFinished(false)
-                }} 
-                disabled={!loadFinished}>{loadFinished ? "Buscar" : <div className="in_loader"></div>}</button>
-        </div>
-        <div className="row-align" style={{marginBottom:"30px"}}>
-            <span className="color-text-label" style={{padding:"0px 50px 0px 20px"}}>Status:</span>
-            <div className="border_gradient margin-rigth-10" onClick={()=>""}><span className="number_button_gradient" style={{width: "80px",height:"25px",fontSize:"14px", borderRadius: "6px", cursor:"pointer"}}>Todos</span></div>
-            <div className="border_gradient margin-rigth-10" onClick={()=>""}><span className="number_button_gradient" style={{width: "80px",height:"25px",fontSize:"14px", borderRadius: "6px", cursor:"pointer"}}>Ativos</span></div>
-            <div className="border_gradient" onClick={()=>""}><span className="number_button_gradient" style={{width: "80px",height:"25px",fontSize:"14px", borderRadius: "6px", cursor:"pointer"}}>Inativos</span></div>
-        </div>
-        <div className="row-align">
-            <div className="column-align left-align" style={{marginLeft:"20px"}}>
-                <span className="color-text-label">Filtrar por campo:</span>
-                <select name="" id="" className="input-values" style={{border:"none", height:"30px", width:"300px"}}>
-                    <option value="Escolha uma opção">Escolha uma opção</option>
-                    <option value="Telefone">Telefone</option>
-                    <option value="Nome">Nome</option>
-                    <option value="E-mail">E-mail</option>
-                    {customFields.map((customField: any) => (
-                        <option value={customField.id}>{customField.customName}</option>
+                </select>
+                <select value={initDate.month} onChange={e => setInitDate(prevState => ({...prevState,month: Number(e.target.value) }))} className="input-values litle-input" >
+                    {months.map((month,key) =>(
+                        <option value={key+1}>{month}</option>
                     ))}
                 </select>
+                <select value={initDate.year} onChange={e => setInitDate(prevState => ({...prevState,year: Number(e.target.value) }))} className="input-values litle-input" >
+                    {years.map(year=>(
+                        <option value={year}>{year}</option>
+                    ))}
+                </select>
+                <span>Até</span>
+                <select value={finalDate.day} onChange={e => setFinalDate(prevState => ({...prevState,day: Number(e.target.value) }))} className="input-values litle-input">
+                    {[...Array(31).keys()].map(i => (
+                        <option key={i+1} value={(i+1).toString()}>{i+1}</option>
+                    ))}
+                </select>
+                <select value={finalDate.month} onChange={e => setFinalDate(prevState => ({...prevState,month: Number(e.target.value) }))} className="input-values litle-input" >
+                    {months.map((month,key) =>(
+                        <option value={key+1}>{month}</option>
+                    ))}
+                </select>
+                <select value={finalDate.year} onChange={e => setFinalDate(prevState => ({...prevState,year: Number(e.target.value) }))} className="input-values litle-input" >
+                    {years.map(year=>(
+                        <option value={year}>{year}</option>
+                    ))}
+                </select>
+                <button className="button-blue" onClick={() => {
+                        setSearchButton(true)
+                        setLoadFinished(false)
+                    }} 
+                    disabled={!loadFinished}>{loadFinished ? "Buscar" : <div className="in_loader"></div>}</button>
             </div>
-            <div className="column-align left-align" style={{marginLeft:"50px"}}>
-                <span className="color-text-label" style={{marginLeft:"10px"}}>Conteúdo do campo:</span>
-                <input name="" id="" className="input-values" style={{border:"none", height:"30px", width:"300px"}}/>
+            <div className="row-align" style={{marginBottom:"30px"}}>
+                <span className="color-text-label" style={{padding:"0px 50px 0px 20px"}}>Status:</span>
+                <div className="border_gradient margin-rigth-10" onClick={()=>""}><span className="number_button_gradient" style={{width: "80px",height:"25px",fontSize:"14px", borderRadius: "6px", cursor:"pointer"}}>Todos</span></div>
+                <div className="border_gradient margin-rigth-10" onClick={()=>""}><span className="number_button_gradient" style={{width: "80px",height:"25px",fontSize:"14px", borderRadius: "6px", cursor:"pointer"}}>Ativos</span></div>
+                <div className="border_gradient" onClick={()=>""}><span className="number_button_gradient" style={{width: "80px",height:"25px",fontSize:"14px", borderRadius: "6px", cursor:"pointer"}}>Inativos</span></div>
             </div>
-        </div>
-        <div className="column-align" style={{alignItems:"center"}}>
-            <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
-        </div>
-        <div className="row-align" style={{justifyContent: "space-between"}}>
-            <span className="color-text-label font-size-12">{qtyCustomerCounter(qtyCustomer)}</span>
-            <DownloadTableExcel
-                filename="users table"
-                sheet="users"
-                currentTableRef={tableRef.current}>
-                    <button className="button-blue" style={{width:"150px", margin:"1px"}}> Exportar excel </button>
-            </DownloadTableExcel>
-        </div>
-                <div style={{ overflowX:"auto" }}>
-        <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", marginTop:"20px"}} ref={tableRef}>
-            <thead>
-            <tr className="cells table-2024 border-bottom-zero">
-                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Telefone</span> <div><div className="triangle-up" onClick={()=>handleInitSort("phone","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("phone","desc",false)}></div></div></div></th>
-                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Nome</span> <div><div className="triangle-up" onClick={()=>handleInitSort("name","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("name","desc",false)}></div></div></div></th>
-                {customFields.map((fields:any, key:any)=>(
-                    <th key={key} className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>{fields.customName}</span> <div><div className="triangle-up" onClick={()=>handleInitSort(fields.id,"asc",true)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort(fields.id,"desc",true)}></div></div></div></th>
-                ))}
-                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Data Cadastro</span> <div><div className="triangle-up" onClick={()=>handleInitSort("createdAt","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("createdAt","desc",false)}></div></div></div></th>
-                {/* <th className="cells">Status</th> */}
-                <th className="cells">Gerenciar</th>
-            </tr>
-            </thead>
-            <tbody>
-                
-            {handleSort(customers).map((customer: any, index: number) => (
-                <tr key={customer.id}
-                style={{ border: '1px solid #0171BD', backgroundColor: index % 2 === 0 ? '#e4e4e4' : '#FFF' }}>
-                    <td className="border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.phone ?? customer.phone} onChange={(e) => handleChange(e, index, 'phone')}/> : mask(editedValues[index]?.phone ?? customer.phone)}</span></td>
-                    <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.name ?? customer.name} onChange={(e) => handleChange(e, index, 'name')}/> : editedValues[index]?.name ?? customer.name}</span></td>
+            <div className="row-align">
+                <div className="column-align left-align" style={{marginLeft:"20px"}}>
+                    <span className="color-text-label">Filtrar por campo:</span>
+                    <select name="" id="" className="input-values" style={{border:"none", height:"30px", width:"300px"}}>
+                        <option value="Escolha uma opção">Escolha uma opção</option>
+                        <option value="Telefone">Telefone</option>
+                        <option value="Nome">Nome</option>
+                        <option value="E-mail">E-mail</option>
+                        {customFields.map((customField: any) => (
+                            <option value={customField.id}>{customField.customName}</option>
+                        ))}
+                    </select>
+                </div>
+                <div className="column-align left-align" style={{marginLeft:"50px"}}>
+                    <span className="color-text-label" style={{marginLeft:"10px"}}>Conteúdo do campo:</span>
+                    <input name="" id="" className="input-values" style={{border:"none", height:"30px", width:"300px"}}/>
+                </div>
+            </div>
+            <div className="column-align" style={{alignItems:"center"}}>
+                <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
+            </div>
+            <div className="row-align" style={{justifyContent: "space-between"}}>
+                <span className="color-text-label font-size-12">{qtyCustomerCounter(qtyCustomer)}</span>
+                <DownloadTableExcel
+                    filename="users table"
+                    sheet="users"
+                    currentTableRef={tableRef.current}>
+                        <button className="button-blue" style={{width:"150px", margin:"1px"}}> Exportar excel </button>
+                </DownloadTableExcel>
+            </div>
+                    <div style={{ overflowX:"auto" }}>
+            <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", marginTop:"20px"}} ref={tableRef}>
+                <thead>
+                <tr className="cells table-2024 border-bottom-zero">
+                    <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Telefone</span> <div><div className="triangle-up" onClick={()=>handleInitSort("phone","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("phone","desc",false)}></div></div></div></th>
+                    <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Nome</span> <div><div className="triangle-up" onClick={()=>handleInitSort("name","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("name","desc",false)}></div></div></div></th>
                     {customFields.map((fields:any, key:any)=>(
-                    <td className="border-gray" key={key}><span className="font-size-12">{nameAndValue(customer.customFields, fields.id) ?? '--'}</span></td>
-                ))}                    
-                    <td className="border-gray"><span style={{fontSize:"12px"}}>{adjustTimeWithout3Hour(customer.createdAt)}</span></td>
-                    <td className="border-gray">
-                {editMode[index] ? (
-                  <button onClick={() => handleSave(index)}>Save</button>
-                ) : (
-                  <button onClick={() => toggleEditMode(index)}>✎</button>
-                )}
-              </td>
+                        <th key={key} className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>{fields.customName}</span> <div><div className="triangle-up" onClick={()=>handleInitSort(fields.id,"asc",true)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort(fields.id,"desc",true)}></div></div></div></th>
+                    ))}
+                    <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Data Cadastro</span> <div><div className="triangle-up" onClick={()=>handleInitSort("createdAt","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("createdAt","desc",false)}></div></div></div></th>
+                    {/* <th className="cells">Status</th> */}
+                    <th className="cells">Gerenciar</th>
                 </tr>
-            ))}
-            </tbody>
-        </table>
-        </div>
+                </thead>
+                <tbody>
+                    
+                {handleSort(customers).map((customer: any, index: number) => (
+                    <tr key={customer.id}
+                    style={{ border: '1px solid #0171BD', backgroundColor: index % 2 === 0 ? '#e4e4e4' : '#FFF' }}>
+                        <td className="border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.phone ?? customer.phone} onChange={(e) => handleChange(e, index, 'phone')}/> : mask(editedValues[index]?.phone ?? customer.phone)}</span></td>
+                        <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.name ?? customer.name} onChange={(e) => handleChange(e, index, 'name')}/> : editedValues[index]?.name ?? customer.name}</span></td>
+                        {customFields.map((fields:any, key:any)=>(
+                        <td className="border-gray" key={key}><span className="font-size-12">{nameAndValue(customer.customFields, fields.id) ?? '--'}</span></td>
+                    ))}                    
+                        <td className="border-gray"><span style={{fontSize:"12px"}}>{adjustTimeWithout3Hour(customer.createdAt)}</span></td>
+                        <td className="border-gray">
+                    {editMode[index] ? (
+                    <button onClick={() => handleSave(index)}>Save</button>
+                    ) : (
+                    <button onClick={() => toggleEditMode(index)}>✎</button>
+                    )}
+                </td>
+                    </tr>
+                ))}
+                </tbody>
+            </table>
+            </div>
+            </div>}
         </div>
     </div>
     
