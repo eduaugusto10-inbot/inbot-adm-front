@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import api from "../../../utils/api";
 import './style.css'
 import { adjustTimeWithout3Hour, mask } from "../../../utils/utils";
-import { AccordionTable, AccordionUserManager } from "../../types";
+import { AccordionUserManager } from "../../types";
 import { months, years } from "../../../utils/textAux";
 import { read, utils } from "xlsx";
 import { DownloadTableExcel } from 'react-export-table-to-excel';
@@ -22,7 +22,7 @@ const [qtyCustomer, setQtyCustomer] = useState<number>(0)
 const [editMode, setEditMode] = useState<Array<boolean>>(Array(customers.length).fill(false));
 const [editedValues, setEditedValues] = useState<Array<any>>(Array(customers.length).fill({}));
 const [fileName, setFileName] = useState('');
-const [showValues, setShowValues] = useState<Boolean>(false)
+const [loading, setLoading] = useState<boolean>(false)
 const fileInputRef = useRef<HTMLInputElement>(null);
 const [fileData, setFileData] = useState<any[][]>([]);
 const [searchButton, setSearchButton] = useState<boolean>(false)
@@ -138,10 +138,6 @@ const saveCustomer = async (data: any) => {
         });
       };
 
-      const showXlsValues = () => {
-       console.log(showValues)
-        setShowValues(preState => !preState)
-      }
       const handleChange = (event: React.ChangeEvent<HTMLInputElement>, index: number, fieldName: string) => {
         const newValue = event.target.value;
         setEditedValues(prevValues => {
@@ -171,6 +167,7 @@ const saveCustomer = async (data: any) => {
     };
 
     const createJson = () => {
+        setLoading(true)
         const headers = ['phone', 'name', 'email'];
         customFields.map((fields:any)=>(
             headers.push(fields.id)
@@ -198,6 +195,7 @@ const saveCustomer = async (data: any) => {
         jsonData.forEach((element: any) => {
             saveCustomer(element)
         });
+        setLoading(false)
     }
     const nameAndValue = (value: any ,field: any) => {
         let resp = '';
@@ -251,15 +249,20 @@ const saveCustomer = async (data: any) => {
 
     const handleMode = () => {
         setAccordionTable(!accordionTable)
+        setFileData([])
     }
 
+    const resetCustomerTabel = () => {
+        setFileData([]);
+        setFileName("")
+    }
   return (
-    <div className="width-95-perc" style={{backgroundColor:"#ebebeb", padding:"10px 100px 100px 100px"}}>
+    <div className="column-align" style={{width:"100vw", height:"100vh",backgroundColor:"#ebebeb", padding:"10px 10px 0px 0px", alignItems:"center"}}>
         <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Gestão de Usuários</h1>
-        <div className="column-align" style={{alignItems:"center"}}>
+        <div className="column-align" style={{alignItems:"center", width:"100%"}}>
             <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
         </div>
-        <div className="config-template" style={{width:"100%"}}>
+        <div className="config-template" style={{width:"95%"}}>
         <div className="header-accordion gradient-background" style={{width:"100%", borderRadius: "20px" }} onClick={() => toggleAccordion('new')}>Adicionar Usuários</div>      
         {accordionState.new && 
         <div>
@@ -313,7 +316,6 @@ const saveCustomer = async (data: any) => {
                     />
                     <input type="text" value={fileName} disabled/>
                     <button type="button" onClick={() => fileInputRef.current?.click()} className="button-blue" style={{margin:"9px"}}>Anexar</button>
-                    <button type="button" onClick={showXlsValues} className="button-blue">Carregar</button>
             <div style={{ overflowX:"auto" }}>
                 <table className="table-2024" style={{width:"100%", margin:"20px"}}>
                     <thead>
@@ -328,7 +330,7 @@ const saveCustomer = async (data: any) => {
                         <th className="cells">Gerenciar</th>
                     </tr>
                     </thead>
-                    {showValues && <tbody className="font-size-12" style={{ backgroundColor: '#F9F9F9' }}>
+                    <tbody className="font-size-12" style={{ backgroundColor: '#F9F9F9' }}>
                         {fileData.length > 0 && fileData.slice(1).map((row, rowIndex) => (
                             <tr key={rowIndex} >
                                 {row.map((cell, cellIndex) => (
@@ -336,13 +338,13 @@ const saveCustomer = async (data: any) => {
                                 ))}
                             </tr>
                         ))}
-                    </tbody>}
+                    </tbody>
                 </table>
             </div>
             </div>
             <div style={{ flexDirection: "row", textAlign: "end", alignContent: "end", alignItems: "end" }}>
-                <button className="button-cancel" onClick={() => ""}>Cancelar</button>
-                <button className="button-save" onClick={() => createJson()}>Salvar</button>
+                <button className="button-cancel" onClick={() => resetCustomerTabel()}>Cancelar</button>
+                <button className="button-save" style={{ backgroundColor: loading ? "#c3c3c3" : "#5ed12c" }} onClick={() => createJson()}>Salvar</button>
             </div>
             </div>}
         </div>}
@@ -430,6 +432,7 @@ const saveCustomer = async (data: any) => {
                 <tr className="cells table-2024 border-bottom-zero">
                     <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Telefone</span> <div><div className="triangle-up" onClick={()=>handleInitSort("phone","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("phone","desc",false)}></div></div></div></th>
                     <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Nome</span> <div><div className="triangle-up" onClick={()=>handleInitSort("name","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("name","desc",false)}></div></div></div></th>
+                    <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>E-mail</span> <div><div className="triangle-up" onClick={()=>handleInitSort("name","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("name","desc",false)}></div></div></div></th>
                     {customFields.map((fields:any, key:any)=>(
                         <th key={key} className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>{fields.customName}</span> <div><div className="triangle-up" onClick={()=>handleInitSort(fields.id,"asc",true)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort(fields.id,"desc",true)}></div></div></div></th>
                     ))}
@@ -445,6 +448,7 @@ const saveCustomer = async (data: any) => {
                     style={{ border: '1px solid #0171BD', backgroundColor: index % 2 === 0 ? '#e4e4e4' : '#FFF' }}>
                         <td className="border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.phone ?? customer.phone} onChange={(e) => handleChange(e, index, 'phone')}/> : mask(editedValues[index]?.phone ?? customer.phone)}</span></td>
                         <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.name ?? customer.name} onChange={(e) => handleChange(e, index, 'name')}/> : editedValues[index]?.name ?? customer.name}</span></td>
+                        <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.email ?? customer.name} onChange={(e) => handleChange(e, index, 'email')}/> : editedValues[index]?.email ?? customer.email}</span></td>
                         {customFields.map((fields:any, key:any)=>(
                         <td className="border-gray" key={key}><span className="font-size-12">{nameAndValue(customer.customFields, fields.id) ?? '--'}</span></td>
                     ))}                    
