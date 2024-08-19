@@ -8,6 +8,8 @@ import { read, utils } from "xlsx";
 import { DownloadTableExcel } from 'react-export-table-to-excel';
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
+import useModal from "../../../Components/Modal/useModal";
+import Modal from "../../../Components/Modal";
 export function UserManagerList() {
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -30,6 +32,7 @@ const [sortType, setSortType] = useState<string>("")
 const [sortOrder, setOrderSort] = useState<string>("")
 const [loadFinished, setLoadFinished] = useState(true)
 const [isCustomFields, setIsCustomFields] = useState(false)
+const modalRef = useRef<HTMLDivElement>(null);
 const [initDate, setInitDate] = useState({
     day: now.getDate(),
     month: now.getMonth() + 1,
@@ -45,8 +48,23 @@ const [accordionState, setAccordionState] = useState<AccordionUserManager>({
     new: false,
     base: false
 });
+const { isOpen, toggle } = useModal();
 const [accordionTable, setAccordionTable] = useState<Boolean>(false)
-
+const [textToModal, setTextToModal] = useState<string>("")
+const [buttonA, setButtonA] = useState<string>("")
+const [buttonB, setButtonB] = useState<string>("")
+const handleButtonName = (wichButton: string) => {
+    if (wichButton === "Salvar") {
+        setButtonA("Fechar")
+        setButtonB("Salvar")
+        setTextToModal("Você deseja salvar?")
+        toggle();
+    } else if (wichButton === "Sucesso") {
+        setTextToModal("Salvo com sucesso!")
+        setButtonA("Fechar")
+        setButtonB("NaoExibir")
+    }
+}
 
 const getDaysInMonth = (year: number, month: number): number => {
     return new Date(year, month, 0).getDate();
@@ -166,7 +184,17 @@ const saveCustomer = async (data: any) => {
         }));
     };
 
-    const createJson = () => {
+    const openModal = () => {
+        handleButtonName("Salvar")
+    }
+    const handleButtonClick = (buttonId: string) => {
+        if (buttonId === "Salvar") {
+            createJson()
+        } else if (buttonId === "Fechar") {
+            toggle()
+        } 
+    };
+    const createJson = async () => {        
         setLoading(true)
         const headers = ['phone', 'name', 'email'];
         customFields.map((fields:any)=>(
@@ -191,10 +219,11 @@ const saveCustomer = async (data: any) => {
             jsonData.push(obj)
           }
         });
-        console.log(jsonData); 
-        jsonData.forEach((element: any) => {
-            saveCustomer(element)
-        });
+        // toggle();
+        await Promise.all(jsonData.map(async (element: any) => {
+            await saveCustomer(element);
+        }));
+        handleButtonName("Sucesso")
         setLoading(false)
     }
     const nameAndValue = (value: any ,field: any) => {
@@ -258,6 +287,7 @@ const saveCustomer = async (data: any) => {
     }
   return (
     <div className="column-align" style={{width:"100vw", height:"100vh",backgroundColor:"#ebebeb", padding:"10px 10px 0px 0px", alignItems:"center"}}>
+        <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
         <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Gestão de Usuários</h1>
         <div className="column-align" style={{alignItems:"center", width:"100%"}}>
             <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
@@ -344,7 +374,7 @@ const saveCustomer = async (data: any) => {
             </div>
             <div style={{ flexDirection: "row", textAlign: "end", alignContent: "end", alignItems: "end" }}>
                 <button className="button-cancel" onClick={() => resetCustomerTabel()}>Cancelar</button>
-                <button className="button-save" style={{ backgroundColor: loading ? "#c3c3c3" : "#5ed12c" }} onClick={() => createJson()}>Salvar</button>
+                <button className="button-save" style={{ backgroundColor: loading ? "#c3c3c3" : "#5ed12c" }} onClick={() => openModal()}>{loading ? <div className="in_loader"></div> : "Salvar"}</button>
             </div>
             </div>}
         </div>}

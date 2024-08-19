@@ -24,8 +24,7 @@ export function TriggerList() {
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [selectedRow, setSelectedRow] = useState<number | null>(null);
     const [filtro, setFiltro] = useState<string>('');
-    const [dataTreat, setDataTreat] = useState<any>(triggerList)
-    const [isCustomFields, setIsCustomFields] = useState(false)
+    const [dataTreat, setDataTreat] = useState<any>([])
     const menuRef = useRef<HTMLDivElement>(null);
     const [sortType, setSortType] = useState<string>("")
     const [sortOrder, setOrderSort] = useState<string>("")
@@ -74,8 +73,8 @@ export function TriggerList() {
         };
     }, []);
 
-    const filtersByStatus = () => {
-        const dadosFiltrados = triggerList.filter((trigger: any) => { 
+    const filtersByStatus = (triggersList:any) => {
+        const dadosFiltrados = triggersList.filter((trigger: any) => { 
     
             if (trigger.template_name !== null && filtro !== '' && !trigger.template_name.toLowerCase().includes(filtro.toLowerCase()) 
             && (trigger.campaign_name !== null && filtro !== '' && !trigger.campaign_name.toLowerCase().includes(filtro.toLowerCase()))){
@@ -97,10 +96,9 @@ export function TriggerList() {
         setDataTreat(filterByDate(dadosFiltrados))
     };
 
-        const handleInitSort = (value: string, orderBy: string, isCustomFields: boolean) => {
+        const handleInitSort = (value: string, orderBy: string) => {
             setSortType(value)
             setOrderSort(orderBy)
-            setIsCustomFields(isCustomFields)
         }
         const handleSort = (outrosDadosFiltrados: any) => {
 
@@ -180,7 +178,8 @@ export function TriggerList() {
         api.get(`/whatsapp/trigger-bot/${botId}`)
             .then(resp => {
                 setTriggerList(resp.data.data)
-                setDataTreat(resp.data.data)
+                // setDataTreat(resp.data.data)
+                filtersByStatus(resp.data.data)
             })
     }, []);
 
@@ -244,7 +243,7 @@ export function TriggerList() {
     };
 
     useEffect(() => {
-        filtersByStatus()
+        filtersByStatus(triggerList)
     },[changeDateFilter])
 
     return (
@@ -318,14 +317,14 @@ export function TriggerList() {
                 <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", marginTop:"12px"}}>
                     <thead>
                         <tr className="cells table-2024 border-bottom-zero">
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Nome</span> <div><div className="triangle-up" onClick={()=>handleInitSort("campaign_name","asc",false)}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("campaign_name","desc",false)}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Template</span> <div><div className="triangle-up" onClick={()=>handleInitSort("template_name","asc",false)}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("template_name","desc",false)}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data criação</span> <div><div className="triangle-up" onClick={()=>handleInitSort("data_criacao","asc",false)}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("data_criacao","desc",false)}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data de envio</span> <div><div className="triangle-up" onClick={()=>handleInitSort("time_trigger","asc",false)}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("time-trigger","desc",false)}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Status</span> <div><div className="triangle-up" onClick={()=>handleInitSort("status","asc",false)}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("status","desc",false)}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total da campanha</span> <div><div className="triangle-up" onClick={()=>handleInitSort("total","asc",false)}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("total","desc",false)}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de Sucesso</span> <div><div className="triangle-up" onClick={()=>handleInitSort("enviado","asc",false)}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("enviado","desc",false)}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de Erro</span> <div><div className="triangle-up" onClick={()=>handleInitSort("erro","asc",false)}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc",false)}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Nome</span> <div><div className="triangle-up" onClick={()=>handleInitSort("campaign_name","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("campaign_name","desc")}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Template</span> <div><div className="triangle-up" onClick={()=>handleInitSort("template_name","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("template_name","desc")}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data criação</span> <div><div className="triangle-up" onClick={()=>handleInitSort("data_criacao","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("data_criacao","desc")}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data de envio</span> <div><div className="triangle-up" onClick={()=>handleInitSort("time_trigger","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("time-trigger","desc")}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Status</span> <div><div className="triangle-up" onClick={()=>handleInitSort("status","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("status","desc")}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total da campanha</span> <div><div className="triangle-up" onClick={()=>handleInitSort("total","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("total","desc")}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de Sucesso</span> <div><div className="triangle-up" onClick={()=>handleInitSort("enviado","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("enviado","desc")}></div></div></div></th>
+                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de Erro</span> <div><div className="triangle-up" onClick={()=>handleInitSort("erro","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
                             <th className="cells">Opções</th>
                         </tr>
                     </thead>

@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { read, utils } from "xlsx";
-import { errorCampaingEmpty, errorDuplicatedPhone, errorEmptyVariable, errorPhoneEmpty, errorSheets, errorTriggerMode, successCreateTrigger, waitingMessage, errorNoRecipient, errorMessageConfig, errorMidiaEmpty } from "../../../Components/Toastify";
+import { errorCampaingEmpty, errorDuplicatedPhone, errorEmptyVariable, errorPhoneEmpty, errorSheets, errorTriggerMode, successCreateTrigger, waitingMessage, errorNoRecipient, errorMessageConfig, errorMidiaEmpty, errorMessagePayload } from "../../../Components/Toastify";
 import api from "../../../utils/api";
 import { ToastContainer } from "react-toastify";
 import './index.css'
@@ -54,6 +54,7 @@ export function Accordion() {
     const [payload1, setPayload1] = useState<string>()
     const [payload2, setPayload2] = useState<string>()
     const [payload3, setPayload3] = useState<string>()
+    const [templateNameSelect, setTemplateNameSelect] = useState<string>("Edta")
     const [urlMidia, setURLMidia] = useState<string>("");
     const [templates, setTemplates] = useState<ITemplateList[]>([])
     const [qtButtons, setQtButtons] = useState<number>(0)
@@ -178,7 +179,13 @@ export function Accordion() {
             const ws = wb.Sheets[wsname];
 
             const data = utils.sheet_to_json(ws, { header: 1 }) as any[][];
-            setFileData(data);
+            const dataFile: any = [];
+            data.slice(1).forEach(values => {
+                if(values.length > 0) {
+                    dataFile.push(values)
+                }
+            })
+            setFileData(dataFile);
         };
 
         reader.readAsBinaryString(file);
@@ -334,6 +341,10 @@ export function Accordion() {
         return buttons;
     }
 
+    const openModal = (e:any) => {
+        handleButtonName("Select")
+        setTemplateNameSelect(e)
+    }
     const loadNewTemplate = (e:any) =>{
         setVariables([])
         setPayload1(undefined)
@@ -435,16 +446,30 @@ export function Accordion() {
             setButtonB("Salvar")
             setTextToModal("Você deseja salvar?")
         } else if (wichButton === "Cancelar") {
-            setButtonA("Fechar")
-            setButtonB("Voltar")
-            setTextToModal("Você deseja voltar?")
+            setButtonA("Sim")
+            setButtonB("Não")
+            setTextToModal("Deseja cancelar a Campanha?")
+        } else if (wichButton === "Select") {
+            setButtonA("Não")
+            setButtonB("Alterar")
+            setTextToModal("Deseja alterar o template?")
         }
         toggle();
     }
     const validatedPayload = () => {
-        if(campaignName.length === 0 ){
-            errorMessageConfig()
-            return;
+        if(qtButtons > 0 ) {
+            if(payload1 === undefined || payload1.length === 0){
+                errorMessagePayload()
+                return;
+            }
+            if(payload2 === undefined || payload2.length === 0){
+                errorMessagePayload()
+                return;
+            }
+            if(payload3 === undefined || payload3.length === 0){
+                errorMessagePayload()
+                return;
+            }
         }
         if((listVariables.length === 0 && !typeClient) || (fileData.length === 0 && typeClient)){
             errorNoRecipient()
@@ -468,17 +493,23 @@ export function Accordion() {
         } else if (buttonId === "Voltar") {
             toggle();
             BackToList();
+        } else if (buttonId === "Sim") {
+            toggle();
+            BackToList();
+        } else if (buttonId === "Não") {
+            toggle();
+        } else if (buttonId === "Alterar") {
+            loadNewTemplate(templateNameSelect)
+            toggle();
         }
     };
 
     const sheetsVariables = () => {
         let total = 0;
-        console.log(fileData[1])
         if(fileData[1]===undefined){
             return total -1;
         }
         fileData[1].forEach((value) => {
-            console.log(value)
             if (value !== "") total++;
         });
         return total -1;
@@ -513,8 +544,8 @@ export function Accordion() {
                         </div>
                         <div style={{ display: "flex", flexDirection: "column" }}>
                             <span className="span-title" style={{width:"100%", justifyContent:"left", marginLeft:"12px"}}>Selecionar template </span>
-                            <select name="" id="" className="input-values" onChange={e=>loadNewTemplate(e.target.value)}>
-                                    <option value="">{templateName ?? "--"}</option>
+                            <select value={templateName} className="input-values" onChange={ e => openModal(e.target.value)}>
+                                <option value="">{templateName ?? "--"}</option>
                                 {templates.map((template, key) => (
                                     <option key={key} value={template.ID}>{template.name}</option>
                                 ))}
@@ -627,7 +658,7 @@ export function Accordion() {
                                 <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", width:"97%", padding:"10px"}}>
                                     <thead>
                                         <tr  className="cells table-2024 border-bottom-zero">
-                                            <th  className="cells" style={{fontSize:"10px"}}><div style={{background:"#FFF", padding:"35px", borderRadius:"6px"}}>Telefone</div></th>
+                                            <th  className="cells" style={{fontSize:"10px"}}><div style={{background:"#FFF",  borderRadius:"6px"}}>Telefone</div></th>
                                             {variables.length>0 && <th  className="cells" style={{fontSize:"10px"}}>Variável 1</th>}
                                             {variables.length>1 && <th  className="cells" style={{fontSize:"10px"}}>Variável 2</th>}
                                             {variables.length>2 && <th  className="cells" style={{fontSize:"10px"}}>Variável 3</th>}
@@ -651,7 +682,7 @@ export function Accordion() {
                                                 {variables.length>5 && <th>{unicVariable.variable_6}</th>}
                                                 {variables.length>6 && <th>{unicVariable.variable_7}</th>}
                                                 {variables.length>7 && <th>{unicVariable.variable_8}</th>}
-                                                <th>{unicVariable.media_url}</th>
+                                                {headerConfig !== "text" && headerConfig !== null &&<th>{unicVariable.media_url} OI</th>}
                                             </tr>
                                         ))}
                                     </tbody>
@@ -727,7 +758,7 @@ export function Accordion() {
                                         </tr>
                                     </thead>
                                     <tbody className="font-size-12" style={{ backgroundColor: '#F9F9F9'}}>
-                                        {fileData.length > 0 && fileData.slice(1).map((row, rowIndex) => (
+                                        {fileData.length > 0 && fileData.map((row, rowIndex) => (
                                             <tr key={rowIndex}>
                                                 {row.map((cell, cellIndex) => (
                                                     <td key={cellIndex}>{cell}</td>
@@ -799,7 +830,7 @@ export function Accordion() {
                                     <span className="span-title-resume">Template: {templateName}</span>
                                     <span className="span-title-resume">Telefone do disparo: {mask(phone)}</span>
                                     <span className="span-title-resume">Data e hora do disparo: {triggerMode==="imediato" ? "imediato" : `agendado dia ${formatDate(dates)} às ${hours}`}</span>
-                                    <span className="span-title-resume">Quantidade de disparos: {typeClient === false ? listVariables.length : ""}</span>
+                                    <span className="span-title-resume">Quantidade de disparos: {typeClient === false ? listVariables.length : fileData.length > 0 ? fileData.length : "0"}</span>
                                 </div>
                                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", width: "100%" }}>
                                     <button className="button-cancel" onClick={() => handleButtonName("Cancelar")}>Cancelar</button>

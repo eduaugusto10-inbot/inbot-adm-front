@@ -222,8 +222,8 @@ export function TriggerDetails() {
         return false;
     });
     return (
-        <div className="width-95-perc">
-            <ToastContainer />
+        <div className="width-95-perc" style={{ padding:"10px 0px"}}>
+            <ToastContainer /> 
             <div>
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width:"100%" }} className="title_2024">Detalhes da Campanha</h1>
                 <div className="column-align" style={{alignItems:"center"}}>

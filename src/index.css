@@ -178,7 +178,7 @@ table th:nth-child(even) {
 .border_gradient {
     position: relative;
     background: linear-gradient(to right, #a050e0, #80a0ff);
-    padding: 1px;
+    padding: 1.1px;
     border-radius: 8px;
 }
 

@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import alert from "../../../img/help_blue.png"
 import 'react-tooltip/dist/react-tooltip.css'
 import { Tooltip } from 'react-tooltip'
-import { erroMessageQuickReply, errorMessageHeader, errorMessageFooter, errorMessageBody, waitingMessage, successCreateTemplate, errorMessage, errorMessageConfig } from "../../../Components/Toastify";
+import { erroMessageQuickReply, errorMessageHeader, errorMessageFooter, errorMessageBody, waitingMessage, successCreateTemplate, errorMessage, errorMessageConfig, errorVariableEmpty } from "../../../Components/Toastify";
 import strings from '../strings.json'
 import api from "../../../utils/api";
 import { ToastContainer } from "react-toastify";
@@ -76,13 +76,18 @@ export function CreateTemplateAccordion() {
             }).catch(error => console.log(error))
     }, []);
     useEffect(() => {
-        if(location?.state?.duplicated){
+        console.log("location?.state?.headerText")
+        if(location?.state?.duplicated) {
+            setTypeOfHeader(location?.state?.headerConfig)
+            setRodape(location?.state?.rodapeConfig === "rodape" ? false : true)
+            setRodapeType(location?.state?.rodapeConfig)
             location.state.duplicated = false
             setTemplate(prevState => ({
                 ...prevState,
                 "body": location?.state?.bodyText,
+                "header" : location?.state?.headerText,
+                "footer" : location?.state?.footerText
             }));
-            console.log(location?.state)
             const totalVariable = location.state.variableQuantity;
             setTemplateType(location?.state?.category)
             for(let i=0;i<totalVariable;i++) {
@@ -304,6 +309,14 @@ export function CreateTemplateAccordion() {
     }
 
     const validatedPayload = () => {
+        if(variables.length > 0) {
+            variables.forEach(variable => {
+                if(variable.text.length === 0) {
+                    errorVariableEmpty()
+                    return;
+                }
+            })
+        }
         if (templateName.length === 0 || templateType === ""){
             errorMessageConfig()
             return;
@@ -501,7 +514,7 @@ export function CreateTemplateAccordion() {
     return (
         <div className="column-align width-95-perc" style={{ alignItems:"center", padding:"10px 0px" }}>
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Criar Template</h1>
-                <div className="column-align" style={{alignItems:"center"}}>
+                <div className="column-align" style={{alignItems:"center", width:"100%"}}>
                     <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
                 </div>
                 <br/>
@@ -560,12 +573,12 @@ export function CreateTemplateAccordion() {
                                 </div>
                             </div>
                             <div className="card_2024 column-align" style={{ width: "340px", textAlign: "left", marginLeft: "20px" }}>
-                                <div className="row-align" style={{ height:"50px"}}>
+                                <div className="row-align" style={{ width:"100%", height:"50px"}}>
                                     <div style={{ margin: "10px" }}>
                                         <img src={alert} width={20} alt="alerta" />
                                     </div>
                                     <div style={{ display: "flex", flexDirection: "column", minHeight: "200px" }}>
-                                        <span style={{ padding: "10px", fontSize: "16px" }} className="title-blue bolder">{templateType === "AUTHENTICATION" ? "Autenticação" : templateType === "UTILITY" ? "Utilitário" : templateType === "MARKETING" ? "Marketing" : "Início"}</span>
+                                        <span style={{ padding: "12px", fontSize: "16px" }} className="title-blue bolder">{templateType === "AUTHENTICATION" ? "Autenticação" : templateType === "UTILITY" ? "Utilitário" : templateType === "MARKETING" ? "Marketing" : "Início"}</span>
                                     </div>
                                 </div>
                                     <span style={{ margin: "10px", fontSize: "11px" }}>{selectTemplate(templateType)}</span>

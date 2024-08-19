@@ -70,6 +70,8 @@ export const successCreateTrigger = () => toast.success("Criado com sucesso", {
 export const emptyMessage = () => toast.warn("Preencha todos os campos");
 export const errorMessageHeader = () => toast.warn("Preencha os campos do cabeçalho");
 export const errorMessageConfig = () => toast.warn("Preencha os campos de configuração");
+export const errorMessagePayload = () => toast.warn("Preencha os campos de payload");
+export const errorVariableEmpty = () => toast.warn("Variável não pode ser vazia");
 export const errorMessageFooter = () => toast.warn("Preencha os campos do rodapé");
 export const errorMessageBody = () => toast.warn("Preencha o body, não pode ser vazio");
 export const erroMessageQuickReply = () => toast.warn("Preencha o botão");

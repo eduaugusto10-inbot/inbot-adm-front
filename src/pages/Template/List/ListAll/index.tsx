@@ -22,6 +22,7 @@ export function ListAll() {
     const [templates, setTemplates] = useState<ITemplateList[]>([])
     const [phone, setPhone] = useState<string>("")
     const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+    const [headerText, setHeaderText] = useState("")
     const [hoveredRowMenu, setHoveredRowMenu] = useState<number | null>(null);
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
@@ -88,7 +89,6 @@ export function ListAll() {
 
     const history = useNavigate();
     function SendTemplate(name: string, variableQuantity: number, qtButtons: number, headerConfig: string | null, templateID: string) {
-        console.log(headerConfig)
         history(`/template-trigger?bot_id=${botId}`, { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: "", phone: phone, headerConfig: headerConfig, qtButtons: qtButtons, templateID: templateID } });
     }
 
@@ -128,6 +128,7 @@ export function ListAll() {
                         break;
                     case "text":
                         headerType = "text";
+                        setHeaderText(element.parameters[0].text)
                         break;
                     case "image":
                         headerType = "image";
@@ -141,6 +142,51 @@ export function ListAll() {
             }
         });
         return headerType;
+    }
+    const hasHeaderText = (headerElement: any) => {
+        let headerText = null;
+        headerElement.forEach((element: any) => {
+            if (element.type === "header") {
+                switch (element.parameters[0].type) {
+                    case "text":
+                        headerText = element.parameters[0].text
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        return headerText;
+    }
+    const hasFooterText = (headerElement: any) => {
+        let footerText = null;
+        headerElement.forEach((element: any) => {
+            if (element.type === "footer") {
+                switch (element.parameters[0].type) {
+                    case "text":
+                        footerText = element.parameters[0].text
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        return footerText;
+    }
+    const hasFooter = (headerElement: any) => {
+        let footer = "srodape";
+        headerElement.forEach((element: any) => {
+            if (element.type === "footer") {
+                switch (element.parameters[0].type) {
+                    case "text":
+                        footer = "rodape"
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+        return footer;
     }
 
     const findButton = (obj: any, type: string) => {
@@ -202,7 +248,6 @@ export function ListAll() {
             }
         });
         const buttonsTexts = findButton(sortTemplates[id].components, "button")
-
         history(`/template-create?bot_id=${botId}`, { 
             state: { 
                 duplicated: true,
@@ -214,7 +259,10 @@ export function ListAll() {
                 qtButtons: hasManyButtons(sortTemplates[id].components),
                 buttons: buttonsDuplicated,
                 bodyText: bodyText,
-                buttonsContent: buttonsTexts
+                buttonsContent: buttonsTexts,
+                headerText: hasHeaderText(sortTemplates[id].components),
+                footerText: hasFooterText(sortTemplates[id].components),
+                rodapeConfig: hasFooter(sortTemplates[id].components)
             } 
         });
     }
@@ -287,7 +335,7 @@ export function ListAll() {
                                 onMouseLeave={handleMouseLeave}
                             >
                                 <td style={{width:"100px"}}><span>{template.name}</span></td>
-                                <td style={{textAlign:"center"}}><div style={{ borderRadius: "20px", padding: "7px" }}><span style={{ color: template.status === "APPROVED" ? "green" : template.status === "PENDING" ? "yellow" : "red" }}>{template.status === "APPROVED" ? "Aprovado" : template.status === "PENDING" ? "Pendente" : "Rejeitado"}</span></div></td>
+                                <td style={{textAlign:"center"}}><div style={{ borderRadius: "20px", padding: "7px" }}><span style={{ color: template.status === "APPROVED" ? "green" : template.status === "PENDING" ? "orange" : "red" }}>{template.status === "APPROVED" ? "Aprovado" : template.status === "PENDING" ? "Pendente" : "Rejeitado"}</span></div></td>
                                 <td style={{textAlign:"center"}}><span>{template.category.toLowerCase()}</span></td>
                                 <td style={{textAlign:"center"}}><span>{template.language}</span></td>
                                 <td style={{textAlign:"center"}}><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>
