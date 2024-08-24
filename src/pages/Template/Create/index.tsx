@@ -523,7 +523,7 @@ export function CreateTemplateAccordion() {
                 <ToastContainer />
                 <div className="config-template column-align" style={{ alignItems:"center" }}>
                     <div className={`accordion_head ${accordionState.config ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>1. Configuração
-                    <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.config ?"-90deg" : "90deg"}} /></div>
+                        <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.config ?"-90deg" : "90deg"}} /></div>
                     </div>
                     {accordionState.config &&
                     <div className="column accordeon-new" style={{width:"800px"}} >

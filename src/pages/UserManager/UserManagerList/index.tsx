@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import api from "../../../utils/api";
 import './style.css'
 import { adjustTimeWithout3Hour, mask } from "../../../utils/utils";
-import { AccordionUserManager } from "../../types";
+import { AccordionUserManager, IFilterBtn } from "../../types";
 import { months, years } from "../../../utils/textAux";
 import { read, utils } from "xlsx";
 import { DownloadTableExcel } from 'react-export-table-to-excel';
@@ -10,6 +10,7 @@ import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import useModal from "../../../Components/Modal/useModal";
 import Modal from "../../../Components/Modal";
+import chevron from "../../../img/right-chevron.png"
 export function UserManagerList() {
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -27,11 +28,15 @@ const [fileName, setFileName] = useState('');
 const [loading, setLoading] = useState<boolean>(false)
 const fileInputRef = useRef<HTMLInputElement>(null);
 const [fileData, setFileData] = useState<any[][]>([]);
+const [filterSelectedValue, setFilterSelectedValue] = useState("")
 const [searchButton, setSearchButton] = useState<boolean>(false)
 const [sortType, setSortType] = useState<string>("")
 const [sortOrder, setOrderSort] = useState<string>("")
 const [loadFinished, setLoadFinished] = useState(true)
+const [filterSelected, setFilterSelected] = useState("")
 const [isCustomFields, setIsCustomFields] = useState(false)
+const [changeDateFilter, setChangeDateFilter] = useState<boolean>(false)
+const [filtro, setFiltro] = useState<string>('');
 const modalRef = useRef<HTMLDivElement>(null);
 const [initDate, setInitDate] = useState({
     day: now.getDate(),
@@ -53,6 +58,14 @@ const [accordionTable, setAccordionTable] = useState<Boolean>(false)
 const [textToModal, setTextToModal] = useState<string>("")
 const [buttonA, setButtonA] = useState<string>("")
 const [buttonB, setButtonB] = useState<string>("")
+const [filtersBtn, setFiltersBtn] = useState<IFilterBtn>({
+    status: {
+        todos: true,
+        ativos: true,
+        inativos: true,
+    }
+});
+
 const handleButtonName = (wichButton: string) => {
     if (wichButton === "Salvar") {
         setButtonA("Fechar")
@@ -235,18 +248,33 @@ const saveCustomer = async (data: any) => {
         }
         return resp;
     }
-
+     
+    const handleStatusChange = (statusKey: keyof IFilterBtn['status']) => {
+        setFiltersBtn({
+            ...filtersBtn,
+            status: {
+                ...filtersBtn.status,
+                [statusKey]: !filtersBtn.status[statusKey],
+            },
+        });
+        setChangeDateFilter(previous => !previous)
+    };
     const handleInitSort = (value: string, orderBy: string, isCustomFields: boolean) => {
         setSortType(value)
         setOrderSort(orderBy)
         setIsCustomFields(isCustomFields)
     }
     const handleSort = (outrosDadosFiltrados: any) => {
-
-            const sortedItems = [...outrosDadosFiltrados];
+        const filteredItems = outrosDadosFiltrados.filter((item: any) => {
+            const value = item[`${filterSelected}`] || '';
+            return value.toString().toLowerCase().includes(filterSelectedValue);
+          });
+            const sortedItems = [...filteredItems];
             if(sortType === ""){
                 return sortedItems;
             }
+            console.log(filterSelected)
+
             if (sortOrder === "asc") {
                 sortedItems.sort((a, b) => {
                   let valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : 'Z';
@@ -285,6 +313,7 @@ const saveCustomer = async (data: any) => {
         setFileData([]);
         setFileName("")
     }
+    
   return (
     <div className="column-align" style={{width:"100vw", height:"100vh",backgroundColor:"#ebebeb", padding:"10px 10px 0px 0px", alignItems:"center"}}>
         <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
@@ -293,18 +322,20 @@ const saveCustomer = async (data: any) => {
             <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
         </div>
         <div className="config-template" style={{width:"95%"}}>
-        <div className="header-accordion gradient-background" style={{width:"100%", borderRadius: "20px" }} onClick={() => toggleAccordion('new')}>Adicionar Usuários</div>      
+        <div className={`accordion_head ${accordionState.new ? "accordion_head_opened" : ""}`} style={{width:"100%", borderRadius: "20px" }} onClick={() => toggleAccordion('new')}>Adicionar Usuários
+            <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.new ?"-90deg" : "90deg"}} /></div>
+        </div>      
         {accordionState.new && 
-        <div>
-            <input type="radio" id="addUsersType" onChange={handleMode} checked={accordionTable === true}/><span style={{padding:"9px"}}>Cadastrar usuários individualmente</span>
+        <div style={{marginTop:"15px"}}>
+            <input type="radio" id="addUsersType" onChange={handleMode} checked={accordionTable === true} disabled/><span style={{padding:"9px"}}>Cadastrar usuários individualmente</span>
             <input type="radio" id="addUsersType" onChange={handleMode} checked={accordionTable === false}/><span style={{padding:"9px"}}>Upload de planilha de usuários</span>
             <button className="button-blue">Download</button>
             {accordionTable &&
-                <div style={{ overflowX:"auto" }}>
-                <table className="table-2024" style={{width:"100%", margin:"20px"}}>
+                <div className="column-align" style={{ padding:"20px" }}>
+                <table className="table-2024 fixed-header-table" style={{ minWidth: "90%",flexShrink: "0" }}> 
                     <thead>
-                    <tr className="table-2024" style={{borderBottom: "0px"}}>
-                        <th className="cells" style={{padding:"0px 50px 0px", borderRight:"1px solid #aaa"}}>Telefone</th>
+                    <tr className="cells table-2024 border-bottom-zero font-size-12">
+                        <th className="cells">Telefone</th>
                         <th className="cells">Nome</th>
                         <th className="cells">E-mail</th>
                         {customFields.map((fields:any)=>(
@@ -346,10 +377,10 @@ const saveCustomer = async (data: any) => {
                     />
                     <input type="text" value={fileName} disabled/>
                     <button type="button" onClick={() => fileInputRef.current?.click()} className="button-blue" style={{margin:"9px"}}>Anexar</button>
-            <div style={{ overflowX:"auto" }}>
-                <table className="table-2024" style={{width:"100%", margin:"20px"}}>
+            <div className="column-align" style={{ padding:"20px" }}>
+                <table className="table-2024 fixed-header-table" style={{ minWidth: "90%",flexShrink: "0" }}>
                     <thead>
-                    <tr className="table-2024"  style={{borderBottom: "0px"}}>
+                    <tr className="cells table-2024 border-bottom-zero font-size-12">
                         <th className="cells" style={{padding:"0px 50px 0px", borderRight:"1px solid #aaa"}}>Telefone</th>
                         <th className="cells">Nome</th>
                         <th className="cells">E-mail</th>
@@ -378,11 +409,13 @@ const saveCustomer = async (data: any) => {
             </div>
             </div>}
         </div>}
-            <div className="header-accordion gradient-background" style={{width:"100%", borderRadius: "20px" }} onClick={() => toggleAccordion('base')}>Base de Usuários</div>                  
+            <div className={`accordion_head ${accordionState.base ? "accordion_head_opened" : ""}`} style={{width:"100%", borderRadius: "20px" }} onClick={() => toggleAccordion('base')}>Base de Usuários
+                <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.new ?"-90deg" : "90deg"}} /></div>
+            </div>                  
             {accordionState.base && 
             <div>
                 <div style={{margin:"10px 20px", textAlign:"left"}}>
-                <span className="color-text-label">Data de cadastro</span>
+                <span className="color-text-label">Data de cadastro: </span>
                 <select value={initDate.day} onChange={e => setInitDate(prevState => ({...prevState,day: Number(e.target.value) }))} className="input-values litle-input" >
                 {[...Array(31).keys()].map(i => (
                     <option key={i+1} value={(i+1).toString()}>{i+1}</option>
@@ -398,7 +431,7 @@ const saveCustomer = async (data: any) => {
                         <option value={year}>{year}</option>
                     ))}
                 </select>
-                <span>Até</span>
+                <span style={{ color: "#002080", fontWeight:"bolder", margin:"0px 10px 0px 10px" }}>até</span>
                 <select value={finalDate.day} onChange={e => setFinalDate(prevState => ({...prevState,day: Number(e.target.value) }))} className="input-values litle-input">
                     {[...Array(31).keys()].map(i => (
                         <option key={i+1} value={(i+1).toString()}>{i+1}</option>
@@ -420,20 +453,20 @@ const saveCustomer = async (data: any) => {
                     }} 
                     disabled={!loadFinished}>{loadFinished ? "Buscar" : <div className="in_loader"></div>}</button>
             </div>
-            <div className="row-align" style={{marginBottom:"30px"}}>
+            {/* <div className="row-align" style={{marginBottom:"30px", alignItems:"center"}}>
                 <span className="color-text-label" style={{padding:"0px 50px 0px 20px"}}>Status:</span>
-                <div className="border_gradient margin-rigth-10" onClick={()=>""}><span className="number_button_gradient" style={{width: "80px",height:"25px",fontSize:"14px", borderRadius: "6px", cursor:"pointer"}}>Todos</span></div>
-                <div className="border_gradient margin-rigth-10" onClick={()=>""}><span className="number_button_gradient" style={{width: "80px",height:"25px",fontSize:"14px", borderRadius: "6px", cursor:"pointer"}}>Ativos</span></div>
-                <div className="border_gradient" onClick={()=>""}><span className="number_button_gradient" style={{width: "80px",height:"25px",fontSize:"14px", borderRadius: "6px", cursor:"pointer"}}>Inativos</span></div>
-            </div>
+                <div className={filtersBtn.status.todos ? "border_gradient" : "border_gradient-gray"} onClick={()=>""} style={{marginRight:"15px", cursor:"pointer", marginLeft:"20px"}}><div className={filtersBtn.status.todos ? "number_button_gradient" : "number_button_gradient-gray"} onClick={() => handleStatusChange('todos')}>Todos</div></div>
+                <div className={filtersBtn.status.ativos ? "border_gradient" : "border_gradient-gray"} onClick={()=>""} style={{marginRight:"15px", cursor:"pointer"}}><div className={filtersBtn.status.ativos ? "number_button_gradient" : "number_button_gradient-gray"} onClick={() => handleStatusChange('ativos')}>Ativos</div></div>
+                <div className={filtersBtn.status.inativos ? "border_gradient" : "border_gradient-gray"} onClick={()=>""} style={{marginRight:"15px", cursor:"pointer"}}><div className={filtersBtn.status.inativos ? "number_button_gradient" : "number_button_gradient-gray"} onClick={() => handleStatusChange('inativos')}>Inativos</div></div>
+            </div> */}
             <div className="row-align">
                 <div className="column-align left-align" style={{marginLeft:"20px"}}>
                     <span className="color-text-label">Filtrar por campo:</span>
-                    <select name="" id="" className="input-values" style={{border:"none", height:"30px", width:"300px"}}>
+                    <select onChange={e => setFilterSelected(e.target.value)} name="" id="" className="input-values" style={{border:"none", height:"30px", width:"300px", marginLeft:"0px"}}>
                         <option value="Escolha uma opção">Escolha uma opção</option>
-                        <option value="Telefone">Telefone</option>
-                        <option value="Nome">Nome</option>
-                        <option value="E-mail">E-mail</option>
+                        <option value="phone">Telefone</option>
+                        <option value="name">Nome</option>
+                        <option value="email">E-mail</option>
                         {customFields.map((customField: any) => (
                             <option value={customField.id}>{customField.customName}</option>
                         ))}
@@ -441,13 +474,13 @@ const saveCustomer = async (data: any) => {
                 </div>
                 <div className="column-align left-align" style={{marginLeft:"50px"}}>
                     <span className="color-text-label" style={{marginLeft:"10px"}}>Conteúdo do campo:</span>
-                    <input name="" id="" className="input-values" style={{border:"none", height:"30px", width:"300px"}}/>
+                    <input onChange={e => setFilterSelectedValue(e.target.value)} name="" id="" className="input-values" style={{border:"none", height:"30px", width:"300px"}}/>
                 </div>
             </div>
             <div className="column-align" style={{alignItems:"center"}}>
                 <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
             </div>
-            <div className="row-align" style={{justifyContent: "space-between"}}>
+            <div className="row-align" style={{justifyContent: "space-between", margin:"10px 20px 0px 30px"}}>
                 <span className="color-text-label font-size-12">{qtyCustomerCounter(qtyCustomer)}</span>
                 <DownloadTableExcel
                     filename="users table"
@@ -456,10 +489,10 @@ const saveCustomer = async (data: any) => {
                         <button className="button-blue" style={{width:"150px", margin:"1px"}}> Exportar excel </button>
                 </DownloadTableExcel>
             </div>
-                    <div style={{ overflowX:"auto" }}>
-            <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", marginTop:"20px"}} ref={tableRef}>
+                    <div className="column-align" style={{ padding:"20px" }}>
+            <table className="table-2024 fixed-header-table" style={{ minWidth: "90%",flexShrink: "0" }} ref={tableRef}>
                 <thead>
-                <tr className="cells table-2024 border-bottom-zero">
+                <tr className="cells table-2024 border-bottom-zero font-size-12">
                     <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Telefone</span> <div><div className="triangle-up" onClick={()=>handleInitSort("phone","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("phone","desc",false)}></div></div></div></th>
                     <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Nome</span> <div><div className="triangle-up" onClick={()=>handleInitSort("name","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("name","desc",false)}></div></div></div></th>
                     <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>E-mail</span> <div><div className="triangle-up" onClick={()=>handleInitSort("name","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("name","desc",false)}></div></div></div></th>
@@ -480,14 +513,14 @@ const saveCustomer = async (data: any) => {
                         <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.name ?? customer.name} onChange={(e) => handleChange(e, index, 'name')}/> : editedValues[index]?.name ?? customer.name}</span></td>
                         <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.email ?? customer.name} onChange={(e) => handleChange(e, index, 'email')}/> : editedValues[index]?.email ?? customer.email}</span></td>
                         {customFields.map((fields:any, key:any)=>(
-                        <td className="border-gray" key={key}><span className="font-size-12">{nameAndValue(customer.customFields, fields.id) ?? '--'}</span></td>
+                        <td className="border-gray" key={key}><span className="font-size-12">{!nameAndValue(customer.customFields, fields.id) ? '--' : nameAndValue(customer.customFields, fields.id) !== "null" ? nameAndValue(customer.customFields, fields.id) : '--'}</span></td>
                     ))}                    
                         <td className="border-gray"><span style={{fontSize:"12px"}}>{adjustTimeWithout3Hour(customer.createdAt)}</span></td>
                         <td className="border-gray">
                     {editMode[index] ? (
-                    <button onClick={() => handleSave(index)}>Save</button>
+                    <button className="button-save" onClick={() => handleSave(index)}>Save</button>
                     ) : (
-                    <button onClick={() => toggleEditMode(index)}>✎</button>
+                    <button className="button-blue" style={{backgroundColor:"gray"}} onClick={() => toggleEditMode(index)} disabled>Alterar</button>
                     )}
                 </td>
                     </tr>

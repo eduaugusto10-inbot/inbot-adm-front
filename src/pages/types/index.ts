@@ -248,3 +248,11 @@ export interface ITriggerListFilter {
         cancelado: boolean;
     };
 }
+
+export interface IFilterBtn {
+    status: {
+        todos: boolean;
+        ativos: boolean;
+        inativos: boolean;
+    };
+}
