@@ -52,6 +52,7 @@ export function Accordion() {
     const [triggerNames, setTriggerNames] = useState<any>([])
     const [errorMessage, setErrorMessage] = useState<string>("");
     const [payload1, setPayload1] = useState<string>()
+    const [typeClientValue, setTypeClientValue] = useState<boolean>(false)
     const [payload2, setPayload2] = useState<string>()
     const [payload3, setPayload3] = useState<string>()
     const [templateNameSelect, setTemplateNameSelect] = useState<string>("Edta")
@@ -257,9 +258,10 @@ export function Accordion() {
     };
 
     const signInClients = (e: any) => {
-        const value = e.target.value === "unico"
-        setTypeClients(!value)
+        setTypeClients(e)
         setShowType(true)
+        setListVariables([])
+        setFileData([])
     }
     const handleMode = (e: any) => {
         const value = e.target.value === "imediato";
@@ -345,6 +347,17 @@ export function Accordion() {
         handleButtonName("Select")
         setTemplateNameSelect(e)
     }
+    
+    const openModalChangeCustomersType = (e:any) => {
+        const value = e.target.value === "unico"
+        setTypeClientValue(!value)
+        if(showType === false) {
+            signInClients(!value)
+        } else {            
+            handleButtonName("ChangeCustomersContacts")
+        }
+    }
+    
     const loadNewTemplate = (e:any) =>{
         setVariables([])
         setPayload1(undefined)
@@ -449,6 +462,10 @@ export function Accordion() {
             setButtonA("Sim")
             setButtonB("Não")
             setTextToModal("Deseja cancelar a Campanha?")
+        } else if (wichButton === "ChangeCustomersContacts") {
+            setButtonA("Não")
+            setButtonB("Alterar")
+            setTextToModal("Deseja alterar a opção?")
         } else if (wichButton === "Select") {
             setButtonA("Não")
             setButtonB("Alterar")
@@ -457,19 +474,17 @@ export function Accordion() {
         toggle();
     }
     const validatedPayload = () => {
-        if(qtButtons > 0 ) {
-            if(payload1 === undefined || payload1.length === 0){
-                errorMessagePayload()
-                return;
-            }
-            if(payload2 === undefined || payload2.length === 0){
-                errorMessagePayload()
-                return;
-            }
-            if(payload3 === undefined || payload3.length === 0){
-                errorMessagePayload()
-                return;
-            }
+        if(qtButtons > 0 && (payload1 === undefined || payload1.length === 0)){
+            errorMessagePayload()
+            return;
+        }
+        if(qtButtons > 1 && (payload2 === undefined || payload2.length === 0)){
+            errorMessagePayload()
+            return;
+        }
+        if(qtButtons > 2 && (payload3 === undefined || payload3.length === 0)){
+            errorMessagePayload()
+            return;
         }
         if((listVariables.length === 0 && !typeClient) || (fileData.length === 0 && typeClient)){
             errorNoRecipient()
@@ -497,6 +512,9 @@ export function Accordion() {
             toggle();
             BackToList();
         } else if (buttonId === "Não") {
+            toggle();
+        } else if (textToModal === "Deseja alterar a opção?" && buttonId === "Alterar") {
+            signInClients(typeClientValue)
             toggle();
         } else if (buttonId === "Alterar") {
             loadNewTemplate(templateNameSelect)
@@ -570,7 +588,7 @@ export function Accordion() {
                                     type="radio" 
                                     name="clientes" 
                                     value="unico" 
-                                    onChange={signInClients} 
+                                    onChange={openModalChangeCustomersType} 
                                     className="input-spaces" 
                                     checked={typeClient === false} 
                                 />
@@ -697,7 +715,7 @@ export function Accordion() {
                                     type="radio" 
                                     name="clientes" 
                                     value="multiplos" 
-                                    onChange={signInClients} 
+                                    onChange={openModalChangeCustomersType} 
                                     className="input-spaces" 
                                     checked={typeClient === true}                                    
                                 />

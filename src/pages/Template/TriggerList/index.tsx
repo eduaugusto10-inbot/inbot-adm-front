@@ -20,6 +20,7 @@ export function TriggerList() {
     const now = new Date();
     const [triggerList, setTriggerList] = useState<ITriggerList[]>([])
     const [hoveredRowMenu, setHoveredRowMenu] = useState<number | null>(null);
+    const [loading, setLoading] = useState<boolean>(true)
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [selectedRow, setSelectedRow] = useState<number | null>(null);
@@ -175,13 +176,30 @@ export function TriggerList() {
     const history = useNavigate();
 
     useEffect(() => {
+        setLoading(true)
         api.get(`/whatsapp/trigger-bot/${botId}`)
             .then(resp => {
                 setTriggerList(resp.data.data)
                 // setDataTreat(resp.data.data)
                 filtersByStatus(resp.data.data)
+                setLoading(false)
             })
     }, []);
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            api.get(`/whatsapp/trigger-bot/${botId}`)
+                .then(resp => {
+                    setTriggerList(resp.data.data);
+                    filtersByStatus(resp.data.data);
+                })
+                .catch(error => {
+                    console.error("Erro ao buscar os dados:", error);
+                });
+        }, 15000);
+        return () => clearInterval(intervalId);
+    }, []);
+    
 
     function detailedTrigger(id: number) {
         const sortTrigger = handleSort(dataTreat);
@@ -314,41 +332,48 @@ export function TriggerList() {
                 <div style={{textAlign:"left"}}>
                     <span style={{ color: "#002080", fontWeight:"bolder" }}>{dataTreat.length} resultados encontrados</span>
                 </div>
-                <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", marginTop:"12px"}}>
-                    <thead>
-                        <tr className="cells table-2024 border-bottom-zero">
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Nome</span> <div><div className="triangle-up" onClick={()=>handleInitSort("campaign_name","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("campaign_name","desc")}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Template</span> <div><div className="triangle-up" onClick={()=>handleInitSort("template_name","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("template_name","desc")}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data criação</span> <div><div className="triangle-up" onClick={()=>handleInitSort("data_criacao","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("data_criacao","desc")}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data de envio</span> <div><div className="triangle-up" onClick={()=>handleInitSort("time_trigger","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("time-trigger","desc")}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Status</span> <div><div className="triangle-up" onClick={()=>handleInitSort("status","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("status","desc")}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total da campanha</span> <div><div className="triangle-up" onClick={()=>handleInitSort("total","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("total","desc")}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de Sucesso</span> <div><div className="triangle-up" onClick={()=>handleInitSort("enviado","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("enviado","desc")}></div></div></div></th>
-                            <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de Erro</span> <div><div className="triangle-up" onClick={()=>handleInitSort("erro","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
-                            <th className="cells">Opções</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {handleSort(dataTreat).map((trigger: any, index: number) => (
-                            <React.Fragment key={index}>
-                                <tr
-                                    key={index}
-                                    style={{ border: '1px solid #0171BD', backgroundColor:  index % 2 === 0 ? '#ecebeb' : 'white' }}
-                                >
-                                    <td><span>{trigger.campaign_name}</span></td>
-                                    <td><span>{trigger.template_name}</span></td>
-                                    <td><span>{trigger.data_criacao ? adjustTime(trigger.data_criacao) : "--"}</span></td>
-                                    <td><span>{trigger.time_trigger ? adjustTimeWithout3Hour(trigger.time_trigger) : "--"}</span></td>
-                                    <td><div id="statusCells" style={{ borderRadius: "20px", padding: "7px" }}><span style={{ fontWeight: "bolder", color: statusColor(trigger.status) }}>{statusName(trigger.status)}</span></div></td>
-                                    <td><span>{trigger.total}</span></td>
-                                    <td><span>{trigger.enviado}</span></td>
-                                    <td><span>{trigger.erro}</span></td>
-                                    <td><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>
-                                </tr>
-                            </React.Fragment>
-                        ))}
-                    </tbody>
-                </table>
+                {loading && 
+                    <div className="modal-overlay" style={{width:"100%", height:"100%", display:"flex", flexDirection:"column"}}>
+                        <div className="in_loader" style={{width:"50px", height:"50px"}}></div>
+                        <h4>Carregando</h4>
+                    </div>}
+                {!loading && <div>
+                    <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", marginTop:"12px"}}>
+                        <thead>
+                            <tr className="cells table-2024 border-bottom-zero">
+                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Nome</span> <div><div className="triangle-up" onClick={()=>handleInitSort("campaign_name","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("campaign_name","desc")}></div></div></div></th>
+                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Template</span> <div><div className="triangle-up" onClick={()=>handleInitSort("template_name","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("template_name","desc")}></div></div></div></th>
+                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data criação</span> <div><div className="triangle-up" onClick={()=>handleInitSort("data_criacao","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("data_criacao","desc")}></div></div></div></th>
+                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data de envio</span> <div><div className="triangle-up" onClick={()=>handleInitSort("time_trigger","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("time-trigger","desc")}></div></div></div></th>
+                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Status</span> <div><div className="triangle-up" onClick={()=>handleInitSort("status","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("status","desc")}></div></div></div></th>
+                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total da campanha</span> <div><div className="triangle-up" onClick={()=>handleInitSort("total","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("total","desc")}></div></div></div></th>
+                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de Sucesso</span> <div><div className="triangle-up" onClick={()=>handleInitSort("enviado","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("enviado","desc")}></div></div></div></th>
+                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de Erro</span> <div><div className="triangle-up" onClick={()=>handleInitSort("erro","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
+                                <th className="cells">Opções</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {handleSort(dataTreat).map((trigger: any, index: number) => (
+                                <React.Fragment key={index}>
+                                    <tr
+                                        key={index}
+                                        style={{ border: '1px solid #0171BD', backgroundColor:  index % 2 === 0 ? '#ecebeb' : 'white' }}
+                                    >
+                                        <td><span>{trigger.campaign_name}</span></td>
+                                        <td><span>{trigger.template_name}</span></td>
+                                        <td><span>{trigger.data_criacao ? adjustTime(trigger.data_criacao) : "--"}</span></td>
+                                        <td><span>{trigger.time_trigger ? adjustTimeWithout3Hour(trigger.time_trigger) : "--"}</span></td>
+                                        <td><div id="statusCells" style={{ borderRadius: "20px", padding: "7px" }}><span style={{ fontWeight: "bolder", color: statusColor(trigger.status) }}>{statusName(trigger.status)}</span></div></td>
+                                        <td><span>{trigger.total}</span></td>
+                                        <td><span>{trigger.enviado}</span></td>
+                                        <td><span>{trigger.erro}</span></td>
+                                        <td><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>
+                                    </tr>
+                                </React.Fragment>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>}
                 </div>
                 {menuOpen && selectedRow !== null && (
                     <div

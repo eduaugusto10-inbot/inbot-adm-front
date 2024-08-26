@@ -14,19 +14,35 @@ interface ModalType {
 
 export default function Modal(props: ModalType) {
     const [loading, setLoading] = useState<boolean>(false)
-    const [hiddenBtn, setHiddenBtn] = useState<boolean>(true)
     const handleButtonClick = (buttonId: string) => {
-        props.onButtonClick(buttonId);
+        props.onButtonClick(buttonId);        
         setLoading(false);
     };
-    const handleButtonClickSave = (buttonId: string) => {
-        props.onButtonClick(buttonId);
+    const handleButtonClickA= (buttonId: string) => {
         if(props.buttonA!=="Sim" && props.buttonA!=="Fechar") { 
             setLoading(true);
         }
-        if(props.buttonB!=="Salvar") { 
+        if(buttonId === "Fechar") {
+            setLoading(false)
+        }
+        if(buttonId === "Cancelar") {
+            setLoading(false)
+        }
+        if(buttonId === "Não") {
+            setLoading(false)
+        }
+        props.onButtonClick(buttonId);
+    };
+    const handleButtonClickB = (buttonId: string) => {
+        console.log(buttonId)
+        if(props.buttonB === "Salvar") { 
             setLoading(true);
         }
+        if(buttonId === "Fechar" || buttonId === "Voltar" || buttonId === "Alterar") {
+            setLoading(false)
+        }
+        props.onButtonClick(buttonId);
+        // props.toggle()
     };
     const clickOutModal = () => {
         props.toggle()
@@ -50,8 +66,8 @@ export default function Modal(props: ModalType) {
                             <span></span>
                             <span style={{ color:"#0d5388", fontWeight:"bold" }}>{props.buttonB!=="NaoExibir" ? "Essa ação não poderá ser desfeita." : "Clique em fechar para continuar"}</span>
                             <div style={{ marginTop: "30px", display: "flex", justifyContent: "center" }}>
-                                <button onClick={() => handleButtonClickSave(props.buttonA)} style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: loading ? "#c3c3c3" : "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }}>{props.buttonA}</button>
-                                {props.buttonB!=="NaoExibir" && <button onClick={() => handleButtonClickSave(props.buttonB)} style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: loading ? "#c3c3c3" : "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }}>{props.buttonB}</button>}
+                                <button onClick={() => handleButtonClickA(props.buttonA)} style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: loading ? "#c3c3c3" : "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }}>{props.buttonA}</button>
+                                {props.buttonB!=="NaoExibir" && <button onClick={() => handleButtonClickB(props.buttonB)} style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: loading ? "#c3c3c3" : "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }}>{props.buttonB}</button>}
                             </div>
                         </div>
                     </div>

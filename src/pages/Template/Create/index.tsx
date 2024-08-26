@@ -93,7 +93,7 @@ export function CreateTemplateAccordion() {
             for(let i=0;i<totalVariable;i++) {
                 if (variables.length < 8) {
                     const newVariables: IVariables = {
-                        id: Date.now(),
+                        id: Date.now()+i,
                         value: `${variables.length + 1}`,
                         text: ""
                     };
@@ -474,9 +474,9 @@ export function CreateTemplateAccordion() {
             setButtonB("Salvar")
             setTextToModal("Você deseja salvar?")
         } else if (wichButton === "Cancelar") {
-            setButtonA("Fechar")
+            setButtonA("Cancelar")
             setButtonB("Voltar")
-            setTextToModal("Você deseja voltar?")
+            setTextToModal("Deseja cancelar o template?")
         }
         toggle();
     }
@@ -490,9 +490,9 @@ export function CreateTemplateAccordion() {
     const handleButtonClick = (buttonId: string) => {
         if (buttonId === "Salvar") {
             createPayload()
-        } else if (buttonId === "Fechar") {
-            toggle()
         } else if (buttonId === "Voltar") {
+            toggle()
+        } else if (buttonId === "Cancelar") {
             toggle();
             BackToList();
         }
@@ -513,7 +513,7 @@ export function CreateTemplateAccordion() {
     };
     return (
         <div className="column-align width-95-perc" style={{ alignItems:"center", padding:"10px 0px" }}>
-                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Criar Template</h1>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width:"100%" }} className="title_2024">Criar Template</h1>
                 <div className="column-align" style={{alignItems:"center", width:"100%"}}>
                     <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
                 </div>

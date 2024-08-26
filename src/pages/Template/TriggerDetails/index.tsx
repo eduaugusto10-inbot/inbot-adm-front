@@ -13,6 +13,7 @@ export function TriggerDetails() {
 
     const location = useLocation()
     const triggerId = location.state.triggerId;
+    const [loading, setLoading] = useState<boolean>(true)
     const [customerStatus, setCustomerStatus] = useState<ICustomer[]>([])
     const [waiting, setWaiting] = useState<number>(0)
     const [send, setSend] = useState<number>(0)
@@ -78,11 +79,11 @@ export function TriggerDetails() {
     };
 
 
-    useEffect(() => {
+    useEffect(() => {     
+        setLoading(true)   
         api.get(`/whats-customer/${triggerId}`)
             .then(resp => {
                 setCustomerStatus(resp.data.data)
-                console.log(resp.data.data)
                 let aguardando = 0;
                 let erro = 0;
                 let enviado = 0;
@@ -105,15 +106,20 @@ export function TriggerDetails() {
                 const total = aguardando + erro + enviado;
                 setEngagements(totalEngagement)
                 setNotEngagements(total - totalEngagement)
+                setLoading(false)
             })
-            .catch(error => console.log(error))
+            .catch(error => {
+                console.log(error)
+                setLoading(false)
+            })
+            console.log(loading)
     }, [])
+
     useEffect(() => {
         const fetchData = () => {
         api.get(`/whats-customer/${triggerId}`)
             .then(resp => {
                 setCustomerStatus(resp.data.data)
-                console.log(resp.data.data)
                 let aguardando = 0;
                 let erro = 0;
                 let enviado = 0;
@@ -136,8 +142,12 @@ export function TriggerDetails() {
                 const total = aguardando + erro + enviado;
                 setEngagements(totalEngagement)
                 setNotEngagements(total - totalEngagement)
+                setLoading(false)
             })
-            .catch(error => console.log(error))
+            .catch(error => {
+                setLoading(false)
+                console.log(error)
+            })
         };
 
         const intervalId = setInterval(fetchData, 15000);
@@ -265,7 +275,12 @@ export function TriggerDetails() {
                         <Pie data={dataEngagement} />
                     </div>
                 </div>
-                <div className="column-align" style={{ padding:"20px" }}>
+                {loading && 
+                    <div className="modal-overlay" style={{width:"100%", height:"100%", display:"flex", flexDirection:"column"}}>
+                        <div className="in_loader" style={{width:"50px", height:"50px"}}></div>
+                        <h4>Carregando</h4>
+                    </div>}
+                {!loading && <div className="column-align" style={{ padding:"20px" }}>
                 <table className="table-2024 fixed-header-table" style={{ minWidth: "90%",flexShrink: "0" }}>
                     <thead>
                         <tr className="cells table-2024 border-bottom-zero font-size-12">
@@ -306,7 +321,7 @@ export function TriggerDetails() {
                         </tr>
                     ))}
                 </table>
-                </div>
+                </div>}
             </div>
         </div>
     )

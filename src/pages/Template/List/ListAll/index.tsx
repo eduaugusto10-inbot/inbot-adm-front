@@ -335,7 +335,7 @@ export function ListAll() {
                                 onMouseLeave={handleMouseLeave}
                             >
                                 <td style={{width:"100px"}}><span>{template.name}</span></td>
-                                <td style={{textAlign:"center"}}><div style={{ borderRadius: "20px", padding: "7px" }}><span style={{ color: template.status === "APPROVED" ? "green" : template.status === "PENDING" ? "orange" : "red" }}>{template.status === "APPROVED" ? "Aprovado" : template.status === "PENDING" ? "Pendente" : "Rejeitado"}</span></div></td>
+                                <td style={{textAlign:"center"}}><div style={{ borderRadius: "20px", padding: "7px" }}><span style={{ color: template.status === "APPROVED" ? "green" : template.status === "PENDING" ? "orange" : "red" }}><strong>{template.status === "APPROVED" ? "Aprovado" : template.status === "PENDING" ? "Pendente" : "Rejeitado"}</strong></span></div></td>
                                 <td style={{textAlign:"center"}}><span>{template.category.toLowerCase()}</span></td>
                                 <td style={{textAlign:"center"}}><span>{template.language}</span></td>
                                 <td style={{textAlign:"center"}}><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>
