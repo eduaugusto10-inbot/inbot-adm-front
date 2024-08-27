@@ -195,13 +195,14 @@ export function Accordion() {
             })
             setHeaderTable(dataHeader)
             setFileData(dataFile);
+            console.log(dataFile)
         };
 
         reader.readAsBinaryString(file);
     };
 
     const handleSubmitListDataFile = async (dataTemplate: any, campaignId: string) => {
-        let count = 0;
+        // let count = 0;
         let sheets = false;
         // for (let i = 1; i < dataTemplate.length; i++) {
         //     if (dataTemplate[i].length > 0 && isNaN(dataTemplate[i][0])) {
@@ -213,7 +214,7 @@ export function Accordion() {
         //     return;
         // }
         for (const customer of dataTemplate) {
-            if (count > 0 && customer.length > 0) {
+            if (customer.length > 0) { // count > 0 && 
                 const params = {
                     campaignId: `${campaignId}`,
                     phone: `${customer[0]}`,
@@ -236,7 +237,7 @@ export function Accordion() {
                 api.post('/whats-customer', params)
                     .catch(error => console.log(error));
             }
-            count++;
+            // count++;
         }
     };
     const handleSubmitManualListData = async (campaignId: string) => {
@@ -532,10 +533,10 @@ export function Accordion() {
 
     const sheetsVariables = () => {
         let total = 0;
-        if(fileData[1]===undefined){
+        if(fileData[0]===undefined){
             return total -1;
         }
-        fileData[1].forEach((value) => {
+        fileData[0].forEach((value) => {
             if (value !== "") total++;
         });
         return total -1;
