@@ -23,11 +23,11 @@ export function ListAll() {
     const [phone, setPhone] = useState<string>("")
     const [hoveredRow, setHoveredRow] = useState<number | null>(null);
     const [headerText, setHeaderText] = useState("")
+    const [loading, setLoading] = useState<boolean>(true)
     const [hoveredRowMenu, setHoveredRowMenu] = useState<number | null>(null);
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [selectedRow, setSelectedRow] = useState<number | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [filtro, setFiltro] = useState<string>('');
     const [token, setToken] = useState<string>('')
     const [sortType, setSortType] = useState<string>("")
@@ -36,6 +36,7 @@ export function ListAll() {
     const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        setLoading(true) 
         if (searchParams.get('bot_id') === null) {
             window.location.href = "https://in.bot/inbot-admin";
         }
@@ -46,9 +47,13 @@ export function ListAll() {
                 const token = resp.data.accessToken;
                 api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
                     .then(resp => {
-                        setTemplates(resp.data.data.messageTemplates)
+                        setTemplates(resp.data.data.messageTemplates);
+                        setLoading(false)
                     }).catch(error => console.log(error))                   
-            }).catch(error => console.log(error))
+            }).catch(error => {
+                setLoading(false) 
+                console.log(error)
+            })
     }, []);
 
     useEffect(() => {
@@ -309,40 +314,47 @@ export function ListAll() {
                 <div className="column-align" style={{alignItems:"center"}}>
                     <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
                 </div>
-                <div style={{margin:"20px"}}>
+                <div style={{margin:"20px", display:"flex"}}>
                     <input onChange={handleFiltroChange} value={filtro} type="text" style={{borderRight:"none", width:"300px", borderRadius:"20px 0px 0px 20px", paddingLeft:"20px"}} placeholder="Buscar por nome ou template"/>
                     <button style={{borderLeft:"none", borderRadius:"0px 20px 20px 0px", width:"50px"}}>
                         <img src={loupe} alt="" width={20} height={20}/>
                     </button>
                 </div>
                 <div>
-                <table className="table-2024 fixed-header-table" style={{textAlign:"left"}}>
-                    <thead>
-                        <tr className="cells table-2024 border-bottom-zero">
-                            <th className="cells" style={{width:"100px"}}><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Nome do template</span> <div><div className="triangle-up" onClick={()=>handleInitSort("name","asc")}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("name","desc")}></div></div></div></th>
-                            <th className="cells" style={{textAlign:"center"}}><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Status</span> <div><div className="triangle-up" onClick={()=>handleInitSort("status","asc")}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("status","desc")}></div></div></div></th>
-                            <th className="cells" style={{textAlign:"center"}}><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Categoria</span> <div><div className="triangle-up" onClick={()=>handleInitSort("category","asc")}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("category","desc")}></div></div></div></th>
-                            <th className="cells" style={{textAlign:"center"}}><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Idioma</span> <div><div className="triangle-up" onClick={()=>handleInitSort("language","asc")}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("language","desc")}></div></div></div></th>
-                            <th className="cells" style={{textAlign:"center"}}>Menu</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {handleSort(dadosFiltrados).map((template, index) => (
-                            <tr
-                                key={index}
-                                style={{ border: '1px solid #0171BD', backgroundColor: index % 2 === 0 ? '#e4e4e4' : '#FFF' }}
-                                onMouseEnter={() => handleMouseEnter(index)}
-                                onMouseLeave={handleMouseLeave}
-                            >
-                                <td style={{width:"100px"}}><span>{template.name}</span></td>
-                                <td style={{textAlign:"center"}}><div style={{ borderRadius: "20px", padding: "7px" }}><span style={{ color: template.status === "APPROVED" ? "green" : template.status === "PENDING" ? "orange" : "red" }}><strong>{template.status === "APPROVED" ? "Aprovado" : template.status === "PENDING" ? "Pendente" : "Rejeitado"}</strong></span></div></td>
-                                <td style={{textAlign:"center"}}><span>{template.category.toLowerCase()}</span></td>
-                                <td style={{textAlign:"center"}}><span>{template.language}</span></td>
-                                <td style={{textAlign:"center"}}><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>
+                {loading && 
+                    <div className="modal-overlay" style={{width:"100%", height:"100%", display:"flex", flexDirection:"column"}}>
+                        <div className="in_loader" style={{width:"50px", height:"50px"}}></div>
+                        <h4>Carregando</h4>
+                    </div>}
+                {!loading && <div>
+                    <table className="table-2024 fixed-header-table" style={{textAlign:"left"}}>
+                        <thead>
+                            <tr className="cells table-2024 border-bottom-zero">
+                                <th className="cells" style={{width:"100px"}}><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Nome do template</span> <div><div className="triangle-up" onClick={()=>handleInitSort("name","asc")}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("name","desc")}></div></div></div></th>
+                                <th className="cells" style={{textAlign:"center"}}><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Status</span> <div><div className="triangle-up" onClick={()=>handleInitSort("status","asc")}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("status","desc")}></div></div></div></th>
+                                <th className="cells" style={{textAlign:"center"}}><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Categoria</span> <div><div className="triangle-up" onClick={()=>handleInitSort("category","asc")}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("category","desc")}></div></div></div></th>
+                                <th className="cells" style={{textAlign:"center"}}><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Idioma</span> <div><div className="triangle-up" onClick={()=>handleInitSort("language","asc")}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("language","desc")}></div></div></div></th>
+                                <th className="cells" style={{textAlign:"center"}}>Menu</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {handleSort(dadosFiltrados).map((template, index) => (
+                                <tr
+                                    key={index}
+                                    style={{ border: '1px solid #0171BD', backgroundColor: index % 2 === 0 ? '#e4e4e4' : '#FFF' }}
+                                    onMouseEnter={() => handleMouseEnter(index)}
+                                    onMouseLeave={handleMouseLeave}
+                                >
+                                    <td style={{width:"100px"}}><span>{template.name}</span></td>
+                                    <td style={{textAlign:"center"}}><div style={{ borderRadius: "20px", padding: "7px" }}><span style={{ color: template.status === "APPROVED" ? "green" : template.status === "PENDING" ? "orange" : "red" }}><strong>{template.status === "APPROVED" ? "Aprovado" : template.status === "PENDING" ? "Pendente" : "Rejeitado"}</strong></span></div></td>
+                                    <td style={{textAlign:"center"}}><span>{template.category.toLowerCase()}</span></td>
+                                    <td style={{textAlign:"center"}}><span>{template.language}</span></td>
+                                    <td style={{textAlign:"center"}}><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>}
                 </div>
                 <div>
                     {modal && (

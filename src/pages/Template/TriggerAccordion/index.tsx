@@ -59,6 +59,7 @@ export function Accordion() {
     const [urlMidia, setURLMidia] = useState<string>("");
     const [templates, setTemplates] = useState<ITemplateList[]>([])
     const [qtButtons, setQtButtons] = useState<number>(0)
+    const [headerTable, setHeaderTable] = useState<any>()
     const [headerConfig, setHeaderConfig] = useState<string | null>()
     const [variableQty, setVariableQty] = useState<number>(0)
     const [phone, setPhone] = useState("")
@@ -181,11 +182,18 @@ export function Accordion() {
 
             const data = utils.sheet_to_json(ws, { header: 1 }) as any[][];
             const dataFile: any = [];
+            const dataHeader: any = [];
+            data.slice(0).forEach((values: any, index: number) => {
+                if(values.length > 0 && index < 1) {
+                    dataHeader.push(values)
+                }
+            })
             data.slice(1).forEach(values => {
                 if(values.length > 0) {
                     dataFile.push(values)
                 }
             })
+            setHeaderTable(dataHeader)
             setFileData(dataFile);
         };
 
@@ -195,15 +203,15 @@ export function Accordion() {
     const handleSubmitListDataFile = async (dataTemplate: any, campaignId: string) => {
         let count = 0;
         let sheets = false;
-        for (let i = 1; i < dataTemplate.length; i++) {
-            if (dataTemplate[i].length > 0 && isNaN(dataTemplate[i][0])) {
-                sheets = true;
-            }
-        }
-        if (sheets) {
-            errorSheets()
-            return;
-        }
+        // for (let i = 1; i < dataTemplate.length; i++) {
+        //     if (dataTemplate[i].length > 0 && isNaN(dataTemplate[i][0])) {
+        //         sheets = true;
+        //     }
+        // }
+        // if (sheets) {
+        //     errorSheets()
+        //     return;
+        // }
         for (const customer of dataTemplate) {
             if (count > 0 && customer.length > 0) {
                 const params = {
@@ -766,11 +774,11 @@ export function Accordion() {
                             }
                             <input type="text" value={fileName} disabled style={{width:"300px", borderRadius:"8px"}}/>
                             <button type="button" style={{width:"120px", marginLeft:"7px"}} onClick={() => fileInputRef.current?.click()} className="button-blue">Escolher arquivo</button>
-                            <div style={{ maxHeight: "400px", overflowY: 'auto', marginBottom: "10px" }}>
-                                <table style={{ margin: "20px" }}>
+                            <div style={{ maxHeight: "500px", overflowY: 'auto', marginBottom: "10px", display: "flex", flexDirection:"column", alignItems: "center", padding:"10px 0px" }}>
+                                <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", width:"97%", padding:"10px"}}>
                                     <thead>
                                         <tr className="font-size-12">
-                                            {fileData.length > 0 && fileData[0].map((cell, index) => (
+                                            {headerTable && headerTable.length > 0 && headerTable[0].map((cell: any, index: number) => (
                                                 <th key={index}>{cell}</th>
                                             ))}
                                         </tr>
