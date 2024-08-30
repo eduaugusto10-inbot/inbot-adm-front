@@ -44,3 +44,7 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+# VERSÃO DE DESENVOLVIMENTO
+
+Para gerar versão de desenvolvimento entrar na branch develop no github. O arquivo VERSION deverá ter uma versão seguindo os padrões DEV-XXX

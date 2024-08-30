@@ -180,7 +180,7 @@ export function Accordion() {
             const wsname = wb.SheetNames[0];
             const ws = wb.Sheets[wsname];
 
-            const data = utils.sheet_to_json(ws, { header: 1 }) as any[][];
+            const data = utils.sheet_to_json(ws, { header: 1,raw: false, rawNumbers: false }) as any[][];
             const dataFile: any = [];
             const dataHeader: any = [];
             data.slice(0).forEach((values: any, index: number) => {
@@ -188,11 +188,16 @@ export function Accordion() {
                     dataHeader.push(values)
                 }
             })
-            data.slice(1).forEach(values => {
-                if(values.length > 0) {
-                    dataFile.push(values)
+            data.slice(1).forEach((values, linha) => { 
+                if (values.length > 0) {
+                    values.forEach((cell, coluna) => { 
+                        if(cell.length > 0){
+                            values[coluna] = cell.toString().trim();
+                        }
+                    });
+                    dataFile.push(values);
                 }
-            })
+            });
             setHeaderTable(dataHeader)
             setFileData(dataFile);
             console.log(dataFile)
@@ -202,17 +207,6 @@ export function Accordion() {
     };
 
     const handleSubmitListDataFile = async (dataTemplate: any, campaignId: string) => {
-        // let count = 0;
-        let sheets = false;
-        // for (let i = 1; i < dataTemplate.length; i++) {
-        //     if (dataTemplate[i].length > 0 && isNaN(dataTemplate[i][0])) {
-        //         sheets = true;
-        //     }
-        // }
-        // if (sheets) {
-        //     errorSheets()
-        //     return;
-        // }
         for (const customer of dataTemplate) {
             if (customer.length > 0) { // count > 0 && 
                 const params = {
@@ -583,7 +577,7 @@ export function Accordion() {
                     </div>
                 </div>}
             </div>
-            <div className="config-recebidores" style={{ maxHeight: "1080px" }}>
+            <div className="config-recebidores" style={{ maxHeight: "1080px", maxWidth:'900px' }}>
                 <div className={`accordion_head ${accordionState.recebidores ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('recebidores')}>2. Cadastro dos Contatos da Campanha 
                     <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.recebidores ?"-90deg" : "90deg"}} /></div></div>
                 {accordionState.recebidores && 
@@ -775,7 +769,7 @@ export function Accordion() {
                             }
                             <input type="text" value={fileName} disabled style={{width:"300px", borderRadius:"8px"}}/>
                             <button type="button" style={{width:"120px", marginLeft:"7px"}} onClick={() => fileInputRef.current?.click()} className="button-blue">Escolher arquivo</button>
-                            <div style={{ maxHeight: "500px", overflowY: 'auto', marginBottom: "10px", display: "flex", flexDirection:"column", alignItems: "center", padding:"10px 0px" }}>
+                            <div style={{ maxHeight: "500px", maxWidth:"900px", overflowY: 'auto', marginBottom: "10px", flexDirection:"column", alignItems: "center", padding:"10px 0px" }}>
                                 <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", width:"97%", padding:"10px"}}>
                                     <thead>
                                         <tr className="font-size-12">
@@ -788,7 +782,7 @@ export function Accordion() {
                                         {fileData.length > 0 && fileData.map((row, rowIndex) => (
                                             <tr key={rowIndex}>
                                                 {row.map((cell, cellIndex) => (
-                                                    <td key={cellIndex}>{cell}</td>
+                                                    <td key={cellIndex} style={{color: cellIndex===0 && /^\d+$/.test(cell)===false ? "red" : ""}}>{cell}</td>
                                                 ))}
                                             </tr>
                                         ))}
