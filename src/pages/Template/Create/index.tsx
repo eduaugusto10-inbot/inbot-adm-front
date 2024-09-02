@@ -743,7 +743,7 @@ export function CreateTemplateAccordion() {
                             <div style={{ display:"flex", flexDirection:"column",alignItems:"center", paddingLeft:"-20px", backgroundColor: "#FFF"}}>
                                 <div className="radio" style={{ display:"flex", flexDirection:"row"}}>
                                     <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="quickReply" name="quickReply" checked={typeOfButtons === 'quickReply'}/><span className="padding-5">Resposta rápida</span></div>
-                                    <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="cta" name="quickReply" checked={typeOfButtons === 'cta'} /><span className="padding-5">CTA</span></div>
+                                    <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="cta" name="quickReply" checked={typeOfButtons === 'cta'} /><span className="padding-5">Call To Action (CTA)</span></div>
                                     <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="without" name="quickReply" checked={typeOfButtons === 'without'} /><span className="padding-5">Nenhum</span></div>
                                 </div>
                             </div>

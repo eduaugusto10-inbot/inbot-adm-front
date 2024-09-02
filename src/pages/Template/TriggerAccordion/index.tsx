@@ -347,14 +347,19 @@ export function Accordion() {
     }
 
     const openModal = (e:any) => {
-        handleButtonName("Select")
+        if(templateName==="") {
+            loadNewTemplate(e)
+        } else {
+            handleButtonName("Select")
+        }
         setTemplateNameSelect(e)
+
     }
     
     const openModalChangeCustomersType = (e:any) => {
         const value = e.target.value === "unico"
         setTypeClientValue(!value)
-        if(showType === false) {
+        if(showType === false || (listVariables.length === 0 && fileData.length === 0)) {
             signInClients(!value)
         } else {            
             handleButtonName("ChangeCustomersContacts")
@@ -363,6 +368,7 @@ export function Accordion() {
     
     const loadNewTemplate = (e:any) =>{
         setVariables([])
+        setMode(false)
         setPayload1(undefined)
         setPayload2(undefined)
         setPayload3(undefined)
