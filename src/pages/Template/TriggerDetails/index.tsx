@@ -5,7 +5,7 @@ import { ToastContainer } from "react-toastify";
 import { adjustTime, mask } from "../../../utils/utils";
 import { Filters, ICustomer } from "../../types";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Pie } from "react-chartjs-2";
+import { Doughnut, Pie } from "react-chartjs-2";
 import './style.css'
 
 export function TriggerDetails() {
@@ -39,6 +39,50 @@ export function TriggerDetails() {
         }
     });
 
+    const options = {
+        plugins: {
+          legend: {
+            // position: 'top',
+            // align: 'center',
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'rectRounded',
+              boxWidth: 6, // largura da cor label da legendas acima do gráfico
+            },
+          },
+          datalabels: {
+            color: 'black',
+            font: {
+              weight: 'bold',
+              size: 12,
+            },
+            anchor: 'end',
+            align: 'end',
+            offset: 2, // distância do número de legenda ao segmento do gráfico
+          },
+          title: {
+            display: false,
+            text: '',
+            padding: {
+              top: 0, // distância entre a legenda superior e o gráfico donut (mas se subir muito cortará o texto em cima)
+            },
+          },
+          subtitle: {
+            display: true,
+            text: '', // gambiarra para legenda não ficar sobre o gráfico
+            padding: { bottom: -31, top: 0 },
+          },
+        },
+        layout: {
+          padding: {
+            top: 12, // para ter espaço entre o número da legenda no gráfico e o texto da legenda acima
+            bottom: 15, // para não cortar o número se estiver na parte inferior do gráfico
+            xleft: 0,
+            xbottom: 150, // pois o datalabel estava cortando em cima
+          },
+        },
+      };
+
     const dataPie = {
         labels: ["Aguardando", "Enviado", "Erro"],
         datasets: [
@@ -46,9 +90,9 @@ export function TriggerDetails() {
                 label: 'Quantidade',
                 data: [waiting, send, erro],
                 backgroundColor: [
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 99, 132, 1)',
                 ],
                 borderColor: [
                     'rgba(255, 206, 86, 1)',
@@ -56,6 +100,7 @@ export function TriggerDetails() {
                     'rgba(255, 99, 132, 1)',
                 ],
                 borderWidth: 1,
+                spacing: 1
             },
         ],
     };
@@ -66,14 +111,15 @@ export function TriggerDetails() {
                 label: 'Quantidade',
                 data: [engagements, notEngagements],
                 backgroundColor: [
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
                 ],
                 borderColor: [
                     'rgba(54, 162, 235, 1)',
                     'rgba(255, 206, 86, 1)',
                 ],
                 borderWidth: 1,
+                spacing: 3
             },
         ],
     };
@@ -268,11 +314,11 @@ export function TriggerDetails() {
                     </div>
                     <div style={{ width: "250px", backgroundColor: "#F0F0F0", height: "300px", border: "1px solid #ccc", margin: "20px", borderRadius: "20px" }}>
                         <span style={{ fontWeight: "bolder", color: "#002080" }}>Resumo do Disparo</span>
-                        <Pie data={dataPie} />
+                        <Doughnut data={dataPie} options={options}/>
                     </div>
                     <div style={{ width: "250px", backgroundColor: "#F0F0F0", height: "300px", border: "1px solid #ccc", margin: "20px", borderRadius: "20px" }}>
                         <span style={{ fontWeight: "bolder", color: "#002080" }}>Engajamento</span>
-                        <Pie data={dataEngagement} />
+                        <Doughnut data={dataEngagement} options={options} />
                     </div>
                 </div>
                 {loading && 
