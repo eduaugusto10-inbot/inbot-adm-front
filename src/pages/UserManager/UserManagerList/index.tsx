@@ -104,9 +104,9 @@ const getDaysInMonth = (year: number, month: number): number => {
 const saveCustomer = async (data: any) => {
     let access = ""
     let token = ""
-    await axios.get(`https://api.inbot.com.br/user-manager/v1/customer-manager/access-key/${botId}`)
+    await api.get(`/customer-manager/access-key/${botId}`)
         .then(resp => access = resp.data.key)
-    await axios.post(`https://api.inbot.com.br/user-manager/v1/token`,{botId: botId}, {headers:{"x-api-key": access}})
+    await api.post(`/user-manager/v1/token`,{botId: botId}, {headers:{"x-api-key": access}})
         .then(resp => token = resp.data.token)
     let config = {
     method: 'post',
@@ -171,6 +171,7 @@ const saveCustomer = async (data: any) => {
 
       const handleChange = (event: React.ChangeEvent<HTMLInputElement>, index: number, fieldName: string) => {
         const newValue = event.target.value;
+        console.log("editedValues" + JSON.stringify(editedValues))
         setEditedValues(prevValues => {
           const newValues = [...prevValues];
           newValues[index] = { ...newValues[index], [fieldName]: newValue };
@@ -313,7 +314,13 @@ const saveCustomer = async (data: any) => {
         setFileData([]);
         setFileName("")
     }
-    
+    const showNameAndValue = (customer: any, fields: any) => {
+        const value = nameAndValue(customer.customFields, fields.id);
+        return !value || value === "null" ? '--' : value;
+    }
+    const deleteCustomer = (hashId:string) => {
+        api.delete(`/customer/${hashId}`)
+    }
   return (
     <div className="column-align" style={{width:"100vw", height:"100vh",backgroundColor:"#ebebeb", padding:"10px 10px 0px 0px", alignItems:"center"}}>
         <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
@@ -511,17 +518,23 @@ const saveCustomer = async (data: any) => {
                     style={{ border: '1px solid #0171BD', backgroundColor: index % 2 === 0 ? '#e4e4e4' : '#FFF' }}>
                         <td className="border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.phone ?? customer.phone} onChange={(e) => handleChange(e, index, 'phone')}/> : mask(editedValues[index]?.phone ?? customer.phone)}</span></td>
                         <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.name ?? customer.name} onChange={(e) => handleChange(e, index, 'name')}/> : editedValues[index]?.name ?? customer.name}</span></td>
-                        <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.email ?? customer.name} onChange={(e) => handleChange(e, index, 'email')}/> : editedValues[index]?.email ?? customer.email}</span></td>
+                        <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.email ?? customer.email} onChange={(e) => handleChange(e, index, 'email')}/> : editedValues[index]?.email ?? customer.email}</span></td>
                         {customFields.map((fields:any, key:any)=>(
-                        <td className="border-gray" key={key}><span className="font-size-12">{!nameAndValue(customer.customFields, fields.id) ? '--' : nameAndValue(customer.customFields, fields.id) !== "null" ? nameAndValue(customer.customFields, fields.id) : '--'}</span></td>
+                        <td className="border-gray" key={key}><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.email ?? customer.email} onChange={(e) => handleChange(e, index, showNameAndValue(customer, fields))}/> :  showNameAndValue(customer, fields)}</span></td>
                     ))}                    
                         <td className="border-gray"><span style={{fontSize:"12px"}}>{adjustTimeWithout3Hour(customer.createdAt)}</span></td>
                         <td className="border-gray">
-                    {editMode[index] ? (
-                    <button className="button-save" onClick={() => handleSave(index)}>Save</button>
+                    {/* {editMode[index] ? (
+                        <div>
+                            <button className="button-save" onClick={() => handleSave(index)}>Save</button>
+                            <button className="button-cancel" onClick={() => handleSave(index)}>Cancelar</button>
+                        </div>
                     ) : (
-                    <button className="button-blue" style={{backgroundColor:"gray"}} onClick={() => toggleEditMode(index)} disabled>Alterar</button>
-                    )}
+                        <div>
+                            { <button className="button-blue" onClick={() => toggleEditMode(index)} disabled>Alterar</button> }
+                            <button className="button-cancel" onClick={() => deleteCustomer(customer.id)}>Deletar</button>
+                        </div>
+                    )} */}
                 </td>
                     </tr>
                 ))}

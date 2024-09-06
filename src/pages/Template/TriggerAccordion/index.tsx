@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { read, utils } from "xlsx";
-import { errorCampaingEmpty, errorDuplicatedPhone, errorEmptyVariable, errorPhoneEmpty, errorSheets, errorTriggerMode, successCreateTrigger, waitingMessage, errorNoRecipient, errorMessageConfig, errorMidiaEmpty, errorMessagePayload } from "../../../Components/Toastify";
+import { errorCampaingEmpty, errorDuplicatedPhone, errorEmptyVariable, errorPhoneEmpty, errorTriggerMode, successCreateTrigger, waitingMessage, errorNoRecipient, errorMidiaEmpty, errorMessagePayload } from "../../../Components/Toastify";
 import api from "../../../utils/api";
 import { ToastContainer } from "react-toastify";
 import './index.css'
@@ -433,6 +433,7 @@ export function Accordion() {
             "typeTrigger": triggerMode,
             "timeTrigger": triggerMode === "agendado" ? `${dates} ${hours}` : null,
             "status": "aguardando",
+            // "status": "criando",
             "botId": botId,
             "phoneTrigger": phone
         }
@@ -445,6 +446,7 @@ export function Accordion() {
                     handleSubmitManualListData(resp.data.data.insertId)
                 }
                 successCreateTrigger()
+                // api.put(`/whatsapp/trigger-status/${resp.data.data.insertId}?status=aguardando`)
                 setTimeout(() => BackToList(), 3000)
             })
             .catch(err => {
