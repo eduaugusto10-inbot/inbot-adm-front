@@ -104,6 +104,7 @@ const getDaysInMonth = (year: number, month: number): number => {
 const saveCustomer = async (data: any) => {
     let access = ""
     let token = ""
+    const baseUrl = process.env.REACT_APP_API_URL
     await api.get(`/customer-manager/access-key/${botId}`)
         .then(resp => access = resp.data.key)
     await api.post(`/user-manager/v1/token`,{botId: botId}, {headers:{"x-api-key": access}})
@@ -111,7 +112,7 @@ const saveCustomer = async (data: any) => {
     let config = {
     method: 'post',
     maxBodyLength: Infinity,
-    url: 'https://api.inbot.com.br/user-manager/v1/customer',
+    url: `${baseUrl}/customer`,
     headers: { 
         'Content-Type': 'application/json', 
         'Authorization': `Bearer ${token}`
