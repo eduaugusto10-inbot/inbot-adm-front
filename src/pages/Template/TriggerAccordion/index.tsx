@@ -28,6 +28,15 @@ export function Accordion() {
     
 
     const history = useNavigate();
+    useEffect(() => {
+        if (searchParams.get('bot_id') === null) {
+            window.location.href = "https://in.bot/inbot-admin";
+        }
+        api.get(`/whats-botid/${botId}`)
+            .then(resp => {
+                setPhone(resp.data.number)
+            }).catch(error => history(`/template-warning-no-whats?bot_id=${botId}`))
+    }, []);
     function BackToList() {
         history(`/trigger-list?bot_id=${botId}`);
     }

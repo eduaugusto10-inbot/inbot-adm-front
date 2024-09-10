@@ -17,6 +17,15 @@ export function TriggerList() {
     }
     
     var botId = searchParams.get('bot_id') ?? "0";
+    const history = useNavigate();
+    useEffect(() => {
+        if (searchParams.get('bot_id') === null) {
+            window.location.href = "https://in.bot/inbot-admin";
+        }
+        api.get(`/whats-botid/${botId}`)
+            .then(resp => {
+            }).catch(error => history(`/template-warning-no-whats?bot_id=${botId}`))
+    }, []);
     const now = new Date();
     const [triggerList, setTriggerList] = useState<ITriggerList[]>([])
     const [hoveredRowMenu, setHoveredRowMenu] = useState<number | null>(null);
@@ -173,8 +182,6 @@ export function TriggerList() {
     const handleMouseLeaveMenu = () => {
         setHoveredRowMenu(null);
     };
-
-    const history = useNavigate();
 
     useEffect(() => {
         setLoading(true)
