@@ -30,6 +30,15 @@ export function CreateTemplateAccordion() {
     var botId = searchParams.get('bot_id') ?? "0";
 
     const location = useLocation()
+    useEffect(() => {
+        if (searchParams.get('bot_id') === null) {
+            window.location.href = "https://in.bot/inbot-admin";
+        }
+        api.get(`/whats-botid/${botId}`)
+            .then(resp => {
+                setPhone(resp.data.number)
+            }).catch(error => history(`/template-warning-no-whats?bot_id=${botId}`))
+    }, []);
     const [templateName, setTemplateName] = useState<string>("")
     const [templateType, setTemplateType] = useState<string>("")
     const [showTemplate, setShowTempalte] = useState<boolean>(true)

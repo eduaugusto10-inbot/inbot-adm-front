@@ -16,7 +16,16 @@ export function ListAll() {
         window.location.href = "https://in.bot/inbot-admin";
     }
     var botId = searchParams.get('bot_id') ?? "0";
-
+    const history = useNavigate();
+    useEffect(() => {
+        if (searchParams.get('bot_id') === null) {
+            window.location.href = "https://in.bot/inbot-admin";
+        }
+        api.get(`/whats-botid/${botId}`)
+            .then(resp => {
+                setPhone(resp.data.number)
+            }).catch(error => history(`/template-warning-no-whats?bot_id=${botId}`))
+    }, []);
     const [modal, setModal] = useState<boolean>(false)
     const [modalObject, setModalObject] = useState<any>()
     const [templates, setTemplates] = useState<ITemplateList[]>([])
@@ -91,8 +100,7 @@ export function ListAll() {
     const handleMouseLeaveMenu = () => {
         setHoveredRowMenu(null);
     };
-
-    const history = useNavigate();
+    
     function SendTemplate(name: string, variableQuantity: number, qtButtons: number, headerConfig: string | null, templateID: string) {
         history(`/template-trigger?bot_id=${botId}`, { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: "", phone: phone, headerConfig: headerConfig, qtButtons: qtButtons, templateID: templateID } });
     }
