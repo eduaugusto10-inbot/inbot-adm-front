@@ -31,9 +31,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "build:production": "react-scripts build --env=production",
-    "build:staging": "env-cmd -f .env.staging react-scripts build"
+    "test": "react-scripts test"
   },
   "eslintConfig": {
     "extends": [
