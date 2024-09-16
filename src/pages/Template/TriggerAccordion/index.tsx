@@ -173,6 +173,15 @@ export function Accordion() {
         setVariables([]);
     };
 
+    const formatDateComplete = (date: string) => {
+        const d = new Date(date);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0'); // Janeiro é 0
+        const year = d.getFullYear();
+      
+        return `${day}/${month}/${year}`;
+      };
+
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -199,10 +208,18 @@ export function Accordion() {
                 }
             })
             data.slice(1).forEach((values, linha) => { 
+                const wrongFormatRegex = /^\d{1,2}\/\d{1,2}\/\d{2}$/;
                 if (values.length > 0) {
                     values.forEach((cell, coluna) => { 
                         if(cell.length > 0){
-                            values[coluna] = cell.toString().trim();
+                            if(coluna===0){
+                                values[coluna] = cell.replace(/\s+/g, '');
+                            } else if(wrongFormatRegex.test(cell)) {
+                                values[coluna] = formatDateComplete(cell)
+                            }
+                             else {
+                                values[coluna] = cell.toString().trim();
+                            }
                         }
                     });
                     dataFile.push(values);
