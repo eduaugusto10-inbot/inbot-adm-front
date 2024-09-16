@@ -71,6 +71,7 @@ export function Accordion() {
     const [headerTable, setHeaderTable] = useState<any>()
     const [headerConfig, setHeaderConfig] = useState<string | null>()
     const [variableQty, setVariableQty] = useState<number>(0)
+    const [blockAddNumber, setBlockAddNumber] = useState<boolean>(false)
     const [phone, setPhone] = useState("")
     const [templateName, setTemplateName] = useState("")
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -558,6 +559,10 @@ export function Accordion() {
         return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
       }
 
+      function checkNumber(phone: number) {
+        setClientNumber(phone)
+        setBlockAddNumber(phone.toString().length >= 12)          
+      }
     return (
         <div className="container-trigger width-95-perc" style={{ padding:"10px 0px"}}>
             <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
@@ -618,24 +623,27 @@ export function Accordion() {
                             {!typeClient && showType &&
                         <div style={{ display: "flex", flexDirection: "column", width: "100%", marginTop:"20px" }}>
                             <div style={{ display: "flex", flexDirection: "row",alignItems: "center" }}>
-                                <span className="span-title">Telefone </span>
+                                <span className="span-title" style={{paddingBottom: blockAddNumber ? "0px" : '19px' }}>Telefone </span>
+                                <div className="column-align">
                                 <PhoneInput
                                     defaultCountry="br"
                                     value={clientNumber.toString()}
                                     onChange={(event) => {
-                                        const newValueNR = parseInt(event.replace(/\D/g, ""))
-                                        setClientNumber(newValueNR)
+                                        checkNumber(parseInt(event.replace(/\D/g, "")))                                        
                                     }}
                                     inputStyle={{
                                         width: "212px",
                                         height: "30px",
-                                        border: "1px solid #A8A8A8",
+                                        border: blockAddNumber ? "1px solid #A8A8A8" : "1px solid red",
                                         marginLeft: "5px",
                                         padding: "5px",
                                         borderRadius: "8px",
                                         alignItems: "center",
                                     }}
                                 />
+                                {!blockAddNumber ?
+                                <span style={{paddingLeft:"50px", color:'red', fontSize:'11px'}}>Telefone inválido</span> : ''}
+                                </div>
                             </div>
                             <div style={{ display: "flex", flexDirection: "column" }}>
                             {variables.length > 0 &&                                                             
@@ -689,7 +697,7 @@ export function Accordion() {
                                     </div>
                                 }
                                 <div style={{width:"100%", textAlign:"end", paddingRight:"10px", paddingBottom:"20px"}}>
-                                    <button onClick={addCustomerToSendTemplate} style={{ width: "150px",  marginRight: "5px" }} className="button-blue">Adicionar contato</button>
+                                    <button onClick={addCustomerToSendTemplate} style={{ width: "150px",  marginRight: "5px" }} className={blockAddNumber ? "button-blue": "button-disabled"} disabled={!blockAddNumber}>Adicionar contato</button>
                                 </div>
                             </div>
                             <div style={{ maxHeight: "500px", overflowY: 'auto', marginBottom: "10px", display: "flex", flexDirection:"column", alignItems: "center", padding:"10px 0px" }}>

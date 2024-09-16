@@ -339,6 +339,16 @@ table th:nth-child(even) {
   height: 30px;
 }
 
+.button-disabled {
+  color: #9b9b9b;
+  border: 1px solid #9b9b9b;
+  font-weight: bolder;
+  border-radius: 8px;
+  font-size: 12px;
+  width: 70px;
+  height: 25px;
+}
+
 .disabled-div-button {
   width: 120px;
 }
