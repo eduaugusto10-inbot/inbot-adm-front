@@ -68,6 +68,9 @@ export function Accordion() {
     const [urlMidia, setURLMidia] = useState<string>("");
     const [templates, setTemplates] = useState<ITemplateList[]>([])
     const [qtButtons, setQtButtons] = useState<number>(0)
+    const [titleButton1, setTitleButton1] = useState<string>("")
+    const [titleButton2, setTitleButton2] = useState<string>("")
+    const [titleButton3, setTitleButton3] = useState<string>("")
     const [headerTable, setHeaderTable] = useState<any>()
     const [headerConfig, setHeaderConfig] = useState<string | null>()
     const [variableQty, setVariableQty] = useState<number>(0)
@@ -167,6 +170,9 @@ export function Accordion() {
                 payload_1: payload1,
                 payload_2: payload2,
                 payload_3: payload3,
+                title_button_1: titleButton1,
+                title_button_2: titleButton2,
+                title_button_3: titleButton3,
             }
         ]);
         setClientNumber("");
@@ -254,6 +260,9 @@ export function Accordion() {
                     payload_1: payload1,
                     payload_2: payload2,
                     payload_3: payload3,
+                    title_button_1: titleButton1,
+                    title_button_2: titleButton2,
+                    title_button_3: titleButton3,
                 };
                 api.post('/whats-customer', params)
                     .catch(error => console.log(error));
@@ -281,6 +290,9 @@ export function Accordion() {
                 payload_1: payload1,
                 payload_2: payload2,
                 payload_3: payload3,
+                title_button_1: titleButton1,
+                title_button_2: titleButton2,
+                title_button_3: titleButton3,
             };
             api.post('/whats-customer', params)
                 .catch(error => console.log(error));
@@ -367,6 +379,9 @@ export function Accordion() {
             if (element.type === "button") {
                 if (element.parameters[0].type === "quickReply") {
                     buttons = element.parameters.length;
+                    if(buttons > 0) setTitleButton1(element.parameters[0].text)
+                    if(buttons > 1) setTitleButton2(element.parameters[1].text)
+                    if(buttons > 2) setTitleButton3(element.parameters[2].text)
                 }
             }
         });
@@ -691,6 +706,7 @@ export function Accordion() {
                                             <img src={info} width={15} height={15} alt="alerta" />
                                         </a>
                                             <Tooltip id="no-emoji" />
+                                            <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton1}</span>
                                     </div>
                                 }
                                 {qtButtons > 1 &&
@@ -701,6 +717,7 @@ export function Accordion() {
                                                 <img src={info} width={15} height={15} alt="alerta"/>
                                             </a>
                                             <Tooltip id="no-emoji" />
+                                            <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton2} </span>
                                     </div>
                                 }
                                 {qtButtons > 2 &&
@@ -710,7 +727,8 @@ export function Accordion() {
                                         <a style={{alignContent:"center"}}  data-tooltip-id="no-emoji" data-tooltip-html="Payload não podem ser iguais!">
                                                 <img src={info} width={15} height={15} alt="alerta"/>
                                             </a>
-                                        <Tooltip id="no-emoji" />
+                                        <Tooltip id="no-emoji"/>
+                                        <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton3} </span>
                                     </div>
                                 }
                                 <div style={{width:"100%", textAlign:"end", paddingRight:"10px", paddingBottom:"20px"}}>
@@ -751,7 +769,6 @@ export function Accordion() {
                                     </tbody>
                                 </table>
                             </div>
-                            {/* <Alert message={"Você deverá preencher as variáveis para que não ocorra erro no envio"} /> */}
                         </div>}
                         </div>
                         <div style={{marginBottom:"17px",display:"flex", flexDirection:"column"}}>
@@ -787,6 +804,7 @@ export function Accordion() {
                                             <img src={info} width={15} height={15} alt="alerta" />
                                         </a>
                                         <Tooltip id="no-emoji" />
+                                        <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton1} </span>
                                 </div>
                             }
                             {qtButtons > 1 &&
@@ -797,6 +815,7 @@ export function Accordion() {
                                             <img src={info} width={15} height={15} alt="alerta"/>
                                         </a>
                                         <Tooltip id="no-emoji" />
+                                        <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton2} </span>
                                 </div>
                             }
                             {qtButtons > 2 &&
@@ -807,6 +826,7 @@ export function Accordion() {
                                             <img src={info} width={15} height={15} alt="alerta"/>
                                         </a>
                                     <Tooltip id="no-emoji" />
+                                    <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton3} </span>
                                 </div>
                             }
                             <input type="text" value={fileName} disabled style={{width:"300px", borderRadius:"8px"}}/>

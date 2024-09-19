@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import api from "../../../utils/api";
 import './style.css'
-import { adjustTimeWithout3Hour, mask } from "../../../utils/utils";
+import { adjustTimeWithout3Hour, checkDigitNine, isCellPhone, mask } from "../../../utils/utils";
 import { AccordionUserManager, IFilterBtn } from "../../types";
 import { months, years } from "../../../utils/textAux";
 import { read, utils } from "xlsx";
@@ -144,8 +144,19 @@ const saveCustomer = async (data: any) => {
         const wsname = wb.SheetNames[0];
         const ws = wb.Sheets[wsname];
 
-        const data = utils.sheet_to_json(ws, { header: 1 }) as any[][];
-        setFileData(data);
+        let data = utils.sheet_to_json(ws, { header: 1 }) as any[][];
+        const updatedData = data.map((row, rowIndex) => {
+            return row.map((value, colIndex) => {
+                if (colIndex === 0) {
+                    return isCellPhone(value.toString().replace(/\s+/g, '')) ? 
+                        checkDigitNine(value.toString().replace(/\s+/g, '')) : 
+                        value.toString().replace(/\s+/g, '');
+                }
+                return value;
+            });
+        });
+
+        setFileData(updatedData);
     };
 
     reader.readAsBinaryString(file);
@@ -222,6 +233,9 @@ const saveCustomer = async (data: any) => {
           const customFields: any = []
           row.forEach((cell, columnIndex) => {
             obj['botId'] = botId;
+            if(columnIndex < 3) {
+                obj[headers[columnIndex]] = cell; 
+            }
             if(columnIndex < 3) {
                 obj[headers[columnIndex]] = cell; 
             }
