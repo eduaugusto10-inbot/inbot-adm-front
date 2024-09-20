@@ -9,7 +9,7 @@ import Doughnut from '../../../Components/Chart'
 import './style.css'
 import Modal from "../../../Components/Modal";
 import useModal from "../../../Components/Modal/useModal";
-
+import trash from '../../../img/trash-solid.svg'
 export function TriggerDetails() {
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -376,7 +376,7 @@ export function TriggerDetails() {
                             <td><span className="font-size-12">{customer.data_disparo ? adjustTime(customer.data_disparo) : "----"}</span></td>
                             <td><span className="font-size-12">{customer.engagement ? adjustTime(customer.engagement) : "----"}</span></td>
                             <td><span className="font-size-12">{customer.log ?? "----"}</span></td>
-                            <td><button onClick={()=> openModal(customer.id)}>deletar</button></td>
+                            <td><div onClick={()=> openModal(customer.id)}><img src={trash} width={15} height={15} style={{cursor:"pointer"}}/></div></td>
                         </tr>
                     ))}
                 </table>
