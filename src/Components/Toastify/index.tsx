@@ -16,6 +16,9 @@ export const successMessageDelete = () => toast.success("Número deletado com su
 export const successMessageImg = () => toast.success("Imagem salva com sucesso", {
     theme: "colored"
 });
+export const successDeletedMessage = () => toast.success("Deletado com sucesso", {
+    theme: "colored"
+});
 export const successCreateTemplate = () => toast.success("Template criado com sucesso", {
     theme: "colored"
 })
@@ -59,6 +62,9 @@ export const errorTriggerMode = () => toast.error("Escolha o modo de disparo", {
     theme: "colored"
 });
 export const errorNoRecipient = () => toast.error("Nenhum destinatário cadastrado", {
+    theme: "colored"
+});
+export const errorDeleted = (text: string) => toast.error(text, {
     theme: "colored"
 });
 export const waitingMessage = () => toast.info("Aguarde ...", {

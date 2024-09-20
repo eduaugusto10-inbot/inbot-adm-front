@@ -515,6 +515,10 @@ export function Accordion() {
             setButtonA("Sim")
             setButtonB("Não")
             setTextToModal("Deseja cancelar a Campanha?")
+        } else if (wichButton ==="warningFile") {
+            setTextToModal("Verifique o padrão do telefone")
+            setButtonB("OK")
+            setButtonA("NaoExibir")
         } else if (wichButton === "ChangeCustomersContacts") {
             setButtonA("Não")
             setButtonB("Alterar")
@@ -566,6 +570,9 @@ export function Accordion() {
             BackToList();
         } else if (buttonId === "Não") {
             toggle();
+        } else if (buttonId === "OK") {
+            toggle();
+            fileInputRef.current?.click()
         } else if (textToModal === "Deseja alterar a opção?" && buttonId === "Alterar") {
             signInClients(typeClientValue)
             toggle();
@@ -594,6 +601,10 @@ export function Accordion() {
       function checkNumber(phone: number) {
         setClientNumber(phone)
         setBlockAddNumber(phone.toString().length >= 12)          
+      }
+
+      function openModalWarningFile(){
+        
       }
     return (
         <div className="container-trigger width-95-perc" style={{ padding:"10px 0px"}}>
@@ -699,36 +710,42 @@ export function Accordion() {
                                     </div>
                                 }
                                 {qtButtons > 0 &&
-                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
+                                <div style={{ display: "flex", flexDirection: "column", justifyContent: "left", margin: "10px" }}>
+                                        <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton1}</span>
+                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", marginLeft: "-4px" }}>
                                         <span className="span-title">Payload 1</span>
                                         <input className="input-values" value={payload1} onChange={e => setPayload1(e.target.value)} />
                                         <a style={{alignContent:"center"}} data-tooltip-id="no-emoji" data-tooltip-html="Payload não podem ser iguais!">
                                             <img src={info} width={15} height={15} alt="alerta" />
                                         </a>
                                             <Tooltip id="no-emoji" />
-                                            <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton1}</span>
+                                    </div>
                                     </div>
                                 }
                                 {qtButtons > 1 &&
-                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
+                                <div style={{ display: "flex", flexDirection: "column", justifyContent: "left", margin: "10px" }}>
+                                            <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton2} </span>
+                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", marginLeft: "-4px" }}>
                                         <span className="span-title">Payload 2</span>
                                         <input className="input-values" value={payload2} onChange={e => setPayload2(e.target.value)} />
                                         <a style={{alignContent:"center"}}  data-tooltip-id="no-emoji" data-tooltip-html="Payload não podem ser iguais!">
                                                 <img src={info} width={15} height={15} alt="alerta"/>
                                             </a>
                                             <Tooltip id="no-emoji" />
-                                            <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton2} </span>
+                                    </div>
                                     </div>
                                 }
                                 {qtButtons > 2 &&
-                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
+                                <div style={{ display: "flex", flexDirection: "column", justifyContent: "left", margin: "10px" }}>
+                                        <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton3} </span>
+                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", marginLeft: "-4px" }}>
                                         <span className="span-title">Payload</span>
                                         <input className="input-values" value={payload3} onChange={e => setPayload3(e.target.value)} />
                                         <a style={{alignContent:"center"}}  data-tooltip-id="no-emoji" data-tooltip-html="Payload não podem ser iguais!">
                                                 <img src={info} width={15} height={15} alt="alerta"/>
                                             </a>
                                         <Tooltip id="no-emoji"/>
-                                        <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton3} </span>
+                                    </div>
                                     </div>
                                 }
                                 <div style={{width:"100%", textAlign:"end", paddingRight:"10px", paddingBottom:"20px"}}>
@@ -797,40 +814,46 @@ export function Accordion() {
                                 style={{ backgroundColor: "#0D5388", color: "#FFF", borderRadius: "20px", display:"none" }} 
                                 ref={fileInputRef}
                             />{qtButtons > 0 &&
-                                <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
+                                <div style={{ display: "flex", flexDirection: "column", justifyContent: "left", margin: "10px" }}>
+                                        <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton1} </span>
+                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", marginLeft: "-4px" }}>
                                     <span className="span-title">Payload 1</span>
                                     <input className="input-values" value={payload1} onChange={e => setPayload1(e.target.value)} />
                                     <a style={{alignContent:"center"}} data-tooltip-id="no-emoji" data-tooltip-html="Payload não podem ser iguais!">
                                             <img src={info} width={15} height={15} alt="alerta" />
                                         </a>
                                         <Tooltip id="no-emoji" />
-                                        <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton1} </span>
+                                </div>
                                 </div>
                             }
                             {qtButtons > 1 &&
-                                <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
+                                <div style={{ display: "flex", flexDirection: "column", justifyContent: "left", margin: "10px" }}>
+                                        <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton2} </span>
+                            <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", marginLeft: "-4px" }}>
                                     <span className="span-title">Payload 2</span>
                                     <input className="input-values" value={payload2} onChange={e => setPayload2(e.target.value)} />
                                     <a style={{alignContent:"center"}}  data-tooltip-id="no-emoji" data-tooltip-html="Payload não podem ser iguais!">
                                             <img src={info} width={15} height={15} alt="alerta"/>
                                         </a>
                                         <Tooltip id="no-emoji" />
-                                        <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton2} </span>
+                                </div>
                                 </div>
                             }
                             {qtButtons > 2 &&
-                                <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
+                                <div style={{ display: "flex", flexDirection: "column", justifyContent: "left", margin: "10px" }}>
+                                <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton3} </span>
+                            <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", marginLeft: "-4px" }}>
                                     <span className="span-title">Payload</span>
                                     <input className="input-values" value={payload3} onChange={e => setPayload3(e.target.value)} />
                                     <a style={{alignContent:"center"}}  data-tooltip-id="no-emoji" data-tooltip-html="Payload não podem ser iguais!">
                                             <img src={info} width={15} height={15} alt="alerta"/>
                                         </a>
                                     <Tooltip id="no-emoji" />
-                                    <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton3} </span>
+                                </div>
                                 </div>
                             }
                             <input type="text" value={fileName} disabled style={{width:"300px", borderRadius:"8px"}}/>
-                            <button type="button" style={{width:"120px", marginLeft:"7px"}} onClick={() => fileInputRef.current?.click()} className="button-blue">Escolher arquivo</button>
+                            <button type="button" style={{width:"120px", marginLeft:"7px"}} onClick={() => handleButtonName("warningFile")} className="button-blue">Escolher arquivo</button>
                             <div style={{ maxHeight: "500px", maxWidth:"900px", overflowY: 'auto', marginBottom: "10px", flexDirection:"column", alignItems: "center", padding:"10px 0px" }}>
                                 <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", width:"97%", padding:"10px"}}>
                                     <thead>

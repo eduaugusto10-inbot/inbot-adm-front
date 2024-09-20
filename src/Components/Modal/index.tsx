@@ -64,9 +64,9 @@ export default function Modal(props: ModalType) {
                         </div>
                         <div className="column-align">
                             <span></span>
-                            <span style={{ color:"#0d5388", fontWeight:"bold" }}>{props.buttonB!=="NaoExibir" ? "Essa ação não poderá ser desfeita." : "Clique em fechar para continuar"}</span>
+                            <span style={{ color:"#0d5388", fontWeight:"bold" }}>{props.buttonB === "OK" ? "Padrão é: 5512345678901":props.buttonB!=="NaoExibir" ? "Essa ação não poderá ser desfeita." : "Clique em fechar para continuar"}</span>
                             <div style={{ marginTop: "30px", display: "flex", justifyContent: "center" }}>
-                                <button onClick={() => handleButtonClickA(props.buttonA)} style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: loading ? "#c3c3c3" : "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }}>{props.buttonA}</button>
+                                {props.buttonA!=="NaoExibir" && <button onClick={() => handleButtonClickA(props.buttonA)} style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: loading ? "#c3c3c3" : "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }}>{props.buttonA}</button>}
                                 {props.buttonB!=="NaoExibir" && <button onClick={() => handleButtonClickB(props.buttonB)} style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: loading ? "#c3c3c3" : "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }}>{props.buttonB}</button>}
                             </div>
                         </div>

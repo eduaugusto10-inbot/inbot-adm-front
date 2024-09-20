@@ -1,22 +1,36 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import api from "../../../utils/api";
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { adjustTime, mask } from "../../../utils/utils";
 import { Filters, ICustomer } from "../../types";
+import { errorDeleted, successDeletedMessage } from "../../../Components/Toastify";
 import Doughnut from '../../../Components/Chart'
 import './style.css'
+import Modal from "../../../Components/Modal";
+import useModal from "../../../Components/Modal/useModal";
 
 export function TriggerDetails() {
 
+    const [searchParams, setSearchParams] = useSearchParams();
+    if (searchParams.get('bot_id') === null) {
+        window.location.href = "https://in.bot/inbot-admin";
+    }
+    var botId = searchParams.get('bot_id') ?? "0";
     const location = useLocation()
     const triggerId = location.state.triggerId;
+    const { isOpen, toggle } = useModal();
     const [loading, setLoading] = useState<boolean>(true)
     const [customerStatus, setCustomerStatus] = useState<ICustomer[]>([])
     const [waiting, setWaiting] = useState<number>(0)
     const [send, setSend] = useState<number>(0)
     const [erro, setErro] = useState<number>(0)
+    const [idDelete, setIdDelete] = useState<number>(0)
     const [engagements, setEngagements] = useState<number>(0)
+    const [textToModal, setTextToModal] = useState<string>("")
+    const [buttonA, setButtonA] = useState<string>("")
+    const [buttonB, setButtonB] = useState<string>("")
+    const modalRef = useRef<HTMLDivElement>(null);
     const [notEngagements, setNotEngagements] = useState<number>(0)
     const [filters, setFilters] = useState<Filters>({
         telefone: '',
@@ -38,6 +52,14 @@ export function TriggerDetails() {
     });
 
     
+    const handleButtonName = (wichButton: string) => {
+        if (wichButton === "Salvar") {
+            setButtonA("Não")
+            setButtonB("Sim")
+            setTextToModal("Você deseja deletar?")
+            toggle();
+        } 
+    }
 
     const dataPie = {
         labels: ["Aguardando", "Enviado", "Erro"],
@@ -148,6 +170,30 @@ export function TriggerDetails() {
         fetchData();
         return () => clearInterval(intervalId);
     }, [])
+
+    const deleteUser = async (id:number) => {
+        let access = ""
+        let token = ""
+        await api.get(`/customer-manager/access-key/${botId}`)
+            .then(resp => {
+                access = resp.data.key
+                api.post(`/token`,{botId: botId}, {headers:{"x-api-key": access}})
+                .then(resp => {
+                    token = resp.data.token
+                     api.delete(`/whats-customer/botid/${botId}/customer/${id}`, {headers:{'Authorization': `Bearer ${token}`}})
+                    .then(resp => {
+                        console.log(resp.data)
+                        successDeletedMessage()
+                    })
+                    .catch(error => errorDeleted("Erro para deletar usuário"))
+                })
+                .catch(error => errorDeleted("Erro para gerar token"))
+            })
+            .catch(error => errorDeleted("Erro na chave de acesso"))
+        
+    }
+
+
     const handleTelefoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFilters({ ...filters, telefone: (event.target.value) });
     };
@@ -224,9 +270,25 @@ export function TriggerDetails() {
         }
         return false;
     });
+
+    const openModal = (id: number) => {
+        setIdDelete(id)
+        handleButtonName("Salvar")
+    }
+
+    const handleButtonClick = (buttonId: string) => {
+        if (buttonId === "Sim") {
+            toggle()
+            deleteUser(idDelete)
+        } else if (buttonId === "Não") {
+            toggle()
+        } 
+    };
+
     return (
         <div className="width-95-perc" style={{ padding:"10px 0px"}}>
             <ToastContainer /> 
+            <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
             <div>
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width:"100%" }} className="title_2024">Detalhes da Campanha</h1>
                 <div className="column-align" style={{alignItems:"center"}}>
@@ -294,6 +356,7 @@ export function TriggerDetails() {
                             <th className="cells">Horário do envio</th>
                             <th className="cells">Engajamento</th>
                             <th className="cells">Log</th>
+                            <th className="cells">Opções</th>
                         </tr>
                     </thead>
                     {filteredCustomers.map((customer, index) => (
@@ -313,6 +376,7 @@ export function TriggerDetails() {
                             <td><span className="font-size-12">{customer.data_disparo ? adjustTime(customer.data_disparo) : "----"}</span></td>
                             <td><span className="font-size-12">{customer.engagement ? adjustTime(customer.engagement) : "----"}</span></td>
                             <td><span className="font-size-12">{customer.log ?? "----"}</span></td>
+                            <td><button onClick={()=> openModal(customer.id)}>deletar</button></td>
                         </tr>
                     ))}
                 </table>
