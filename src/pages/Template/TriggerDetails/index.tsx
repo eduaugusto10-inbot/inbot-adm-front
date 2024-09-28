@@ -61,22 +61,33 @@ export function TriggerDetails() {
         } 
     }
 
-    const dataPie = {
-        labels: ["Aguardando", "Enviado", "Erro"],
+    const dataPie: any = {
+        labels: [],
         datasets: [
             {
                 label: 'Quantidade',
-                data: [waiting, send, erro],
-                backgroundColor: [
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 99, 132, 1)',
-                ],
+                data: [],
+                backgroundColor: [],
                 borderColor: "#FFF", // Define a cor da borda para cada fatia
                 borderWidth: 2 // Define a largura da borda
             },
         ],
     };
+    if(waiting > 0){
+        dataPie.labels.push("Aguardando")
+        dataPie.datasets[0].data.push(waiting)
+        dataPie.datasets[0].backgroundColor.push('rgba(255, 206, 86, 1)')
+    }
+    if(send > 0){
+        dataPie.labels.push("Enviado")
+        dataPie.datasets[0].data.push(send)
+        dataPie.datasets[0].backgroundColor.push('rgba(54, 162, 235, 1)')
+    }
+    if(erro > 0){
+        dataPie.labels.push("Erro")
+        dataPie.datasets[0].data.push(erro)
+        dataPie.datasets[0].backgroundColor.push('rgba(255, 99, 132, 1)')
+    }
     const dataEngagement = {
         labels: ["Engajado", "Não engajado"],
         datasets: [
