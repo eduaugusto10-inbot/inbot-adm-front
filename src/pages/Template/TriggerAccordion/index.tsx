@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { read, utils } from "xlsx";
 import { errorCampaingEmpty, errorDuplicatedPhone, errorEmptyVariable, errorPhoneEmpty, errorTriggerMode, successCreateTrigger, waitingMessage, errorNoRecipient, errorMidiaEmpty, errorMessagePayload } from "../../../Components/Toastify";
 import api from "../../../utils/api";
+import attached from '../../../img/attachment.png'
 import { ToastContainer } from "react-toastify";
 import './index.css'
 import Alert from "../../../Components/Alert";
@@ -69,6 +70,10 @@ export function Accordion() {
     const [templates, setTemplates] = useState<ITemplateList[]>([])
     const [qtButtons, setQtButtons] = useState<number>(0)
     const [titleButton1, setTitleButton1] = useState<string>("")
+    const [bodyText, setBodyText] = useState<string>("")
+    const [typeOfHeader, setTypeOfHeader] = useState<string>("")
+    const [footerText, setFooterText] = useState<string>("")
+    const [headerText, setHeaderText] = useState<string>("")
     const [titleButton2, setTitleButton2] = useState<string>("")
     const [titleButton3, setTitleButton3] = useState<string>("")
     const [headerTable, setHeaderTable] = useState<any>()
@@ -376,6 +381,7 @@ export function Accordion() {
     const hasManyButtons = (headerElement: any) => {
         let buttons = 0;
         headerElement.forEach((element: any) => {
+            console.log(element)
             if (element.type === "button") {
                 if (element.parameters[0].type === "quickReply") {
                     buttons = element.parameters.length;
@@ -383,6 +389,16 @@ export function Accordion() {
                     if(buttons > 1) setTitleButton2(element.parameters[1].text)
                     if(buttons > 2) setTitleButton3(element.parameters[2].text)
                 }
+            }
+            if(element.type === "body") {
+                setBodyText(element.parameters[0].text)
+            }
+            if(element.type === "header") {
+                setHeaderText(element.parameters[0]?.text)
+                setTypeOfHeader(element.parameters[0].type)
+            }
+            if(element.type === "footer") {
+                setFooterText(element.parameters[0].text)
             }
         });
         return buttons;
@@ -665,6 +681,8 @@ export function Accordion() {
                             <span style={{ fontSize: "11px", fontStyle: "italic", marginLeft:"25px" }}> "Selecione esta opção se deseja adicionar contatos um a um manualmente para esta campanha."</span>
                             {!typeClient && showType &&
                         <div style={{ display: "flex", flexDirection: "column", width: "100%", marginTop:"20px" }}>
+                            <div className="row-align">
+                            <div className="column-align">
                             <div style={{ display: "flex", flexDirection: "row",alignItems: "center" }}>
                                 <span className="span-title" style={{paddingBottom: blockAddNumber ? "0px" : '19px' }}>Telefone </span>
                                 <div className="column-align">
@@ -749,9 +767,34 @@ export function Accordion() {
                                     </div>
                                 }
                                 <div style={{width:"100%", textAlign:"end", paddingRight:"10px", paddingBottom:"20px"}}>
-                                    <button onClick={addCustomerToSendTemplate} style={{ width: "150px",  marginRight: "5px" }} className={blockAddNumber ? "button-blue": "button-disabled"} disabled={!blockAddNumber}>Adicionar contato</button>
+                                    <button onClick={addCustomerToSendTemplate} style={{ width: "150px",  marginRight: "20px" }} className={blockAddNumber ? "button-blue": "button-disabled"} disabled={!blockAddNumber}>Adicionar contato</button>
                                 </div>
                             </div>
+                            </div>
+                                                            <div style={{width:"100%"}}>
+            <div style={{width: "100%", alignItems: "center", display: "flex", flexDirection: "column"}}>
+                <div style={{width:"200px", border:"1px solid #C4C4C4", padding:"20px 0px", borderRadius:"7px", marginBottom:"10px"}}>
+                    <div className="texts" style={{fontSize:"10px"}}>
+                        {typeOfHeader === "text" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{headerText}</label>}
+                        {typeOfHeader === "image" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={urlMidia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
+                        {typeOfHeader === "document" && <div className="column-align" style={{padding:"10px"}}><label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={attached} style={{ maxWidth: '100%', maxHeight: '200px', border:"1px solid #c3c3c3", borderRadius:"8px"}} alt="" /></label></div>}
+                        {typeOfHeader === "video" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><video width="160" height="120" controls><source src={urlMidia} type="video/mp4" /></video></label>}
+                        {<label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {bodyText.length > 256 ? bodyText.slice(0,256)+"...veja mais" : bodyText}</label>}
+                        {<label className="footer font-size-12" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{footerText}</label>}
+                        {qtButtons > 0 && <div className="quickReply-texts">
+                            {qtButtons > 0 && (<div className="quick-reply"><label >{titleButton1}</label></div>)}
+                            {qtButtons > 1 && (<div className="quick-reply"><label >{titleButton2}</label></div>)}
+                            {qtButtons > 2 && (<div className="quick-reply"><label >{titleButton3}</label></div>)}
+                        </div>}
+                        {/* {typeOfButtons === "cta" && <div className="quickReply-texts">
+                            {buttonsCTA.length > 0 && (<div className="quick-reply"><label >{buttonsCTA[0].text}</label></div>)}
+                            {buttonsCTA.length > 1 && (<div className="quick-reply"><label >{buttonsCTA[1].text}</label></div>)}
+                        </div>} */}
+                    </div>
+                </div>
+            </div>
+                                                            </div>
+                                                            </div>
                             <div style={{ maxHeight: "500px", overflowY: 'auto', marginBottom: "10px", display: "flex", flexDirection:"column", alignItems: "center", padding:"10px 0px" }}>
                                 <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", width:"97%", padding:"10px"}}>
                                     <thead>
@@ -813,7 +856,9 @@ export function Accordion() {
                                 onChange={handleFileUpload} 
                                 style={{ backgroundColor: "#0D5388", color: "#FFF", borderRadius: "20px", display:"none" }} 
                                 ref={fileInputRef}
-                            />{qtButtons > 0 &&
+                                
+                            /><div className="row-align">
+                                <div className="column-align">{qtButtons > 0 &&
                                 <div style={{ display: "flex", flexDirection: "column", justifyContent: "left", margin: "10px" }}>
                                         <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton1} </span>
                                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", marginLeft: "-4px" }}>
@@ -852,6 +897,31 @@ export function Accordion() {
                                 </div>
                                 </div>
                             }
+                            </div>
+                            <div style={{width:"100%"}}>
+            <div style={{width: "100%", alignItems: "center", display: "flex", flexDirection: "column"}}>
+                <div style={{width:"200px", border:"1px solid #C4C4C4", padding:"20px 0px", borderRadius:"7px", marginBottom:"10px"}}>
+                    <div className="texts" style={{fontSize:"10px"}}>
+                        {typeOfHeader === "text" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{headerText}</label>}
+                        {typeOfHeader === "image" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={urlMidia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
+                        {typeOfHeader === "document" && <div className="column-align" style={{padding:"10px"}}><label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={attached} style={{ maxWidth: '100%', maxHeight: '200px', border:"1px solid #c3c3c3", borderRadius:"8px"}} alt="" /></label></div>}
+                        {typeOfHeader === "video" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><video width="160" height="120" controls><source src={urlMidia} type="video/mp4" /></video></label>}
+                        {<label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {bodyText.length > 256 ? bodyText.slice(0,256)+"...veja mais" : bodyText}</label>}
+                        {<label className="footer font-size-12" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{footerText}</label>}
+                        {qtButtons > 0 && <div className="quickReply-texts">
+                            {qtButtons > 0 && (<div className="quick-reply"><label >{titleButton1}</label></div>)}
+                            {qtButtons > 1 && (<div className="quick-reply"><label >{titleButton2}</label></div>)}
+                            {qtButtons > 2 && (<div className="quick-reply"><label >{titleButton3}</label></div>)}
+                        </div>}
+                        {/* {typeOfButtons === "cta" && <div className="quickReply-texts">
+                            {buttonsCTA.length > 0 && (<div className="quick-reply"><label >{buttonsCTA[0].text}</label></div>)}
+                            {buttonsCTA.length > 1 && (<div className="quick-reply"><label >{buttonsCTA[1].text}</label></div>)}
+                        </div>} */}
+                    </div>
+                </div>
+            </div>
+                                                            </div>
+                                                            </div>
                             <input type="text" value={fileName} disabled style={{width:"300px", borderRadius:"8px"}}/>
                             <button type="button" style={{width:"120px", marginLeft:"7px"}} onClick={() => handleButtonName("warningFile")} className="button-blue">Escolher arquivo</button>
                             <div style={{ maxHeight: "500px", maxWidth:"900px", overflowY: 'auto', marginBottom: "10px", flexDirection:"column", alignItems: "center", padding:"10px 0px" }}>
