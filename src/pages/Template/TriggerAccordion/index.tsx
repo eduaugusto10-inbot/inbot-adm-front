@@ -260,7 +260,7 @@ export function Accordion() {
                     variable_7: customer[7],
                     variable_8: customer[8],
                     variable_9: customer[9],
-                    media_url: customer[10],
+                    media_url: urlMidia,
                     type_media: headerConfig,
                     payload_1: payload1,
                     payload_2: payload2,
@@ -290,7 +290,7 @@ export function Accordion() {
                 variable_7: listVariables[i]?.variable_7,
                 variable_8: listVariables[i]?.variable_8,
                 variable_9: listVariables[i]?.variable_9,
-                media_url: listVariables[i].media_url,
+                media_url: urlMidia,
                 type_media: headerConfig,
                 payload_1: payload1,
                 payload_2: payload2,
@@ -858,7 +858,14 @@ export function Accordion() {
                                 ref={fileInputRef}
                                 
                             /><div className="row-align">
-                                <div className="column-align">{qtButtons > 0 &&
+                                <div className="column-align">
+                                {headerConfig !== "text" && headerConfig !== null &&
+                                    <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
+                                        <span className="span-title">Link {headerConfig === "document" ? "documento" : headerConfig === "image" ? "imagem" : "video"}</span>
+                                        <input className="input-values" value={urlMidia.replace(/\s+/g, '')} onChange={e => setURLMidia(e.target.value.replace(/\s+/g, ''))} />
+                                    </div>
+                                }
+                                    {qtButtons > 0 &&
                                 <div style={{ display: "flex", flexDirection: "column", justifyContent: "left", margin: "10px" }}>
                                         <span className="span-title" style={{width: "auto", marginLeft:"10px", justifyContent:"flex-start"}}>Título botão: {titleButton1} </span>
                                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", marginLeft: "-4px" }}>
