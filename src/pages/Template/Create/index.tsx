@@ -839,7 +839,7 @@ export function CreateTemplateAccordion() {
                         {typeOfHeader === "video" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><video width="160" height="120" controls><source src={midia} type="video/mp4" /></video></label>}
                         {<label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {handleChangeText(template.body).length > 256 ? handleChangeText(template.body).slice(0,256)+"...veja mais" : handleChangeText(template.body)}</label>}
                         {<label className="footer font-size-12" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{template.footer}</label>}
-                        {typeOfButtons !== "cta" && <div className="quickReply-texts">
+                        {typeOfButtons === "quickReply" && <div className="quickReply-texts">
                             {buttons.length > 0 && (<div className="quick-reply"><label >{buttons[0].text}</label></div>)}
                             {buttons.length > 1 && (<div className="quick-reply"><label >{buttons[1].text}</label></div>)}
                             {buttons.length > 2 && (<div className="quick-reply"><label >{buttons[2].text}</label></div>)}

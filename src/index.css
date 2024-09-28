@@ -276,6 +276,11 @@ table th:nth-child(even) {
   border-collapse: collapse;
 }
 
+.tabela-wrapper {
+  min-width: 90%;
+  display: block;
+}
+
 .fixed-header-table thead {
   position: sticky;
   top: 0;
