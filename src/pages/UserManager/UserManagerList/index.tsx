@@ -29,6 +29,7 @@ const [editedValues, setEditedValues] = useState<Array<any>>(Array(customers.len
 const [fileName, setFileName] = useState('');
 const [hashIdSelected, setHashIdSelected] = useState<string>("")
 const [warning, setWarning] = useState<boolean>(true)
+const [checkActivated, setCheckActivated] = useState<boolean>(true)
 const [loading, setLoading] = useState<boolean>(false)
 const fileInputRef = useRef<HTMLInputElement>(null);
 const [fileData, setFileData] = useState<any[][]>([]);
@@ -294,39 +295,45 @@ const saveCustomer = async (data: any) => {
         setIsCustomFields(isCustomFields)
     }
     const handleSort = (outrosDadosFiltrados: any) => {
-        const filteredItems = outrosDadosFiltrados.filter((item: any) => {
+        let filteredItems = outrosDadosFiltrados.filter((item: any) => {
             const value = item[`${filterSelected}`] || '';
             return value.toString().toLowerCase().includes(filterSelectedValue);
-          });
-            const sortedItems = [...filteredItems];
-            if(sortType === ""){
-                return sortedItems;
-            }
-            console.log(filterSelected)
-
-            if (sortOrder === "asc") {
-                sortedItems.sort((a, b) => {
-                  let valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : 'Z';
-                  let valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : 'Z';
-                    if(isCustomFields){
-                        valorA = getCustomFieldValue(a, sortType);
-                        valorB = getCustomFieldValue(b, sortType);
-                    }
-                  return valorA.localeCompare(valorB);
-                });
-              } else if (sortOrder === "desc") {
-                sortedItems.sort((a, b) => {
-                  let valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : 'Z';
-                  let valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : 'Z';
-                  if(isCustomFields){
-                        valorA = getCustomFieldValue(a, sortType);
-                        valorB = getCustomFieldValue(b, sortType);
-                  }
-                  return valorB.localeCompare(valorA);
-                });
-            }
-            return sortedItems
-    }
+        });
+    
+        if (checkActivated) {
+            filteredItems = filteredItems.filter((item: any) => item.activated === 1);
+        }
+    
+        const sortedItems = [...filteredItems];
+    
+        if (sortType === "") {
+            return sortedItems;
+        }
+    
+        if (sortOrder === "asc") {
+            sortedItems.sort((a, b) => {
+                let valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : 'Z';
+                let valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : 'Z';
+                if (isCustomFields) {
+                    valorA = getCustomFieldValue(a, sortType);
+                    valorB = getCustomFieldValue(b, sortType);
+                }
+                return valorA.localeCompare(valorB);
+            });
+        } else if (sortOrder === "desc") {
+            sortedItems.sort((a, b) => {
+                let valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : 'Z';
+                let valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : 'Z';
+                if (isCustomFields) {
+                    valorA = getCustomFieldValue(a, sortType);
+                    valorB = getCustomFieldValue(b, sortType);
+                }
+                return valorB.localeCompare(valorA);
+            });
+        }
+        return sortedItems;
+    };
+    
 
     const getCustomFieldValue = (item: any, customFieldId: string) => {
         const customField = item.customFields.find((field: { id: string; }) => field.id === customFieldId);
@@ -517,6 +524,15 @@ const saveCustomer = async (data: any) => {
                             <option value={customField.id}>{customField.customName}</option>
                         ))}
                     </select>
+                    <div className="row-align" style={{alignContent:"center"}}>
+                    <span className="color-text-label">Exibir somente usuários ativos:</span>
+                    <input
+                        onChange={(e) => setCheckActivated(e.target.checked)}
+                        style={{ marginLeft: "10px", marginTop:"2px" }}
+                        type="checkbox"
+                        />
+
+                    </div>
                 </div>
                 <div className="column-align left-align" style={{marginLeft:"50px"}}>
                     <span className="color-text-label" style={{marginLeft:"10px"}}>Conteúdo do campo:</span>
