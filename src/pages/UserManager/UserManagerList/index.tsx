@@ -10,7 +10,9 @@ import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import useModal from "../../../Components/Modal/useModal";
 import Modal from "../../../Components/Modal";
-import chevron from "../../../img/right-chevron.png"
+import chevron from "../../../img/right-chevron.png";
+import { ToastContainer } from "react-toastify";
+import { successMessageDefault, errorMessageDefault, waitingMessage} from "../../../Components/Toastify";
 export function UserManagerList() {
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -25,6 +27,8 @@ const [qtyCustomer, setQtyCustomer] = useState<number>(0)
 const [editMode, setEditMode] = useState<Array<boolean>>(Array(customers.length).fill(false));
 const [editedValues, setEditedValues] = useState<Array<any>>(Array(customers.length).fill({}));
 const [fileName, setFileName] = useState('');
+const [hashIdSelected, setHashIdSelected] = useState<string>("")
+const [warning, setWarning] = useState<boolean>(true)
 const [loading, setLoading] = useState<boolean>(false)
 const fileInputRef = useRef<HTMLInputElement>(null);
 const [fileData, setFileData] = useState<any[][]>([]);
@@ -76,6 +80,12 @@ const handleButtonName = (wichButton: string) => {
         setTextToModal("Salvo com sucesso!")
         setButtonA("Fechar")
         setButtonB("NaoExibir")
+    } else if (wichButton === "Alterar") {
+        setTextToModal("Deseja alterar o status")
+        setButtonA("Fechar")
+        setButtonB("Sim")
+        setWarning(false)
+        toggle()
     }
 }
 
@@ -210,15 +220,18 @@ const saveCustomer = async (data: any) => {
         }));
     };
 
-    const openModal = () => {
-        handleButtonName("Salvar")
+    const openModal = (text: string) => {
+        handleButtonName(text)
     }
     const handleButtonClick = (buttonId: string) => {
         if (buttonId === "Salvar") {
             createJson()
         } else if (buttonId === "Fechar") {
             toggle()
-        } 
+        } else if (buttonId === "Sim") {
+            changeStatusActivated(hashIdSelected);
+            toggle();
+        }
     };
     const createJson = async () => {        
         setLoading(true)
@@ -336,9 +349,20 @@ const saveCustomer = async (data: any) => {
     const deleteCustomer = (hashId:string) => {
         api.delete(`/customer/${hashId}`)
     }
+
+    async function changeStatusActivated(id: string) {
+        waitingMessage()
+        await api.put(`/manager-customer/botid/${botId}/customer/${id}`)
+        .then(() => {
+            successMessageDefault("Usuário alterado com sucesso" )
+            setSearchButton(true)
+        })
+        .catch(() => errorMessageDefault("Erro ao atualizar o usuário"))
+    }
   return (
     <div className="column-align" style={{width:"100vw", height:"100vh",backgroundColor:"#ebebeb", padding:"10px 10px 0px 0px", alignItems:"center"}}>
-        <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
+        <ToastContainer />
+        <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} warning={warning} onButtonClick={handleButtonClick}></Modal>
         <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Gestão de Usuários</h1>
         <div className="column-align" style={{alignItems:"center", width:"100%"}}>
             <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
@@ -427,7 +451,7 @@ const saveCustomer = async (data: any) => {
             </div>
             <div style={{ flexDirection: "row", textAlign: "end", alignContent: "end", alignItems: "end" }}>
                 <button className="button-cancel" onClick={() => resetCustomerTabel()}>Cancelar</button>
-                <button className="button-save" style={{ backgroundColor: loading ? "#c3c3c3" : "#5ed12c" }} onClick={() => openModal()}>{loading ? <div className="in_loader"></div> : "Salvar"}</button>
+                <button className="button-save" style={{ backgroundColor: loading ? "#c3c3c3" : "#5ed12c" }} onClick={() => openModal("Salvar")}>{loading ? <div className="in_loader"></div> : "Salvar"}</button>
             </div>
             </div>}
         </div>}
@@ -522,7 +546,7 @@ const saveCustomer = async (data: any) => {
                         <th key={key} className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>{fields.customName}</span> <div><div className="triangle-up" onClick={()=>handleInitSort(fields.id,"asc",true)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort(fields.id,"desc",true)}></div></div></div></th>
                     ))}
                     <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Data Cadastro</span> <div><div className="triangle-up" onClick={()=>handleInitSort("createdAt","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("createdAt","desc",false)}></div></div></div></th>
-                    {/* <th className="cells">Status</th> */}
+                    <th className="cells">Status</th>
                     <th className="cells">Gerenciar</th>
                 </tr>
                 </thead>
@@ -538,6 +562,10 @@ const saveCustomer = async (data: any) => {
                         <td className="border-gray" key={key}><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.email ?? customer.email} onChange={(e) => handleChange(e, index, showNameAndValue(customer, fields))}/> :  showNameAndValue(customer, fields)}</span></td>
                     ))}                    
                         <td className="border-gray"><span style={{fontSize:"12px"}}>{adjustTimeWithout3Hour(customer.createdAt)}</span></td>
+                        <td><button onClick={() => {
+                            setHashIdSelected(customer.id)
+                            openModal("Alterar")}}
+                            className={customer.activated ? "button-save" : "button-cancel"}>{customer.activated ? "ativo" : "inativo"}</button></td>
                         <td className="border-gray">
                     {/* {editMode[index] ? (
                         <div>

@@ -31,6 +31,9 @@ export const errorMessage = () => toast.error("Erro no sistema, tente mais tarde
 export const errorMessageDefault = (message: string) => toast.error(message, {
     theme: "colored"
 });
+export const successMessageDefault = (message: string) => toast.success(message, {
+    theme: "colored"
+});
 export const errorMessageDelete = () => toast.error("Erro ao deletar número", {
     theme: "colored"
 });

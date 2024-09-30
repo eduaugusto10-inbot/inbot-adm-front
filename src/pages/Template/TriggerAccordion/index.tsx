@@ -624,7 +624,7 @@ export function Accordion() {
       }
     return (
         <div className="container-trigger width-95-perc" style={{ padding:"10px 0px"}}>
-            <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
+            <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} warning={false} onButtonClick={handleButtonClick}></Modal>
             <ToastContainer />
             <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Criar Campanha</h1>
             <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>

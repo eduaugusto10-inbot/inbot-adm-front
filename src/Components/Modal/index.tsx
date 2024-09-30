@@ -10,6 +10,7 @@ interface ModalType {
     modalRef: React.RefObject<HTMLDivElement>;
     buttonA: string;
     buttonB: string;
+    warning: boolean;
 }
 
 export default function Modal(props: ModalType) {
@@ -64,7 +65,8 @@ export default function Modal(props: ModalType) {
                         </div>
                         <div className="column-align">
                             <span></span>
-                            <span style={{ color:"#0d5388", fontWeight:"bold", fontSize: props.buttonB === "OK" ? "12px": "16px" }}>{props.buttonB === "OK" ? "Para garantir o envio corretamente, não se esqueça de verificar na sua planilha se os números de telefone estão completos seguindo o padrão: código do país (Brasil = 55), código regional (SP = 11) e número do telefone. Exemplo: 5511988880000":props.buttonB!=="NaoExibir" ? "Essa ação não poderá ser desfeita." : "Clique em fechar para continuar"}</span>
+                            {props.warning && <span style={{ color:"#0d5388", fontWeight:"bold", fontSize: props.buttonB === "OK" ? "12px": "16px" }}>{props.buttonB === "OK" ? "Para garantir o envio corretamente, não se esqueça de verificar na sua planilha se os números de telefone estão completos seguindo o padrão: código do país (Brasil = 55), código regional (SP = 11) e número do telefone. Exemplo: 5511988880000":props.buttonB!=="NaoExibir" ? "Essa ação não poderá ser desfeita." : "Clique em fechar para continuar"}</span>}
+                            {!props.warning && <span style={{ color:"#0d5388", fontWeight:"bold", fontSize: "12px" }}>Escolha uma opção para continuar</span>}
                             <div style={{ marginTop: props.buttonB === "OK" ? "15px":"30px", display: "flex", justifyContent: "center" }}>
                                 {props.buttonA!=="NaoExibir" && <button onClick={() => handleButtonClickA(props.buttonA)} style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: loading ? "#c3c3c3" : "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }}>{props.buttonA}</button>}
                                 {props.buttonB!=="NaoExibir" && <button onClick={() => handleButtonClickB(props.buttonB)} style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: loading ? "#c3c3c3" : "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }}>{props.buttonB}</button>}
