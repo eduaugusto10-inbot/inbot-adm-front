@@ -212,7 +212,8 @@ export function TriggerList() {
     function detailedTrigger(id: number) {
         const sortTrigger = handleSort(dataTreat);
         const triggerId = sortTrigger[id].id;
-        history(`/trigger-details?bot_id=${botId}`, { state: { triggerId: triggerId, urlLogo: "" } });
+        const triggerStatus = sortTrigger[id].status;
+        history(`/trigger-details?bot_id=${botId}`, { state: { triggerId: triggerId, urlLogo: "", triggerStatus: triggerStatus } });
     }
     const changeStatus = (id: number) => {
         const sortTrigger = handleSort(dataTreat)

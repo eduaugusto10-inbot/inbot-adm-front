@@ -4,7 +4,7 @@ import { useLocation, useSearchParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { adjustTime, mask } from "../../../utils/utils";
 import { Filters, ICustomer } from "../../types";
-import { errorDeleted, successDeletedMessage } from "../../../Components/Toastify";
+import { errorDeleted, successDeletedMessage, errorMessageDefault } from "../../../Components/Toastify";
 import Doughnut from '../../../Components/Chart'
 import './style.css'
 import Modal from "../../../Components/Modal";
@@ -19,6 +19,7 @@ export function TriggerDetails() {
     var botId = searchParams.get('bot_id') ?? "0";
     const location = useLocation()
     const triggerId = location.state.triggerId;
+    const triggerStatus = location.state.triggerStatus;
     const { isOpen, toggle } = useModal();
     const [loading, setLoading] = useState<boolean>(true)
     const [customerStatus, setCustomerStatus] = useState<ICustomer[]>([])
@@ -387,7 +388,7 @@ export function TriggerDetails() {
                             <td><span className="font-size-12">{customer.data_disparo ? adjustTime(customer.data_disparo) : "----"}</span></td>
                             <td><span className="font-size-12">{customer.engagement ? adjustTime(customer.engagement) : "----"}</span></td>
                             <td><span className="font-size-12">{customer.log ?? "----"}</span></td>
-                            <td><div onClick={()=> openModal(customer.id)}><img src={trash} width={15} height={15} style={{cursor:"pointer"}}/></div></td>
+                            <td><div onClick={()=> triggerStatus.toLowerCase()==="aguardando" ? openModal(customer.id) : errorMessageDefault("Impossível deletar, disparo iniciado")}><img src={trash} width={15} height={15} style={{cursor:"pointer"}}/></div></td>
                         </tr>
                     ))}
                 </table>
