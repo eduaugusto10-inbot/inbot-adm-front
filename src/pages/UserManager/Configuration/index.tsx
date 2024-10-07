@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import api from "../../../utils/api";
 import { waitingMessage, successCreateTrigger } from "../../../Components/Toastify";
+import { useSearchParams } from "react-router-dom";
 
 interface SavedValue {
     nomeCampo: string;
@@ -17,15 +18,30 @@ export function Configuration(){
     const [savedValues, setSavedValues] = useState<SavedValue[]>([]);
     const [customFields, setCustomFields] = useState([])
     const [buttonSaveStatus, setButtonSaveStatus] = useState<boolean>(false)
+    const [searchParams, setSearchParams] = useSearchParams();
+    if (searchParams.get('bot_id') === null) {
+        window.location.href = "https://in.bot/inbot-admin";
+    }
+    var botId = searchParams.get('bot_id') ?? "0";
     useEffect(() => {
-        api.get(`/customfields/403`, {
+      let access = ""
+      let token = ""
+      api.get(`/customer-manager/access-key/${botId}`)
+          .then(resp => {
+            access = resp.data.key
+      api.post(`/token`,{botId: botId}, {headers:{"x-api-key": access}})
+          .then(resp => {
+            token = resp.data.token
+        api.get(`/customfields/${botId}`, {
             headers: { 
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJib3RfaWQiOjQwMywiaWF0IjoxNzE1Nzk0ODYwfQ.hoGj0zCeUZQIbaCVT5gF8pjVJsaEeMAGXLM6565Rh1w'
+            'Authorization':  `Bearer ${token}`
           }})
         .then(resp => {
             console.log(resp.data.data)
             setCustomFields(resp.data.data)
         })
+      })
+      })
     },[])
     const handleSave = () => {
         waitingMessage()

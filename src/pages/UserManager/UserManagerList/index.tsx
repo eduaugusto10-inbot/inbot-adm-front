@@ -11,6 +11,8 @@ import axios from "axios";
 import useModal from "../../../Components/Modal/useModal";
 import Modal from "../../../Components/Modal";
 import chevron from "../../../img/right-chevron.png";
+import trash from '../../../img/trash-solid.svg'
+import pencil from '../../../img/pencil.svg'
 import { ToastContainer } from "react-toastify";
 import { successMessageDefault, errorMessageDefault, waitingMessage} from "../../../Components/Toastify";
 export function UserManagerList() {
@@ -27,6 +29,8 @@ const [qtyCustomer, setQtyCustomer] = useState<number>(0)
 const [editMode, setEditMode] = useState<Array<boolean>>(Array(customers.length).fill(false));
 const [editedValues, setEditedValues] = useState<Array<any>>(Array(customers.length).fill({}));
 const [fileName, setFileName] = useState('');
+const [updateIndex, setUpdateIndex] = useState<number>(9999)
+const [deleteIndex, setDeleteIndex] = useState<string>('')
 const [hashIdSelected, setHashIdSelected] = useState<string>("")
 const [warning, setWarning] = useState<boolean>(true)
 const [checkActivated, setCheckActivated] = useState<boolean>(false)
@@ -40,8 +44,6 @@ const [sortOrder, setOrderSort] = useState<string>("")
 const [loadFinished, setLoadFinished] = useState(true)
 const [filterSelected, setFilterSelected] = useState("")
 const [isCustomFields, setIsCustomFields] = useState(false)
-const [changeDateFilter, setChangeDateFilter] = useState<boolean>(false)
-const [filtro, setFiltro] = useState<string>('');
 const modalRef = useRef<HTMLDivElement>(null);
 const [initDate, setInitDate] = useState({
     day: now.getDate(),
@@ -82,10 +84,15 @@ const handleButtonName = (wichButton: string) => {
         setButtonA("Fechar")
         setButtonB("NaoExibir")
     } else if (wichButton === "Alterar") {
-        setTextToModal("Deseja alterar o status")
+        setTextToModal("Deseja alterar?")
         setButtonA("Fechar")
         setButtonB("Sim")
         setWarning(false)
+        toggle()
+    } else if (wichButton === "Deletar") {
+        setTextToModal("Deseja deletar?")
+        setButtonA("Deletar")
+        setButtonB("Fechar")
         toggle()
     }
 }
@@ -192,9 +199,9 @@ const saveCustomer = async (data: any) => {
         });
       };
 
-      const handleChange = (event: React.ChangeEvent<HTMLInputElement>, index: number, fieldName: string) => {
+      const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number, fieldName: string) => {
         const newValue = event.target.value;
-        console.log("editedValues" + JSON.stringify(editedValues))
+        console.log("editedValues: " + JSON.stringify(editedValues))
         setEditedValues(prevValues => {
           const newValues = [...prevValues];
           newValues[index] = { ...newValues[index], [fieldName]: newValue };
@@ -208,7 +215,58 @@ const saveCustomer = async (data: any) => {
           newEditMode[index] = false;
           return newEditMode;
         });
+        setEditedValues([])
       };
+
+      const updateCustomer = async(index: number) => {
+        waitingMessage()
+        let customerEdited = customers[index];
+        console.log(customerEdited)
+        console.log(editedValues)
+        for (const elementName of Object.keys(editedValues[0])){
+            console.log(elementName)
+            if(elementName==='name' || elementName==='phone' || elementName==='email' || elementName==='activated'){
+                customerEdited[elementName] = editedValues[0][elementName];
+            } else {
+                for(let i=0;i<customerEdited.customFields.length;i++){
+                    if(customerEdited.customFields[i].id===elementName){
+                        customerEdited.customFields[i].value= editedValues[0][elementName]
+                    }
+                }
+            }
+        }
+        customerEdited.botId = botId;
+        console.log(`customerEdited: ${JSON.stringify(customerEdited)}`)
+        let access = ""
+        let token = ""
+        const baseUrl = "https://api-stg.inbot.com.br/user-manager/v1"
+        await api.get(`/customer-manager/access-key/${botId}`)
+            .then(resp => access = resp.data.key)
+        await api.post(`/token`,{botId: botId}, {headers:{"x-api-key": access}})
+            .then(resp => token = resp.data.token)
+        let config = {
+        method: 'put',
+        maxBodyLength: Infinity,
+        url: `${baseUrl}/customer/${customerEdited.id}`,
+        headers: { 
+            'Content-Type': 'application/json', 
+            'Authorization': `Bearer ${token}`
+        },
+            data : customerEdited
+        };
+        await axios.request(config).then((response: any) => {
+            console.log(JSON.stringify(response));
+            setEditedValues([])
+            handleSave(index)
+            setSearchButton(previous => !previous)
+            successMessageDefault("Usuário atualizado com sucesso")
+        })
+        .catch((error:any) => {
+            errorMessageDefault("Erro ao atualizar o usuário")
+            console.log(error);
+        });
+        
+      }
 
       const toggleAccordion = (key: keyof AccordionUserManager) => {
         setAccordionState({
@@ -224,13 +282,24 @@ const saveCustomer = async (data: any) => {
     const openModal = (text: string) => {
         handleButtonName(text)
     }
+    const openUpdateModal = (text: string, index: number) => {
+        setUpdateIndex(index)
+        handleButtonName(text)
+    }
+    const openDeletarModal = (text: string, index: string) => {
+        setDeleteIndex(index)
+        handleButtonName(text)
+    }
     const handleButtonClick = (buttonId: string) => {
         if (buttonId === "Salvar") {
             createJson()
         } else if (buttonId === "Fechar") {
             toggle()
         } else if (buttonId === "Sim") {
-            changeStatusActivated(hashIdSelected);
+            updateCustomer(updateIndex);
+            toggle();
+        } else if (buttonId === "Deletar") {
+            deleteCustomer(deleteIndex);
             toggle();
         }
     };
@@ -262,7 +331,6 @@ const saveCustomer = async (data: any) => {
             jsonData.push(obj)
           }
         });
-        // toggle();
         await Promise.all(jsonData.map(async (element: any) => {
             await saveCustomer(element);
         }));
@@ -271,24 +339,24 @@ const saveCustomer = async (data: any) => {
     }
     const nameAndValue = (value: any ,field: any) => {
         let resp = '';
-        for(let data of value){
-            if(field === data.id){
-                resp = data.value;
+        if(value && value.length > 0){
+            for(let data of value){
+                if(field === data.id){
+                    resp = data.value;
+                }
             }
         }
+        if (resp === '') {
+            for (let data of value) {
+              if (data.hasOwnProperty(field)) {
+                resp = data[field];
+                break;
+              }
+            }
+          }
         return resp;
     }
      
-    const handleStatusChange = (statusKey: keyof IFilterBtn['status']) => {
-        setFiltersBtn({
-            ...filtersBtn,
-            status: {
-                ...filtersBtn.status,
-                [statusKey]: !filtersBtn.status[statusKey],
-            },
-        });
-        setChangeDateFilter(previous => !previous)
-    };
     const handleInitSort = (value: string, orderBy: string, isCustomFields: boolean) => {
         setSortType(value)
         setOrderSort(orderBy)
@@ -349,12 +417,42 @@ const saveCustomer = async (data: any) => {
         setFileData([]);
         setFileName("")
     }
-    const showNameAndValue = (customer: any, fields: any) => {
-        const value = nameAndValue(customer.customFields, fields.id);
-        return !value || value === "null" ? '--' : value;
+    const showNameAndValue = (customer: any, fields: any, hasCustomField: boolean) => {
+        let value = "";
+        if(!hasCustomField){
+            value = nameAndValue(customer, fields.id);
+        }else {
+            value = nameAndValue(customer.customFields, fields.id);
+        }
+        console.log(value)
+        return value === "null" ? ' ' : value;
     }
-    const deleteCustomer = (hashId:string) => {
-        api.delete(`/customer/${hashId}`)
+    const hasShowNameAndValue = (customer: any, fields: any, hasCustomField: boolean) => {
+        console.log(customer)
+        if(!hasCustomField && customer.length > 0){
+            console.log(customer)
+            if(customer[0].hasOwnProperty(fields.id)) {
+                return customer[0].hasOwnProperty(fields.id)
+            } else if(customer[0].hasOwnProperty(fields)){
+                return true
+            }
+        }
+        return false;
+    }
+    const deleteCustomer = async (hashId:string) => {
+        waitingMessage()
+        let access = ""
+        let token = ""
+        const baseUrl = "https://api-stg.inbot.com.br/user-manager/v1"
+        await api.get(`/customer-manager/access-key/${botId}`)
+            .then(resp => access = resp.data.key)
+        await api.post(`/token`,{botId: botId}, {headers:{"x-api-key": access}})
+            .then(resp => token = resp.data.token)
+        api.delete(`/customer/${hashId}/botid/${botId}`, {headers: {'Authorization': `Bearer ${token}`} })
+        .then(()=> {
+            successMessageDefault("Usuário deletado com sucesso")
+            setSearchButton(previous => !previous)
+        })
     }
 
     async function changeStatusActivated(id: string) {
@@ -571,29 +669,26 @@ const saveCustomer = async (data: any) => {
                 {handleSort(customers).map((customer: any, index: number) => (
                     <tr key={customer.id}
                     style={{ border: '1px solid #0171BD', backgroundColor: index % 2 === 0 ? '#e4e4e4' : '#FFF' }}>
-                        <td className="border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.phone ?? customer.phone} onChange={(e) => handleChange(e, index, 'phone')}/> : mask(editedValues[index]?.phone ?? customer.phone)}</span></td>
-                        <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.name ?? customer.name} onChange={(e) => handleChange(e, index, 'name')}/> : editedValues[index]?.name ?? customer.name}</span></td>
-                        <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.email ?? customer.email} onChange={(e) => handleChange(e, index, 'email')}/> : editedValues[index]?.email ?? customer.email}</span></td>
+                        <td className="border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editMode[index] && hasShowNameAndValue(editedValues, 'phone', false) ? editedValues[0]?.phone : customer.phone} onChange={(e) => handleChange(e, 0, 'phone')}/> : mask(customer.phone)}</span></td>
+                        <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editMode[index] && hasShowNameAndValue(editedValues, 'name', false) ? editedValues[0]?.name : customer.name} onChange={(e) => handleChange(e, 0, 'name')}/> : customer.name}</span></td>
+                        <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editMode[index] && hasShowNameAndValue(editedValues, 'email', false) ? editedValues[0]?.email : customer.email} onChange={(e) => handleChange(e, 0, 'email')}/> : customer.email}</span></td>
                         {customFields.map((fields:any, key:any)=>(
-                        <td className="border-gray" key={key}><span className="font-size-12">{editMode[index] ? <input type="text" value={editedValues[index]?.email ?? customer.email} onChange={(e) => handleChange(e, index, showNameAndValue(customer, fields))}/> :  showNameAndValue(customer, fields)}</span></td>
-                    ))}                    
+                        <td className="border-gray" key={key}><span className="font-size-12">{editMode[index] ? <input type="text" value={editMode[index] && hasShowNameAndValue(editedValues, fields, false) ? showNameAndValue(editedValues, fields, false) : showNameAndValue(customer, fields, true)} onChange={(e) => handleChange(e, 0, fields.id)}/> :  showNameAndValue(customer, fields, true)}</span></td>
+                    ))}     
                         <td className="border-gray"><span style={{fontSize:"12px"}}>{adjustTimeWithout3Hour(customer.createdAt)}</span></td>
-                        <td><button onClick={() => {
-                            setHashIdSelected(customer.id)
-                            openModal("Alterar")}}
-                            className={customer.activated ? "button-save" : "button-cancel"}>{customer.activated ? "ativo" : "inativo"}</button></td>
+                        <td className="cells border-gray"><span  className="font-size-12">{editMode[index] ? <select style={{width:"80px"}} value={editMode[index] && editedValues[0]?.activated ? editedValues[0]?.activated : customer.activated} onChange={(e) => handleChange(e, 0, 'activated')}><option value='1'>Ativo</option><option value='0'>Inativo</option></select> : <div id="statusCells"><span style={{fontWeight: "bolder",color: customer.activated ? "green" : "red"}}>{customer.activated ? "Ativo" : "Inativo"}</span></div>}</span></td>
                         <td className="border-gray">
-                    {/* {editMode[index] ? (
-                        <div>
-                            <button className="button-save" onClick={() => handleSave(index)}>Save</button>
-                            <button className="button-cancel" onClick={() => handleSave(index)}>Cancelar</button>
+                    {editMode[index] ? (
+                        <div className="row-align">               
+                            <button className="button-save" style={{fontSize:"12px", width: "60px"}} onClick={() =>openUpdateModal("Alterar",index)}>Salvar</button>
+                            <button className="button-cancel" style={{fontSize:"12px", width:"60px"}} onClick={() => handleSave(index)}>Cancelar</button>
                         </div>
                     ) : (
                         <div>
-                            { <button className="button-blue" onClick={() => toggleEditMode(index)} disabled>Alterar</button> }
-                            <button className="button-cancel" onClick={() => deleteCustomer(customer.id)}>Deletar</button>
+                            { <span onClick={() => toggleEditMode(index)}><img src={pencil} width={15} height={15} style={{cursor:"pointer"}}/></span> }
+                            <span style={{border:"none", marginLeft:"10px"}} onClick={() => openDeletarModal("Deletar",customer.id)}><img src={trash} width={15} height={15} style={{cursor:"pointer"}}/></span>
                         </div>
-                    )} */}
+                    )}
                 </td>
                     </tr>
                 ))}

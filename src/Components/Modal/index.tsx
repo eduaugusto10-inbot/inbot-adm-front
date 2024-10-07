@@ -23,7 +23,7 @@ export default function Modal(props: ModalType) {
         if(props.buttonA!=="Sim" && props.buttonA!=="Fechar") { 
             setLoading(true);
         }
-        if(buttonId === "Fechar") {
+        if(buttonId === "Fechar" || buttonId === "Deletar") {
             setLoading(false)
         }
         if(buttonId === "Cancelar") {
@@ -32,6 +32,7 @@ export default function Modal(props: ModalType) {
         if(buttonId === "Não") {
             setLoading(false)
         }
+    
         props.onButtonClick(buttonId);
     };
     const handleButtonClickB = (buttonId: string) => {
@@ -39,7 +40,7 @@ export default function Modal(props: ModalType) {
         if(props.buttonB === "Salvar") { 
             setLoading(true);
         }
-        if(buttonId === "Fechar" || buttonId === "Voltar" || buttonId === "Alterar") {
+        if(buttonId === "Fechar" || buttonId === "Voltar" || buttonId === "Alterar" || buttonId === "Deletar") {
             setLoading(false)
         }
         props.onButtonClick(buttonId);
@@ -59,7 +60,7 @@ export default function Modal(props: ModalType) {
                             <h4 style={{ paddingBottom: "12px", color: "#0d5388" }}>{props.question}</h4>
                             <span 
                                 onClick={() => {
-                                    props.buttonA==="Sim" ? handleButtonClick(props.buttonB) : handleButtonClick(props.buttonA)
+                                    props.buttonA==="Sim" || props.buttonB==="Fechar" ? handleButtonClick(props.buttonB) : handleButtonClick(props.buttonA)
                                 }}
                                 style={{ color: "#a06060", fontWeight: "bolder", cursor: "pointer", justifySelf: "end" }}>X</span>
                         </div>
