@@ -15,6 +15,7 @@ export interface ICustomerData {
   vertical: string;
   websites: string;
   profile_pic: string;
+  activated: number;
 }
 
 export interface ITemplate {
@@ -53,6 +54,7 @@ export const defaultCustomerData: ICustomerData = {
   vertical: "",
   websites: "",
   profile_pic: "",
+  activated: 0,
 };
 
 export interface ITemplateList {

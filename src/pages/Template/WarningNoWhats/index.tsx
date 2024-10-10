@@ -18,6 +18,17 @@ export function WarningNoWhats() {
                 <span>Essa ferramenta é poderosa e pode impulsionar os resultados em atendimento, vendas e muito mais. Imagine enviar ofertas exclusivas, confirmar compromissos, orientar sobre novos produtos ou serviços, e manter seus contatos sempre engajados!</span>
                 <br />
                 <br />
+                <span><strong>Caso queira ver como funciona essa funcionalidade na prática, assista ao vídeo a seguir: </strong></span>
+                <br />
+                <br />
+                <div style={{display: "flex", justifyContent: "center"}}>
+                    <video controls width="60%">
+                        <source src="https://files.in.bot/upload/403/Funcao_-Interface-para-Criacao-de-Campanhas-via-WhatsApp.mp4" type="video/mp4"/>
+                        Seu navegador não suporta vídeos HTML5.
+                    </video>
+                </div>
+                <br />
+                <br />
                 <span>Obrigado pelo interesse em explorar essa funcionalidade. Abaixo, você encontrará um vídeo explicando como ela funciona. Se quiser habilitar seu número de WhatsApp e expandir as possibilidades da sua operação, entre em contato com nosso time comercial.</span>
                 <br />
                 <br />

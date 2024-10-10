@@ -120,7 +120,7 @@ export function Configuration(){
             </td>
             <td className="border-gray">
               <select value={status} onChange={(e) => checkEnableButton(e.target.value,"status")} style={{ width: '90%', border: 'none' }}>
-              <option value="">--</option>
+                <option value="">--</option>
                 <option value="Ativo">Ativo</option>
                 <option value="Inativo">Inativo</option>
               </select>
