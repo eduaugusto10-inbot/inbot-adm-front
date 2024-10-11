@@ -206,8 +206,7 @@ export function TriggerList() {
                 });
         }, 15000);
         return () => clearInterval(intervalId);
-    }, [botId, initDate, finalDate, filtro]);
-    
+    }, [botId, initDate, finalDate, filtro, filters]);
 
     function detailedTrigger(id: number) {
         const sortTrigger = handleSort(dataTreat);

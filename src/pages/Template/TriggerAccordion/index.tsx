@@ -52,6 +52,7 @@ export function Accordion() {
     const [clientNumber, setClientNumber] = useState<number | ''>('');
     const [typeClient, setTypeClients] = useState<boolean>();
     const [mode, setMode] = useState<boolean>(false);
+    const [text, setText] = useState<string>("")
     const [showType, setShowType] = useState<boolean>(false)
     const [triggerMode, setTriggerMode] = useState<string>("imediato")
     const [campaignName, setCampaignName] = useState<string>("")
@@ -60,6 +61,7 @@ export function Accordion() {
     const [variables, setVariables] = useState<IVariables[]>([])
     const [listVariables, setListVariables] = useState<IListVariables[]>([])
     const [triggerNames, setTriggerNames] = useState<any>([])
+    const [warningText, setWarningText] = useState<boolean>(false)
     const [errorMessage, setErrorMessage] = useState<string>("");
     const [payload1, setPayload1] = useState<string>()
     const [typeClientValue, setTypeClientValue] = useState<boolean>(false)
@@ -135,7 +137,6 @@ export function Accordion() {
         }
         const itemsToCheck = ["document", "image", "video"];
         const hasItem = itemsToCheck.some(item => headerConfig?.includes(item));
-        console.log(hasItem)
         if(urlMidia==="" && hasItem) {
             errorMidiaEmpty()
             return;
@@ -238,7 +239,6 @@ export function Accordion() {
             });
             setHeaderTable(dataHeader)
             setFileData(dataFile);
-            console.log(dataFile)
         };
 
         reader.readAsBinaryString(file);
@@ -381,7 +381,6 @@ export function Accordion() {
     const hasManyButtons = (headerElement: any) => {
         let buttons = 0;
         headerElement.forEach((element: any) => {
-            console.log(element)
             if (element.type === "button") {
                 if (element.parameters[0].type === "quickReply") {
                     buttons = element.parameters.length;
@@ -435,9 +434,7 @@ export function Accordion() {
         setFileData([])
         setListVariables([])
         setFileName("")
-        console.log(templates)
         templates.forEach((template: ITemplateList) => {
-            console.log(e)
             if(template.ID===e){
                 setTemplateName(template.name);   
                 template.components.forEach((element: any) => {
@@ -445,7 +442,6 @@ export function Accordion() {
                         setVariableQty(encontrarMaiorNumero(element.parameters[0].text))
                     }                    
                 });
-                console.log(templateName)
                 setQtButtons(hasManyButtons(template.components))
                 setHeaderConfig(hasMedia(template.components))
                 return;
@@ -527,22 +523,31 @@ export function Accordion() {
             setButtonA("Fechar")
             setButtonB("Salvar")
             setTextToModal("Você deseja salvar?")
+            setText("Essa ação não poderá ser desfeita.")
+            setWarningText(true)
         } else if (wichButton === "Cancelar") {
             setButtonA("Sim")
             setButtonB("Não")
             setTextToModal("Deseja cancelar a Campanha?")
+            setText("Essa ação não poderá ser desfeita.")
+            setWarningText(true)
         } else if (wichButton ==="warningFile") {
             setTextToModal("Verifique o padrão do telefone")
             setButtonB("OK")
             setButtonA("NaoExibir")
+            setWarningText(true)
+            setText("Para garantir o envio corretamente, não se esqueça de verificar na sua planilha se os números de telefone estão completos seguindo o padrão: código do país (Brasil = 55), código regional (SP = 11) e número do telefone. Exemplo: 5511988880000")
         } else if (wichButton === "ChangeCustomersContacts") {
             setButtonA("Não")
             setButtonB("Alterar")
             setTextToModal("Deseja alterar a opção?")
+            setWarningText(false)
         } else if (wichButton === "Select") {
             setButtonA("Não")
             setButtonB("Alterar")
             setTextToModal("Deseja alterar o template?")
+            setText("Essa ação não poderá ser desfeita.")
+            setWarningText(true)
         }
         toggle();
     }
@@ -624,7 +629,7 @@ export function Accordion() {
       }
     return (
         <div className="container-trigger width-95-perc" style={{ padding:"10px 0px"}}>
-            <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} warning={false} onButtonClick={handleButtonClick}></Modal>
+            <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} text={text} toggle={toggle} question={textToModal} warning={warningText} onButtonClick={handleButtonClick}></Modal>
             <ToastContainer />
             <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Criar Campanha</h1>
             <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>

@@ -54,6 +54,7 @@ export function CreateTemplateAccordion() {
     const [headers, setHeader] = useState<IHeader>({ parameters: [{ type: "sheader" }] });
     const [template, setTemplate] = useState<ITemplate>(templateValue)
     const [variables, setVariables] = useState<IVariables[]>([])
+    const [text, setText] = useState<string>("")
     const [rodape, setRodape] = useState<boolean>(true);
     const [buttons, setButtons] = useState<IButton[]>([])
     const [buttonsCTA, setButtonsCTA] = useState<IButton[]>([])
@@ -85,7 +86,6 @@ export function CreateTemplateAccordion() {
             }).catch(error => console.log(error))
     }, []);
     useEffect(() => {
-        console.log("location?.state?.headerText")
         if(location?.state?.duplicated) {
             setTypeOfHeader(location?.state?.headerConfig)
             setRodape(location?.state?.rodapeConfig === "rodape" ? false : true)
@@ -142,8 +142,6 @@ export function CreateTemplateAccordion() {
                 };
                 countButtons++;
             })
-            console.log(buttonsCTA)
-            console.log(buttons)
             
             typeBtn ==='cta' ? setButtonsCTA(buttonsData) : setButtons(buttonsData)
         }
@@ -345,7 +343,6 @@ export function CreateTemplateAccordion() {
         handleButtonName("Salvar")
     }
     const createPayload = () => {
-        console.log(headers)
         if (headers === undefined) {
             errorMessageHeader()
             return;
@@ -482,10 +479,12 @@ export function CreateTemplateAccordion() {
             setButtonA("Fechar")
             setButtonB("Salvar")
             setTextToModal("Você deseja salvar?")
+            setText("Esta ação não poderá ser alterada.")
         } else if (wichButton === "Cancelar") {
             setButtonA("Cancelar")
             setButtonB("Voltar")
             setTextToModal("Deseja cancelar o template?")
+            setText("Esta ação não poderá ser alterada.")
         }
         toggle();
     }
@@ -509,7 +508,6 @@ export function CreateTemplateAccordion() {
     const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
 
         const imagemSelecionada = event.target.files?.[0];
-        console.log(event.target.files?.[0].name)
         if (imagemSelecionada) {
             setFileName(imagemSelecionada.name)
             const reader = new FileReader();
@@ -528,7 +526,7 @@ export function CreateTemplateAccordion() {
                 </div>
                 <br/>
             <div style={{width:"100vw"}}>
-                <Modal buttonA={buttonA} warning={false} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
+                <Modal buttonA={buttonA} text={text} warning={false} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
                 <ToastContainer />
                 <div className="config-template column-align" style={{ alignItems:"center" }}>
                     <div className={`accordion_head ${accordionState.config ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>1. Configuração

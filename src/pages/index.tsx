@@ -7,7 +7,6 @@ import { mask } from '../utils/utils';
 export function AllPhones() {
 
     const [searchParams, setSearchParams] = useSearchParams();
-    console.log(searchParams)
     if (searchParams.get('token') === null) {
         window.location.href = "https://in.bot/inbot-admin";
     }

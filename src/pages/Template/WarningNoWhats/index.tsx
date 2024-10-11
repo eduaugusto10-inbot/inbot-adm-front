@@ -22,7 +22,7 @@ export function WarningNoWhats() {
                 <br />
                 <br />
                 <div style={{display: "flex", justifyContent: "center"}}>
-                    <video controls width="60%">
+                    <video controls width="50%" style={{ borderRadius:"12px"}}>
                         <source src="https://files.in.bot/upload/403/Funcao_-Interface-para-Criacao-de-Campanhas-via-WhatsApp.mp4" type="video/mp4"/>
                         Seu navegador não suporta vídeos HTML5.
                     </video>

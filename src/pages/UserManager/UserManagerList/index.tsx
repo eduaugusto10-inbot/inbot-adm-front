@@ -32,6 +32,7 @@ const [fileName, setFileName] = useState('');
 const [updateIndex, setUpdateIndex] = useState<number>(9999)
 const [deleteIndex, setDeleteIndex] = useState<string>('')
 const [hashIdSelected, setHashIdSelected] = useState<string>("")
+const [text, setText] = useState<string>("")
 const [warning, setWarning] = useState<boolean>(true)
 const [checkActivated, setCheckActivated] = useState<boolean>(false)
 const [loading, setLoading] = useState<boolean>(false)
@@ -78,21 +79,25 @@ const handleButtonName = (wichButton: string) => {
         setButtonA("Fechar")
         setButtonB("Salvar")
         setTextToModal("Você deseja salvar?")
+        setText("Escolha uma opção para continuar.")
         toggle();
     } else if (wichButton === "Sucesso") {
         setTextToModal("Salvo com sucesso!")
         setButtonA("Fechar")
+        setText("Clique no botão para continuar")
         setButtonB("NaoExibir")
     } else if (wichButton === "Alterar") {
-        setTextToModal("Deseja alterar?")
+        setTextToModal("Deseja confirmar alterações?")
         setButtonA("Fechar")
         setButtonB("Sim")
         setWarning(false)
+        setText("")
         toggle()
     } else if (wichButton === "Deletar") {
-        setTextToModal("Deseja deletar?")
+        setTextToModal("Deseja deletar o usuário?")
         setButtonA("Deletar")
         setButtonB("Fechar")
+        setText("Esta ação não poderá ser desfeita.")
         toggle()
     }
 }
@@ -137,9 +142,7 @@ const saveCustomer = async (data: any) => {
     },
         data : data
     };
-    await axios.request(config).then((response: any) => {
-        console.log(JSON.stringify(response.data));
-    })
+    await axios.request(config)
     .catch((error:any) => {
         console.log(error);
     });
@@ -201,7 +204,6 @@ const saveCustomer = async (data: any) => {
 
       const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number, fieldName: string) => {
         const newValue = event.target.value;
-        console.log("editedValues: " + JSON.stringify(editedValues))
         setEditedValues(prevValues => {
           const newValues = [...prevValues];
           newValues[index] = { ...newValues[index], [fieldName]: newValue };
@@ -221,10 +223,7 @@ const saveCustomer = async (data: any) => {
       const updateCustomer = async(index: number) => {
         waitingMessage()
         let customerEdited = customers[index];
-        console.log(customerEdited)
-        console.log(editedValues)
         for (const elementName of Object.keys(editedValues[0])){
-            console.log(elementName)
             if(elementName==='name' || elementName==='phone' || elementName==='email' || elementName==='activated'){
                 customerEdited[elementName] = editedValues[0][elementName];
             } else {
@@ -236,7 +235,6 @@ const saveCustomer = async (data: any) => {
             }
         }
         customerEdited.botId = botId;
-        console.log(`customerEdited: ${JSON.stringify(customerEdited)}`)
         let access = ""
         let token = ""
         const baseUrl = "https://api-stg.inbot.com.br/user-manager/v1"
@@ -255,7 +253,6 @@ const saveCustomer = async (data: any) => {
             data : customerEdited
         };
         await axios.request(config).then((response: any) => {
-            console.log(JSON.stringify(response));
             setEditedValues([])
             handleSave(index)
             setSearchButton(previous => !previous)
@@ -424,13 +421,10 @@ const saveCustomer = async (data: any) => {
         }else {
             value = nameAndValue(customer.customFields, fields.id);
         }
-        console.log(value)
         return value === "null" ? ' ' : value;
     }
     const hasShowNameAndValue = (customer: any, fields: any, hasCustomField: boolean) => {
-        console.log(customer)
         if(!hasCustomField && customer.length > 0){
-            console.log(customer)
             if(customer[0].hasOwnProperty(fields.id)) {
                 return customer[0].hasOwnProperty(fields.id)
             } else if(customer[0].hasOwnProperty(fields)){
@@ -467,7 +461,7 @@ const saveCustomer = async (data: any) => {
   return (
     <div className="column-align" style={{width:"100vw", height:"100vh",backgroundColor:"#ebebeb", padding:"10px 10px 0px 0px", alignItems:"center"}}>
         <ToastContainer />
-        <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} warning={warning} onButtonClick={handleButtonClick}></Modal>
+        <Modal buttonA={buttonA} buttonB={buttonB} text={text} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} warning={warning} onButtonClick={handleButtonClick}></Modal>
         <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Gestão de Usuários</h1>
         <div className="column-align" style={{alignItems:"center", width:"100%"}}>
             <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
@@ -669,17 +663,17 @@ const saveCustomer = async (data: any) => {
                 {handleSort(customers).map((customer: any, index: number) => (
                     <tr key={customer.id}
                     style={{ border: '1px solid #0171BD', backgroundColor: index % 2 === 0 ? '#e4e4e4' : '#FFF' }}>
-                        <td className="border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editMode[index] && hasShowNameAndValue(editedValues, 'phone', false) ? editedValues[0]?.phone : customer.phone} onChange={(e) => handleChange(e, 0, 'phone')}/> : mask(customer.phone)}</span></td>
-                        <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editMode[index] && hasShowNameAndValue(editedValues, 'name', false) ? editedValues[0]?.name : customer.name} onChange={(e) => handleChange(e, 0, 'name')}/> : customer.name}</span></td>
-                        <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" value={editMode[index] && hasShowNameAndValue(editedValues, 'email', false) ? editedValues[0]?.email : customer.email} onChange={(e) => handleChange(e, 0, 'email')}/> : customer.email}</span></td>
+                        <td className="border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" className="input-values" style={{width:"95%"}} value={editMode[index] && hasShowNameAndValue(editedValues, 'phone', false) ? editedValues[0]?.phone : customer.phone} onChange={(e) => handleChange(e, 0, 'phone')}/> : mask(customer.phone)}</span></td>
+                        <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" className="input-values" style={{width:"95%"}} value={editMode[index] && hasShowNameAndValue(editedValues, 'name', false) ? editedValues[0]?.name : customer.name} onChange={(e) => handleChange(e, 0, 'name')}/> : customer.name}</span></td>
+                        <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" className="input-values" style={{width:"95%"}} value={editMode[index] && hasShowNameAndValue(editedValues, 'email', false) ? editedValues[0]?.email : customer.email} onChange={(e) => handleChange(e, 0, 'email')}/> : customer.email}</span></td>
                         {customFields.map((fields:any, key:any)=>(
-                        <td className="border-gray" key={key}><span className="font-size-12">{editMode[index] ? <input type="text" value={editMode[index] && hasShowNameAndValue(editedValues, fields, false) ? showNameAndValue(editedValues, fields, false) : showNameAndValue(customer, fields, true)} onChange={(e) => handleChange(e, 0, fields.id)}/> :  showNameAndValue(customer, fields, true)}</span></td>
+                        <td className="border-gray" key={key}><span className="font-size-12">{editMode[index] ? <input type="text" className="input-values" style={{width:"95%"}} value={editMode[index] && hasShowNameAndValue(editedValues, fields, false) ? showNameAndValue(editedValues, fields, false) : showNameAndValue(customer, fields, true)} onChange={(e) => handleChange(e, 0, fields.id)}/> :  showNameAndValue(customer, fields, true)}</span></td>
                     ))}     
                         <td className="border-gray"><span style={{fontSize:"12px"}}>{adjustTimeWithout3Hour(customer.createdAt)}</span></td>
-                        <td className="cells border-gray"><span  className="font-size-12">{editMode[index] ? <select style={{width:"80px"}} value={editMode[index] && editedValues[0]?.activated ? editedValues[0]?.activated : customer.activated} onChange={(e) => handleChange(e, 0, 'activated')}><option value='1'>Ativo</option><option value='0'>Inativo</option></select> : <div id="statusCells"><span style={{fontWeight: "bolder",color: customer.activated ? "green" : "red"}}>{customer.activated ? "Ativo" : "Inativo"}</span></div>}</span></td>
+                        <td className="cells border-gray"><span  className="font-size-12">{editMode[index] ? <select  className="input-values" style={{width:"80px"}} value={editMode[index] && editedValues[0]?.activated ? editedValues[0]?.activated : customer.activated} onChange={(e) => handleChange(e, 0, 'activated')}><option value='1'>Ativo</option><option value='0'>Inativo</option></select> : <div id="statusCells"><span style={{fontWeight: "bolder",color: customer.activated ? "green" : "red"}}>{customer.activated ? "Ativo" : "Inativo"}</span></div>}</span></td>
                         <td className="border-gray">
                     {editMode[index] ? (
-                        <div className="row-align">               
+                        <div className="row-align" style={{justifyContent:"center"}}>               
                             <button className="button-save" style={{fontSize:"12px", width: "60px"}} onClick={() =>openUpdateModal("Alterar",index)}>Salvar</button>
                             <button className="button-cancel" style={{fontSize:"12px", width:"60px"}} onClick={() => handleSave(index)}>Cancelar</button>
                         </div>

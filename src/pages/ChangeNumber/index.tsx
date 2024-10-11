@@ -178,7 +178,7 @@ export function ChangeDeleteNumber() {
                                 </select>
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
-                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Bot Server*</span>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Status</span>
                                     <select name="activated" value={customerData.activated} onChange={(event: React.ChangeEvent<HTMLSelectElement>) => handleInputChange(event)} className="input-values" style={{width:"350px"}}>
                                         <option value="">--</option>
                                         <option value="1">Ativo</option>

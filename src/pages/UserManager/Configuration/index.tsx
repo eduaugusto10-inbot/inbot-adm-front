@@ -37,7 +37,6 @@ export function Configuration(){
             'Authorization':  `Bearer ${token}`
           }})
         .then(resp => {
-            console.log(resp.data.data)
             setCustomFields(resp.data.data)
         })
       })

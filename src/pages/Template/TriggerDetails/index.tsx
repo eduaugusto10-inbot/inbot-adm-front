@@ -26,6 +26,7 @@ export function TriggerDetails() {
     const [waiting, setWaiting] = useState<number>(0)
     const [send, setSend] = useState<number>(0)
     const [erro, setErro] = useState<number>(0)
+    const [text, setText] = useState<string>("")
     const [idDelete, setIdDelete] = useState<number>(0)
     const [engagements, setEngagements] = useState<number>(0)
     const [textToModal, setTextToModal] = useState<string>("")
@@ -57,7 +58,8 @@ export function TriggerDetails() {
         if (wichButton === "Salvar") {
             setButtonA("Não")
             setButtonB("Sim")
-            setTextToModal("Você deseja deletar?")
+            setTextToModal("Deseja deletar o usuário?")
+            setText("Essa ação não poderá ser desfeita.")
             toggle();
         } 
     }
@@ -139,7 +141,6 @@ export function TriggerDetails() {
                 console.log(error)
                 setLoading(false)
             })
-            console.log(loading)
     }, [])
 
     useEffect(() => {
@@ -194,7 +195,6 @@ export function TriggerDetails() {
                     token = resp.data.token
                      api.delete(`/whats-customer/botid/${botId}/customer/${id}`, {headers:{'Authorization': `Bearer ${token}`}})
                     .then(resp => {
-                        console.log(resp.data)
                         successDeletedMessage()
                     })
                     .catch(error => errorDeleted("Erro para deletar usuário"))
@@ -300,7 +300,7 @@ export function TriggerDetails() {
     return (
         <div className="width-95-perc" style={{ padding:"10px 0px"}}>
             <ToastContainer /> 
-            <Modal buttonA={buttonA} warning={false} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
+            <Modal buttonA={buttonA} warning={false} text={text} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
             <div>
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width:"100%" }} className="title_2024">Detalhes da Campanha</h1>
                 <div className="column-align" style={{alignItems:"center"}}>
@@ -388,7 +388,7 @@ export function TriggerDetails() {
                             <td><span className="font-size-12">{customer.data_disparo ? adjustTime(customer.data_disparo) : "----"}</span></td>
                             <td><span className="font-size-12">{customer.engagement ? adjustTime(customer.engagement) : "----"}</span></td>
                             <td><span className="font-size-12">{customer.log ?? "----"}</span></td>
-                            <td><div onClick={()=> triggerStatus.toLowerCase()==="aguardando" ? openModal(customer.id) : errorMessageDefault("Impossível deletar, disparo iniciado")}><img src={trash} width={15} height={15} style={{cursor:"pointer"}}/></div></td>
+                            {triggerStatus.toLowerCase()==="aguardando" && <td><div onClick={()=> openModal(customer.id)}><img src={trash} width={15} height={15} style={{cursor:"pointer"}}/></div></td>}
                         </tr>
                     ))}
                 </table>
