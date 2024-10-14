@@ -8,6 +8,7 @@ import { adjustTime, adjustTimeWithout3Hour } from "../../../utils/utils";
 import { Filters, ITriggerList, ITriggerListFilter } from "../../types";
 import loupe from '../../../img/loupe.png'
 import { months, years } from "../../../utils/textAux";
+import { DownloadTableExcel } from "react-export-table-to-excel";
 
 export function TriggerList() {
 
@@ -44,7 +45,7 @@ export function TriggerList() {
         month: now.getMonth() + 1,
         year: 2024
     })
-    
+    const tableRef = useRef(null);
     const [finalDate, setFinalDate] = useState({
         day: now.getDate(),
         month: now.getMonth() + 1,
@@ -337,8 +338,14 @@ export function TriggerList() {
                     </div>
                 </div>
                 <div>
-                <div style={{textAlign:"left"}}>
+                <div className="row-align" style={{justifyContent: "space-between", margin:"10px 20px 0px 30px"}}>
                     <span style={{ color: "#002080", fontWeight:"bolder" }}>{dataTreat.length} resultados encontrados</span>
+                    <DownloadTableExcel
+                        filename="users table"
+                        sheet="users"
+                        currentTableRef={tableRef.current}>
+                        <button className="button-blue" style={{width:"150px", margin:"1px"}}> Exportar excel </button>
+                    </DownloadTableExcel>
                 </div>
                 {loading && 
                     <div className="modal-overlay" style={{width:"100%", height:"100%", display:"flex", flexDirection:"column"}}>
@@ -346,7 +353,7 @@ export function TriggerList() {
                         <h4>Carregando</h4>
                     </div>}
                 {!loading && <div>
-                    <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", marginTop:"12px"}}>
+                    <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", marginTop:"12px"}} ref={tableRef}>
                         <thead>
                             <tr className="cells table-2024 border-bottom-zero">
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Nome</span> <div><div className="triangle-up" onClick={()=>handleInitSort("campaign_name","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("campaign_name","desc")}></div></div></div></th>
@@ -357,6 +364,7 @@ export function TriggerList() {
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total da campanha</span> <div><div className="triangle-up" onClick={()=>handleInitSort("total","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("total","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de Sucesso</span> <div><div className="triangle-up" onClick={()=>handleInitSort("enviado","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("enviado","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de Erro</span> <div><div className="triangle-up" onClick={()=>handleInitSort("erro","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
+                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Engajamento</span> <div><div className="triangle-up" onClick={()=>handleInitSort("erro","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
                                 <th className="cells">Opções</th>
                             </tr>
                         </thead>
@@ -375,6 +383,7 @@ export function TriggerList() {
                                         <td><span>{trigger.total}</span></td>
                                         <td><span>{trigger.enviado}</span></td>
                                         <td><span>{trigger.erro}</span></td>
+                                        <td><span>{trigger.status === 'aguardando' ? 0 : trigger.engajado}</span></td>
                                         <td><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>
                                     </tr>
                                 </React.Fragment>
