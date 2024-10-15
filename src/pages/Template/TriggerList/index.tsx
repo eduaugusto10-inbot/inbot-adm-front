@@ -407,7 +407,7 @@ export function TriggerList() {
                                 {statusNameView(selectedRow)==="aguardando" && (
                                 <ul key={1} style={{ cursor: "pointer", borderBottom: "1px solid #DDD", backgroundColor: hoveredRowMenu === 1 ? '#ddd' : 'white', padding:"12px 16px", margin:"0px", borderTopRightRadius:"20px", borderTopLeftRadius:"20px" }}
                                     onMouseEnter={() => handleMouseEnterMenu(1)}
-                                    onMouseLeave={handleMouseLeaveMenu}> <td onClick={() => changeStatus(selectedRow)}>Cancelar disparo</td>
+                                    onMouseLeave={handleMouseLeaveMenu}> <td onClick={() => changeStatus(selectedRow)}>Cancela disparo</td>
                                 </ul>
                             )}
                                 <ul key={2} style={{ cursor: "pointer",  backgroundColor: hoveredRowMenu === 2 ? '#ddd' : 'white', padding:"12px 16px", margin:"0", 
