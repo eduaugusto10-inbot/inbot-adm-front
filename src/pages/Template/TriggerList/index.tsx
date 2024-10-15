@@ -341,7 +341,7 @@ export function TriggerList() {
                 <div className="row-align" style={{justifyContent: "space-between", margin:"10px 20px 0px 30px"}}>
                     <span style={{ color: "#002080", fontWeight:"bolder" }}>{dataTreat.length} resultados encontrados</span>
                     <DownloadTableExcel
-                        filename="users table"
+                        filename="trigger-list"
                         sheet="users"
                         currentTableRef={tableRef.current}>
                         <button className="button-blue" style={{width:"150px", margin:"1px"}}> Exportar excel </button>
