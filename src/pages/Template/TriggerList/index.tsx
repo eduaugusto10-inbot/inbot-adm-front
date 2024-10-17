@@ -9,23 +9,25 @@ import { Filters, ITriggerList, ITriggerListFilter } from "../../types";
 import loupe from '../../../img/loupe.png'
 import { months, years } from "../../../utils/textAux";
 import { DownloadTableExcel } from "react-export-table-to-excel";
+import  {validatedUser}  from "../../../utils/validateUser";
 
 export function TriggerList() {
 
     const [searchParams, setSearchParams] = useSearchParams();
-    if (searchParams.get('bot_id') === null) {
+    if (searchParams.get('bot_id') === null || searchParams.get("token")) {
         window.location.href = "https://in.bot/inbot-admin";
     }
     
     var botId = searchParams.get('bot_id') ?? "0";
     const history = useNavigate();
     useEffect(() => {
-        if (searchParams.get('bot_id') === null) {
+        if (searchParams.get('bot_id') === null || searchParams.get("token")) {
             window.location.href = "https://in.bot/inbot-admin";
         }
-        api.get(`/whats-botid/${botId}`)
-            .then(resp => {
-            }).catch(error => history(`/template-warning-no-whats?bot_id=${botId}`))
+        const logged = validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
+        if(!logged){
+            history(`/template-warning-no-whats?bot_id=${botId}`);
+        }
     }, []);
     const now = new Date();
     const [triggerList, setTriggerList] = useState<ITriggerList[]>([])
