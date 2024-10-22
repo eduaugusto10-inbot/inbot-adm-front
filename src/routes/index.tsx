@@ -3,6 +3,7 @@ import AddNumber from "../pages/AddNumber"
 import AllPhones from "../pages"
 import ChangeDeleteNumber from "../pages/ChangeNumber"
 import CreateTemplateAccordion from "../pages/Template/Create"
+import CreateTemplateTeams from "../pages/TemplateTeams/Create"
 import ListAll from "../pages/Template/List/ListAll"
 import Accordion from "../pages/Template/TriggerAccordion"
 import TriggerList from "../pages/Template/TriggerList"
@@ -17,6 +18,7 @@ const Router = () => (
             <Route path='/add' element={<AddNumber />} />
             <Route path='/change' element={<ChangeDeleteNumber />} />
             <Route path='/template-create' element={<CreateTemplateAccordion />} />
+            <Route path='/template-create-teams' element={<CreateTemplateTeams />} />
             <Route path='/template-list' element={<ListAll />} />
             <Route path='/template-warning-no-whats' element={<WarningNoWhats />} />
             <Route path='/trigger-list' element={<TriggerList />} />

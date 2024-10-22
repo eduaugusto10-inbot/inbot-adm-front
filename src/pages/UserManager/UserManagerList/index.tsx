@@ -5,6 +5,7 @@ import { adjustTimeWithout3Hour, checkDigitNine, isCellPhone, mask } from "../..
 import { AccordionUserManager, IFilterBtn } from "../../types";
 import { months, years } from "../../../utils/textAux";
 import { read, utils } from "xlsx";
+import {dateExcelConverter} from '../../../utils/utils'
 import { DownloadTableExcel } from 'react-export-table-to-excel';
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
@@ -152,7 +153,7 @@ const saveCustomer = async (data: any) => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
- 
+
     if (file) {
         setFileName(file.name);
       }
@@ -172,6 +173,10 @@ const saveCustomer = async (data: any) => {
                     return isCellPhone(value.toString().replace(/\s+/g, '')) ? 
                         checkDigitNine(value.toString().replace(/\s+/g, '')) : 
                         value.toString().replace(/\s+/g, '');
+                }
+                console.log(colIndex +" "+ customFields[colIndex]?.type)
+                if(customFields[colIndex - 3]?.type === "data"){
+                    return dateExcelConverter(value)
                 }
                 return value;
             });
@@ -223,8 +228,9 @@ const saveCustomer = async (data: any) => {
       const updateCustomer = async(index: number) => {
         waitingMessage()
         let customerEdited = customers[index];
+        const VALUES: string[] = ['name','phone','email','activated']
         for (const elementName of Object.keys(editedValues[0])){
-            if(elementName==='name' || elementName==='phone' || elementName==='email' || elementName==='activated'){
+            if(VALUES.includes(elementName)){
                 customerEdited[elementName] = editedValues[0][elementName];
             } else {
                 for(let i=0;i<customerEdited.customFields.length;i++){
@@ -449,15 +455,6 @@ const saveCustomer = async (data: any) => {
         })
     }
 
-    async function changeStatusActivated(id: string) {
-        waitingMessage()
-        await api.put(`/manager-customer/botid/${botId}/customer/${id}`)
-        .then(() => {
-            successMessageDefault("Usuário alterado com sucesso" )
-            setSearchButton(true)
-        })
-        .catch(() => errorMessageDefault("Erro ao atualizar o usuário"))
-    }
   return (
     <div className="column-align" style={{width:"100vw", height:"100vh",backgroundColor:"#ebebeb", padding:"10px 10px 0px 0px", alignItems:"center"}}>
         <ToastContainer />
@@ -476,7 +473,7 @@ const saveCustomer = async (data: any) => {
             <input type="radio" id="addUsersType" onChange={handleMode} checked={accordionTable === false}/><span style={{padding:"9px"}}>Upload de planilha de usuários</span>
             <button className="button-blue">Download</button>
             {accordionTable &&
-                <div className="column-align" style={{ padding:"20px" }}>
+                <div className="column-align" style={{ padding:"20px", overflowX:'auto', overflowY:"auto", maxHeight:"100vh" }}>
                 <table className="table-2024 fixed-header-table" style={{ minWidth: "90%",flexShrink: "0" }}> 
                     <thead>
                     <tr className="cells table-2024 border-bottom-zero font-size-12">
@@ -522,7 +519,7 @@ const saveCustomer = async (data: any) => {
                     />
                     <input type="text" value={fileName} disabled/>
                     <button type="button" onClick={() => fileInputRef.current?.click()} className="button-blue" style={{margin:"9px"}}>Anexar</button>
-            <div className="column-align" style={{ padding:"20px" }}>
+            <div className="column-align" style={{ padding:"20px", overflowX:'auto', overflowY:"auto", maxHeight:"100vh" }}>
                 <table className="table-2024 fixed-header-table" style={{ minWidth: "90%",flexShrink: "0" }}>
                     <thead>
                     <tr className="cells table-2024 border-bottom-zero font-size-12">
@@ -643,7 +640,7 @@ const saveCustomer = async (data: any) => {
                         <button className="button-blue" style={{width:"150px", margin:"1px"}}> Exportar excel </button>
                 </DownloadTableExcel>
             </div>
-                    <div className="column-align" style={{ padding:"20px" }}>
+                    <div className="column-align" style={{ padding:"20px", overflowX:'auto', overflowY:"auto", maxHeight:"100vh" }}>
             <table className="table-2024 fixed-header-table" style={{ minWidth: "90%",flexShrink: "0" }} ref={tableRef}>
                 <thead>
                 <tr className="cells table-2024 border-bottom-zero font-size-12">

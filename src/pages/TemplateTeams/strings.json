@@ -1,0 +1,5 @@
+{
+    "utilitario": "Mensagens que fornecem informações úteis e relevantes para os usuários, como notificações de voo ou atualizações de entrega. Não devem ser utilizadas palavras como: oferta, promoção, bônus, desconto, pesquisa, para que o template não seja considerado um contato de Marketing. Também deve ser evitado contextos de boas vindas, despedidas, convites ou recomendações.",
+    "marketing": "Conversas iniciadas pela empresa com o objetivo de promover produtos ou serviços. Exemplos são: promoções, convites, recomendações, solicitações para concluir uma nova transação.",
+    "autenticacao": "Mensagens que envolvem a verificação da identidade do usuário, como códigos de verificação ou confirmações de login. Não são permitidos o uso de URLs, mídias e emojis."
+}

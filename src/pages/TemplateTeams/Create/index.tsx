@@ -1,0 +1,636 @@
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import alert from "../../../img/help_blue.png"
+import 'react-tooltip/dist/react-tooltip.css'
+import { Tooltip } from 'react-tooltip'
+import { erroMessageQuickReply, errorMessageHeader, errorMessageBody, waitingMessage, successCreateTemplate, errorMessage, errorMessageConfig, errorVariableEmpty } from "../../../Components/Toastify";
+import strings from '../strings.json'
+import api from "../../../utils/api";
+import { ToastContainer } from "react-toastify";
+import './index.css'
+import attached from '../../../img/attachment.png'
+import Alert from "../../../Components/Alert";
+import { AccordionStateCreateTeams, ButtonQR, IButton, IHeader, IObject, ITemplate, IVariables, templateValue } from "../../types";
+import useModal from "../../../Components/Modal/useModal";
+import Modal from "../../../Components/Modal";
+import chevron from "../../../img/right-chevron.png"
+export function CreateTemplateAccordion() {
+
+    const history = useNavigate();
+    function BackToList() {
+        history(`/template-list?bot_id=${botId}`)
+    }
+
+    const [searchParams, setSearchParams] = useSearchParams();
+    if (searchParams.get('bot_id') === null) {
+        window.location.href = "https://in.bot/inbot-admin";
+    }
+    var botId = searchParams.get('bot_id') ?? "0";
+
+    const location = useLocation()
+    useEffect(() => {
+        if (searchParams.get('bot_id') === null) {
+            window.location.href = "https://in.bot/inbot-admin";
+        }
+        api.get(`/whats-botid/${botId}`)
+            .then(resp => {
+                setPhone(resp.data.number)
+            }).catch(error => history(`/template-warning-no-whats?bot_id=${botId}`))
+    }, []);
+    const [templateName, setTemplateName] = useState<string>("")
+    const [templateType, setTemplateType] = useState<string>("")
+    const [showTemplate, setShowTempalte] = useState<boolean>(true)
+    const [accordionState, setAccordionState] = useState<AccordionStateCreateTeams>({
+        config: true,
+        header: false,
+        body: false,
+        botao: false
+    });
+    const [typeOfHeader, setTypeOfHeader] = useState<string>("sheader")
+    const [headers, setHeader] = useState<IHeader>({ parameters: [{ type: "sheader" }] });
+    const [template, setTemplate] = useState<ITemplate>(templateValue)
+    const [variables, setVariables] = useState<IVariables[]>([])
+    const [text, setText] = useState<string>("")
+    const [buttons, setButtons] = useState<IButton[]>([])
+    const [typeOfButtons, setTypeOfButtons] = useState<string>('without')
+    const [phone, setPhone] = useState<string>("")
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [fileName, setFileName] = useState('');
+
+    const selectTemplate = (e: string) => {
+        switch (e) {
+            case "UTILITY":
+                return strings.utilitario
+            case "AUTHENTICATION":
+                return strings.autenticacao
+            case "MARKETING":
+                return strings.marketing
+            default:
+                return "Escolha uma das opções de Categoria";
+        }
+    }
+
+    useEffect(() => {
+        if(location?.state?.duplicated) {
+            setTypeOfHeader(location?.state?.headerConfig)
+            location.state.duplicated = false
+            setTemplate(prevState => ({
+                ...prevState,
+                "body": location?.state?.bodyText,
+                "header" : location?.state?.headerText,
+            }));
+            const totalVariable = location.state.variableQuantity;
+            setTemplateType(location?.state?.category)
+            for(let i=0;i<totalVariable;i++) {
+                if (variables.length < 8) {
+                    const newVariables: IVariables = {
+                        id: Date.now()+i,
+                        value: `${variables.length + 1}`,
+                        text: ""
+                    };
+                    setVariables(prevVariables => [...prevVariables, newVariables]);
+                }
+            } 
+            const buttonsContent = location.state.buttonsContent;
+            let countButtons = 0;
+            let buttonsData:any = []
+            location.state.buttonsContent.foreach((element:any) => {
+                if (element.type === "quickReply") {
+                    if (buttonsContent.length < 3) {
+                        const newButtons: IButton = {
+                            id: Date.now()+countButtons,
+                            value: `Button ${countButtons + 1}`,
+                            text: element.text
+                        };
+                        setTypeOfButtons("quickReply")
+                        buttonsData = [...buttonsData, newButtons]                        
+                    }
+                }
+                                countButtons++;
+            })
+            
+            setButtons(buttonsData)
+        }
+    }, []);
+
+    const toggleAccordion = (key: keyof AccordionStateCreateTeams) => {
+        setAccordionState({
+            config: false,
+            header: false,
+            body: false,
+            botao: false
+        })
+        setAccordionState(prevState => ({
+            ...prevState,
+            [key]: !prevState[key]
+        }));
+    };
+
+    const handleAddVariable = () => {
+        if (variables.length < 8) {
+            const newVariables: IVariables = {
+                id: Date.now(),
+                value: `${variables.length + 1}`,
+                text: ""
+            };
+            setVariables(prevVariables => [...prevVariables, newVariables]);
+            setTemplate(prevState => ({
+                ...prevState,
+                "body": prevState.body + `{{${variables.length + 1}}}`,
+            }));
+        }
+    };
+
+    const handleDeleteItem = (id: number) => {
+        setButtons(buttons.filter(button => button.id !== id));
+    };
+
+    const handleAddButton = () => {
+        if (buttons.length < 3) {
+            const newButtons: IButton = {
+                id: Date.now(),
+                value: `Button ${buttons.length + 1}`,
+                text: ""
+            };
+            setButtons(prevButtons => [...prevButtons, newButtons]);
+        }
+    }
+    const quickReplyRadio = (e: any) => {
+        setTypeOfButtons(e.target.value)
+    }
+
+    const handleAddButtonText = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, buttonId: string) => {
+        const { value } = e.target;
+        setButtons(prevButtons => {
+            return prevButtons.map(button => {
+                if (button.id.toString() === buttonId) {
+                    return { ...button, text: value.replace(/\p{Extended_Pictographic}/gu, '') };
+                }
+                return button;
+            });
+        });
+    };
+
+    const handleDeleteVariables = (id: number) => {
+        let value: number = 99;
+        for (let i = 0; i < variables.length; i++) {
+            if (variables[i].id === id) {
+                value = i + 1;
+            }
+        }
+        const newBody = template.body.replace(`{{${value}}}`, '');
+
+        const body = newBody.replace(/{{(\d+)}}/g, (match, p1) => {
+            const num = parseInt(p1, 10);
+            return `{{${num > value ? num - 1 : num}}}`;
+        });
+        setTemplate(prevState => ({
+            ...prevState,
+            "body": body,
+        }));
+        setVariables(variables.filter(variable => variable.id !== id));
+    };
+
+    const handleInputVariable = (e: ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+
+        setVariables(prevVariables => {
+            return prevVariables.map(variable => {
+                if (variable.id.toString() === name) {
+                    return { ...variable, text: value };
+                }
+                return variable;
+            });
+        });
+    };
+
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = event.target;
+        setTemplate(prevState => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+
+    const headerRadio = (e: any) => {
+        setTypeOfHeader(e.target.value)
+        setHeader(prevState => ({ ...prevState, parameters: [{ type: e.target.value }] }))
+        setTemplate(prevState => ({
+            ...prevState,
+            header: "",
+        }));
+    }
+
+    const handleChangeText = (text: string) => {
+        return text.replace(/{{(\d+)}}/g, (match, p1) => {
+            const indice = parseInt(p1, 10) - 1;
+            if (indice >= 0 && indice < variables.length) {
+                return variables[indice].text;
+            } else {
+                return match;
+            }
+        });
+    }
+
+    const validatedPayload = () => {
+        if(variables.length > 0) {
+            variables.forEach(variable => {
+                if(variable.text.length === 0) {
+                    errorVariableEmpty()
+                    return;
+                }
+            })
+        }
+        if (templateName.length === 0 || templateType === ""){
+            errorMessageConfig()
+            return;
+        }
+        if (headers === undefined) {
+            errorMessageHeader()
+            return;
+        }
+        if (template.body === "") {
+            errorMessageBody()
+            return;
+        }
+        handleButtonName("Salvar")
+    }
+    const createPayload = () => {
+        if (headers === undefined) {
+            errorMessageHeader()
+            return;
+        }
+        if (template.body === "") {
+            errorMessageBody()
+            return;
+        }
+        waitingMessage();
+        let body: IObject;
+        let header: IHeader;
+        let buttonQR: ButtonQR;
+        const payload: any = {};
+        const components: any[] = [];
+        if (typeOfButtons === "quickReply") {
+            buttonQR = {
+                type: "button",
+                parameters: []
+            }
+            let errorQR = false;
+            for (let index = 0; index < buttons.length; index++) {
+                if (buttons[index].text !== "") {
+                    buttonQR.parameters.push({ type: typeOfButtons, text: buttons[index].text })
+                } else {
+                    errorQR = true;
+                }
+            }
+            if (errorQR) {
+                erroMessageQuickReply()
+                return;
+            }
+            components.push(buttonQR);
+        }
+        if (headers?.parameters?.[0].type === "text") {
+            header = {
+                type: "header",
+                parameters: [
+                    {
+                        type: headers?.parameters?.[0].type,
+                        text: template.header
+                    }
+                ]
+            }
+            components.push(header);
+        }
+        if (headers?.parameters?.[0].type === "image" ||
+            headers?.parameters?.[0].type === "video" ||
+            headers?.parameters?.[0].type === "document") {
+            header = {
+                type: "header",
+                parameters: [
+                    {
+                        type: headers?.parameters?.[0].type,
+                    }
+                ]
+            }
+            components.push(header);
+        }
+        body = {
+            type: "body",
+            parameters: [
+                {
+                    type: "text",
+                    text: template.body,
+                }
+            ]
+        }
+        if (variables.length > 0) {
+            body.parameters[0].example = [];
+            for (let index = 0; index < variables.length; index++) {
+                body.parameters[0].example.push(variables[index].text)
+            }
+        }
+        components.push(body);
+        payload["components"] = components;
+        payload["category"] = templateType;
+        payload["name"] = templateName;
+        payload["language"] = "pt_BR";//configTemplate.language;
+        api.post(`/whats/template/${botId}`, payload)
+            .then(resp => {
+                successCreateTemplate()
+                setTimeout(() => BackToList(), 3000)
+            })
+            .catch(err => {
+                console.log("$s ERROR create template: %O", new Date(), err)
+                errorMessage()
+            })
+
+    }
+    const modalRef = useRef<HTMLDivElement>(null);
+    const { isOpen, toggle } = useModal();
+    const [buttonA, setButtonA] = useState<string>("")
+    const [buttonB, setButtonB] = useState<string>("")
+    const [textToModal, setTextToModal] = useState<string>("")
+    const [midia, setMidia] = useState<string>();
+    const handleButtonName = (wichButton: string) => {
+        if (wichButton === "Salvar") {
+            setButtonA("Fechar")
+            setButtonB("Salvar")
+            setTextToModal("Você deseja salvar?")
+            setText("Esta ação não poderá ser alterada.")
+        } else if (wichButton === "Cancelar") {
+            setButtonA("Cancelar")
+            setButtonB("Voltar")
+            setTextToModal("Deseja cancelar o template?")
+            setText("Esta ação não poderá ser alterada.")
+        }
+        toggle();
+    }
+    const removeAccentsAndCommas = (str: string) => {
+        return str
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/,/g, '')
+          .replace(/[~´`^"']/g, '');
+      }
+    const handleButtonClick = (buttonId: string) => {
+        if (buttonId === "Salvar") {
+            createPayload()
+        } else if (buttonId === "Voltar") {
+            toggle()
+        } else if (buttonId === "Cancelar") {
+            toggle();
+            BackToList();
+        }
+    };
+    const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
+
+        const imagemSelecionada = event.target.files?.[0];
+        if (imagemSelecionada) {
+            setFileName(imagemSelecionada.name)
+            const reader = new FileReader();
+            reader.onload = () => {
+                const dataUrl = reader.result as string;
+                setMidia(dataUrl);
+            };
+            reader.readAsDataURL(imagemSelecionada);
+        }
+    };
+    return (
+        <div className="column-align width-95-perc" style={{ alignItems:"center", padding:"10px 0px" }}>
+                <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width:"100%" }} className="title_2024">Criar Template</h1>
+                <div className="column-align" style={{alignItems:"center", width:"100%"}}>
+                    <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
+                </div>
+                <br/>
+            <div style={{width:"100vw"}}>
+                <Modal buttonA={buttonA} text={text} warning={false} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
+                <ToastContainer />
+                <div className="config-template column-align" style={{ alignItems:"center" }}>
+                    <div className={`accordion_head ${accordionState.config ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>1. Configuração
+                        <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.config ?"-90deg" : "90deg"}} /></div>
+                    </div>
+                    {accordionState.config &&
+                    <div className="column accordeon-new" style={{width:"800px"}} >
+                        <div className="row-align" style={{ textAlign: "left", backgroundColor: "#FFF", width: "100%" }}>
+                            <div className="input" style={{ justifyContent: "center"}}>
+                                <div className="row-align" style={{ margin: "10px" }}>
+                                    <span className="span-title" style={{ justifyContent:"flex-start" }}>Nome</span>
+                                    <input type="text"
+                                        className="input-values"
+                                        maxLength={512}
+                                        name="templateName"
+                                        value={templateName}
+                                        style={{width:"350px" }}
+                                        onChange={e => setTemplateName(removeAccentsAndCommas(e.target.value).replace(/\s/g, '').toLowerCase())}
+                                    />
+                                    <a data-tooltip-id="my-tooltip-multiline" data-tooltip-html="Utilizar apenas letras, números e underline.<br /> Não utilizar espaços, acentuações e virgulas.<br />Exemplo correto: template_1">
+                                        <img src={alert} width={20} height={20} alt="alerta" />
+                                    </a>
+                                    <Tooltip id="my-tooltip-multiline" />
+                                </div>
+                                <div className="row-align" style={{ margin: "10px" }}>
+                                    <span className="span-title" style={{ justifyContent:"flex-start" }}>Categoria</span>
+                                    <select className="input-values" style={{width:"350px"}} value={templateType} onChange={e => setTemplateType(e.target.value)}>
+                                        <option value="">---</option>
+                                        <option value={"AUTHENTICATION"}>Autenticação</option>
+                                        <option value={"UTILITY"}>Utilidade</option>
+                                        <option value={"MARKETING"}>Marketing</option>
+                                    </select>
+                                </div>
+                                <div className="row-align" style={{ margin: "10px" }}>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Bot ID</span>
+                                    <input type="text"
+                                        className="input-values"
+                                        value={botId ?? ""}
+                                        disabled
+                                        style={{width:"350px"}}
+                                    />
+                                </div>
+                            </div>
+                            <div className="card_2024 column-align" style={{ width: "340px", textAlign: "left", marginLeft: "20px" }}>
+                                <div className="row-align" style={{ width:"100%", height:"50px"}}>
+                                    <div style={{ margin: "10px" }}>
+                                        <img src={alert} width={20} alt="alerta" />
+                                    </div>
+                                    <div style={{ display: "flex", flexDirection: "column", minHeight: "200px" }}>
+                                        <span style={{ padding: "12px", fontSize: "16px" }} className="title-blue bolder">{templateType === "AUTHENTICATION" ? "Autenticação" : templateType === "UTILITY" ? "Utilitário" : templateType === "MARKETING" ? "Marketing" : "Início"}</span>
+                                    </div>
+                                </div>
+                                    <span style={{ margin: "10px", fontSize: "11px" }}>{selectTemplate(templateType)}</span>
+                            </div>
+                            </div>
+                            <div style={{width:"100%", textAlign:"right", marginTop:"20px"}}> 
+                                <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('header')}>Próximo</button>
+                            </div>
+                        </div>}
+                </div>
+                <div className="config-recebidores" style={{ maxHeight: "95%", display:"flex", flexDirection:"column", alignItems:"center" }}>
+                    <div className={`accordion_head ${accordionState.header ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('header')}>2. Cabeçalho
+                    <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.header ?"-90deg" : "90deg"}} /></div>
+                    </div>
+                    {accordionState.header && 
+                    <div className="body accordeon-new" style={{ backgroundColor: "#FFF"}}>
+                        <div className="radio row-align ">
+                            <div className="row-align" onChange={headerRadio}><input type="radio" value="image" name="header" checked={typeOfHeader === 'image'} /><span className="padding-5">Imagem</span></div>
+                            <div className="row-align" onChange={headerRadio}><input type="radio" value="sheader" name="header" checked={typeOfHeader === 'sheader'} /><span className="padding-5">Sem cabeçalho</span></div>
+                        </div>
+                        {typeOfHeader === "text" &&
+                            <div className="container-configure">
+                                <div style={{ width: "750px" }}>
+                                    <div style={{ display: "flex", flexDirection: "initial", paddingLeft: "50px" }}>
+                                        <span>Texto do Cabeçalho</span>
+                                    </div>
+                                    <input type="text"
+                                        maxLength={60}
+                                        name="header"
+                                        value={template.header}
+                                        onChange={handleInputChange}
+                                        className="input-values"
+                                        style={{ width: "90%" }}
+                                    />
+                                    <div style={{ width: "92%", textAlign: "end" }}>
+                                        <span>{template.header.length}/60</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        {typeOfHeader === "image" &&
+                            <div className="container-configure">
+                                <div className="row-align" style={{ width:"100%", alignItems:"center", alignContent:"center"}}>
+                                    <input
+                                        type="file"
+                                        accept="image"
+                                        name="header"
+                                        id="myFile" 
+                                        onChange={handleImageUpload} 
+                                        ref={fileInputRef}                                  
+                                        style={{ display: 'none' }}
+                                    />
+                                    <input type="text" value={fileName} style={{width:"100%", borderRadius:"7px", border:"1px solid #d8d8d8"}} disabled/>
+                                    <button type="button" onClick={() => fileInputRef.current?.click()} className="button-blue" style={{marginLeft:"10px"}}>Anexar</button>
+                                </div>
+                                <Alert message={"Você vai inserir a url da imagem no momento em que for disparar a mensagem."} />
+                            </div>
+
+                        }
+                        <div style={{width:"100%", textAlign:"right"}}>
+                            <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('body')}>Próximo</button>
+                        </div>
+                    </div>}
+                </div>
+                <div className="modo-disparo column-align" style={{ alignItems:"center" }}>
+                    <div className={`accordion_head ${accordionState.body ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('body')}>3. Corpo da Mensagem
+                    <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.body ?"-90deg" : "90deg"}} /></div>
+                    </div>
+                    {accordionState.body && <div className="body accordeon-new" style={{ backgroundColor: "#FFF"}}>
+                        <div className="column-align" style={{ width: "100%", textAlign: "initial", paddingLeft: "20px", backgroundColor: "#FFF" }}>
+                            <span className="title-blue bolder" style={{marginTop:"10px"}}>Corpo da Mensagem</span>
+                            <span style={{ fontSize: "11px", marginBottom: "20px", fontStyle: "italic" }}>Este é o principal conteúdo de texto no seu template.</span>
+                             <textarea
+                                maxLength={1024}
+                                name="body"
+                                value={template.body}
+                                onChange={handleInputChange}
+                                style={{ width: "90%", borderRadius: "8px", padding:"9px" }}
+                            />
+
+                            <div style={{ width: "87%", textAlign: "end" }}>
+                                <span>{template.body.length}/1024</span>
+                            </div>
+                            <span style={{ fontWeight: "bolder" }}>Variáveis</span>
+                            <div>
+                                <button onClick={handleAddVariable} className="button-next">Adicionar</button>
+                            </div>
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(2, 1fr)', // Duas colunas de largura igual
+                                gridTemplateRows: 'repeat(4, auto)', // Quatro linhas com altura automática
+                                gap: '10px', // Espaçamento entre as células
+                                marginTop:"10px"
+                            }}>
+                                {variables.map((variable, index) => (
+                                    <div style={{ display: "flex", flexDirection: "row", alignItems:"center" }}>
+                                        <span className="span-title-variables">{index + 1}.  </span> <input value={variable.text} type="text" name={variable.id.toString()} id="" onChange={handleInputVariable} className="input-values" style={{height:"26px"}} /><div className="minus-delete" onClick={() => handleDeleteVariables(variable.id)}>-</div>
+                                    </div>
+
+                                ))
+                                }
+                            </div>
+                        </div>
+                    </div>}
+                </div>
+                <div className="revisar" style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
+                    <div className={`accordion_head ${accordionState.botao ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('botao')}>4. Botões
+                    <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.botao ?"-90deg" : "90deg"}} /></div>
+                    </div>
+                    {accordionState.botao && <div className="body accordeon-new" style={{backgroundColor: "#FFF"}}>
+                        <div style={{ width: "100%", marginBottom: "20px", paddingLeft: "20px", backgroundColor: "#FFF" }}>
+                            <div style={{ display:"flex", flexDirection:"column",alignItems:"center", paddingLeft:"-20px", backgroundColor: "#FFF"}}>
+                                <div className="radio" style={{ display:"flex", flexDirection:"row"}}>
+                                    <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="quickReply" name="quickReply" checked={typeOfButtons === 'quickReply'}/><span className="padding-5">Resposta rápida</span></div>
+                                    <div className="row-align" onChange={quickReplyRadio}><input type="radio" value="without" name="quickReply" checked={typeOfButtons === 'without'} /><span className="padding-5">Nenhum</span></div>
+                                </div>
+                            </div>
+                            {typeOfButtons === "quickReply" &&
+                                <div>
+                                    <div style={{ display: "flex", flexDirection: "row" }}>
+                                        <button className="button-next" onClick={handleAddButton}>Adicionar</button>
+                                    </div>
+                                    {buttons.map((button, index) => (
+                                        <div className="container-configure" key={button.id}>
+                                            <div className="row-align" style={{ marginTop:"10px"}}>
+                                                <div>
+                                                    <div style={{ display: "flex", flexDirection: "row", alignItems:"center" }}>
+                                                        <span className="span-title" style={{ width:"70px", justifyContent:"flex-start" }}>Texto
+                                                        <a data-tooltip-id="no-emoji" data-tooltip-html="Não utilizar emojis.">
+                                                            <img src={alert} width={15} height={15} alt="alerta" style={{marginBottom:"15px"}} />
+                                                        </a></span>
+                                                        <Tooltip id="no-emoji" />
+                                                        <input
+                                                            value={button.text}
+                                                            onChange={e => handleAddButtonText(e, button.id.toString())}
+                                                            maxLength={20}
+                                                            name={button.id.toString()}
+                                                            className="input-values" style={{ height:"26px"}}/>
+                                                            <div className="minus-delete" onClick={() => handleDeleteItem(button.id)}>-</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            }
+                           </div>
+                    <div style={{ width:"100%", flexDirection: "row", textAlign: "end", alignContent: "end", alignItems: "end", padding:"15px" }}>
+                        <button className="button-cancel" onClick={() => handleButtonName("Cancelar")}>Cancelar</button>
+                        <button className="button-save" onClick={() => validatedPayload()}>Salvar</button>
+                    </div>
+                    </div>}
+                </div>
+            </div >
+            {showTemplate && 
+            <div className="image-container rigth fixed"  style={{ position: "fixed", color: "#000", alignContent: "end", textAlign: "end", right: "20px", bottom: "0px" }}>
+                <button  style={{width:"150px", height:"40px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={()=> setShowTempalte(!showTemplate)}>Exibir template</button>
+            </div>}
+            {!showTemplate &&
+            <div onClick={()=> setShowTempalte(!showTemplate)} className="image-container rigth fixed" style={{ position: "fixed", color: "#000", alignContent: "end", textAlign: "end", right: "120px", bottom: "0px", width:"400px", height:"400px", backgroundColor:"#d5d5d5" }}>
+                <div className="overlay-text" style={{backgroundColor:"#fafafa", width:"90%", height:"90%"}}>
+                    <div className="texts">
+                        {typeOfHeader === "text" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{template.header}</label>}
+                        {typeOfHeader === "image" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={midia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
+                        {typeOfHeader === "document" && <div className="column-align" style={{padding:"10px"}}><label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={attached} style={{ maxWidth: '100%', maxHeight: '200px', border:"1px solid #c3c3c3", borderRadius:"8px"}} alt="" /></label></div>}
+                        {typeOfHeader === "video" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><video width="160" height="120" controls><source src={midia} type="video/mp4" /></video></label>}
+                        {<label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {handleChangeText(template.body).length > 256 ? handleChangeText(template.body).slice(0,256)+"...veja mais" : handleChangeText(template.body)}</label>}
+                        {typeOfButtons === "quickReply" && <div className="quickReply-texts">
+                            {buttons.length > 0 && (<div className="quick-reply-teams"><label >{buttons[0].text}</label></div>)}
+                            {buttons.length > 1 && (<div className="quick-reply-teams"><label >{buttons[1].text}</label></div>)}
+                            {buttons.length > 2 && (<div className="quick-reply-teams"><label >{buttons[2].text}</label></div>)}
+                        </div>}
+                    </div>
+                </div>
+            </div>}
+        </div>
+    );
+}
+
+export default CreateTemplateAccordion;

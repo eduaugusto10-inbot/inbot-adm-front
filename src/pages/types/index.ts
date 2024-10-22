@@ -223,6 +223,12 @@ export interface AccordionStateCreate {
   footer: boolean;
   botao: boolean;
 }
+export interface AccordionStateCreateTeams {
+  config: boolean;
+  header: boolean;
+  body: boolean;
+  botao: boolean;
+}
 export interface AccordionStateWhats {
   inbot: boolean;
   smarters: boolean;

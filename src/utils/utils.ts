@@ -48,6 +48,14 @@ export const checkDigitNine = (phone: string) => {
   return phone;
 };
 
+export const dateExcelConverter = (numberOfDays: number) => {
+  const initialDate = new Date(1900, 0, 1);
+  const initialDateLeapDay = numberOfDays - 2;
+  initialDate.setDate(initialDate.getDate() + initialDateLeapDay);
+
+  return initialDate.toLocaleDateString();
+};
+
 export const isCellPhone = (phone: string) => {
   const phoneString = phone.toString();
   return phoneString.charAt(4) > "5";

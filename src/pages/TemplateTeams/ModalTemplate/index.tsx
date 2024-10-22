@@ -21,7 +21,7 @@ export function ModalTemplate(props: any) {
                         <label className="footer" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', fontSize: "12px" }}>{findText(props.modalTemplate.components, "footer")}</label>
                         {findButton(props.modalTemplate.components, "button") !== undefined && findButton(props.modalTemplate.components, "button").map((button: { text: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; }) => (
                             <div className="quickReply-texts">
-                                <div className="quick-reply"><label >{button.text}</label></div>
+                                <div className="quick-reply-teams"><label >{button.text}</label></div>
                             </div>
                         ))}
                     </div>
