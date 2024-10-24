@@ -227,7 +227,7 @@ const saveCustomer = async (data: any) => {
 
       const updateCustomer = async(index: number) => {
         waitingMessage()
-        let customerEdited = customers[index];
+        let customerEdited = handleSort(customers)[index];
         const VALUES: string[] = ['name','phone','email','activated']
         for (const elementName of Object.keys(editedValues[0])){
             if(VALUES.includes(elementName)){
