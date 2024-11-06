@@ -11,6 +11,7 @@
     "@types/node": "^16.18.75",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
+    "@typescript-eslint/parser": "^5.62.0",
     "axios": "^1.6.7",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.2",
@@ -19,6 +20,7 @@
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0",
+    "react-draggable": "^4.4.6",
     "react-export-table-to-excel": "^1.0.6",
     "react-international-phone": "^4.3.0",
     "react-router-dom": "^6.21.3",
@@ -32,13 +34,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "test": "react-scripts test",
+    "style:check": "prettier --check src/**/*.tsx ",
+    "style:fix": "prettier --write src/**/*.tsx"
   },
   "browserslist": {
     "production": [
@@ -53,6 +51,7 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "prettier": "^2.8.0"
   }
 }

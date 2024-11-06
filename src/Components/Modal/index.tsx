@@ -38,7 +38,7 @@ export default function Modal(props: ModalType) {
     };
     const handleButtonClickB = (buttonId: string) => {
         if(props.buttonB === "Salvar") { 
-            setLoading(true);
+            setLoading(false);
         }
         if(buttonId === "Fechar" || buttonId === "Voltar" || buttonId === "Alterar" || buttonId === "Deletar") {
             setLoading(false)
