@@ -18,6 +18,7 @@ import Modal from "../../../Components/Modal";
 import chevron from "../../../img/right-chevron.png"
 import  {validatedUser}  from "../../../utils/validateUser";
 import Draggable from "react-draggable";
+import { DraggableComponent } from "../../../Components/Draggable";
 
 export function CreateTemplateAccordion() {
 
@@ -83,6 +84,7 @@ export function CreateTemplateAccordion() {
     }
 
     const showVideo = () =>{
+        console.log("Abre")
         setHiddenVideo(!hiddenVideo)
     }
     useEffect(() => {
@@ -542,68 +544,7 @@ export function CreateTemplateAccordion() {
                 <Modal buttonA={buttonA} text={text} warning={false} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
                 <ToastContainer />
                 {hiddenVideo && (
-                <div>
-                    <Draggable handle="strong" defaultPosition={{ x: 0, y: 0 }}>
-                    <div
-                        style={{
-                        position: "fixed",
-                        bottom: "10px",
-                        right: "10px",
-                        zIndex: 1000,
-                        borderRadius: "8px",
-                        overflow: "hidden",
-                        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.3)",
-                        }}
-                    >
-                        <strong>
-                        <div
-                            className="accordion_head_opened"
-                            style={{
-                            width: "100%",
-                            cursor: "move",
-                            color: "#FFF",
-                            borderRadius: "12px 12px 0px 0px",
-                            textAlign: "end",                           
-                            display: "flex",
-                            justifyContent: "flex-end",
-                            alignItems: "center",
-                            }}
-                        >
-                            <div
-                            style={{
-                                backgroundColor: "red",
-                                textAlign: "center",
-                                width: "30px",
-                                height: "30px",                                
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                cursor: "pointer",
-                            }}
-                            onClick={() => showVideo()}
-                            >
-                            -
-                            </div>
-                        </div>
-                        </strong>
-                        <div  style={{width:"500px", height: "292px", borderRadius: "0px 0px 12px 12px" }}>
-                        <iframe
-                            src="https://www.loom.com/embed/e5216eb8145c4eaaae86b3e76b5f6dd0?sid=b6e75c08-5db3-41b4-bb0a-c029504dd33a"
-                            frameBorder="0"
-                            allow="fullscreen"
-                            style={{
-
-
-                            width: "100%",
-                            height: "100%",
-                            }}
-                            title="Loom Video"
-                        ></iframe>
-                        </div>
-
-                    </div>
-                    </Draggable>
-                </div>
+                    <DraggableComponent urlVideo={"https://www.loom.com/embed/e5216eb8145c4eaaae86b3e76b5f6dd0?sid=b6e75c08-5db3-41b4-bb0a-c029504dd33a"} showVideo={showVideo}/>
                 )}
 
                 <div className="config-template column-align" style={{ alignItems:"center" }}>

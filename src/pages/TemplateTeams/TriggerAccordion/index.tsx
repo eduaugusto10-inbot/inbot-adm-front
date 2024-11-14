@@ -76,14 +76,13 @@ export function Accordion() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [fileName, setFileName] = useState('');
     const [clientEmail, setClientEmail] = useState<string>("")
+    const [botList, setBotList] = useState<any>([])
     const [createTriggerMenu, setCreateTriggerMenu] = useState(false)
+    
     useEffect(() => {
         api.get(`/whatsapp/trigger-bot/${botId}`)
             .then(resp => setTriggerNames(resp.data))
             .catch(error => console.log(error))
-    }, [])
-
-    useEffect(() => {
         if (searchParams.get('bot_id') === null) {
             window.location.href = "https://in.bot/inbot-admin";
         }
@@ -93,7 +92,9 @@ export function Accordion() {
                 setTemplates(resp.data)
                 setCreateTriggerMenu(true)
         })
-            
+            api.get(`/teams/list-bot/botid/${botId}`)
+            .then(resp => setBotList(resp.data))
+
     }, []);
 
     useEffect(() => {
@@ -580,6 +581,16 @@ export function Accordion() {
                                 ))}
                             </select>
                         </div>
+                        </div>
+                        <div className="column-align">
+                            <span className="span-title" style={{width:"30%", justifyContent:"left", marginLeft:"12px"}}>Bot de disparo: </span>
+                            <div className="row-align">
+                                    {botList.map((bot: any, key: number) => (
+                                    <div className="line">
+                                        <input type="radio" name={bot.name} value={bot.id} onChange={handleMode} className="input-spaces" checked={mode === false} /><span>{bot.name}</span>
+                                    </div>
+                                    ))}
+                                </div>
                         </div>
                         <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('recebidores')}>Próximo</button>
                     </div>
