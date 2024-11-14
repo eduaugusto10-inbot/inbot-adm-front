@@ -12,6 +12,7 @@ import axios from "axios";
 import useModal from "../../../Components/Modal/useModal";
 import Modal from "../../../Components/Modal";
 import chevron from "../../../img/right-chevron.png";
+import  {validatedUser}  from "../../../utils/validateUser";
 import trash from '../../../img/trash-solid.svg'
 import pencil from '../../../img/pencil.svg'
 import { ToastContainer } from "react-toastify";
@@ -103,9 +104,9 @@ const handleButtonName = (wichButton: string) => {
     }
 }
 
-const getDaysInMonth = (year: number, month: number): number => {
-    return new Date(year, month, 0).getDate();
-};
+    const getDaysInMonth = (year: number, month: number): number => {
+        return new Date(year, month, 0).getDate();
+    };
 
   useEffect(() => {
     const qtyDaysInit = getDaysInMonth(initDate.year, initDate.month)
@@ -227,7 +228,7 @@ const saveCustomer = async (data: any) => {
 
       const updateCustomer = async(index: number) => {
         waitingMessage()
-        let customerEdited = customers[index];
+        let customerEdited = handleSort(customers)[index];
         const VALUES: string[] = ['name','phone','email','activated']
         for (const elementName of Object.keys(editedValues[0])){
             if(VALUES.includes(elementName)){
@@ -644,6 +645,7 @@ const saveCustomer = async (data: any) => {
             <table className="table-2024 fixed-header-table" style={{ minWidth: "90%",flexShrink: "0" }} ref={tableRef}>
                 <thead>
                 <tr className="cells table-2024 border-bottom-zero font-size-12">
+                    <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>ID</span> <div><div className="triangle-up" onClick={()=>handleInitSort("phone","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("phone","desc",false)}></div></div></div></th>
                     <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Telefone</span> <div><div className="triangle-up" onClick={()=>handleInitSort("phone","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("phone","desc",false)}></div></div></div></th>
                     <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Nome</span> <div><div className="triangle-up" onClick={()=>handleInitSort("name","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("name","desc",false)}></div></div></div></th>
                     <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>E-mail</span> <div><div className="triangle-up" onClick={()=>handleInitSort("name","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("name","desc",false)}></div></div></div></th>
@@ -660,6 +662,7 @@ const saveCustomer = async (data: any) => {
                 {handleSort(customers).map((customer: any, index: number) => (
                     <tr key={customer.id}
                     style={{ border: '1px solid #0171BD', backgroundColor: index % 2 === 0 ? '#e4e4e4' : '#FFF' }}>
+                        <td className="border-gray"><span className="font-size-12">{customer.id}</span></td>
                         <td className="border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" className="input-values" style={{width:"95%"}} value={editMode[index] && hasShowNameAndValue(editedValues, 'phone', false) ? editedValues[0]?.phone : customer.phone} onChange={(e) => handleChange(e, 0, 'phone')}/> : mask(customer.phone)}</span></td>
                         <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" className="input-values" style={{width:"95%"}} value={editMode[index] && hasShowNameAndValue(editedValues, 'name', false) ? editedValues[0]?.name : customer.name} onChange={(e) => handleChange(e, 0, 'name')}/> : customer.name}</span></td>
                         <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" className="input-values" style={{width:"95%"}} value={editMode[index] && hasShowNameAndValue(editedValues, 'email', false) ? editedValues[0]?.email : customer.email} onChange={(e) => handleChange(e, 0, 'email')}/> : customer.email}</span></td>

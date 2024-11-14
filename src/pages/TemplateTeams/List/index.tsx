@@ -1,14 +1,14 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import './style.css'
 import api from "../../../utils/api";
-import { ITemplateList } from "../../types";
-import dots from "../../../../img/dots.png"
+import { ITemplateList, ITemplateListTeams } from "../../types";
+import dots from "../../../img/dots.png"
 import { useNavigate } from "react-router-dom";
 import ModalTemplate from "../ModalTemplate";
 import { useSearchParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { errorMessage, successMessageDeleteTemplate, waitingMessage } from "../../../Components/Toastify";
-import loupe from '../../../../img/loupe.png'
+import loupe from '../../../img/loupe.png'
 
 export function ListAll() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -28,7 +28,7 @@ export function ListAll() {
     }, []);
     const [modal, setModal] = useState<boolean>(false)
     const [modalObject, setModalObject] = useState<any>()
-    const [templates, setTemplates] = useState<ITemplateList[]>([])
+    const [templates, setTemplates] = useState<ITemplateListTeams[]>([])
     const [phone, setPhone] = useState<string>("")
     const [hoveredRow, setHoveredRow] = useState<number | null>(null);
     const [headerText, setHeaderText] = useState("")
@@ -49,16 +49,10 @@ export function ListAll() {
         if (searchParams.get('bot_id') === null) {
             window.location.href = "https://in.bot/inbot-admin";
         }
-        api.get(`/whats-botid/${botId}`)
+        api.get(`/teams/template/botid/${botId}`)
             .then(resp => {
-                setPhone(resp.data.number)
-                setToken(resp.data.accessToken)
-                const token = resp.data.accessToken;
-                api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
-                    .then(resp => {
-                        setTemplates(resp.data.data.messageTemplates);
-                        setLoading(false)
-                    }).catch(error => console.log(error))                   
+                setTemplates(resp.data)
+                setLoading(false)
             }).catch(error => {
                 setLoading(false) 
                 console.log(error)
@@ -102,7 +96,7 @@ export function ListAll() {
     };
     
     function SendTemplate(name: string, variableQuantity: number, qtButtons: number, headerConfig: string | null, templateID: string) {
-        history(`/template-trigger?bot_id=${botId}`, { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: "", phone: phone, headerConfig: headerConfig, qtButtons: qtButtons, templateID: templateID } });
+        history(`/template-trigger?bot_id=${botId}&token=${searchParams.get("token")}`, { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: "", phone: phone, headerConfig: headerConfig, qtButtons: qtButtons, templateID: templateID } });
     }
 
     const loadTemplate = (id: number) => {
@@ -236,17 +230,12 @@ export function ListAll() {
         const sortTemplates = handleSort(dadosFiltrados);
         setMenuOpen(false);
         waitingMessage()
-        api.delete(`https://whatsapp.smarters.io/api/v1/messageTemplates/${sortTemplates[id].name}`, { headers: { 'Authorization': token } })
-            .then(res => {
-                successMessageDeleteTemplate()
-                api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
-                .then(resp => {
-                    setTemplates(resp.data.data.messageTemplates)
-                })
+        api.delete(`${sortTemplates[id].id}`)
+            .then(() => {
+                successMessageDeleteTemplate()        
             })
-            .catch(error => {
+            .catch((error) => {
                 errorMessage()
-                console.log(error)
             })
     }
     const duplicaTemplate = (id: number) => {
@@ -261,7 +250,7 @@ export function ListAll() {
             }
         });
         const buttonsTexts = findButton(sortTemplates[id].components, "button")
-        history(`/template-create?bot_id=${botId}`, { 
+        history(`/template-create?bot_id=${botId}&token=${searchParams.get("token")}`, { 
             state: { 
                 duplicated: true,
                 variableQuantity: variableQuantity, 
@@ -281,7 +270,7 @@ export function ListAll() {
     }
 
     const dadosFiltrados = templates.filter(template =>
-        template.name.toLowerCase().includes(filtro.toLowerCase())
+        template.templateName.toLowerCase().includes(filtro.toLowerCase())
       );
 
       const handleFiltroChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -353,9 +342,9 @@ export function ListAll() {
                                     onMouseEnter={() => handleMouseEnter(index)}
                                     onMouseLeave={handleMouseLeave}
                                 >
-                                    <td style={{width:"100px"}}><span>{template.name}</span></td>
+                                    <td style={{width:"100px"}}><span>{template.templateName}</span></td>
                                     <td style={{textAlign:"center"}}><div style={{ borderRadius: "20px", padding: "7px" }}><span style={{ color: template.status === "APPROVED" ? "green" : template.status === "PENDING" ? "orange" : "red" }}><strong>{template.status === "APPROVED" ? "Aprovado" : template.status === "PENDING" ? "Pendente" : "Rejeitado"}</strong></span></div></td>
-                                    <td style={{textAlign:"center"}}><span>{template.category.toLowerCase()}</span></td>
+                                    <td style={{textAlign:"center"}}><span>--</span></td>
                                     <td style={{textAlign:"center"}}><span>{template.language}</span></td>
                                     <td style={{textAlign:"center"}}><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>
                                 </tr>

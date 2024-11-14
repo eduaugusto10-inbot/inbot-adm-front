@@ -10,6 +10,8 @@ import './style.css'
 import Modal from "../../../Components/Modal";
 import useModal from "../../../Components/Modal/useModal";
 import trash from '../../../img/trash-solid.svg'
+import  {validatedUser}  from "../../../utils/validateUser";
+
 export function TriggerDetails() {
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -36,6 +38,7 @@ export function TriggerDetails() {
     const [notEngagements, setNotEngagements] = useState<number>(0)
     const [filters, setFilters] = useState<Filters>({
         telefone: '',
+        email: '',
         variable_1: '',
         variable_2: '',
         variable_3: '',
@@ -209,6 +212,9 @@ export function TriggerDetails() {
     const handleTelefoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFilters({ ...filters, telefone: (event.target.value) });
     };
+    const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setFilters({ ...filters, email: (event.target.value) });
+    };
     const handleVariable1Change = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFilters({ ...filters, variable_1: event.target.value });
     };
@@ -244,6 +250,9 @@ export function TriggerDetails() {
     };
     const filteredCustomers = customerStatus.filter(customer => {
         if (filters.telefone !== '' && !(customer.phone).includes(filters.telefone)) {
+            return false;
+        }
+        if (filters.email !== '' && !(customer.email).includes(filters.email)) {
             return false;
         }
         if (customer.variable_1 !== null && filters.variable_1 !== '' && !customer.variable_1.toLowerCase().includes(filters.variable_1.toLowerCase())) {
@@ -319,7 +328,7 @@ export function TriggerDetails() {
                                 </div>
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
-                                <span style={{ color: "#002080" }}>Telefone</span><input className="input-filters" type="text" value={filters.telefone} onChange={handleTelefoneChange} placeholder="Digite o telefone..." />
+                                <span style={{ color: "#002080" }}>{customerStatus[0]?.phone !== null ? "Telefone" : "E-mail"}</span><input className="input-filters" type="text" value={customerStatus[0]?.phone !== null ? filters.telefone : filters.email} onChange={customerStatus[0]?.phone !== null ? handleTelefoneChange : handleEmailChange} placeholder={`Digite o ${customerStatus[0]?.phone !== null ? "telefone..." : "e-mail..."}`} />
                                 <span style={{ color: "#002080" }}>Variável 1</span><input className="input-filters" type="text" value={filters.variable_1} onChange={handleVariable1Change} placeholder="Digite valor..." />
                                 <span style={{ color: "#002080" }}>Variável 2</span><input className="input-filters" type="text" value={filters.variable_2} onChange={handleVariable2Change} placeholder="Digite valor..." />
                                 <span style={{ color: "#002080" }}>Variável 3</span><input className="input-filters" type="text" value={filters.variable_3} onChange={handleVariable3Change} placeholder="Digite valor..." />
@@ -353,7 +362,7 @@ export function TriggerDetails() {
                 <table className="table-2024 fixed-header-table" style={{ minWidth: "90%",flexShrink: "0" }}>
                     <thead>
                         <tr className="cells table-2024 border-bottom-zero font-size-12">
-                            <th className="cells">Telefone</th>
+                            <th className="cells">{customerStatus[0]?.phone !== null ? "Telefone": "E-mail"} </th>
                             {filteredCustomers[0]?.variable_1!==null &&<th className="cells">Var. 1</th>}
                             {filteredCustomers[0]?.variable_2!==null &&<th className="cells">Var. 2</th>}
                             {filteredCustomers[0]?.variable_3!==null &&<th className="cells">Var. 3</th>}
@@ -373,7 +382,7 @@ export function TriggerDetails() {
                     </thead>
                     {filteredCustomers.map((customer, index) => (
                         <tr key={index} style={{backgroundColor:  index % 2 === 0 ? '#ecebeb' : 'white'}}>
-                            <td><span className="font-size-12">{mask(customer.phone)}</span></td>
+                            <td><span className="font-size-12">{customer.phone ? mask(customer.phone) : customer.email}</span></td>
                             {customer.variable_1!==null &&<td><span className="font-size-12">{customer.variable_1}</span></td>}
                             {customer.variable_2!==null &&<td><span className="font-size-12">{customer.variable_2}</span></td>}
                             {customer.variable_3!==null &&<td><span className="font-size-12">{customer.variable_3}</span></td>}

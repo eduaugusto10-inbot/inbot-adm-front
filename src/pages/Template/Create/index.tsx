@@ -16,6 +16,10 @@ import { mask } from "../../../utils/utils";
 import useModal from "../../../Components/Modal/useModal";
 import Modal from "../../../Components/Modal";
 import chevron from "../../../img/right-chevron.png"
+import  {validatedUser}  from "../../../utils/validateUser";
+import Draggable from "react-draggable";
+import { DraggableComponent } from "../../../Components/Draggable";
+
 export function CreateTemplateAccordion() {
 
     const history = useNavigate();
@@ -31,8 +35,10 @@ export function CreateTemplateAccordion() {
 
     const location = useLocation()
     useEffect(() => {
-        if (searchParams.get('bot_id') === null) {
-            window.location.href = "https://in.bot/inbot-admin";
+        const logged = validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
+        console.log(`Logged: ${logged}`)
+        if(!logged){
+            history(`/template-warning-no-whats?bot_id=${botId}`);
         }
         api.get(`/whats-botid/${botId}`)
             .then(resp => {
@@ -42,6 +48,7 @@ export function CreateTemplateAccordion() {
     const [templateName, setTemplateName] = useState<string>("")
     const [templateType, setTemplateType] = useState<string>("")
     const [showTemplate, setShowTempalte] = useState<boolean>(true)
+    const [hiddenVideo, setHiddenVideo] = useState<boolean>(false)
     const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
         config: true,
         header: false,
@@ -76,6 +83,10 @@ export function CreateTemplateAccordion() {
         }
     }
 
+    const showVideo = () =>{
+        console.log("Abre")
+        setHiddenVideo(!hiddenVideo)
+    }
     useEffect(() => {
         if (searchParams.get('bot_id') === null) {
             window.location.href = "https://in.bot/inbot-admin";
@@ -84,8 +95,6 @@ export function CreateTemplateAccordion() {
             .then(resp => {
                 setPhone(resp.data.number)
             }).catch(error => console.log(error))
-    }, []);
-    useEffect(() => {
         if(location?.state?.duplicated) {
             setTypeOfHeader(location?.state?.headerConfig)
             setRodape(location?.state?.rodapeConfig === "rodape" ? false : true)
@@ -328,7 +337,8 @@ export function CreateTemplateAccordion() {
             errorMessageConfig()
             return;
         }
-        if (headers === undefined) {
+        if (headers === undefined || 
+            (headers !== undefined && headers?.parameters && headers?.parameters[0]?.type === "text" && template.header === "")) {
             errorMessageHeader()
             return;
         }
@@ -503,6 +513,8 @@ export function CreateTemplateAccordion() {
         } else if (buttonId === "Cancelar") {
             toggle();
             BackToList();
+        } else if(buttonId === "Fechar") {
+            toggle();
         }
     };
     const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
@@ -523,11 +535,18 @@ export function CreateTemplateAccordion() {
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width:"100%" }} className="title_2024">Criar Template</h1>
                 <div className="column-align" style={{alignItems:"center", width:"100%"}}>
                     <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
+                <div style={{textAlign:"end", width:"94%"}}>
+                    <span style={{cursor:"pointer"}} onClick={()=> showVideo()}>Não sabe como criar template? <strong style={{color:"blue"}}>Assista nosso vídeo</strong></span>
+                </div>
                 </div>
                 <br/>
             <div style={{width:"100vw"}}>
                 <Modal buttonA={buttonA} text={text} warning={false} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
                 <ToastContainer />
+                {hiddenVideo && (
+                    <DraggableComponent urlVideo={"https://www.loom.com/embed/e5216eb8145c4eaaae86b3e76b5f6dd0?sid=b6e75c08-5db3-41b4-bb0a-c029504dd33a"} showVideo={showVideo}/>
+                )}
+
                 <div className="config-template column-align" style={{ alignItems:"center" }}>
                     <div className={`accordion_head ${accordionState.config ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>1. Configuração
                         <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.config ?"-90deg" : "90deg"}} /></div>

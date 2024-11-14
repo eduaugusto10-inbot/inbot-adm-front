@@ -1,5 +1,11 @@
 export {};
 
+export interface SavedValue {
+  nomeCampo: string;
+  tipo: string;
+  status: string;
+}
+
 export interface ICustomerData {
   number: string;
   client: string;
@@ -23,6 +29,25 @@ export interface ITemplate {
   body: string;
   header: string;
 }
+export interface ITemplateTeams {
+  body: string;
+  header: string;
+}
+
+export interface IButtonTeams {
+  title: string;
+}
+
+export interface PayloadTeams {
+  templateName: string;
+  message: string;
+  hasButton: number;
+  hasHeader: number;
+  hasVariable: number;
+  language: string;
+  status: string;
+  buttons: IButtonTeams[];
+}
 
 export interface IQuickReply {
   type: string;
@@ -30,30 +55,30 @@ export interface IQuickReply {
 }
 
 export const defaultQuickReply: IQuickReply[] = [
-  { type: "quickReply", text: "Botão" },
+  { type: 'quickReply', text: 'Botão' },
 ];
 
 export const templateValue: ITemplate = {
-  footer: "",
-  body: "",
-  header: "",
+  footer: '',
+  body: '',
+  header: '',
 };
 
 export const defaultCustomerData: ICustomerData = {
-  number: "",
-  client: "",
-  description: "",
-  observation: "",
-  accessToken: "",
+  number: '',
+  client: '',
+  description: '',
+  observation: '',
+  accessToken: '',
   botId: 0,
-  botToken: "",
-  webhook: "",
-  botServerType: "",
-  address: "",
-  email: "",
-  vertical: "",
-  websites: "",
-  profile_pic: "",
+  botToken: '',
+  webhook: '',
+  botServerType: '',
+  address: '',
+  email: '',
+  vertical: '',
+  websites: '',
+  profile_pic: '',
   activated: 0,
 };
 
@@ -64,6 +89,17 @@ export interface ITemplateList {
   language: string;
   status: string;
   components: any;
+}
+export interface ITemplateListTeams {
+  id: string;
+  templateName: string;
+  message: string;
+  hasButton: number;
+  hasHeader: number;
+  hasVariable: number;
+  language: string;
+  status: string;
+  buttons: IButtonTeams[];
 }
 
 export interface IPayload {
@@ -118,19 +154,19 @@ export interface IHeader {
 }
 
 export const payload: IPayload = {
-  category: "",
-  name: "",
-  language: "",
+  category: '',
+  name: '',
+  language: '',
   components: [
     {
-      type: "",
+      type: '',
       parameters: [
         {
-          type: "",
-          text: "",
-          example: "",
-          phoneNumber: "",
-          url: "",
+          type: '',
+          text: '',
+          example: '',
+          phoneNumber: '',
+          url: '',
         },
       ],
     },
@@ -152,7 +188,8 @@ export interface IVariables {
 }
 
 export interface IListVariables {
-  phone: number | "";
+  phone: number | null;
+  email: string;
   variable_1: string;
   variable_2: string;
   variable_3: string;
@@ -189,6 +226,8 @@ export interface ICustomer {
   id: number;
   engagement: string;
   phone: string;
+  email: string;
+  channel: string;
   status: string;
   data_criacao: string;
   data_atualizacao: string;
@@ -241,6 +280,7 @@ export interface ButtonQR {
 
 export interface Filters {
   telefone: string;
+  email: string;
   variable_1: string;
   variable_2: string;
   variable_3: string;

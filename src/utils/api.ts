@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 // const generateToken = async (botId: number): Promise<string | null> => {
 //   try {
@@ -11,9 +11,9 @@ import axios from "axios";
 // };
 
 const api = axios.create({
-  // baseURL: "http://localhost:19000",
-  baseURL: "https://api-stg.inbot.com.br/user-manager/v1",
-  // baseURL: "https://api.inbot.com.br/user-manager/v1",
+  // baseURL: 'http://localhost:19000',
+  // baseURL: 'https://api-stg.inbot.com.br/user-manager/v1',
+  baseURL: 'https://api.inbot.com.br/user-manager/v1',
 });
 
 export default api;

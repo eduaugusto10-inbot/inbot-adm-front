@@ -10,20 +10,14 @@ import loupe from '../../../img/loupe.png'
 import { months, years } from "../../../utils/textAux";
 import { DownloadTableExcel } from "react-export-table-to-excel";
 import  {validatedUser}  from "../../../utils/validateUser";
-
+import whatsappIcon from '../../../img/whatsapp.png'
+import teamsIcon from '../../../img/teams.png'
 export function TriggerList() {
 
-    const [searchParams, setSearchParams] = useSearchParams();
-    if (searchParams.get('bot_id') === null || searchParams.get("token")) {
-        //window.location.href = "https://in.bot/inbot-admin";
-    }
-    
+    const [searchParams, setSearchParams] = useSearchParams();  
     var botId = searchParams.get('bot_id') ?? "0";
     const history = useNavigate();
     useEffect(() => {
-        if (searchParams.get('bot_id') === null || searchParams.get("token")) {
-            //window.location.href = "https://in.bot/inbot-admin";
-        }
         const logged = validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
         console.log(`Logged: ${logged}`)
         if(!logged){
@@ -216,7 +210,7 @@ export function TriggerList() {
         const sortTrigger = handleSort(dataTreat);
         const triggerId = sortTrigger[id].id;
         const triggerStatus = sortTrigger[id].status;
-        history(`/trigger-details?bot_id=${botId}`, { state: { triggerId: triggerId, urlLogo: "", triggerStatus: triggerStatus } });
+        history(`/trigger-details?bot_id=${botId}&token=${searchParams.get("token")}`, { state: { triggerId: triggerId, urlLogo: "", triggerStatus: triggerStatus } });
     }
     const changeStatus = (id: number) => {
         const sortTrigger = handleSort(dataTreat)
@@ -364,6 +358,7 @@ export function TriggerList() {
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data criação</span> <div><div className="triangle-up" onClick={()=>handleInitSort("data_criacao","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("data_criacao","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data de envio</span> <div><div className="triangle-up" onClick={()=>handleInitSort("time_trigger","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("time_trigger","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Status</span> <div><div className="triangle-up" onClick={()=>handleInitSort("status","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("status","desc")}></div></div></div></th>
+                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Canal</span> <div><div className="triangle-up" onClick={()=>handleInitSort("erro","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total da campanha</span> <div><div className="triangle-up" onClick={()=>handleInitSort("total","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("total","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de Sucesso</span> <div><div className="triangle-up" onClick={()=>handleInitSort("enviado","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("enviado","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de Erro</span> <div><div className="triangle-up" onClick={()=>handleInitSort("erro","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
@@ -383,6 +378,7 @@ export function TriggerList() {
                                         <td><span>{trigger.data_criacao ? adjustTime(trigger.data_criacao) : "--"}</span></td>
                                         <td><span>{trigger.time_trigger ? adjustTimeWithout3Hour(trigger.time_trigger) : "--"}</span></td>
                                         <td><div id="statusCells" style={{ borderRadius: "20px", padding: "7px" }}><span style={{ fontWeight: "bolder", color: statusColor(trigger.status) }}>{statusName(trigger.status)}</span></div></td>
+                                        <td><img src={trigger.channel==='whatsapp' ? whatsappIcon : teamsIcon} alt="alerta" width={20} style={{ margin: "10px" }} /></td>
                                         <td><span>{trigger.total}</span></td>
                                         <td><span>{trigger.enviado}</span></td>
                                         <td><span>{trigger.erro}</span></td>

@@ -3,12 +3,8 @@ import { ToastContainer } from "react-toastify";
 import api from "../../../utils/api";
 import { waitingMessage, successCreateTrigger } from "../../../Components/Toastify";
 import { useSearchParams } from "react-router-dom";
-
-interface SavedValue {
-    nomeCampo: string;
-    tipo: string;
-    status: string;
-  }
+import  {validatedUser}  from "../../../utils/validateUser";
+import { SavedValue } from "../../types";
 
 export function Configuration(){
 

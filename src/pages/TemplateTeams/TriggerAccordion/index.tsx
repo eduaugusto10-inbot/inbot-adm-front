@@ -1,18 +1,15 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { read, utils } from "xlsx";
-import { errorCampaingEmpty, errorDuplicatedPhone, errorEmptyVariable, errorPhoneEmpty, errorTriggerMode, successCreateTrigger, waitingMessage, errorNoRecipient, errorMidiaEmpty, errorMessagePayload } from "../../../Components/Toastify";
+import { errorCampaingEmpty, errorEmptyVariable, errorTriggerMode, successCreateTrigger, waitingMessage, errorNoRecipient, errorMidiaEmpty, errorMessagePayload, errorMessageDefault } from "../../../Components/Toastify";
 import api from "../../../utils/api";
-import attached from '../../../img/attachment.png'
 import { ToastContainer } from "react-toastify";
 import './index.css'
 import Alert from "../../../Components/Alert";
-import { AccordionState, IListVariables, ITemplateList, IVariables } from "../../types";
+import { AccordionState, IListVariables, ITemplateListTeams, IVariables } from "../../types";
 import { mask } from "../../../utils/utils";
 import Modal from "../../../Components/Modal";
 import useModal from "../../../Components/Modal/useModal";
-import { PhoneInput } from 'react-international-phone';
-import 'react-international-phone/style.css';
 import chevron from '../../../img/right-chevron.png'
 import info from "../../../img/circle-info-solid.svg"
 import 'react-tooltip/dist/react-tooltip.css'
@@ -33,10 +30,6 @@ export function Accordion() {
         if (searchParams.get('bot_id') === null) {
             window.location.href = "https://in.bot/inbot-admin";
         }
-        api.get(`/whats-botid/${botId}`)
-            .then(resp => {
-                setPhone(resp.data.number)
-            }).catch(error => history(`/template-warning-no-whats?bot_id=${botId}`))
     }, []);
     function BackToList() {
         history(`/trigger-list?bot_id=${botId}`);
@@ -49,7 +42,6 @@ export function Accordion() {
         revisar: false
     });
     const [fileData, setFileData] = useState<any[][]>([]);
-    const [clientNumber, setClientNumber] = useState<number | ''>('');
     const [typeClient, setTypeClients] = useState<boolean>();
     const [mode, setMode] = useState<boolean>(false);
     const [text, setText] = useState<string>("")
@@ -69,46 +61,40 @@ export function Accordion() {
     const [payload3, setPayload3] = useState<string>()
     const [templateNameSelect, setTemplateNameSelect] = useState<string>("Edta")
     const [urlMidia, setURLMidia] = useState<string>("");
-    const [templates, setTemplates] = useState<ITemplateList[]>([])
+    const [templates, setTemplates] = useState<ITemplateListTeams[]>([])
     const [qtButtons, setQtButtons] = useState<number>(0)
     const [titleButton1, setTitleButton1] = useState<string>("")
     const [bodyText, setBodyText] = useState<string>("")
-    const [typeOfHeader, setTypeOfHeader] = useState<string>("")
-    const [footerText, setFooterText] = useState<string>("")
-    const [headerText, setHeaderText] = useState<string>("")
+    const [typeOfHeader, setTypeOfHeader] = useState<boolean>(false)
     const [titleButton2, setTitleButton2] = useState<string>("")
     const [titleButton3, setTitleButton3] = useState<string>("")
     const [headerTable, setHeaderTable] = useState<any>()
-    const [headerConfig, setHeaderConfig] = useState<string | null>()
+    const [headerConfig, setHeaderConfig] = useState<boolean>(false)
     const [variableQty, setVariableQty] = useState<number>(0)
     const [blockAddNumber, setBlockAddNumber] = useState<boolean>(false)
-    const [phone, setPhone] = useState("")
     const [templateName, setTemplateName] = useState("")
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [fileName, setFileName] = useState('');
+    const [clientEmail, setClientEmail] = useState<string>("")
+    const [botList, setBotList] = useState<any>([])
     const [createTriggerMenu, setCreateTriggerMenu] = useState(false)
+    
     useEffect(() => {
         api.get(`/whatsapp/trigger-bot/${botId}`)
             .then(resp => setTriggerNames(resp.data))
             .catch(error => console.log(error))
-    }, [])
-
-    useEffect(() => {
         if (searchParams.get('bot_id') === null) {
             window.location.href = "https://in.bot/inbot-admin";
         }
 
-        api.get(`/whats-botid/${botId}`)
+        api.get(`/teams/template/botid/${botId}`)
             .then(resp => {
-                const token = resp.data.accessToken;
-                setPhone(resp.data.number)              
-                api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
-                    .then(resp => {
-                        setTemplates(resp.data.data.messageTemplates)
-                        setCreateTriggerMenu(true)
-                    })
-            })
-            
+                setTemplates(resp.data)
+                setCreateTriggerMenu(true)
+        })
+            api.get(`/teams/list-bot/botid/${botId}`)
+            .then(resp => setBotList(resp.data))
+
     }, []);
 
     useEffect(() => {
@@ -130,14 +116,12 @@ export function Accordion() {
 
     const addCustomerToSendTemplate = () => {
         let emptyVariable = false;
-        let duplicatedPhone = false;
-        if(clientNumber===""){
-            errorPhoneEmpty()
+        let duplicatedEmail = false;
+        if(clientEmail===""){
+            errorMessageDefault("E-mail não pode ser vazio")
             return;
         }
-        const itemsToCheck = ["document", "image", "video"];
-        const hasItem = itemsToCheck.some(item => headerConfig?.includes(item));
-        if(urlMidia==="" && hasItem) {
+        if(headerConfig && urlMidia==="") {
             errorMidiaEmpty()
             return;
         }
@@ -147,22 +131,23 @@ export function Accordion() {
             }
         });
         listVariables.forEach(variable =>{
-            if(variable.phone===clientNumber){
-                duplicatedPhone = true;
+            if(variable.email===clientEmail){
+                duplicatedEmail = true;
             }
         })
         if(emptyVariable){
             errorEmptyVariable();
             return;
         }
-        if(duplicatedPhone){
-            errorDuplicatedPhone();
+        if(duplicatedEmail){
+            errorMessageDefault("E-mail duplicado");
             return;
         }
         setListVariables(prevState => [
             ...prevState,
             {
-                phone: clientNumber,
+                phone: null,
+                email: clientEmail,
                 variable_1: variables[0]?.text,
                 variable_2: variables[1]?.text,
                 variable_3: variables[2]?.text,
@@ -181,7 +166,7 @@ export function Accordion() {
                 title_button_3: titleButton3,
             }
         ]);
-        setClientNumber("");
+        setClientEmail("");
         setVariables([]);
     };
 
@@ -246,10 +231,10 @@ export function Accordion() {
 
     const handleSubmitListDataFile = async (dataTemplate: any, campaignId: string) => {
         for (const customer of dataTemplate) {
-            if (customer.length > 0) { // count > 0 && 
+            if (customer.length > 0) {
                 const params = {
                     campaignId: `${campaignId}`,
-                    phone: `${customer[0]}`,
+                    email: `${customer[0]}`,
                     status: "aguardando",
                     variable_1: customer[1],
                     variable_2: customer[2],
@@ -279,7 +264,7 @@ export function Accordion() {
         for (let i = 0; i < listVariables.length; i++) {
             const params = {
                 campaignId: `${campaignId}`,
-                phone: `${listVariables[i].phone}`,
+                email: `${listVariables[i].email}`,
                 status: "aguardando",
                 variable_1: listVariables[i]?.variable_1,
                 variable_2: listVariables[i]?.variable_2,
@@ -297,7 +282,7 @@ export function Accordion() {
                 payload_3: payload3,
                 title_button_1: titleButton1,
                 title_button_2: titleButton2,
-                title_button_3: titleButton3,
+                title_button_3: titleButton3                
             };
             api.post('/whats-customer', params)
                 .catch(error => console.log(error));
@@ -336,71 +321,12 @@ export function Accordion() {
             setVariables(prevVariables => [...prevVariables, newVariables]);
         }
     };
-
-    const encontrarMaiorNumero = (texto: string): number => {
-        const regex = /{{.*?(\d+).*?}}/g;
-        const numeros: number[] = [];
-        let match: RegExpExecArray | null;
-
-        while ((match = regex.exec(texto)) !== null) {
-            if (match[1]) {
-                numeros.push(parseInt(match[1]));
-            }
-        }
-
-        if (numeros.length > 0) {
-            return Math.max(...numeros);
-        } else {
-            return 0;
-        }
-    };
-    const hasMedia = (headerElement: any) => {
-        let headerType = null;
-        headerElement.forEach((element: any) => {
-            if (element.type === "header") {
-                switch (element.parameters[0].type) {
-                    case "video":
-                        headerType = "video";
-                        break;
-                    case "text":
-                        headerType = "text";
-                        break;
-                    case "image":
-                        headerType = "image";
-                        break;
-                    case "document":
-                        headerType = "document";
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
-        return headerType;
-    }
-    const hasManyButtons = (headerElement: any) => {
-        let buttons = 0;
-        headerElement.forEach((element: any) => {
-            if (element.type === "button") {
-                if (element.parameters[0].type === "quickReply") {
-                    buttons = element.parameters.length;
-                    if(buttons > 0) setTitleButton1(element.parameters[0].text)
-                    if(buttons > 1) setTitleButton2(element.parameters[1].text)
-                    if(buttons > 2) setTitleButton3(element.parameters[2].text)
-                }
-            }
-            if(element.type === "body") {
-                setBodyText(element.parameters[0].text)
-            }
-            if(element.type === "header") {
-                setHeaderText(element.parameters[0]?.text)
-                setTypeOfHeader(element.parameters[0].type)
-            }
-            if(element.type === "footer") {
-                setFooterText(element.parameters[0].text)
-            }
-        });
-        return buttons;
+    const hasManyButtons = (templateJSON: ITemplateListTeams) => {
+        if(templateJSON.hasButton > 0) setTitleButton1(templateJSON.buttons[0].title)
+        if(templateJSON.hasButton > 1) setTitleButton2(templateJSON.buttons[1].title)
+        if(templateJSON.hasButton > 2) setTitleButton3(templateJSON.buttons[2].title)
+        setBodyText(templateJSON.message)
+        setTypeOfHeader(!!templateJSON.hasHeader)
     }
 
     const openModal = (e:any) => {
@@ -434,16 +360,14 @@ export function Accordion() {
         setFileData([])
         setListVariables([])
         setFileName("")
-        templates.forEach((template: ITemplateList) => {
-            if(template.ID===e){
-                setTemplateName(template.name);   
-                template.components.forEach((element: any) => {
-                    if (element.type === "body"){
-                        setVariableQty(encontrarMaiorNumero(element.parameters[0].text))
-                    }                    
-                });
-                setQtButtons(hasManyButtons(template.components))
-                setHeaderConfig(hasMedia(template.components))
+        templates.forEach((template: ITemplateListTeams) => {
+            console.log(template.id)
+            if(template.id==e){
+                setTemplateName(template.templateName);   
+                setVariableQty(template.hasVariable)                
+                setQtButtons(template.hasButton)
+                hasManyButtons(template)
+                setHeaderConfig(!!template.hasHeader)
                 return;
             }
         })
@@ -489,7 +413,8 @@ export function Accordion() {
             "status": "aguardando",
             // "status": "criando",
             "botId": botId,
-            "phoneTrigger": phone
+            "phoneTrigger": '',
+            "channel": 'teams'
         }
 
         api.post('/whatsapp/trigger', data)
@@ -532,11 +457,11 @@ export function Accordion() {
             setText("Essa ação não poderá ser desfeita.")
             setWarningText(true)
         } else if (wichButton ==="warningFile") {
-            setTextToModal("Verifique o padrão do telefone")
+            setTextToModal("Verifique o padrão do e-mail")
             setButtonB("OK")
             setButtonA("NaoExibir")
             setWarningText(true)
-            setText("Para garantir o envio corretamente, não se esqueça de verificar na sua planilha se os números de telefone estão completos seguindo o padrão: código do país (Brasil = 55), código regional (SP = 11) e número do telefone. Exemplo: 5511988880000")
+            setText("Para garantir o envio corretamente, não se esqueça de verificar na sua planilha se os e-mails estão completos")
         } else if (wichButton === "ChangeCustomersContacts") {
             setButtonA("Não")
             setButtonB("Alterar")
@@ -619,14 +544,12 @@ export function Accordion() {
         return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
       }
 
-      function checkNumber(phone: number) {
-        setClientNumber(phone)
-        setBlockAddNumber(phone.toString().length >= 12)          
+      function checkEmail(email: string) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        setClientEmail(email)
+        setBlockAddNumber(emailRegex.test(email))          
       }
 
-      function openModalWarningFile(){
-        
-      }
     return (
         <div className="container-trigger width-95-perc" style={{ padding:"10px 0px"}}>
             <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} text={text} toggle={toggle} question={textToModal} warning={warningText} onButtonClick={handleButtonClick}></Modal>
@@ -654,10 +577,20 @@ export function Accordion() {
                             <select value={templateName} className="input-values" onChange={ e => openModal(e.target.value)}>
                                 <option value="">{templateName ?? "--"}</option>
                                 {templates.map((template, key) => (
-                                    <option key={key} value={template.ID}>{template.name}</option>
+                                    <option key={key} value={template.id}>{template.templateName}</option>
                                 ))}
                             </select>
                         </div>
+                        </div>
+                        <div className="column-align">
+                            <span className="span-title" style={{width:"30%", justifyContent:"left", marginLeft:"12px"}}>Bot de disparo: </span>
+                            <div className="row-align">
+                                    {botList.map((bot: any, key: number) => (
+                                    <div className="line">
+                                        <input type="radio" name={bot.name} value={bot.id} onChange={handleMode} className="input-spaces" checked={mode === false} /><span>{bot.name}</span>
+                                    </div>
+                                    ))}
+                                </div>
                         </div>
                         <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('recebidores')}>Próximo</button>
                     </div>
@@ -689,26 +622,17 @@ export function Accordion() {
                             <div className="row-align">
                             <div className="column-align">
                             <div style={{ display: "flex", flexDirection: "row",alignItems: "center" }}>
-                                <span className="span-title" style={{paddingBottom: blockAddNumber ? "0px" : '19px' }}>Telefone </span>
+                                <span className="span-title" style={{paddingBottom: blockAddNumber ? "0px" : '19px' }}>E-mail </span>
                                 <div className="column-align">
-                                <PhoneInput
-                                    defaultCountry="br"
-                                    value={clientNumber.toString()}
-                                    onChange={(event) => {
-                                        checkNumber(parseInt(event.replace(/\D/g, "")))                                        
-                                    }}
-                                    inputStyle={{
-                                        width: "212px",
-                                        height: "30px",
-                                        border: blockAddNumber ? "1px solid #A8A8A8" : "1px solid red",
-                                        marginLeft: "5px",
-                                        padding: "5px",
-                                        borderRadius: "8px",
-                                        alignItems: "center",
-                                    }}
-                                />
+                                    <input type="email" name="" id="" 
+                                    value={clientEmail}
+                                    onChange={e=> checkEmail(e.target.value)}
+                                    className="input-values"
+                                   style={{
+                                    border: blockAddNumber ? "1px solid #A8A8A8" : "1px solid red",
+                                    }}/>
                                 {!blockAddNumber ?
-                                <span style={{paddingLeft:"50px", color:'red', fontSize:'11px'}}>Telefone inválido</span> : ''}
+                                <span style={{paddingLeft:"1px", color:'red', fontSize:'11px'}}>E-mail inválido</span> : ''}
                                 </div>
                             </div>
                             <div style={{ display: "flex", flexDirection: "column" }}>
@@ -726,9 +650,9 @@ export function Accordion() {
                                     ))
                                     }
                                 </div>}
-                                {headerConfig !== "text" && headerConfig !== null &&
+                                {headerConfig &&
                                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
-                                        <span className="span-title">Link {headerConfig === "document" ? "documento" : headerConfig === "image" ? "imagem" : "video"}</span>
+                                        <span className="span-title">Link </span>
                                         <input className="input-values" value={urlMidia.replace(/\s+/g, '')} onChange={e => setURLMidia(e.target.value.replace(/\s+/g, ''))} />
                                     </div>
                                 }
@@ -780,12 +704,8 @@ export function Accordion() {
             <div style={{width: "100%", alignItems: "center", display: "flex", flexDirection: "column"}}>
                 <div style={{width:"200px", border:"1px solid #C4C4C4", padding:"20px 0px", borderRadius:"7px", marginBottom:"10px"}}>
                     <div className="texts" style={{fontSize:"10px"}}>
-                        {typeOfHeader === "text" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{headerText}</label>}
-                        {typeOfHeader === "image" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={urlMidia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
-                        {typeOfHeader === "document" && <div className="column-align" style={{padding:"10px"}}><label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={attached} style={{ maxWidth: '100%', maxHeight: '200px', border:"1px solid #c3c3c3", borderRadius:"8px"}} alt="" /></label></div>}
-                        {typeOfHeader === "video" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><video width="160" height="120" controls><source src={urlMidia} type="video/mp4" /></video></label>}
+                        {typeOfHeader && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={urlMidia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
                         {<label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {bodyText.length > 256 ? bodyText.slice(0,256)+"...veja mais" : bodyText}</label>}
-                        {<label className="footer font-size-12" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{footerText}</label>}
                         {qtButtons > 0 && <div className="quickReply-texts">
                             {qtButtons > 0 && (<div className="quick-reply"><label >{titleButton1}</label></div>)}
                             {qtButtons > 1 && (<div className="quick-reply"><label >{titleButton2}</label></div>)}
@@ -804,7 +724,7 @@ export function Accordion() {
                                 <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", width:"97%", padding:"10px"}}>
                                     <thead>
                                         <tr  className="cells table-2024 border-bottom-zero">
-                                            <th  className="cells" style={{fontSize:"10px"}}><div style={{background:"#FFF",  borderRadius:"6px"}}>Telefone</div></th>
+                                            <th  className="cells" style={{fontSize:"10px"}}><div style={{background:"#FFF",  borderRadius:"6px"}}>E-mail</div></th>
                                             {variables.length>0 && <th  className="cells" style={{fontSize:"10px"}}>Variável 1</th>}
                                             {variables.length>1 && <th  className="cells" style={{fontSize:"10px"}}>Variável 2</th>}
                                             {variables.length>2 && <th  className="cells" style={{fontSize:"10px"}}>Variável 3</th>}
@@ -813,13 +733,13 @@ export function Accordion() {
                                             {variables.length>5 && <th  className="cells" style={{fontSize:"10px"}}>Variável 6</th>}
                                             {variables.length>6 && <th  className="cells" style={{fontSize:"10px"}}>Variável 7</th>}
                                             {variables.length>7 && <th  className="cells" style={{fontSize:"10px"}}>Variável 8</th>}
-                                            {headerConfig !== "text" && headerConfig !== null &&<th  className="cells" style={{fontSize:"10px"}}>Link midia</th>}
+                                            {headerConfig &&<th  className="cells" style={{fontSize:"10px"}}>Link midia</th>}
                                         </tr>
                                     </thead>
                                     <tbody style={{ backgroundColor: '#F9F9F9', fontSize: "12px" }}>
                                         {listVariables.length > 0 && listVariables.map((unicVariable, rowIndex) => (
                                             <tr key={rowIndex}>
-                                                <th>{unicVariable.phone}</th>
+                                                <th>{unicVariable.email}</th>
                                                 {variables.length>0 && <th>{unicVariable.variable_1}</th>}
                                                 {variables.length>1 && <th>{unicVariable.variable_2}</th>}
                                                 {variables.length>2 && <th>{unicVariable.variable_3}</th>}
@@ -828,7 +748,7 @@ export function Accordion() {
                                                 {variables.length>5 && <th>{unicVariable.variable_6}</th>}
                                                 {variables.length>6 && <th>{unicVariable.variable_7}</th>}
                                                 {variables.length>7 && <th>{unicVariable.variable_8}</th>}
-                                                {headerConfig !== "text" && headerConfig !== null &&<th>{unicVariable.media_url} OI</th>}
+                                                {headerConfig &&<th>{unicVariable.media_url} OI</th>}
                                             </tr>
                                         ))}
                                     </tbody>
@@ -864,9 +784,9 @@ export function Accordion() {
                                 
                             /><div className="row-align">
                                 <div className="column-align">
-                                {headerConfig !== "text" && headerConfig !== null &&
+                                {headerConfig &&
                                     <div style={{ display: "flex", flexDirection: "row", justifyContent: "left", margin: "10px" }}>
-                                        <span className="span-title">Link {headerConfig === "document" ? "documento" : headerConfig === "image" ? "imagem" : "video"}</span>
+                                        <span className="span-title">Link midia</span>
                                         <input className="input-values" value={urlMidia.replace(/\s+/g, '')} onChange={e => setURLMidia(e.target.value.replace(/\s+/g, ''))} />
                                     </div>
                                 }
@@ -914,26 +834,18 @@ export function Accordion() {
             <div style={{width: "100%", alignItems: "center", display: "flex", flexDirection: "column"}}>
                 <div style={{width:"200px", border:"1px solid #C4C4C4", padding:"20px 0px", borderRadius:"7px", marginBottom:"10px"}}>
                     <div className="texts" style={{fontSize:"10px"}}>
-                        {typeOfHeader === "text" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{headerText}</label>}
-                        {typeOfHeader === "image" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={urlMidia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
-                        {typeOfHeader === "document" && <div className="column-align" style={{padding:"10px"}}><label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={attached} style={{ maxWidth: '100%', maxHeight: '200px', border:"1px solid #c3c3c3", borderRadius:"8px"}} alt="" /></label></div>}
-                        {typeOfHeader === "video" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><video width="160" height="120" controls><source src={urlMidia} type="video/mp4" /></video></label>}
+                        {typeOfHeader && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={urlMidia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
                         {<label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {bodyText.length > 256 ? bodyText.slice(0,256)+"...veja mais" : bodyText}</label>}
-                        {<label className="footer font-size-12" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{footerText}</label>}
                         {qtButtons > 0 && <div className="quickReply-texts">
                             {qtButtons > 0 && (<div className="quick-reply"><label >{titleButton1}</label></div>)}
                             {qtButtons > 1 && (<div className="quick-reply"><label >{titleButton2}</label></div>)}
                             {qtButtons > 2 && (<div className="quick-reply"><label >{titleButton3}</label></div>)}
-                        </div>}
-                        {/* {typeOfButtons === "cta" && <div className="quickReply-texts">
-                            {buttonsCTA.length > 0 && (<div className="quick-reply"><label >{buttonsCTA[0].text}</label></div>)}
-                            {buttonsCTA.length > 1 && (<div className="quick-reply"><label >{buttonsCTA[1].text}</label></div>)}
-                        </div>} */}
+                        </div>}                        
                     </div>
                 </div>
             </div>
-                                                            </div>
-                                                            </div>
+                </div>
+                </div>
                             <input type="text" value={fileName} disabled style={{width:"300px", borderRadius:"8px"}}/>
                             <button type="button" style={{width:"120px", marginLeft:"7px"}} onClick={() => handleButtonName("warningFile")} className="button-blue">Escolher arquivo</button>
                             <div style={{ maxHeight: "500px", maxWidth:"900px", overflowY: 'auto', marginBottom: "10px", flexDirection:"column", alignItems: "center", padding:"10px 0px" }}>
@@ -1016,7 +928,7 @@ export function Accordion() {
                             <div style={{ justifyContent: "center"}}>
                                 <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
                                     <span className="span-title-resume">Template: {templateName}</span>
-                                    <span className="span-title-resume">Telefone do disparo: {mask(phone)}</span>
+                                    <span className="span-title-resume">Bot do disparo: {botId}</span>
                                     <span className="span-title-resume">Data e hora do disparo: {triggerMode==="imediato" ? "imediato" : `agendado dia ${formatDate(dates)} às ${hours}`}</span>
                                     <span className="span-title-resume">Quantidade de disparos: {typeClient === false ? listVariables.length : fileData.length > 0 ? fileData.length : "0"}</span>
                                 </div>
