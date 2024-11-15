@@ -14,6 +14,7 @@ import { AccordionStateCreateTeams, IButton, IHeader, ITemplateTeams, IVariables
 import useModal from "../../../Components/Modal/useModal";
 import Modal from "../../../Components/Modal";
 import chevron from "../../../img/right-chevron.png"
+import { validatedUser } from "../../../utils/validateUser";
 export function CreateTemplateAccordion() {
 
     const history = useNavigate();
@@ -29,13 +30,22 @@ export function CreateTemplateAccordion() {
 
     const location = useLocation()
     useEffect(() => {
-        if (searchParams.get('bot_id') === null) {
-            window.location.href = "https://in.bot/inbot-admin";
-        }
-        api.get(`/whats-botid/${botId}`)
-            .then(resp => {
-                setPhone(resp.data.number)
-            }).catch(error => history(`/template-warning-no-whats?bot_id=${botId}`))
+        const fetchData = async () => {
+            const logged = await validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
+            console.log(`Logged: ${logged}`)
+            if(!logged){
+                history(`/template-warning-no-whats?bot_id=${botId}`);
+            }
+            api.get(`/whats-botid/${botId}`)
+                .then(resp => {
+                    setPhone(resp.data.number)
+                }).catch(error => history(`/template-warning-no-whats?bot_id=${botId}`))
+            }
+            if (searchParams.get('bot_id') === null) {
+                window.location.href = "https://in.bot/inbot-admin";
+            } else {
+                fetchData();
+            }
     }, []);
     const [templateName, setTemplateName] = useState<string>("")
     const [templateLanguage, setTemplateLanguage] = useState<string>("")

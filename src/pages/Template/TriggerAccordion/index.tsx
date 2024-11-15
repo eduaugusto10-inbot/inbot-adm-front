@@ -34,7 +34,7 @@ export function Accordion() {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-        const logged = validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
+        const logged = await validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
         console.log(`Logged: ${logged}`)
         if(!logged){
             history(`/template-warning-no-whats?bot_id=${botId}`);
