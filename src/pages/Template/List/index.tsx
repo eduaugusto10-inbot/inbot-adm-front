@@ -339,6 +339,13 @@ export function ListAll() {
                         <div className="in_loader" style={{width:"50px", height:"50px"}}></div>
                         <h4>Carregando</h4>
                     </div>}
+                    <div className="row-align">
+                        <span>Whatsapp</span>
+                        <div className="switch switch-off" onClick={() => history(`/template-list-teams?bot_id=${botId}&token=${searchParams.get("token")}`)}>
+                            <div className="slider slider-off" />
+                        </div>
+                        <span>Teams</span>
+                    </div>
                 {!loading && <div>
                     <table className="table-2024 fixed-header-table" style={{textAlign:"left"}}>
                         <thead>

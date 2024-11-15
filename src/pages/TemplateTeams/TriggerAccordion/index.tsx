@@ -32,11 +32,12 @@ export function Accordion() {
         }
     }, []);
     function BackToList() {
-        history(`/trigger-list?bot_id=${botId}`);
+        history(`/trigger-list?bot_id=${botId}&token=${searchParams.get("token")}`);
     }
 
     const [accordionState, setAccordionState] = useState<AccordionState>({
-        config: true,
+        channelTrigger: true,
+        config: false,
         recebidores: false,
         disparo: false,
         revisar: false
@@ -103,6 +104,7 @@ export function Accordion() {
     
     const toggleAccordion = (key: keyof AccordionState) => {
         setAccordionState({
+            channelTrigger: false,
             config: false,
             recebidores: false,
             disparo: false,
@@ -411,7 +413,7 @@ export function Accordion() {
             "typeTrigger": triggerMode,
             "timeTrigger": triggerMode === "agendado" ? `${dates} ${hours}` : null,
             "status": "aguardando",
-            // "status": "criando",
+            "teamsInstanceId": botList[0].id,
             "botId": botId,
             "phoneTrigger": '',
             "channel": 'teams'
@@ -558,8 +560,27 @@ export function Accordion() {
             <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
             <br/>
             <div>
-                <div className={`accordion_head ${accordionState.config ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>1. Configuração
-                <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.config ?"-90deg" : "90deg"}} /></div>
+                <div className={`accordion_head ${accordionState.channelTrigger ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('channelTrigger')}>1. Canal de Disparo
+                    <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.channelTrigger ?"-90deg" : "90deg"}} /></div>
+                </div>
+                {accordionState.channelTrigger && 
+                <div className="body-no-background" style={{width:"100%"}}>
+                <div className="accordeon-new">
+                    <div className="body" style={{ backgroundColor: "#FFF"}}>
+                        <div className="line">
+                            <input type="radio" name="disparo" value="" onChange={() => history(`/template-trigger?bot_id=${botId}&token=${searchParams.get("token")}`)} className="input-spaces" checked={false} /><span>WhatsApp</span>
+                            <input type="radio" name="disparo" value=""  className="input-spaces" checked={true} /><span>Teams</span>
+                        </div>
+                    </div>
+                    <div style={{width:"100%", textAlign:"right"}}>
+                        <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('revisar')}>Próximo</button>
+                    </div>
+                </div>
+                </div>}
+            </div>
+            <div>
+                <div className={`accordion_head ${accordionState.config ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>2. Configuração
+                    <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.config ?"-90deg" : "90deg"}} /></div>
                 </div>
                 {accordionState.config &&
                 <div className="body-no-background" style={{width:"100%"}}>
@@ -597,7 +618,7 @@ export function Accordion() {
                 </div>}
             </div>
             <div className="config-recebidores" style={{ maxHeight: "1080px", maxWidth:'900px' }}>
-                <div className={`accordion_head ${accordionState.recebidores ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('recebidores')}>2. Cadastro dos Contatos da Campanha 
+                <div className={`accordion_head ${accordionState.recebidores ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('recebidores')}>3. Cadastro dos Contatos da Campanha 
                     <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.recebidores ?"-90deg" : "90deg"}} /></div></div>
                 {accordionState.recebidores && 
                 <div className="body-no-background" style={{width:"100%"}}>
@@ -877,7 +898,7 @@ export function Accordion() {
                 </div>}
             </div>
             <div className="modo-disparo">
-                <div className={`accordion_head ${accordionState.disparo ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('disparo')}>3. Modo de Disparo
+                <div className={`accordion_head ${accordionState.disparo ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('disparo')}>4. Modo de Disparo
                 <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.disparo ?"-90deg" : "90deg"}} /></div>
                 </div>
                 {accordionState.disparo && 
@@ -919,7 +940,7 @@ export function Accordion() {
                 </div>}
             </div>
             <div className="revisar">
-                <div className={`accordion_head ${accordionState.revisar ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('revisar')}>4. Resumo e salvar
+                <div className={`accordion_head ${accordionState.revisar ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('revisar')}>5. Resumo e salvar
                 <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.revisar ?"-90deg" : "90deg"}} /></div>
                 </div>
                     {accordionState.revisar && 

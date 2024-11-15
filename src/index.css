@@ -1,7 +1,7 @@
 @import url(https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap);
 body {
   margin: 0;
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(to bottom, #ffffff, #e0e0e0);
@@ -9,7 +9,7 @@ body {
 }
 
 code {
-  font-family: "Open Sans", sans-serif;
+  font-family: 'Open Sans', sans-serif;
 }
 
 .row-align {
@@ -44,7 +44,7 @@ select {
 
 textarea {
   height: 103px;
-  resize: "none";
+  resize: 'none';
 }
 
 .table {
@@ -97,7 +97,7 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type="number"] {
+input[type='number'] {
   -moz-appearance: textfield;
 }
 
@@ -191,7 +191,7 @@ table th:nth-child(even) {
 }
 
 .border_gradient::after {
-  content: "";
+  content: '';
   position: absolute;
   top: -5px;
   left: -5px;
@@ -212,7 +212,7 @@ table th:nth-child(even) {
   opacity: 0.5;
 }
 .border_gradient-gray::after {
-  content: "";
+  content: '';
   position: absolute;
   border-radius: 15px;
   border: 1px solid #f0f0f0;
@@ -546,4 +546,36 @@ table th:nth-child(even) {
   background-color: #0d5388;
   clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
   cursor: pointer;
+}
+
+.switch {
+  width: 50px;
+  height: 25px;
+  border-radius: 25px;
+  background-color: gray;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 3px;
+  transition: background-color 0.3s;
+}
+
+.switch-on {
+  background-color: green;
+}
+
+.slider {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: white;
+  transition: transform 0.3s;
+}
+
+.slider-off {
+  transform: translateX(0);
+}
+
+.slider-on {
+  transform: translateX(25px);
 }

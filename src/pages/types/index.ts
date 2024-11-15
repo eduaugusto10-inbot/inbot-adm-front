@@ -216,6 +216,7 @@ export interface ITriggerList {
 }
 
 export interface AccordionState {
+  channelTrigger: boolean;
   config: boolean;
   recebidores: boolean;
   disparo: boolean;
@@ -256,6 +257,7 @@ export interface AccordionTable {
   sheets: boolean;
 }
 export interface AccordionStateCreate {
+  channelTrigger: boolean;
   config: boolean;
   header: boolean;
   body: boolean;
@@ -263,6 +265,7 @@ export interface AccordionStateCreate {
   botao: boolean;
 }
 export interface AccordionStateCreateTeams {
+  channelTrigger: boolean;
   config: boolean;
   header: boolean;
   body: boolean;

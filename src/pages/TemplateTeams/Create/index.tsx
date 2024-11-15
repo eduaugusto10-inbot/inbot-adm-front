@@ -41,7 +41,8 @@ export function CreateTemplateAccordion() {
     const [templateLanguage, setTemplateLanguage] = useState<string>("")
     const [showTemplate, setShowTempalte] = useState<boolean>(true)
     const [accordionState, setAccordionState] = useState<AccordionStateCreateTeams>({
-        config: true,
+        channelTrigger: true,
+        config: false,
         header: false,
         body: false,
         botao: false
@@ -99,6 +100,7 @@ export function CreateTemplateAccordion() {
 
     const toggleAccordion = (key: keyof AccordionStateCreateTeams) => {
         setAccordionState({
+            channelTrigger: false, 
             config: false,
             header: false,
             body: false,
@@ -321,8 +323,25 @@ export function CreateTemplateAccordion() {
                 <br/>
             <div style={{width:"100vw"}}>
                 <Modal buttonA={buttonA} text={text} warning={false} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
-                <ToastContainer />
+                <ToastContainer />            
                 <div className="config-template column-align" style={{ alignItems:"center" }}>
+                    <div className={`accordion_head ${accordionState.channelTrigger ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('channelTrigger')}>1. Canal de Disparo
+                        <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.channelTrigger ?"-90deg" : "90deg"}} /></div>
+                    </div>
+                    {accordionState.channelTrigger && 
+                <div className="body-no-background" style={{width:"100%"}}>
+                <div className="accordeon-new">
+                    <div className="body" style={{ backgroundColor: "#FFF"}}>
+                        <div className="line">
+                            <input type="radio" name="disparo" value="" onChange={() => history(`/template-create?bot_id=${botId}&token=${searchParams.get("token")}`)} className="input-spaces" checked={false} /><span>WhatsApp</span>
+                            <input type="radio" name="disparo" value=""  className="input-spaces" checked={true} /><span>Teams</span>
+                        </div>
+                    </div>
+                    <div style={{width:"100%", textAlign:"right"}}>
+                        <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('config')}>Próximo</button>
+                    </div>
+                </div>
+                </div>}
                     <div className={`accordion_head ${accordionState.config ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>1. Configuração
                         <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.config ?"-90deg" : "90deg"}} /></div>
                     </div>
