@@ -99,6 +99,7 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .spinner-container {
@@ -423,7 +424,6 @@ table th:nth-child(even) {
 }
 
 .accordion_chevron {
-  display: inline=block;
   float: right;
   margin-right: 15px;
   margin-top: 2px;
