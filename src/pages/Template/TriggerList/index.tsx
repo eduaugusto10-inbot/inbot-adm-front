@@ -55,6 +55,8 @@ export function TriggerList() {
         time_trigger: '',
         data_criacao: '',
         status: {
+            executado: true,
+            entregue: true, 
             aguardando: true,
             enviado: true,
             erro: true,
@@ -93,6 +95,8 @@ export function TriggerList() {
             if (
                 (filters.status.aguardando && trigger.status === 'aguardando') ||
                 (filters.status.enviado && trigger.status === 'enviado') ||
+                (filters.status.executado && trigger.status === 'executado') ||
+                (filters.status.entregue && trigger.status === 'entregue') ||
                 (filters.status.erro && trigger.status === 'erro') ||
                 (filters.status.cancelado && trigger.status === 'cancelado')
             ) {
@@ -115,7 +119,7 @@ export function TriggerList() {
                 if(sortType === ""){
                     return sortedItems;
                 }
-                if(sortType==="total" || sortType==="erro" || sortType==="enviado") {
+                if(sortType==="total" || sortType==="erro" || sortType==="enviado" || sortType==="entregue") {
                     if (sortOrder === "asc") {
                         sortedItems.sort((a, b) => {
                         const valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : Infinity;
@@ -234,6 +238,8 @@ export function TriggerList() {
         switch (status) {
             case "enviado":
                 return "Enviado"
+            case "executado":
+                return "Executado"
             case "aguardando":
                 return "Aguardando"
             case "erro":
@@ -245,6 +251,8 @@ export function TriggerList() {
     function statusColor(status: string) {
         switch (status) {
             case "enviado":
+                return "blue"
+            case "executado":
                 return "green"
             case "aguardando":
                 return "orange"
@@ -328,6 +336,7 @@ export function TriggerList() {
                             <span style={{ color: "#002080", fontWeight:"bolder" }}>Status: </span>
                             <div className={filters.status.aguardando ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer", marginLeft:"20px", fontSize:"13.6px"}} onClick={()=>""}><div className={filters.status.aguardando ? "number_button_gradient" : "number_button_gradient-gray"}  onClick={() => handleStatusChange('aguardando')}>Aguardando</div></div>
                             <div className={filters.status.enviado ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer", fontSize:"13.6px"}} onClick={()=>""}><div className={filters.status.enviado ? "number_button_gradient" : "number_button_gradient-gray"}  onClick={() => handleStatusChange('enviado')}>Enviado</div></div>
+                            <div className={filters.status.executado ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer", fontSize:"13.6px"}} onClick={()=>""}><div className={filters.status.executado ? "number_button_gradient" : "number_button_gradient-gray"}  onClick={() => handleStatusChange('executado')}>Executado</div></div>
                             <div className={filters.status.erro ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer", fontSize:"13.6px"}} onClick={()=>""}><div className={filters.status.erro ? "number_button_gradient" : "number_button_gradient-gray"}  onClick={() => handleStatusChange('erro')}>Erro</div></div>
                             <div className={filters.status.cancelado ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer", fontSize:"13.6px"}} onClick={()=>""}><div className={filters.status.cancelado ? "number_button_gradient" : "number_button_gradient-gray"}  onClick={() => handleStatusChange('cancelado')}>Cancelado</div></div>
                         </div>
@@ -380,7 +389,7 @@ export function TriggerList() {
                                         <td><div id="statusCells" style={{ borderRadius: "20px", padding: "7px" }}><span style={{ fontWeight: "bolder", color: statusColor(trigger.status) }}>{statusName(trigger.status)}</span></div></td>
                                         <td><img src={trigger.channel==='whatsapp' ? whatsappIcon : teamsIcon} alt="alerta" width={20} style={{ margin: "10px" }} /></td>
                                         <td><span>{trigger.total}</span></td>
-                                        <td><span>{trigger.enviado}</span></td>
+                                        <td><span>{trigger?.entregue > 0 ? trigger.entregue : trigger.enviado}</span></td>
                                         <td><span>{trigger.erro}</span></td>
                                         <td><span>{trigger.status === 'aguardando' ? 0 : trigger.engajado}</span></td>
                                         <td><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>

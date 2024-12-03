@@ -294,6 +294,8 @@ export interface Filters {
   variable_8: string;
   variable_9: string;
   status: {
+    executado: boolean;
+    entregue: boolean;
     aguardando: boolean;
     enviado: boolean;
     erro: boolean;
@@ -308,6 +310,8 @@ export interface ITriggerListFilter {
   time_trigger: string;
   data_criacao: string;
   status: {
+    executado: true;
+    entregue: boolean;
     aguardando: boolean;
     enviado: boolean;
     erro: boolean;

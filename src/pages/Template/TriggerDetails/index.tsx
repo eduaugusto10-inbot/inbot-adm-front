@@ -26,6 +26,7 @@ export function TriggerDetails() {
     const [loading, setLoading] = useState<boolean>(true)
     const [customerStatus, setCustomerStatus] = useState<ICustomer[]>([])
     const [waiting, setWaiting] = useState<number>(0)
+    const [delivered, setDelivered] = useState<number>(0)
     const [send, setSend] = useState<number>(0)
     const [erro, setErro] = useState<number>(0)
     const [text, setText] = useState<string>("")
@@ -49,8 +50,10 @@ export function TriggerDetails() {
         variable_8: '',
         variable_9: '',
         status: {
+            executado: true,
             aguardando: true,
             enviado: true,
+            entregue: true,
             erro: true,
             cancelado: true,
         }
@@ -89,6 +92,11 @@ export function TriggerDetails() {
         dataPie.datasets[0].data.push(send)
         dataPie.datasets[0].backgroundColor.push('rgba(54, 162, 235, 1)')
     }
+    if(delivered > 0){
+        dataPie.labels.push("Entregue")
+        dataPie.datasets[0].data.push(delivered)
+        dataPie.datasets[0].backgroundColor.push('rgba(154, 562, 235, 1)')
+    }
     if(erro > 0){
         dataPie.labels.push("Erro")
         dataPie.datasets[0].data.push(erro)
@@ -119,12 +127,15 @@ export function TriggerDetails() {
                 let aguardando = 0;
                 let erro = 0;
                 let enviado = 0;
+                let entregue = 0;
                 let totalEngagement = 0;
                 for (let i = 0; i < resp.data.data.length; i++) {
                     if (resp.data.data[i].status === "enviado") {
                         enviado++;
                     } else if (resp.data.data[i].status === "erro") {
                         erro++;
+                    } else if (resp.data.data[i].status === "entregue") {
+                        entregue++;
                     } else {
                         aguardando++;
                     }
@@ -132,6 +143,7 @@ export function TriggerDetails() {
                         totalEngagement++;
                     }
                 }
+                setDelivered(entregue);
                 setWaiting(aguardando);
                 setErro(erro);
                 setSend(enviado);
@@ -154,20 +166,31 @@ export function TriggerDetails() {
                 let aguardando = 0;
                 let erro = 0;
                 let enviado = 0;
+                let entregue = 0;
                 let totalEngagement = 0;
                 for (let i = 0; i < resp.data.data.length; i++) {
-                    if (resp.data.data[i].status === "enviado") {
-                        enviado++;
-                    } else if (resp.data.data[i].status === "erro") {
-                        erro++;
-                    } else {
-                        aguardando++;
+                    switch (resp.data.data[i].status) {
+                        case "enviado":
+                            enviado++;
+                            break;
+                        case "erro":
+                            erro++;
+                            break;
+                        case "entregue":
+                            entregue++;
+                            break;                    
+                        case "aguardando":
+                            aguardando++;
+                            break;                    
+                        default:
+                            break;
                     }
                     if(resp.data.data[i].engagement!==null) {
                         totalEngagement++;
                     }
                 }
                 setWaiting(aguardando);
+                setDelivered(entregue)
                 setErro(erro);
                 setSend(enviado);
                 const total = aguardando + erro + enviado;
@@ -285,6 +308,7 @@ export function TriggerDetails() {
         if (
             (filters.status.aguardando && customer.status === 'aguardando') ||
             (filters.status.enviado && customer.status === 'enviado') ||
+            (filters.status.entregue && customer.status === 'entregue') ||
             (filters.status.erro && customer.status === 'erro')
         ) {
             return true;
@@ -324,6 +348,7 @@ export function TriggerDetails() {
                                 <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
                                     <div><input type="checkbox" onChange={() => handleStatusChange('aguardando')} checked={filters.status.aguardando} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Aguardando</span></div>
                                     <div><input type="checkbox" onChange={() => handleStatusChange('enviado')} checked={filters.status.enviado} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Enviado</span></div>
+                                    <div><input type="checkbox" onChange={() => handleStatusChange('entregue')} checked={filters.status.entregue} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Entregue</span></div>
                                     <div><input type="checkbox" onChange={() => handleStatusChange('erro')} checked={filters.status.erro} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Erro</span></div>
                                 </div>
                             </div>
