@@ -11,6 +11,7 @@ import Modal from "../../../Components/Modal";
 import useModal from "../../../Components/Modal/useModal";
 import trash from '../../../img/trash-solid.svg'
 import  {validatedUser}  from "../../../utils/validateUser";
+import { DownloadTableExcel } from "react-export-table-to-excel";
 
 export function TriggerDetails() {
 
@@ -20,6 +21,7 @@ export function TriggerDetails() {
     }
     var botId = searchParams.get('bot_id') ?? "0";
     const location = useLocation()
+    const tableRef = useRef(null);
     const triggerId = location.state.triggerId;
     const triggerStatus = location.state.triggerStatus;
     const { isOpen, toggle } = useModal();
@@ -384,7 +386,15 @@ export function TriggerDetails() {
                         <h4>Carregando</h4>
                     </div>}
                 {!loading && <div className="column-align" style={{ padding:"20px" }}>
-                <table className="table-2024 fixed-header-table" style={{ minWidth: "90%",flexShrink: "0" }}>
+                <div className="row-align" style={{justifyContent: "end", margin:"10px 20px 10px 30px"}}>
+                <DownloadTableExcel
+                    filename="detalhes-campanha"
+                    sheet="users"
+                    currentTableRef={tableRef.current}>
+                        <button className="button-blue" style={{width:"150px", margin:"1px"}}> Exportar excel </button>
+                </DownloadTableExcel>
+            </div>
+                <table className="table-2024 fixed-header-table" style={{ minWidth: "90%",flexShrink: "0" }} ref={tableRef}>
                     <thead>
                         <tr className="cells table-2024 border-bottom-zero font-size-12">
                             <th className="cells">{customerStatus[0]?.phone !== null ? "Telefone": "E-mail"} </th>
