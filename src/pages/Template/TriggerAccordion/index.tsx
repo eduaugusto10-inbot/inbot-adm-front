@@ -500,7 +500,6 @@ export function Accordion() {
             // "status": "criando",
             "botId": botId,
             "phoneTrigger": phone,
-            "channel": 'whatsapp'
         }
 
         api.post('/whatsapp/trigger', data)
