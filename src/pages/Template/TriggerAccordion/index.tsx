@@ -496,6 +496,7 @@ export function Accordion() {
             "typeTrigger": triggerMode,
             "timeTrigger": triggerMode === "agendado" ? `${dates} ${hours}` : null,
             "status": "aguardando",
+            "channel": "whatsapp",
             // "status": "criando",
             "botId": botId,
             "phoneTrigger": phone,

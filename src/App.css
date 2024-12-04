@@ -3,9 +3,8 @@
   background: linear-gradient(to bottom, #ffffff, #e0e0e0);
 }
 
-
 .App-header {
-  background-color: #FDFDFD;
+  background-color: #fdfdfd;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -17,23 +16,20 @@
   color: #61dafb;
 }
 
-.button{
+.button {
   margin: 10px;
   width: 150px;
   border-radius: 4px;
   font-weight: bolder;
   background-color: var(--primary);
-  color: #FFFF;
+  color: #ffff;
   border-color: var(--primary);
   margin: 20px;
 }
 
-
-
-
 .accordeon-new {
   width: 800px;
-  background-color: #FFF;
+  background-color: #fff;
   border-left: 1px solid #c0c0c0;
   border-right: 1px solid #c0c0c0;
   border-bottom: 1px solid #c0c0c0;
