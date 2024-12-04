@@ -10,6 +10,8 @@ import './style.css'
 import Modal from "../../../Components/Modal";
 import useModal from "../../../Components/Modal/useModal";
 import trash from '../../../img/trash-solid.svg'
+import  {validatedUser}  from "../../../utils/validateUser";
+
 export function TriggerDetails() {
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -24,6 +26,7 @@ export function TriggerDetails() {
     const [loading, setLoading] = useState<boolean>(true)
     const [customerStatus, setCustomerStatus] = useState<ICustomer[]>([])
     const [waiting, setWaiting] = useState<number>(0)
+    const [delivered, setDelivered] = useState<number>(0)
     const [send, setSend] = useState<number>(0)
     const [erro, setErro] = useState<number>(0)
     const [text, setText] = useState<string>("")
@@ -36,6 +39,7 @@ export function TriggerDetails() {
     const [notEngagements, setNotEngagements] = useState<number>(0)
     const [filters, setFilters] = useState<Filters>({
         telefone: '',
+        email: '',
         variable_1: '',
         variable_2: '',
         variable_3: '',
@@ -46,8 +50,10 @@ export function TriggerDetails() {
         variable_8: '',
         variable_9: '',
         status: {
+            executado: true,
             aguardando: true,
             enviado: true,
+            entregue: true,
             erro: true,
             cancelado: true,
         }
@@ -86,6 +92,11 @@ export function TriggerDetails() {
         dataPie.datasets[0].data.push(send)
         dataPie.datasets[0].backgroundColor.push('rgba(54, 162, 235, 1)')
     }
+    if(delivered > 0){
+        dataPie.labels.push("Entregue")
+        dataPie.datasets[0].data.push(delivered)
+        dataPie.datasets[0].backgroundColor.push('rgba(154, 562, 235, 1)')
+    }
     if(erro > 0){
         dataPie.labels.push("Erro")
         dataPie.datasets[0].data.push(erro)
@@ -116,12 +127,15 @@ export function TriggerDetails() {
                 let aguardando = 0;
                 let erro = 0;
                 let enviado = 0;
+                let entregue = 0;
                 let totalEngagement = 0;
                 for (let i = 0; i < resp.data.data.length; i++) {
                     if (resp.data.data[i].status === "enviado") {
                         enviado++;
                     } else if (resp.data.data[i].status === "erro") {
                         erro++;
+                    } else if (resp.data.data[i].status === "entregue") {
+                        entregue++;
                     } else {
                         aguardando++;
                     }
@@ -129,6 +143,7 @@ export function TriggerDetails() {
                         totalEngagement++;
                     }
                 }
+                setDelivered(entregue);
                 setWaiting(aguardando);
                 setErro(erro);
                 setSend(enviado);
@@ -151,20 +166,31 @@ export function TriggerDetails() {
                 let aguardando = 0;
                 let erro = 0;
                 let enviado = 0;
+                let entregue = 0;
                 let totalEngagement = 0;
                 for (let i = 0; i < resp.data.data.length; i++) {
-                    if (resp.data.data[i].status === "enviado") {
-                        enviado++;
-                    } else if (resp.data.data[i].status === "erro") {
-                        erro++;
-                    } else {
-                        aguardando++;
+                    switch (resp.data.data[i].status) {
+                        case "enviado":
+                            enviado++;
+                            break;
+                        case "erro":
+                            erro++;
+                            break;
+                        case "entregue":
+                            entregue++;
+                            break;                    
+                        case "aguardando":
+                            aguardando++;
+                            break;                    
+                        default:
+                            break;
                     }
                     if(resp.data.data[i].engagement!==null) {
                         totalEngagement++;
                     }
                 }
                 setWaiting(aguardando);
+                setDelivered(entregue)
                 setErro(erro);
                 setSend(enviado);
                 const total = aguardando + erro + enviado;
@@ -209,6 +235,9 @@ export function TriggerDetails() {
     const handleTelefoneChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFilters({ ...filters, telefone: (event.target.value) });
     };
+    const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setFilters({ ...filters, email: (event.target.value) });
+    };
     const handleVariable1Change = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFilters({ ...filters, variable_1: event.target.value });
     };
@@ -246,6 +275,9 @@ export function TriggerDetails() {
         if (filters.telefone !== '' && !(customer.phone).includes(filters.telefone)) {
             return false;
         }
+        if (filters.email !== '' && !(customer.email).includes(filters.email)) {
+            return false;
+        }
         if (customer.variable_1 !== null && filters.variable_1 !== '' && !customer.variable_1.toLowerCase().includes(filters.variable_1.toLowerCase())) {
             return false;
         }
@@ -276,6 +308,7 @@ export function TriggerDetails() {
         if (
             (filters.status.aguardando && customer.status === 'aguardando') ||
             (filters.status.enviado && customer.status === 'enviado') ||
+            (filters.status.entregue && customer.status === 'entregue') ||
             (filters.status.erro && customer.status === 'erro')
         ) {
             return true;
@@ -315,11 +348,12 @@ export function TriggerDetails() {
                                 <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
                                     <div><input type="checkbox" onChange={() => handleStatusChange('aguardando')} checked={filters.status.aguardando} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Aguardando</span></div>
                                     <div><input type="checkbox" onChange={() => handleStatusChange('enviado')} checked={filters.status.enviado} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Enviado</span></div>
+                                    <div><input type="checkbox" onChange={() => handleStatusChange('entregue')} checked={filters.status.entregue} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Entregue</span></div>
                                     <div><input type="checkbox" onChange={() => handleStatusChange('erro')} checked={filters.status.erro} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Erro</span></div>
                                 </div>
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
-                                <span style={{ color: "#002080" }}>Telefone</span><input className="input-filters" type="text" value={filters.telefone} onChange={handleTelefoneChange} placeholder="Digite o telefone..." />
+                                <span style={{ color: "#002080" }}>{customerStatus[0]?.phone !== null ? "Telefone" : "E-mail"}</span><input className="input-filters" type="text" value={customerStatus[0]?.phone !== null ? filters.telefone : filters.email} onChange={customerStatus[0]?.phone !== null ? handleTelefoneChange : handleEmailChange} placeholder={`Digite o ${customerStatus[0]?.phone !== null ? "telefone..." : "e-mail..."}`} />
                                 <span style={{ color: "#002080" }}>Variável 1</span><input className="input-filters" type="text" value={filters.variable_1} onChange={handleVariable1Change} placeholder="Digite valor..." />
                                 <span style={{ color: "#002080" }}>Variável 2</span><input className="input-filters" type="text" value={filters.variable_2} onChange={handleVariable2Change} placeholder="Digite valor..." />
                                 <span style={{ color: "#002080" }}>Variável 3</span><input className="input-filters" type="text" value={filters.variable_3} onChange={handleVariable3Change} placeholder="Digite valor..." />
@@ -353,7 +387,7 @@ export function TriggerDetails() {
                 <table className="table-2024 fixed-header-table" style={{ minWidth: "90%",flexShrink: "0" }}>
                     <thead>
                         <tr className="cells table-2024 border-bottom-zero font-size-12">
-                            <th className="cells">Telefone</th>
+                            <th className="cells">{customerStatus[0]?.phone !== null ? "Telefone": "E-mail"} </th>
                             {filteredCustomers[0]?.variable_1!==null &&<th className="cells">Var. 1</th>}
                             {filteredCustomers[0]?.variable_2!==null &&<th className="cells">Var. 2</th>}
                             {filteredCustomers[0]?.variable_3!==null &&<th className="cells">Var. 3</th>}
@@ -373,7 +407,7 @@ export function TriggerDetails() {
                     </thead>
                     {filteredCustomers.map((customer, index) => (
                         <tr key={index} style={{backgroundColor:  index % 2 === 0 ? '#ecebeb' : 'white'}}>
-                            <td><span className="font-size-12">{mask(customer.phone)}</span></td>
+                            <td><span className="font-size-12">{customer.phone ? mask(customer.phone) : customer.email}</span></td>
                             {customer.variable_1!==null &&<td><span className="font-size-12">{customer.variable_1}</span></td>}
                             {customer.variable_2!==null &&<td><span className="font-size-12">{customer.variable_2}</span></td>}
                             {customer.variable_3!==null &&<td><span className="font-size-12">{customer.variable_3}</span></td>}

@@ -16,6 +16,10 @@ import { mask } from "../../../utils/utils";
 import useModal from "../../../Components/Modal/useModal";
 import Modal from "../../../Components/Modal";
 import chevron from "../../../img/right-chevron.png"
+import  {validatedUser}  from "../../../utils/validateUser";
+import Draggable from "react-draggable";
+import { DraggableComponent } from "../../../Components/Draggable";
+
 export function CreateTemplateAccordion() {
 
     const history = useNavigate();
@@ -31,19 +35,30 @@ export function CreateTemplateAccordion() {
 
     const location = useLocation()
     useEffect(() => {
-        if (searchParams.get('bot_id') === null) {
-            window.location.href = "https://in.bot/inbot-admin";
+        const fetchData = async () => {
+        const logged = await validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
+        console.log(`Logged: ${logged}`)
+        if(!logged){
+            history(`/template-warning-no-whats?bot_id=${botId}`);
         }
         api.get(`/whats-botid/${botId}`)
             .then(resp => {
                 setPhone(resp.data.number)
             }).catch(error => history(`/template-warning-no-whats?bot_id=${botId}`))
+        }
+        if (searchParams.get('bot_id') === null) {
+            window.location.href = "https://in.bot/inbot-admin";
+        } else {
+            fetchData();
+        }
     }, []);
     const [templateName, setTemplateName] = useState<string>("")
     const [templateType, setTemplateType] = useState<string>("")
     const [showTemplate, setShowTempalte] = useState<boolean>(true)
+    const [hiddenVideo, setHiddenVideo] = useState<boolean>(false)
     const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
-        config: true,
+        channelTrigger: true,
+        config: false,
         header: false,
         body: false,
         footer: false,
@@ -76,6 +91,10 @@ export function CreateTemplateAccordion() {
         }
     }
 
+    const showVideo = () =>{
+        console.log("Abre")
+        setHiddenVideo(!hiddenVideo)
+    }
     useEffect(() => {
         if (searchParams.get('bot_id') === null) {
             window.location.href = "https://in.bot/inbot-admin";
@@ -84,8 +103,6 @@ export function CreateTemplateAccordion() {
             .then(resp => {
                 setPhone(resp.data.number)
             }).catch(error => console.log(error))
-    }, []);
-    useEffect(() => {
         if(location?.state?.duplicated) {
             setTypeOfHeader(location?.state?.headerConfig)
             setRodape(location?.state?.rodapeConfig === "rodape" ? false : true)
@@ -149,6 +166,7 @@ export function CreateTemplateAccordion() {
 
     const toggleAccordion = (key: keyof AccordionStateCreate) => {
         setAccordionState({
+            channelTrigger: false,
             config: false,
             header: false,
             body: false,
@@ -328,7 +346,8 @@ export function CreateTemplateAccordion() {
             errorMessageConfig()
             return;
         }
-        if (headers === undefined) {
+        if (headers === undefined || 
+            (headers !== undefined && headers?.parameters && headers?.parameters[0]?.type === "text" && template.header === "")) {
             errorMessageHeader()
             return;
         }
@@ -503,6 +522,8 @@ export function CreateTemplateAccordion() {
         } else if (buttonId === "Cancelar") {
             toggle();
             BackToList();
+        } else if(buttonId === "Fechar") {
+            toggle();
         }
     };
     const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
@@ -523,13 +544,39 @@ export function CreateTemplateAccordion() {
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width:"100%" }} className="title_2024">Criar Template</h1>
                 <div className="column-align" style={{alignItems:"center", width:"100%"}}>
                     <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
+                <div style={{textAlign:"end", width:"94%"}}>
+                    <span style={{cursor:"pointer"}} onClick={()=> showVideo()}>Não sabe como criar template? <strong style={{color:"blue"}}>Assista nosso vídeo</strong></span>
+                </div>
                 </div>
                 <br/>
             <div style={{width:"100vw"}}>
                 <Modal buttonA={buttonA} text={text} warning={false} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} onButtonClick={handleButtonClick}></Modal>
                 <ToastContainer />
+                {hiddenVideo && (
+                    <DraggableComponent urlVideo={"https://www.loom.com/embed/e5216eb8145c4eaaae86b3e76b5f6dd0?sid=b6e75c08-5db3-41b4-bb0a-c029504dd33a"} showVideo={showVideo}/>
+                )}
+
                 <div className="config-template column-align" style={{ alignItems:"center" }}>
-                    <div className={`accordion_head ${accordionState.config ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>1. Configuração
+                    <div className={`accordion_head ${accordionState.channelTrigger ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('channelTrigger')}>1. Canal de Disparo
+                        <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.channelTrigger ?"-90deg" : "90deg"}} /></div>
+                    </div>
+                    {accordionState.channelTrigger && 
+                <div className="body-no-background" style={{width:"100%"}}>
+                <div className="accordeon-new">
+                    <div className="body" style={{ backgroundColor: "#FFF"}}>
+                        <div className="line">
+                            <input type="radio" name="disparo" value=""  className="input-spaces" checked={true} /><span>WhatsApp</span>
+                            <input type="radio" name="disparo" value="" onChange={() => history(`/template-create-teams?bot_id=${botId}&token=${searchParams.get("token")}`)} className="input-spaces" checked={false} /><span>Teams</span>
+                        </div>
+                    </div>
+                    <div style={{width:"100%", textAlign:"right"}}>
+                        <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('config')}>Próximo</button>
+                    </div>
+                </div>
+                </div>}
+                </div>
+                <div className="config-template column-align" style={{ alignItems:"center" }}>
+                    <div className={`accordion_head ${accordionState.config ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>2. Configuração
                         <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.config ?"-90deg" : "90deg"}} /></div>
                     </div>
                     {accordionState.config &&
@@ -597,7 +644,7 @@ export function CreateTemplateAccordion() {
                         </div>}
                 </div>
                 <div className="config-recebidores" style={{ maxHeight: "95%", display:"flex", flexDirection:"column", alignItems:"center" }}>
-                    <div className={`accordion_head ${accordionState.header ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('header')}>2. Cabeçalho
+                    <div className={`accordion_head ${accordionState.header ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('header')}>3. Cabeçalho
                     <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.header ?"-90deg" : "90deg"}} /></div>
                     </div>
                     {accordionState.header && 
@@ -666,7 +713,7 @@ export function CreateTemplateAccordion() {
                     </div>}
                 </div>
                 <div className="modo-disparo column-align" style={{ alignItems:"center" }}>
-                    <div className={`accordion_head ${accordionState.body ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('body')}>3. Corpo da Mensagem
+                    <div className={`accordion_head ${accordionState.body ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('body')}>4. Corpo da Mensagem
                     <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.body ?"-90deg" : "90deg"}} /></div>
                     </div>
                     {accordionState.body && <div className="body accordeon-new" style={{ backgroundColor: "#FFF"}}>
@@ -710,7 +757,7 @@ export function CreateTemplateAccordion() {
                     </div>}
                 </div>
                 <div className="revisar column-align" style={{ alignItems:"center" }}>
-                    <div className={`accordion_head ${accordionState.footer ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('footer')}>4. Rodapé
+                    <div className={`accordion_head ${accordionState.footer ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('footer')}>5. Rodapé
                     <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.footer ?"-90deg" : "90deg"}} /></div>
                     </div>
                     {accordionState.footer && <div className="body accordeon-new" style={{ backgroundColor: "#FFF"}}>
@@ -742,7 +789,7 @@ export function CreateTemplateAccordion() {
                     </div>}
                 </div>
                 <div className="revisar" style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
-                    <div className={`accordion_head ${accordionState.botao ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('botao')}>5. Botões
+                    <div className={`accordion_head ${accordionState.botao ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('botao')}>6. Botões
                     <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.botao ?"-90deg" : "90deg"}} /></div>
                     </div>
                     {accordionState.botao && <div className="body accordeon-new" style={{backgroundColor: "#FFF"}}>

@@ -17,11 +17,13 @@ import chevron from '../../../img/right-chevron.png'
 import info from "../../../img/circle-info-solid.svg"
 import 'react-tooltip/dist/react-tooltip.css'
 import { Tooltip } from 'react-tooltip'
+import  {validatedUser}  from "../../../utils/validateUser";
 
 export function Accordion() {
 
     const location = useLocation()
     const [searchParams, setSearchParams] = useSearchParams();
+    const [loading, setLoading] = useState<boolean>(true)
     if (searchParams.get('bot_id') === null) {
         window.location.href = "https://in.bot/inbot-admin";
     }
@@ -30,20 +32,46 @@ export function Accordion() {
 
     const history = useNavigate();
     useEffect(() => {
-        if (searchParams.get('bot_id') === null) {
-            window.location.href = "https://in.bot/inbot-admin";
+        const fetchData = async () => {
+            setLoading(true);
+        const logged = await validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
+        console.log(`Logged: ${logged}`)
+        if(!logged){
+            history(`/template-warning-no-whats?bot_id=${botId}`);
         }
         api.get(`/whats-botid/${botId}`)
             .then(resp => {
                 setPhone(resp.data.number)
+                if (searchParams.get('bot_id') === null) {
+                    window.location.href = "https://in.bot/inbot-admin";
+                }
+                api.get(`/whatsapp/trigger-bot/${botId}`)
+                    .then(resp => setTriggerNames(resp.data))
+                    .catch(error => console.log(error))
+                const token = resp.data.accessToken;
+                setPhone(resp.data.number)              
+                api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
+                    .then(resp => {
+                        setTemplates(resp.data.data.messageTemplates)
+                        setCreateTriggerMenu(true)
+                    })
             }).catch(error => history(`/template-warning-no-whats?bot_id=${botId}`))
+        };
+    
+        if (searchParams.get('bot_id') === null) {
+            window.location.href = "https://in.bot/inbot-admin";
+        } else {
+            fetchData();
+        }
     }, []);
+
     function BackToList() {
-        history(`/trigger-list?bot_id=${botId}`);
+        history(`/trigger-list?bot_id=${botId}&token=${searchParams.get("token")}`);
     }
 
     const [accordionState, setAccordionState] = useState<AccordionState>({
-        config: true,
+        channelTrigger: true,
+        config: false,
         recebidores: false,
         disparo: false,
         revisar: false
@@ -87,29 +115,6 @@ export function Accordion() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [fileName, setFileName] = useState('');
     const [createTriggerMenu, setCreateTriggerMenu] = useState(false)
-    useEffect(() => {
-        api.get(`/whatsapp/trigger-bot/${botId}`)
-            .then(resp => setTriggerNames(resp.data))
-            .catch(error => console.log(error))
-    }, [])
-
-    useEffect(() => {
-        if (searchParams.get('bot_id') === null) {
-            window.location.href = "https://in.bot/inbot-admin";
-        }
-
-        api.get(`/whats-botid/${botId}`)
-            .then(resp => {
-                const token = resp.data.accessToken;
-                setPhone(resp.data.number)              
-                api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
-                    .then(resp => {
-                        setTemplates(resp.data.data.messageTemplates)
-                        setCreateTriggerMenu(true)
-                    })
-            })
-            
-    }, []);
 
     useEffect(() => {
         loadNewTemplate(location?.state?.templateID)
@@ -117,6 +122,7 @@ export function Accordion() {
     
     const toggleAccordion = (key: keyof AccordionState) => {
         setAccordionState({
+            channelTrigger: false,
             config: false,
             recebidores: false,
             disparo: false,
@@ -163,6 +169,7 @@ export function Accordion() {
             ...prevState,
             {
                 phone: clientNumber,
+                email: '',
                 variable_1: variables[0]?.text,
                 variable_2: variables[1]?.text,
                 variable_3: variables[2]?.text,
@@ -268,6 +275,7 @@ export function Accordion() {
                     title_button_1: titleButton1,
                     title_button_2: titleButton2,
                     title_button_3: titleButton3,
+                    channel: 'whatsapp'
                 };
                 api.post('/whats-customer', params)
                     .catch(error => console.log(error));
@@ -298,6 +306,7 @@ export function Accordion() {
                 title_button_1: titleButton1,
                 title_button_2: titleButton2,
                 title_button_3: titleButton3,
+                channel: 'whatsapp'
             };
             api.post('/whats-customer', params)
                 .catch(error => console.log(error));
@@ -490,7 +499,8 @@ export function Accordion() {
             "channel": "whatsapp",
             // "status": "criando",
             "botId": botId,
-            "phoneTrigger": phone
+            "phoneTrigger": phone,
+            "channel": 'whatsapp'
         }
 
         api.post('/whatsapp/trigger', data)
@@ -636,8 +646,27 @@ export function Accordion() {
             <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
             <br/>
             <div>
-                <div className={`accordion_head ${accordionState.config ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>1. Configuração
-                <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.config ?"-90deg" : "90deg"}} /></div>
+                <div className={`accordion_head ${accordionState.channelTrigger ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('channelTrigger')}>1. Canal de Disparo
+                    <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.channelTrigger ?"-90deg" : "90deg"}} /></div>
+                </div>
+                {accordionState.channelTrigger && 
+                <div className="body-no-background" style={{width:"100%"}}>
+                <div className="accordeon-new">
+                    <div className="body" style={{ backgroundColor: "#FFF"}}>
+                        <div className="line">
+                            <input type="radio" name="disparo" value="" className="input-spaces" checked={true} /><span>WhatsApp</span>
+                            <input type="radio" name="disparo" value=""  onChange={() => history(`/template-trigger-teams?bot_id=${botId}&token=${searchParams.get("token")}`)} className="input-spaces" checked={false} /><span>Teams</span>
+                        </div>
+                    </div>
+                    <div style={{width:"100%", textAlign:"right"}}>
+                        <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('revisar')}>Próximo</button>
+                    </div>
+                </div>
+                </div>}
+            </div>
+            <div>
+                <div className={`accordion_head ${accordionState.config ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>2. Configuração
+                    <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.config ?"-90deg" : "90deg"}} /></div>
                 </div>
                 {accordionState.config &&
                 <div className="body-no-background" style={{width:"100%"}}>
@@ -665,7 +694,7 @@ export function Accordion() {
                 </div>}
             </div>
             <div className="config-recebidores" style={{ maxHeight: "1080px", maxWidth:'900px' }}>
-                <div className={`accordion_head ${accordionState.recebidores ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('recebidores')}>2. Cadastro dos Contatos da Campanha 
+                <div className={`accordion_head ${accordionState.recebidores ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('recebidores')}>3. Cadastro dos Contatos da Campanha 
                     <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.recebidores ?"-90deg" : "90deg"}} /></div></div>
                 {accordionState.recebidores && 
                 <div className="body-no-background" style={{width:"100%"}}>
@@ -966,7 +995,7 @@ export function Accordion() {
                 </div>}
             </div>
             <div className="modo-disparo">
-                <div className={`accordion_head ${accordionState.disparo ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('disparo')}>3. Modo de Disparo
+                <div className={`accordion_head ${accordionState.disparo ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('disparo')}>4. Modo de Disparo
                 <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.disparo ?"-90deg" : "90deg"}} /></div>
                 </div>
                 {accordionState.disparo && 
@@ -1008,7 +1037,7 @@ export function Accordion() {
                 </div>}
             </div>
             <div className="revisar">
-                <div className={`accordion_head ${accordionState.revisar ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('revisar')}>4. Resumo e salvar
+                <div className={`accordion_head ${accordionState.revisar ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('revisar')}>5. Resumo e salvar
                 <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.revisar ?"-90deg" : "90deg"}} /></div>
                 </div>
                     {accordionState.revisar && 
