@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import api from "../../../utils/api";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { adjustTime, mask } from "../../../utils/utils";
+import { adjustTime, adjustTimeWithout3Hour, mask } from "../../../utils/utils";
 import { Filters, ICustomer } from "../../types";
 import { errorDeleted, successDeletedMessage, errorMessageDefault } from "../../../Components/Toastify";
 import Doughnut from '../../../Components/Chart'
@@ -82,22 +82,22 @@ export function TriggerDetails() {
             },
         ],
     };
-    if(waiting > 0){
+    if(filters.status.aguardando && waiting > 0){
         dataPie.labels.push("Aguardando")
         dataPie.datasets[0].data.push(waiting)
         dataPie.datasets[0].backgroundColor.push('rgba(255, 206, 86, 1)')
     }
-    if(send > 0){
+    if(filters.status.enviado && send > 0){
         dataPie.labels.push("Enviado")
         dataPie.datasets[0].data.push(send)
         dataPie.datasets[0].backgroundColor.push('rgba(54, 162, 235, 1)')
     }
-    if(delivered > 0){
+    if(filters.status.entregue && delivered > 0){
         dataPie.labels.push("Entregue")
         dataPie.datasets[0].data.push(delivered)
-        dataPie.datasets[0].backgroundColor.push('rgba(154, 562, 235, 1)')
+        dataPie.datasets[0].backgroundColor.push('rgba(37, 211, 102, 1)')
     }
-    if(erro > 0){
+    if(filters.status.erro && erro > 0){
         dataPie.labels.push("Erro")
         dataPie.datasets[0].data.push(erro)
         dataPie.datasets[0].backgroundColor.push('rgba(255, 99, 132, 1)')
@@ -147,7 +147,7 @@ export function TriggerDetails() {
                 setWaiting(aguardando);
                 setErro(erro);
                 setSend(enviado);
-                const total = aguardando + erro + enviado;
+                const total = aguardando + erro + enviado + entregue;
                 setEngagements(totalEngagement)
                 setNotEngagements(total - totalEngagement)
                 setLoading(false)
@@ -193,7 +193,7 @@ export function TriggerDetails() {
                 setDelivered(entregue)
                 setErro(erro);
                 setSend(enviado);
-                const total = aguardando + erro + enviado;
+                const total = aguardando + erro + enviado + entregue;
                 setEngagements(totalEngagement)
                 setNotEngagements(total - totalEngagement)
                 setLoading(false)
@@ -417,10 +417,10 @@ export function TriggerDetails() {
                             {customer.variable_7!==null &&<td><span className="font-size-12">{customer.variable_7}</span></td>}
                             {customer.variable_8!==null &&<td><span className="font-size-12">{customer.variable_8}</span></td>}
                             {customer.variable_9!==null &&<td><span className="font-size-12">{customer.variable_9}</span></td>}
-                            <td><span className="font-size-12">{customer.status}</span></td>
+                            <td><span className="font-size-12" style={customer.status === 'entregue' ? { color: 'green' } : undefined}>{customer.status}</span></td>
                             <td><span className="font-size-12">{adjustTime(customer.data_criacao)}</span></td>
                             <td><span className="font-size-12">{customer.data_disparo ? adjustTime(customer.data_disparo) : "----"}</span></td>
-                            <td><span className="font-size-12">{triggerStatus.toLowerCase()!=="aguardando" && customer.engagement ? adjustTime(customer.engagement) : "----"}</span></td>
+                            <td><span className="font-size-12">{triggerStatus.toLowerCase()!=="aguardando" && customer.engagement ? adjustTimeWithout3Hour(customer.engagement) : "----"}</span></td>
                             <td><span className="font-size-12">{customer.log ?? "----"}</span></td>
                             {triggerStatus.toLowerCase()==="aguardando" && <td><div onClick={()=> openModal(customer.id)}><img src={trash} width={15} height={15} style={{cursor:"pointer"}}/></div></td>}
                         </tr>
