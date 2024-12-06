@@ -24,7 +24,7 @@ export function CreateTemplateAccordion() {
 
     const history = useNavigate();
     function BackToList() {
-        history(`/template-list?bot_id=${botId}`)
+        history(`/template-list?bot_id=${botId}&token=${searchParams.get("token")}`)
     }
 
     const [searchParams, setSearchParams] = useSearchParams();
