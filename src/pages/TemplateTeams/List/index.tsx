@@ -96,10 +96,11 @@ export function ListAll() {
     };
     
     function SendTemplate(name: string, variableQuantity: number, qtButtons: number, headerConfig: string | null, templateID: string) {
-        history(`/template-trigger?bot_id=${botId}&token=${searchParams.get("token")}`, { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: "", phone: phone, headerConfig: headerConfig, qtButtons: qtButtons, templateID: templateID } });
+        history(`/template-trigger-teams?bot_id=${botId}&token=${searchParams.get("token")}`, { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: "", phone: phone, headerConfig: headerConfig, qtButtons: qtButtons, templateID: templateID } });
     }
 
     const loadTemplate = (id: number) => {
+        console.log(templates[id])
         setModalObject(templates[id]) 
         if (!modal) {
             setModal(prevState => !prevState)
@@ -206,25 +207,9 @@ export function ListAll() {
         return response[0];
     }
 
-    const hasManyButtons = (headerElement: any) => {
-        let buttons = 0;
-        headerElement.forEach((element: any) => {
-            if (element.type === "button") {
-                setButtonsDuplicated(element.parameters)
-                if (element.parameters[0].type === "quickReply") {
-                    buttons = element.parameters.length;
-                }
-            }
-        });
-        return buttons;
-    }
-
     const sendtemplate = (id: number) => {
         const sortTemplates = handleSort(dadosFiltrados);
-        sortTemplates[id].components.forEach((element: any) => {
-            if (element.type === "body")
-                SendTemplate(sortTemplates[id].name, encontrarMaiorNumero(element.parameters[0].text), hasManyButtons(sortTemplates[id].components), hasMedia(sortTemplates[id].components), sortTemplates[id].ID)
-        });
+        SendTemplate(sortTemplates[id].templateName, encontrarMaiorNumero(sortTemplates[id].message), sortTemplates[id].hasButton, null, sortTemplates[id].id)
     }
     const deleteTemplate = (id: number) => {
         const sortTemplates = handleSort(dadosFiltrados);
@@ -250,7 +235,7 @@ export function ListAll() {
             }
         });
         const buttonsTexts = findButton(sortTemplates[id].components, "button")
-        history(`/template-create?bot_id=${botId}&token=${searchParams.get("token")}`, { 
+        history(`/template-create-teams?bot_id=${botId}&token=${searchParams.get("token")}`, { 
             state: { 
                 duplicated: true,
                 variableQuantity: variableQuantity, 
@@ -258,7 +243,7 @@ export function ListAll() {
                 phone: phone, 
                 category:sortTemplates[id].category,
                 headerConfig: hasMedia(sortTemplates[id].components), 
-                qtButtons: hasManyButtons(sortTemplates[id].components),
+                qtButtons: sortTemplates[id].components,
                 buttons: buttonsDuplicated,
                 bodyText: bodyText,
                 buttonsContent: buttonsTexts,
@@ -323,9 +308,9 @@ export function ListAll() {
                         <div className="in_loader" style={{width:"50px", height:"50px"}}></div>
                         <h4>Carregando</h4>
                     </div>}
-                    <div className="row-align">
+                    <div className="row-align" style={{margin: "20px"}}>
                         <span>Whatsapp</span>
-                        <div className="switch switch-on" onClick={() => history(`/template-list?bot_id=${botId}&token=${searchParams.get("token")}`)}>
+                        <div className="switch switch-on" style={{margin:"0px 10px"}} onClick={() => history(`/template-list?bot_id=${botId}&token=${searchParams.get("token")}`)}>
                             <div className="slider slider-on" />
                         </div>
                         <span>Teams</span>
