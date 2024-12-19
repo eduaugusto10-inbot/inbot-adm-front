@@ -688,7 +688,7 @@ export function Accordion() {
                             </select>
                         </div>
                         </div>
-                        <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('config')}>Próximo</button>
+                        <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('recebidores')}>Próximo</button>
                     </div>
                 </div>}
             </div>
