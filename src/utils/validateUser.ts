@@ -14,9 +14,11 @@ export const validatedUser = async (
   try {
     await api.get(`/whats-botid/${botId}`);
     const url =
-      botId != '1'
-        ? `https://in.bot/api/validate_admin_token?token=${token}&is_ajax=1`
-        : `https://oec.in.bot/api/validate_admin_token?token=${token}&is_ajax=1`;
+      botId == '1'
+        ? `https://oec.in.bot/api/validate_admin_token?token=${token}&is_ajax=1`
+        : botId == '11'
+        ? `https://tecban-chat.in.bot/api/validate_admin_token?token=${token}&is_ajax=1`
+        : `https://in.bot/api/validate_admin_token?token=${token}&is_ajax=1`;
     const resp = await axios.get(url);
     if (resp.data.bot_id === botId) {
       return true;

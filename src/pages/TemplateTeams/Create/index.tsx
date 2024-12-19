@@ -456,7 +456,7 @@ export function CreateTemplateAccordion() {
                             <span style={{ fontWeight: "bolder" }}>Variáveis</span>
                             <div>
                                 <button onClick={handleAddVariable} className="button-next">Adicionar</button>
-                            </div>
+                            </div> 
                             <div style={{
                                 display: 'grid',
                                 gridTemplateColumns: 'repeat(2, 1fr)', // Duas colunas de largura igual
@@ -473,6 +473,9 @@ export function CreateTemplateAccordion() {
                                 }
                             </div>
                         </div>
+                        <div style={{width:"100%", textAlign:"right", marginTop:"10px"}}>
+                            <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('botao')}>Próximo</button>
+                        </div>                        
                     </div>}
                 </div>
                 <div className="revisar" style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>

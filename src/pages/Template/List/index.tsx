@@ -338,9 +338,9 @@ export function ListAll() {
                         <div className="in_loader" style={{width:"50px", height:"50px"}}></div>
                         <h4>Carregando</h4>
                     </div>}
-                    <div className="row-align">
+                    <div className="row-align" style={{margin: "20px"}}>
                         <span>Whatsapp</span>
-                        <div className="switch switch-off" onClick={() => history(`/template-list-teams?bot_id=${botId}&token=${searchParams.get("token")}`)}>
+                        <div className="switch switch-off" style={{margin:"0px 10px"}} onClick={() => history(`/template-list-teams?bot_id=${botId}&token=${searchParams.get("token")}`)}>
                             <div className="slider slider-off" />
                         </div>
                         <span>Teams</span>

@@ -645,20 +645,20 @@ export function Accordion() {
             <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
             <br/>
             <div>
-                <div className={`accordion_head ${accordionState.channelTrigger ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('channelTrigger')}>1. Canal de Disparo
+                <div className={`accordion_head ${accordionState.channelTrigger ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('channelTrigger')}>1. Selecionar canal
                     <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.channelTrigger ?"-90deg" : "90deg"}} /></div>
                 </div>
                 {accordionState.channelTrigger && 
                 <div className="body-no-background" style={{width:"100%"}}>
                 <div className="accordeon-new">
                     <div className="body" style={{ backgroundColor: "#FFF"}}>
-                        <div className="line">
+                    <div className="line" style={{marginTop:"17px"}}>
                             <input type="radio" name="disparo" value="" className="input-spaces" checked={true} /><span>WhatsApp</span>
-                            <input type="radio" name="disparo" value=""  onChange={() => history(`/template-trigger-teams?bot_id=${botId}&token=${searchParams.get("token")}`)} className="input-spaces" checked={false} /><span>Teams</span>
+                            <input type="radio" name="disparo" value="" style={{marginLeft:"20px"}} onChange={() => history(`/template-trigger-teams?bot_id=${botId}&token=${searchParams.get("token")}`)} className="input-spaces" checked={false} /><span>Teams</span>
                         </div>
                     </div>
                     <div style={{width:"100%", textAlign:"right"}}>
-                        <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('revisar')}>Próximo</button>
+                        <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('config')}>Próximo</button>
                     </div>
                 </div>
                 </div>}
@@ -688,7 +688,7 @@ export function Accordion() {
                             </select>
                         </div>
                         </div>
-                        <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('recebidores')}>Próximo</button>
+                        <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('config')}>Próximo</button>
                     </div>
                 </div>}
             </div>
