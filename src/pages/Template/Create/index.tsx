@@ -562,7 +562,7 @@ export function CreateTemplateAccordion() {
                     </div>
                     {accordionState.channelTrigger && 
                 <div className="body-no-background" style={{width:"100%"}}>
-                <div className="accordeon-new">
+                <div className="accordeon-new" style={{width:"802px"}}>
                     <div className="body" style={{ backgroundColor: "#FFF"}}>
                         <div className="line">
                             <input type="radio" name="disparo" value=""  className="input-spaces" checked={true} /><span>WhatsApp</span>
