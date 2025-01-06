@@ -8,10 +8,12 @@ import { adjustTime, adjustTimeWithout3Hour } from "../../../utils/utils";
 import { Filters, ITriggerList, ITriggerListFilter } from "../../types";
 import loupe from '../../../img/loupe.png'
 import { months, years } from "../../../utils/textAux";
-import { DownloadTableExcel } from "react-export-table-to-excel";
 import  {validatedUser}  from "../../../utils/validateUser";
 import whatsappIcon from '../../../img/whatsapp.png'
 import teamsIcon from '../../../img/teams.png'
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
 export function TriggerList() {
 
     const [searchParams, setSearchParams] = useSearchParams();  
@@ -42,7 +44,6 @@ export function TriggerList() {
         month: now.getMonth() + 1,
         year: 2024
     })
-    const tableRef = useRef(null);
     const [finalDate, setFinalDate] = useState({
         day: now.getDate(),
         month: now.getMonth() + 1,
@@ -278,6 +279,31 @@ export function TriggerList() {
         filtersByStatus(triggerList)
     },[changeDateFilter])
 
+      const exportToExcel = () => {
+        const processedData = handleSort(dataTreat).map((trigger: any) => ({
+          Campanha: trigger.campaign_name,
+          Template: trigger.template_name,
+          DataCriacao: trigger.data_criacao ? trigger.data_criacao : "--",
+          HoraTrigger: trigger.time_trigger ? trigger.time_trigger : "--",
+          Status: trigger.status,
+          Canal: trigger.channel === "whatsapp" ? "Whatsapp" : trigger.channel === "teams" ? "Teams" : "Outro",
+          Total: trigger.total,
+          Erro: trigger.erro,
+          Entregue: trigger.entregue > 0 ? trigger.entregue : trigger.enviado,
+          Enviado: trigger.enviado,
+          Engajado: trigger.status === "aguardando" ? 0 : trigger.engajado,
+        }));
+    
+        const worksheet = XLSX.utils.json_to_sheet(processedData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Triggers");
+    
+        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+        const dataBlob = new Blob([excelBuffer], { type: "application/octet-stream" });
+    
+        saveAs(dataBlob, "Disparo.xlsx");
+      };
+
     return (
         <div style={{width:"95%", padding:"10px 0px"}}>
             <ToastContainer />
@@ -345,12 +371,7 @@ export function TriggerList() {
                 <div>
                 <div className="row-align" style={{justifyContent: "space-between", margin:"10px 20px 0px 30px"}}>
                     <span style={{ color: "#002080", fontWeight:"bolder" }}>{dataTreat.length} resultados encontrados</span>
-                    <DownloadTableExcel
-                        filename="trigger-list"
-                        sheet="users"
-                        currentTableRef={tableRef.current}>
-                        <button className="button-blue" style={{width:"150px", margin:"1px"}}> Exportar excel </button>
-                    </DownloadTableExcel>
+                        <button onClick={exportToExcel} className="button-blue" style={{width:"150px", margin:"1px"}}> Exportar excel </button>
                 </div>
                 {loading && 
                     <div className="modal-overlay" style={{width:"100%", height:"100%", display:"flex", flexDirection:"column"}}>
@@ -358,7 +379,7 @@ export function TriggerList() {
                         <h4>Carregando</h4>
                     </div>}
                 {!loading && <div>
-                    <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", marginTop:"12px"}} ref={tableRef}>
+                    <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", marginTop:"12px"}}>
                         <thead>
                             <tr className="cells table-2024 border-bottom-zero">
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Nome</span> <div><div className="triangle-up" onClick={()=>handleInitSort("campaign_name","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("campaign_name","desc")}></div></div></div></th>
@@ -387,7 +408,7 @@ export function TriggerList() {
                                         <td><span>{trigger.data_criacao ? adjustTime(trigger.data_criacao) : "--"}</span></td>
                                         <td><span>{trigger.time_trigger ? adjustTimeWithout3Hour(trigger.time_trigger) : "--"}</span></td>
                                         <td><div id="statusCells" style={{ borderRadius: "20px", padding: "7px" }}><span style={{ fontWeight: "bolder", color: statusColor(trigger.status) }}>{statusName(trigger.status)}</span></div></td>
-                                        <td><img src={trigger.channel==='whatsapp' ? whatsappIcon : teamsIcon} alt="alerta" width={20} style={{ margin: "10px" }} /></td>
+                                        <td><img src={trigger.channel==='whatsapp' ? whatsappIcon : teamsIcon} alt={trigger.channel==='whatsapp' ? 'Whatsapp' : 'Teams'} width={20} style={{ margin: "10px" }} /></td>
                                         <td><span>{trigger.total}</span></td>
                                         <td><span>{trigger.total - trigger.erro}</span></td>
                                         <td><span>{trigger?.entregue > 0 ? trigger.entregue : trigger.enviado}</span></td>

@@ -9,7 +9,7 @@ export function ModalTemplate(props: any) {
                 <div className="overlay-text">
                     <div className="texts">
                         <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', backgroundColor: "none" }}>{props.modalTemplate.hasHeader > 0 ? props.modalTemplate.message : ''}</label>
-                        <label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {props.modalTemplate.message.length > 50 ? props.modalTemplate.message.slice(0,256) + "...veja mais": props.modalTemplate.message}</label>
+                        <label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {props.modalTemplate.message}</label>
                         {props.modalTemplate.hasButton > 0 && props.modalTemplate.buttons.map((button: { title: string | null | undefined; }) => (
                             button.title != null && <div className="quickReply-texts">
                                 <div className="quick-reply-teams"><label >{button.title}</label></div>
