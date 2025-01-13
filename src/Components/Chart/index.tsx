@@ -3,9 +3,9 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, registerables, ChartOpti
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Doughnut as ChartDoughnut } from "react-chartjs-2";
 
-export default function Doughnut(props: any) {
-    ChartJS.register(ArcElement, Tooltip, Legend);
-    ChartJS.register(...registerables, ChartDataLabels);
+ChartJS.register(ArcElement, Tooltip, Legend, ...registerables, ChartDataLabels);
+
+const Doughnut = ({ data }:any) => {
 
     const options: ChartOptions<'doughnut'> = {
         plugins: {
@@ -40,6 +40,17 @@ export default function Doughnut(props: any) {
             text: '',
             padding: { bottom: -31, top: 0 },
           },
+            tooltip: {
+                callbacks: {
+                    label: (context) => {
+                        const label = context.label || "";
+                        const value = context.dataset.data[context.dataIndex] || 0;
+                        const total = context.dataset.data.reduce((acc: number, val: number) => acc + val, 0);
+                        const percentage = ((value / total) * 100).toFixed(2);
+                       return `${label}: ${value} (${percentage}%)`;
+                    }
+                  }
+              }
         },
         layout: {
           padding: {
@@ -51,10 +62,11 @@ export default function Doughnut(props: any) {
         },
       };
 
-return(
-    <div style={{marginTop:"0.625em"}}>
-        <ChartDoughnut data={props.data} options={options}/>
-    </div>
-)
-}
+    return (
+        <div style={{ marginTop: "0.625em" }}>
+            <ChartDoughnut data={data} options={options} />
+        </div>
+    );
+};
 
+export default Doughnut;

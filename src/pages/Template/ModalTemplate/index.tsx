@@ -16,7 +16,7 @@ export function ModalTemplate(props: any) {
             <div style={{ position: "fixed", alignContent: "end", textAlign: "end", right: "100px", bottom: "0px", zIndex: "2" }}>
                 <img src={whatsappBackground} alt="Logo" width={350} height={600} />
                 <div className="overlay-text">
-                    <div className="texts" style={{ maxHeight: '480px', overflowY: 'auto' }}>
+                    <div className="texts" style={{ maxHeight: '450px', overflowY: 'auto' }}>
                         <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', backgroundColor: "none" }}>
                             {findText(props.modalTemplate.components, "header")}
                         </label>
