@@ -18,6 +18,7 @@ import info from "../../../img/circle-info-solid.svg"
 import 'react-tooltip/dist/react-tooltip.css'
 import { Tooltip } from 'react-tooltip'
 import  {validatedUser}  from "../../../utils/validateUser";
+import { DraggableComponent } from "../../../Components/Draggable";
 
 export function Accordion() {
 
@@ -107,6 +108,7 @@ export function Accordion() {
     const [titleButton2, setTitleButton2] = useState<string>("")
     const [titleButton3, setTitleButton3] = useState<string>("")
     const [headerTable, setHeaderTable] = useState<any>()
+    const [hiddenVideo, setHiddenVideo] = useState<boolean>(false)
     const [headerConfig, setHeaderConfig] = useState<string | null>()
     const [variableQty, setVariableQty] = useState<number>(0)
     const [blockAddNumber, setBlockAddNumber] = useState<boolean>(false)
@@ -412,6 +414,11 @@ export function Accordion() {
         return buttons;
     }
 
+    const showVideo = () =>{
+        console.log("Abre")
+        setHiddenVideo(!hiddenVideo)
+    }
+
     const openModal = (e:any) => {
         if(templateName==="") {
             loadNewTemplate(e)
@@ -645,6 +652,9 @@ export function Accordion() {
             <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
             <br/>
             <div>
+                {hiddenVideo && (
+                    <DraggableComponent urlVideo={"https://www.loom.com/embed/e5216eb8145c4eaaae86b3e76b5f6dd0?sid=b6e75c08-5db3-41b4-bb0a-c029504dd33a"} showVideo={showVideo}/>
+                )}
                 <div className={`accordion_head ${accordionState.channelTrigger ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('channelTrigger')}>1. Selecionar canal
                     <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.channelTrigger ?"-90deg" : "90deg"}} /></div>
                 </div>
