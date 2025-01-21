@@ -10,6 +10,7 @@ import { ToastContainer } from "react-toastify";
 import { errorMessage, successMessageDeleteTemplate, waitingMessage } from "../../../Components/Toastify";
 import loupe from '../../../img/loupe.png'
 import  {validatedUser}  from "../../../utils/validateUser";
+import { DraggableComponent } from "../../../Components/Draggable";
 
 export function ListAll() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -68,7 +69,7 @@ export function ListAll() {
     const [sortOrder, setOrderSort] = useState<string>("")
     const [buttonsDuplicated, setButtonsDuplicated] = useState<any>()
     const menuRef = useRef<HTMLDivElement>(null);
-
+    const [hiddenVideo, setHiddenVideo] = useState<boolean>(false)
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -97,7 +98,10 @@ export function ListAll() {
     const handleMouseEnterMenu = (index: number) => {
         setHoveredRowMenu(index);
     };
-
+    const showVideo = () =>{
+        console.log("Abre")
+        setHiddenVideo(!hiddenVideo)
+    }
     const handleMouseLeave = () => {
         setHoveredRow(null);
     };
@@ -325,7 +329,13 @@ export function ListAll() {
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width: "100%" }} className="title_2024">Gerenciar Templates</h1>
                 <div className="column-align" style={{alignItems:"center"}}>
                     <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
+                    <div style={{textAlign:"end", width:"94%"}}>
+                        <span style={{cursor:"pointer"}} onClick={()=> showVideo()}>Não sabe como criar template? <strong style={{color:"blue"}}>Assista nosso vídeo</strong></span>
+                    </div>
                 </div>
+                {hiddenVideo && (
+                    <DraggableComponent urlVideo={"https://www.loom.com/embed/e5216eb8145c4eaaae86b3e76b5f6dd0?sid=b6e75c08-5db3-41b4-bb0a-c029504dd33a"} showVideo={showVideo}/>
+                )}
                 <div style={{margin:"20px", display:"flex"}}>
                     <input onChange={handleFiltroChange} value={filtro} type="text" style={{borderRight:"none", width:"300px", borderRadius:"20px 0px 0px 20px", paddingLeft:"20px"}} placeholder="Buscar por nome ou template"/>
                     <button style={{borderLeft:"none", borderRadius:"0px 20px 20px 0px", width:"50px"}}>

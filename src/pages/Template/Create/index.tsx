@@ -477,7 +477,7 @@ export function CreateTemplateAccordion() {
         payload["name"] = templateName;
         payload["language"] = "pt_BR";//configTemplate.language;
         api.post(`/whats/template/${botId}`, payload)
-            .then(resp => {
+            .then(() => {
                 successCreateTemplate()
                 setTimeout(() => BackToList(), 3000)
             })
@@ -544,9 +544,9 @@ export function CreateTemplateAccordion() {
                 <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#004488", width:"100%" }} className="title_2024">Criar Template</h1>
                 <div className="column-align" style={{alignItems:"center", width:"100%"}}>
                     <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
-                <div style={{textAlign:"end", width:"94%"}}>
-                    <span style={{cursor:"pointer"}} onClick={()=> showVideo()}>Não sabe como criar template? <strong style={{color:"blue"}}>Assista nosso vídeo</strong></span>
-                </div>
+                    <div style={{textAlign:"end", width:"94%"}}>
+                        <span style={{cursor:"pointer"}} onClick={()=> showVideo()}>Não sabe como criar template? <strong style={{color:"blue"}}>Assista nosso vídeo</strong></span>
+                    </div>
                 </div>
                 <br/>
             <div style={{width:"100vw"}}>

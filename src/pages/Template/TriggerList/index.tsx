@@ -13,6 +13,7 @@ import whatsappIcon from '../../../img/whatsapp.png'
 import teamsIcon from '../../../img/teams.png'
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { DraggableComponent } from "../../../Components/Draggable";
 
 export function TriggerList() {
 
@@ -30,6 +31,7 @@ export function TriggerList() {
     const [triggerList, setTriggerList] = useState<ITriggerList[]>([])
     const [hoveredRowMenu, setHoveredRowMenu] = useState<number | null>(null);
     const [loading, setLoading] = useState<boolean>(true)
+    const [hiddenVideo, setHiddenVideo] = useState<boolean>(false)
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
     const [selectedRow, setSelectedRow] = useState<number | null>(null);
@@ -42,7 +44,7 @@ export function TriggerList() {
     const [initDate, setInitDate] = useState({
         day: 1,
         month: now.getMonth() + 1,
-        year: 2024
+        year: 2025
     })
     const [finalDate, setFinalDate] = useState({
         day: now.getDate(),
@@ -70,7 +72,10 @@ export function TriggerList() {
             window.location.href = "https://in.bot/inbot-admin";
         }
     }, []);
-
+    const showVideo = () =>{
+        console.log("Abre")
+        setHiddenVideo(!hiddenVideo)
+    }
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -313,7 +318,13 @@ export function TriggerList() {
                 </div>
                 <div className="column-align" style={{alignItems:"center"}}>
                     <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
+                    <div style={{textAlign:"end", width:"94%"}}>
+                    <span style={{cursor:"pointer"}} onClick={()=> showVideo()}>Não sabe como criar template? <strong style={{color:"blue"}}>Assista nosso vídeo</strong></span>
                 </div>
+                </div>
+                {hiddenVideo && (
+                    <DraggableComponent urlVideo={"https://www.loom.com/embed/e5216eb8145c4eaaae86b3e76b5f6dd0?sid=b6e75c08-5db3-41b4-bb0a-c029504dd33a"} showVideo={showVideo}/>
+                )}
                 <div className="row" style={{margin:"20px", display:"flex", alignItems:"end"}}>
                     <input onChange={handleFiltroChange} value={filtro} type="text" style={{borderRight:"none", width:"300px", borderRadius:"20px 0px 0px 20px", paddingLeft:"20px"}} placeholder="Buscar por nome ou template"/>
                     <button style={{borderLeft:"none", borderRadius:"0px 20px 20px 0px", width:"50px"}}>
@@ -405,7 +416,7 @@ export function TriggerList() {
                                     >
                                         <td><span>{trigger.campaign_name}</span></td>
                                         <td><span>{trigger.template_name}</span></td>
-                                        <td><span>{trigger.data_criacao ? adjustTime(trigger.data_criacao) : "--"}</span></td>
+                                        <td><span>{trigger.data_criacao ? adjustTimeWithout3Hour(trigger.data_criacao) : "--"}</span></td>
                                         <td><span>{trigger.time_trigger ? adjustTimeWithout3Hour(trigger.time_trigger) : "--"}</span></td>
                                         <td><div id="statusCells" style={{ borderRadius: "20px", padding: "7px" }}><span style={{ fontWeight: "bolder", color: statusColor(trigger.status) }}>{statusName(trigger.status)}</span></div></td>
                                         <td><img src={trigger.channel==='whatsapp' ? whatsappIcon : teamsIcon} alt={trigger.channel==='whatsapp' ? 'Whatsapp' : 'Teams'} width={20} style={{ margin: "10px" }} /></td>
