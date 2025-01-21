@@ -649,8 +649,12 @@ export function Accordion() {
             <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} text={text} toggle={toggle} question={textToModal} warning={warningText} onButtonClick={handleButtonClick}></Modal>
             <ToastContainer />
             <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Criar Campanha</h1>
-            <div className="hr_color" style={{width:"100%", marginTop:"15px"}}></div>
-            <br/>
+            <div className="column-align" style={{alignItems:"center", width:"100%"}}>
+                    <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
+                    <div style={{textAlign:"end", width:"94%"}}>
+                        <span style={{cursor:"pointer"}} onClick={()=> showVideo()}>Não sabe como criar template? <strong style={{color:"blue"}}>Assista nosso vídeo</strong></span>
+                    </div>
+                </div>
             <div>
                 {hiddenVideo && (
                     <DraggableComponent urlVideo={"https://www.loom.com/embed/e5216eb8145c4eaaae86b3e76b5f6dd0?sid=b6e75c08-5db3-41b4-bb0a-c029504dd33a"} showVideo={showVideo}/>
