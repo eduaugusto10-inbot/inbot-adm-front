@@ -23,13 +23,15 @@ export const validatedUser = async (
     await api
       .get(`/whatsapp/trigger-bot/${botId}`)
       .then((resp) => {
-        if (resp.data.length) hasWhats = true;
+        if (resp.data.data.length) hasWhats = true;
       })
       .catch((error) => console.log(error));
-    await api.get(`/teams/list-bot/botid/${botId}`).then((resp) => {
-      if (resp.data.length) hasTeams = true;
-    });
-    console.log(hasTeams + ' ' + hasWhats);
+    await api
+      .get(`/teams/list-bot/botid/${botId}`)
+      .then((resp) => {
+        if (resp.data.length) hasTeams = true;
+      })
+      .catch((error) => console.log(error));
     if (resp.data.bot_id === botId && hasTeams) {
       return { logged: true, channel: 'teams' };
     } else if (resp.data.bot_id === botId && hasWhats) {

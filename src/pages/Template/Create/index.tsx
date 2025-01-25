@@ -26,7 +26,9 @@ export function CreateTemplateAccordion() {
     function BackToList() {
         history(`/template-list?bot_id=${botId}&token=${searchParams.get("token")}`)
     }
-
+    const [isWhatsAppEnabled, setIsWhatsAppEnabled] = useState(true);
+    const [isTeamsEnabled, setIsTeamsEnabled] = useState(true);
+    
     const [searchParams, setSearchParams] = useSearchParams();
     if (searchParams.get('bot_id') === null) {
         window.location.href = "https://in.bot/inbot-admin";
@@ -36,21 +38,23 @@ export function CreateTemplateAccordion() {
     const location = useLocation()
     useEffect(() => {
         const fetchData = async () => {
-        const logged = await validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
-        console.log(`Logged: ${logged}`)
-        if(!logged){
+        const logged:any = await validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
+        console.log(`Logged: ${JSON.stringify(logged)}`)
+        if(!logged.logged){
             history(`/template-warning-no-whats?bot_id=${botId}`);
+        }
+        if(logged.channel === 'teams' ){
+            history(`/template-create-teams?bot_id=${botId}&token=${searchParams.get("token")}`)
+        }
+        if(logged.channel === 'whats' ){
+            setIsTeamsEnabled(false)
         }
         api.get(`/whats-botid/${botId}`)
             .then(resp => {
                 setPhone(resp.data.number)
             }).catch(error => history(`/template-warning-no-whats?bot_id=${botId}`))
         }
-        if (searchParams.get('bot_id') === null) {
-            window.location.href = "https://in.bot/inbot-admin";
-        } else {
-            fetchData();
-        }
+        fetchData();
     }, []);
     const [templateName, setTemplateName] = useState<string>("")
     const [templateType, setTemplateType] = useState<string>("")
@@ -564,9 +568,9 @@ export function CreateTemplateAccordion() {
                 <div className="body-no-background" style={{width:"100%"}}>
                 <div className="accordeon-new" style={{width:"802px"}}>
                     <div className="body" style={{ backgroundColor: "#FFF"}}>
-                        <div className="line">
-                            <input type="radio" name="disparo" value=""  className="input-spaces" checked={true} /><span>WhatsApp</span>
-                            <input type="radio" name="disparo" value="" onChange={() => history(`/template-create-teams?bot_id=${botId}&token=${searchParams.get("token")}`)} className="input-spaces" checked={false} /><span>Teams</span>
+                        <div className="line" style={{marginTop:"17px"}}>
+                            <input type="radio" disabled={!isWhatsAppEnabled} name="disparo" value=""  className="input-spaces" checked={true} /><span>WhatsApp</span>
+                            <input type="radio" disabled={!isTeamsEnabled} name="disparo" value="" onChange={() => history(`/template-create-teams?bot_id=${botId}&token=${searchParams.get("token")}`)} className="input-spaces" checked={false} /><span>Teams</span>
                         </div>
                     </div>
                     <div style={{width:"100%", textAlign:"right"}}>

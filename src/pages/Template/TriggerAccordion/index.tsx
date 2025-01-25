@@ -25,6 +25,8 @@ export function Accordion() {
     const location = useLocation()
     const [searchParams, setSearchParams] = useSearchParams();
     const [loading, setLoading] = useState<boolean>(true)
+    const [isWhatsAppEnabled, setIsWhatsAppEnabled] = useState(true);
+    const [isTeamsEnabled, setIsTeamsEnabled] = useState(true);
     if (searchParams.get('bot_id') === null) {
         window.location.href = "https://in.bot/inbot-admin";
     }
@@ -35,10 +37,16 @@ export function Accordion() {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-        const logged = await validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
+        const logged: any = await validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
         console.log(`Logged: ${logged}`)
         if(!logged){
             history(`/template-warning-no-whats?bot_id=${botId}`);
+        }
+        if(logged.channel === 'whats' ){
+            setIsTeamsEnabled(false)
+        }
+        if(logged.channel === 'teams' ){
+            history(`/template-trigger-teams?bot_id=${botId}&token=${searchParams.get("token")}`)
         }
         api.get(`/whats-botid/${botId}`)
             .then(resp => {
@@ -666,9 +674,9 @@ export function Accordion() {
                 <div className="body-no-background" style={{width:"100%"}}>
                 <div className="accordeon-new">
                     <div className="body" style={{ backgroundColor: "#FFF"}}>
-                    <div className="line" style={{marginTop:"17px"}}>
-                            <input type="radio" name="disparo" value="" className="input-spaces" checked={true} /><span>WhatsApp</span>
-                            <input type="radio" name="disparo" value="" style={{marginLeft:"20px"}} onChange={() => history(`/template-trigger-teams?bot_id=${botId}&token=${searchParams.get("token")}`)} className="input-spaces" checked={false} /><span>Teams</span>
+                        <div className="line" style={{marginTop:"17px"}}>
+                            <input type="radio" disabled={!isWhatsAppEnabled} name="disparo" value=""  className="input-spaces" checked={true} /><span>WhatsApp</span>
+                            <input type="radio" disabled={!isTeamsEnabled} name="disparo" value="" onChange={() => history(`/template-create-teams?bot_id=${botId}&token=${searchParams.get("token")}`)} className="input-spaces" checked={false} /><span>Teams</span>
                         </div>
                     </div>
                     <div style={{width:"100%", textAlign:"right"}}>

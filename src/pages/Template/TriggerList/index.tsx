@@ -21,11 +21,15 @@ export function TriggerList() {
     var botId = searchParams.get('bot_id') ?? "0";
     const history = useNavigate();
     useEffect(() => {
-        const logged = validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
-        console.log(`Logged: ${logged}`)
-        if(!logged){
-            history(`/template-warning-no-whats?bot_id=${botId}`);
+        const fetchData = async () => {
+            const logged:any = await validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
+            console.log(`Logged: ${logged}`)
+            if(!logged.logged){
+                console.log(logged)
+                history(`/template-warning-no-whats?bot_id=${botId}`);
+            }
         }
+        fetchData()
     }, []);
     const now = new Date();
     const [triggerList, setTriggerList] = useState<ITriggerList[]>([])

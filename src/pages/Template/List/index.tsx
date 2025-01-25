@@ -14,6 +14,8 @@ import { DraggableComponent } from "../../../Components/Draggable";
 
 export function ListAll() {
     const [searchParams, setSearchParams] = useSearchParams();
+    const [isWhatsAppEnabled, setIsWhatsAppEnabled] = useState(true);
+    const [isTeamsEnabled, setIsTeamsEnabled] = useState(true);
     if (searchParams.get('bot_id') === null) {
         window.location.href = "https://in.bot/inbot-admin";
     }
@@ -23,12 +25,17 @@ export function ListAll() {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const logged = await validatedUser(searchParams.get('bot_id'), searchParams.get('token')) ?? false;               
-                if (!logged) {
+                const logged: any = await validatedUser(searchParams.get('bot_id'), searchParams.get('token')) ?? false;               
+                if (!logged.logged) {
                     history(`/template-warning-no-whats?bot_id=${botId}`);
                     return;
                 }
-    
+                if(logged.channel === 'all' ){
+                    setIsTeamsEnabled(false)
+                }
+                if(logged.channel === 'teams' ){
+                    history(`/template-create-teams?bot_id=${botId}&token=${searchParams.get("token")}`)
+                }
                 const resp = await api.get(`/whats-botid/${botId}`);
                 setPhone(resp.data.number);
                 setToken(resp.data.accessToken);
@@ -45,11 +52,7 @@ export function ListAll() {
             }
         };
     
-        if (searchParams.get('bot_id') === null) {
-            window.location.href = "https://in.bot/inbot-admin";
-        } else {
             fetchData();
-        }
     }, []);
     
     const [modal, setModal] = useState<boolean>(false)
