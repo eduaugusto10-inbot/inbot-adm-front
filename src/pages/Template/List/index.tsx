@@ -30,12 +30,6 @@ export function ListAll() {
                     history(`/template-warning-no-whats?bot_id=${botId}`);
                     return;
                 }
-                if(logged.channel === 'all' ){
-                    setIsTeamsEnabled(false)
-                }
-                if(logged.channel === 'teams' ){
-                    history(`/template-create-teams?bot_id=${botId}&token=${searchParams.get("token")}`)
-                }
                 const resp = await api.get(`/whats-botid/${botId}`);
                 setPhone(resp.data.number);
                 setToken(resp.data.accessToken);
