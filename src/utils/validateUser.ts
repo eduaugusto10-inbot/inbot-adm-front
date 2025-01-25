@@ -32,9 +32,9 @@ export const validatedUser = async (
         if (resp.data.length) hasTeams = true;
       })
       .catch((error) => console.log(error));
-    if (resp.data.bot_id === botId && hasTeams) {
+    if (resp.data.bot_id === botId && hasTeams && !hasWhats) {
       return { logged: true, channel: 'teams' };
-    } else if (resp.data.bot_id === botId && hasWhats) {
+    } else if (resp.data.bot_id === botId && hasWhats && !hasTeams) {
       return { logged: true, channel: 'whats' };
     } else if (resp.data.bot_id === botId && hasWhats && hasTeams) {
       return { logged: true, channel: 'all' };
