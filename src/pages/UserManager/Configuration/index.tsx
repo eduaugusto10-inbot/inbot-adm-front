@@ -57,7 +57,6 @@ export function Configuration(){
       },[tipo,nomeCampo,status])
       
       const checkEnableButton = (value:string,shield:string) => {
-        console.log(shield)
         if(shield==="type") setTipo(value)
         if(shield==="nameField") setNomeCampo(value)
         if(shield==="status") setStatus(value)

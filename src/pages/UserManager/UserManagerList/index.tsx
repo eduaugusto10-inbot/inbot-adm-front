@@ -175,7 +175,6 @@ const saveCustomer = async (data: any) => {
                         checkDigitNine(value.toString().replace(/\s+/g, '')) : 
                         value.toString().replace(/\s+/g, '');
                 }
-                console.log(colIndex +" "+ customFields[colIndex]?.type)
                 if(customFields[colIndex - 3]?.type === "data"){
                     return dateExcelConverter(value)
                 }

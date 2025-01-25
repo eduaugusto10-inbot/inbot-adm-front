@@ -73,7 +73,6 @@ export function TriggerList() {
         }
     }, []);
     const showVideo = () =>{
-        console.log("Abre")
         setHiddenVideo(!hiddenVideo)
     }
     useEffect(() => {

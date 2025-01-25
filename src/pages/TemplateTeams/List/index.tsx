@@ -100,7 +100,6 @@ export function ListAll() {
     }
 
     const loadTemplate = (id: number) => {
-        console.log(templates[id])
         setModalObject(templates[id]) 
         if (!modal) {
             setModal(prevState => !prevState)

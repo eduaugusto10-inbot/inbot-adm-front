@@ -99,7 +99,6 @@ export function ListAll() {
         setHoveredRowMenu(index);
     };
     const showVideo = () =>{
-        console.log("Abre")
         setHiddenVideo(!hiddenVideo)
     }
     const handleMouseLeave = () => {
