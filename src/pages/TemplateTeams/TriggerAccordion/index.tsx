@@ -98,6 +98,9 @@ export function Accordion() {
             }
         }
         fetchData();
+        api.get(`/whatsapp/trigger-bot/${botId}`)
+        .then(resp => setTriggerNames(resp.data))
+        .catch(error => console.log(error))
         api.get(`/teams/template/botid/${botId}`)
             .then(resp => {
                 setTemplates(resp.data)
@@ -578,7 +581,7 @@ export function Accordion() {
                 <div className="accordeon-new">
                     <div className="body" style={{ backgroundColor: "#FFF"}}>
                         <div className="line" style={{marginTop:"17px"}}>
-                            <input type="radio" disabled={!isWhatsAppEnabled} name="disparo" value="" onChange={() => history(`/template-create?bot_id=${botId}&token=${searchParams.get("token")}`)} className="input-spaces" checked={false} /><span>WhatsApp</span>
+                            <input type="radio" disabled={!isWhatsAppEnabled} name="disparo" value="" onChange={() => history(`/template-trigger?bot_id=${botId}&token=${searchParams.get("token")}`)} className="input-spaces" checked={false} /><span>WhatsApp</span>
                             <input type="radio" disabled={!isTeamsEnabled} name="disparo" value=""  className="input-spaces" checked={true} /><span>Teams</span>
                         </div>
                     </div>
