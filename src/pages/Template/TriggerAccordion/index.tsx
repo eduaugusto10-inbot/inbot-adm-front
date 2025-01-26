@@ -676,7 +676,7 @@ export function Accordion() {
                     <div className="body" style={{ backgroundColor: "#FFF"}}>
                         <div className="line" style={{marginTop:"17px"}}>
                             <input type="radio" disabled={!isWhatsAppEnabled} name="disparo" value=""  className="input-spaces" checked={true} /><span>WhatsApp</span>
-                            <input type="radio" disabled={!isTeamsEnabled} name="disparo" value="" onChange={() => history(`/template-create-teams?bot_id=${botId}&token=${searchParams.get("token")}`)} className="input-spaces" checked={false} /><span>Teams</span>
+                            <input type="radio" disabled={!isTeamsEnabled} name="disparo" value="" onChange={() => history(`/template-trigger-teams?bot_id=${botId}&token=${searchParams.get("token")}`)} className="input-spaces" checked={false} /><span>Teams</span>
                         </div>
                     </div>
                     <div style={{width:"100%", textAlign:"right"}}>
