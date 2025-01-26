@@ -424,7 +424,7 @@ export function TriggerList() {
                                         <td><div id="statusCells" style={{ borderRadius: "20px", padding: "7px" }}><span style={{ fontWeight: "bolder", color: statusColor(trigger.status) }}>{statusName(trigger.status)}</span></div></td>
                                         <td><img src={trigger.channel==='whatsapp' ? whatsappIcon : teamsIcon} alt={trigger.channel==='whatsapp' ? 'Whatsapp' : 'Teams'} width={20} style={{ margin: "10px" }} /></td>
                                         <td><span>{trigger.total}</span></td>
-                                        <td><span>{trigger.total - trigger.erro}</span></td>
+                                        <td><span>{statusName(trigger.status)=="Executado" ? trigger.total - trigger.erro : "0"}</span></td>
                                         <td><span>{trigger?.entregue > 0 ? trigger.entregue : trigger.enviado}</span></td>
                                         <td><span>{trigger.erro}</span></td>
                                         <td><span>{trigger.status === 'aguardando' ? 0 : trigger.engajado}</span></td>
