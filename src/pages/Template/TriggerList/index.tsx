@@ -23,9 +23,8 @@ export function TriggerList() {
     useEffect(() => {
         const fetchData = async () => {
             const logged:any = await validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
-            console.log(`Logged: ${logged}`)
+            console.log(`Logged: ${JSON.stringify(logged)}`)
             if(!logged.logged){
-                console.log(logged)
                 history(`/template-warning-no-whats?bot_id=${botId}`);
             }
         }

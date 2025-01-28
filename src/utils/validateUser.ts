@@ -12,7 +12,6 @@ export const validatedUser = async (
   try {
     let hasWhats = false;
     let hasTeams = false;
-    await api.get(`/whats-botid/${botId}`);
     const url =
       botId == '1'
         ? `https://oec.in.bot/api/validate_admin_token?token=${token}&is_ajax=1`
@@ -21,17 +20,22 @@ export const validatedUser = async (
         : `https://in.bot/api/validate_admin_token?token=${token}&is_ajax=1`;
     const resp = await axios.get(url);
     await api
-      .get(`/whatsapp/trigger-bot/${botId}`)
+      .get(`/whats-botid/${botId}`)
       .then((resp) => {
-        if (resp.data.data.length) hasWhats = true;
+        if (resp.data?.id) hasWhats = true;
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        console.log(error);
+      });
     await api
       .get(`/teams/list-bot/botid/${botId}`)
       .then((resp) => {
         if (resp.data.length) hasTeams = true;
       })
       .catch((error) => console.log(error));
+    // http://localhost:3000/#/trigger-list?token=1738103610-b500a9365289ee98&bot_id=693
+    console.log('hasTeams', hasTeams);
+    console.log('hasWhats', hasWhats);
     if (resp.data.bot_id === botId && hasTeams && !hasWhats) {
       return { logged: true, channel: 'teams' };
     } else if (resp.data.bot_id === botId && hasWhats && !hasTeams) {
