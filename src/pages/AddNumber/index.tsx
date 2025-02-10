@@ -23,7 +23,10 @@ export function AddNumber() {
     });
     
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = event.target;
+        let { name, value } = event.target;
+        if (name === 'number') {
+            value = value.replace(/\D/g, '');
+        }
         setNewNumber(prevState => ({
             ...prevState,
             [name]: value,

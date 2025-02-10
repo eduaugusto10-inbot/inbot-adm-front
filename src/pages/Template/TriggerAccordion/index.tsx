@@ -242,7 +242,7 @@ export function Accordion() {
                     values.forEach((cell, coluna) => { 
                         if(cell.length > 0){
                             if(coluna===0){
-                                values[coluna] = cell.replace(/\s+/g, '');
+                                values[coluna] = cell.replace(/\D/g, '');
                             } else if(wrongFormatRegex.test(cell)) {
                                 values[coluna] = formatDateComplete(cell)
                             }
@@ -266,7 +266,7 @@ export function Accordion() {
             if (customer.length > 0) { // count > 0 && 
                 const params = {
                     campaignId: `${campaignId}`,
-                    phone: `${customer[0]}`,
+                    phone: `${customer[0].replace(/\D/g, '')}`,
                     status: "aguardando",
                     variable_1: customer[1],
                     variable_2: customer[2],
@@ -491,7 +491,7 @@ export function Accordion() {
        }
      }, [fileName]);
      
-    const createTrigger = () => {
+    const createTrigger = async() => {
         if((listVariables.length === 0 && !typeClient) || (fileData.length === 0 && typeClient)){
             errorNoRecipient()
             return;
@@ -510,14 +510,14 @@ export function Accordion() {
             "templateName": templateName,
             "typeTrigger": triggerMode,
             "timeTrigger": triggerMode === "agendado" ? `${dates} ${hours}` : null,
-            "status": "aguardando",
+            // "status": "aguardando",
             "channel": "whatsapp",
-            // "status": "criando",
+            "status": "criando",
             "botId": botId,
             "phoneTrigger": phone,
         }
 
-        api.post('/whatsapp/trigger', data)
+        await api.post('/whatsapp/trigger', data)
             .then(resp => {
                 if (typeClient) {
                     handleSubmitListDataFile(fileData, resp.data.data.insertId)
@@ -525,7 +525,7 @@ export function Accordion() {
                     handleSubmitManualListData(resp.data.data.insertId)
                 }
                 successCreateTrigger()
-                // api.put(`/whatsapp/trigger-status/${resp.data.data.insertId}?status=aguardando`)
+                api.put(`/whatsapp/trigger-status/${resp.data.data.insertId}?status=aguardando`)
                 setTimeout(() => BackToList(), 3000)
             })
             .catch(err => {
@@ -649,9 +649,6 @@ export function Accordion() {
         setBlockAddNumber(phone.toString().length >= 12)          
       }
 
-      function openModalWarningFile(){
-        
-      }
     return (
         <div className="container-trigger width-95-perc" style={{ padding:"10px 0px"}}>
             <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} text={text} toggle={toggle} question={textToModal} warning={warningText} onButtonClick={handleButtonClick}></Modal>
