@@ -525,7 +525,7 @@ export function Accordion() {
                     handleSubmitManualListData(resp.data.data.insertId)
                 }
                 successCreateTrigger()
-                api.put(`/whatsapp/trigger-status/${resp.data.data.insertId}?status=aguardando`)
+                api.put(`/whatsapp/trigger/${resp.data.data.insertId}?status=aguardando`)
                 setTimeout(() => BackToList(), 3000)
             })
             .catch(err => {
