@@ -646,7 +646,7 @@ export function Accordion() {
 
       function checkNumber(phone: number) {
         setClientNumber(phone)
-        setBlockAddNumber(phone.toString().length >= 12)          
+        setBlockAddNumber(phone.toString().length >= 5)          
       }
 
     return (
