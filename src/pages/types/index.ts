@@ -22,6 +22,7 @@ export interface ICustomerData {
   websites: string;
   profile_pic: string;
   activated: number;
+  origin: string;
 }
 
 export interface ITemplate {
@@ -55,31 +56,32 @@ export interface IQuickReply {
 }
 
 export const defaultQuickReply: IQuickReply[] = [
-  { type: 'quickReply', text: 'Botão' },
+  { type: "quickReply", text: "Botão" },
 ];
 
 export const templateValue: ITemplate = {
-  footer: '',
-  body: '',
-  header: '',
+  footer: "",
+  body: "",
+  header: "",
 };
 
 export const defaultCustomerData: ICustomerData = {
-  number: '',
-  client: '',
-  description: '',
-  observation: '',
-  accessToken: '',
+  number: "",
+  client: "",
+  description: "",
+  observation: "",
+  accessToken: "",
   botId: 0,
-  botToken: '',
-  webhook: '',
-  botServerType: '',
-  address: '',
-  email: '',
-  vertical: '',
-  websites: '',
-  profile_pic: '',
+  botToken: "",
+  webhook: "",
+  botServerType: "",
+  address: "",
+  email: "",
+  vertical: "",
+  websites: "",
+  profile_pic: "",
   activated: 0,
+  origin: "",
 };
 
 export interface ITemplateList {
@@ -154,19 +156,19 @@ export interface IHeader {
 }
 
 export const payload: IPayload = {
-  category: '',
-  name: '',
-  language: '',
+  category: "",
+  name: "",
+  language: "",
   components: [
     {
-      type: '',
+      type: "",
       parameters: [
         {
-          type: '',
-          text: '',
-          example: '',
-          phoneNumber: '',
-          url: '',
+          type: "",
+          text: "",
+          example: "",
+          phoneNumber: "",
+          url: "",
         },
       ],
     },

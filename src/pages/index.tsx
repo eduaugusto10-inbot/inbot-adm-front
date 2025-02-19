@@ -77,43 +77,39 @@ export function AllPhones() {
             <div className='row-align' style={{ width:"90%", justifyContent:"space-between" }}>
                 <div>
                 <div style={{ margin: "20px 20px 20px 0px", display: "flex", alignItems: "center", position: "relative" }}>
-    <input 
-        onChange={handleFiltroChange} 
-        value={filtro || ''} 
-        type="text" 
-        style={{
-            borderRight: "none", 
-            width: "300px", 
-            borderRadius: "20px 0px 0px 20px", 
-            paddingLeft: "20px", 
-            paddingRight: "40px" // Espaço extra para o botão "X"
-        }} 
-        placeholder="Pesquisar ..."
-    />
-    
-    {/* Ícone "X" que aparece quando há texto */}
-    {filtro && (
-        <button 
-            onClick={clearFiltro} 
-            style={{
-                position: "absolute",
-                right: "60px",  // Ajustado para ficar dentro do input
-                top: "50%",
-                transform: "translateY(-50%)",
-                border: "none",
-                background: "transparent",
-                cursor: "pointer",
-                fontSize: "16px",
-                color: "#888"
-            }}
-        >
-            ✖
-        </button>
-    )}
-    
-    <button style={{ borderLeft: "none", borderRadius: "0px 20px 20px 0px", width: "50px" }}>
-        <img src={loupe} alt="" width={20} height={20}/>
+                <div style={{ position: "relative", display: "inline-block" }}>
+  <input
+    onChange={handleFiltroChange}
+    value={filtro || ""}
+    type="text"
+    style={{
+      borderRight: "none",
+      width: "300px",
+      borderRadius: "20px",
+      paddingLeft: "20px",
+      paddingRight: "40px",
+    }}
+    placeholder="Pesquisar ..."
+  />
+  {filtro && (
+    <button
+      onClick={clearFiltro}
+      style={{
+        position: "absolute",
+        right: "10px",
+        top: "50%",
+        transform: "translateY(-50%)",
+        border: "none",
+        background: "transparent",
+        cursor: "pointer",
+        fontSize: "16px",
+        color: "#888",
+      }}
+    >
+      ✖
     </button>
+  )}
+</div>
 </div>
 
                     <div style={{ alignContent: "center", color: "#004488", textAlign: 'left'}}>
@@ -143,6 +139,7 @@ export function AllPhones() {
                         <th>Bot ID</th>
                         <th>Servidor</th>
                         <th>Observação</th>
+                        <th>Origem</th>
                         <th>Status</th>
                         <th>Gerenciar</th>
                     </tr>
@@ -160,6 +157,7 @@ export function AllPhones() {
                             <td>{data.botId}</td>
                             <td>{data.botServerType}</td>
                             <td>{data.observation}</td>
+                            <td>{data.origin}</td>
                             <td><span style={{fontWeight: "bolder", color: data.activated ? "green" : "red"}}>{data.activated ? "Ativo" : "Inativo"}</span></td>
                             <td><button onClick={() => Change(data.number)} className='button-blue'>Alterar</button></td>
                         </tr>

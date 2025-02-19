@@ -190,6 +190,19 @@ export function ChangeDeleteNumber() {
                                         <option value="0">Inativo</option>
                                     </select>
                                 </div>
+                                <div className="row-align" style={{ margin: "10px" }}>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Origem do cadastro</span>
+                                    <input 
+                                        type="text"
+                                        placeholder="Insira a origem"
+                                        name="origin"
+                                        value={customerData.origin}
+                                        onChange={handleInputChange}
+                                        className="input-values"
+                                        required
+                                        style={{width:"350px"}}
+                                    />
+                                </div>
                             </div>
                             <div className="card_2024 column-align" style={{ width: "340px", textAlign: "left", marginLeft: "20px" }}>
                                 <div className="row-align" style={{ height:"50px"}}>

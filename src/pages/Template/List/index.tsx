@@ -11,6 +11,7 @@ import { errorMessage, successMessageDeleteTemplate, waitingMessage } from "../.
 import loupe from '../../../img/loupe.png'
 import  {validatedUser}  from "../../../utils/validateUser";
 import { DraggableComponent } from "../../../Components/Draggable";
+import axios from "axios";
 
 export function ListAll() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -35,9 +36,7 @@ export function ListAll() {
                 setToken(resp.data.accessToken);
     
                 const token = resp.data.accessToken;
-                const templatesResp = await api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', {
-                    headers: { 'Authorization': token }
-                });
+                const templatesResp = await api.get(`/token-templates?token=${token}`);
                 setTemplates(templatesResp.data.data.messageTemplates);
             } catch (error) {
                 console.log(error);
