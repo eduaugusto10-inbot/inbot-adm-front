@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { ChangeEvent,  useEffect, useState } from 'react';
 import api from '../utils/api';
 import { ICustomerData } from './types';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { mask } from '../utils/utils';
-
+import { PhoneInput } from 'react-international-phone';
+import 'react-international-phone/style.css';
+import loupe from "../img/loupe.png"
 export function AllPhones() {
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -15,7 +16,10 @@ export function AllPhones() {
     const [customerData, setCustomerData] = useState<ICustomerData[]>([])
     const [checkActivated, setCheckActivated] = useState<boolean>(true)
     const [checkDesactivated, setCheckDesactivated] = useState<boolean>(false)
-
+    const [filtro, setFiltro] = useState<string>('')
+    const [checkDesenvolvimento, setCheckDesenvolvimento] = useState(true);
+    const [checkHomologacao, setCheckHomologacao] = useState(true);
+    const [checkProducao, setCheckProducao] = useState(true);
     function AddNewPhone() {
         history("/add");
     }
@@ -32,13 +36,37 @@ export function AllPhones() {
     }, [])
 
     const filteredCustomers = customerData.filter(customer => {
-        if (checkActivated && customer.activated){
-            return true;
+        const isActiveFilterValid = 
+            (checkActivated && customer.activated) || 
+            (checkDesactivated && !customer.activated);
+    
+        const isEnvironmentFilterValid = 
+            (checkDesenvolvimento && customer.botServerType === 'dev') ||
+            (checkHomologacao && customer.botServerType === 'staging') ||
+            (checkProducao && customer.botServerType === 'production');
+    
+        if (filtro.trim() === '') return isActiveFilterValid && isEnvironmentFilterValid;
+    
+        const filtroNumero = Number(filtro);
+        if (!isNaN(filtroNumero)) {
+            return isActiveFilterValid && isEnvironmentFilterValid && (
+                (customer.botId !== undefined && customer.botId.toString().includes(filtro)) ||
+                (customer.number !== undefined && customer.number.toString().includes(filtro))
+            );
         }
-        if (checkDesactivated && !customer.activated){
-            return true;
-        }
-    })
+    
+        return isActiveFilterValid && isEnvironmentFilterValid && 
+            (customer.client?.toLowerCase() ?? '').includes(filtro.toLowerCase());
+    });
+    
+    
+    
+    const clearFiltro = () => {
+        setFiltro("");
+    };
+    const handleFiltroChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setFiltro(e.target.value);
+      };
 
     return (
         <div className='column-align' style={{width:"100vw", margin:"10px 0px", alignItems:"center"}}>
@@ -47,10 +75,63 @@ export function AllPhones() {
                     <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
             </div>
             <div className='row-align' style={{ width:"90%", justifyContent:"space-between" }}>
-                <div style={{ alignContent: "center", color: "#004488"}}>
-                    <span><strong>Exibir números: </strong></span>
-                    <input type="checkbox" style={{margin:"0px 5px 0px 10px"}} checked={checkActivated} onChange={(e) => setCheckActivated(e.target.checked)}/><span>Ativos</span>
-                    <input type="checkbox" style={{margin:"0px 5px 0px 10px"}} checked={checkDesactivated} onChange={(e) => setCheckDesactivated(e.target.checked)}/><span>Inativos</span>
+                <div>
+                <div style={{ margin: "20px 20px 20px 0px", display: "flex", alignItems: "center", position: "relative" }}>
+    <input 
+        onChange={handleFiltroChange} 
+        value={filtro || ''} 
+        type="text" 
+        style={{
+            borderRight: "none", 
+            width: "300px", 
+            borderRadius: "20px 0px 0px 20px", 
+            paddingLeft: "20px", 
+            paddingRight: "40px" // Espaço extra para o botão "X"
+        }} 
+        placeholder="Pesquisar ..."
+    />
+    
+    {/* Ícone "X" que aparece quando há texto */}
+    {filtro && (
+        <button 
+            onClick={clearFiltro} 
+            style={{
+                position: "absolute",
+                right: "60px",  // Ajustado para ficar dentro do input
+                top: "50%",
+                transform: "translateY(-50%)",
+                border: "none",
+                background: "transparent",
+                cursor: "pointer",
+                fontSize: "16px",
+                color: "#888"
+            }}
+        >
+            ✖
+        </button>
+    )}
+    
+    <button style={{ borderLeft: "none", borderRadius: "0px 20px 20px 0px", width: "50px" }}>
+        <img src={loupe} alt="" width={20} height={20}/>
+    </button>
+</div>
+
+                    <div style={{ alignContent: "center", color: "#004488", textAlign: 'left'}}>
+                        <span><strong>Exibir números: </strong></span>
+                        <input type="checkbox" style={{margin:"0px 5px 0px 10px"}} checked={checkActivated} onChange={(e) => setCheckActivated(e.target.checked)}/><span>Ativos</span>
+                        <input type="checkbox" style={{margin:"0px 5px 0px 10px"}} checked={checkDesactivated} onChange={(e) => setCheckDesactivated(e.target.checked)}/><span>Inativos</span>
+                    </div>
+                    <div style={{ alignContent: "center", color: "#004488"}}>                                                
+                        <div style={{ alignContent: "center", color: "#004488", marginBottom:'15px' }}>
+        <span><strong>Servidor: </strong></span>
+        <input type="checkbox" style={{ margin: "0px 5px 0px 10px" }} checked={checkDesenvolvimento} onChange={(e) => setCheckDesenvolvimento(e.target.checked)}/>
+        <span>Desenvolvimento</span>
+        <input type="checkbox" style={{ margin: "0px 5px 0px 10px" }} checked={checkHomologacao} onChange={(e) => setCheckHomologacao(e.target.checked)}/>
+        <span>Homologação</span>
+        <input type="checkbox" style={{ margin: "0px 5px 0px 10px" }} checked={checkProducao} onChange={(e) => setCheckProducao(e.target.checked)}/>
+        <span>Produção</span>
+                    </div>
+                    </div>
                 </div>
                 <button onClick={AddNewPhone} className='button-blue' style={{margin:"20px 0px"}}>Adicionar</button>
             </div>
@@ -69,7 +150,12 @@ export function AllPhones() {
                 <tbody>
                     {customerData && filteredCustomers.map((data, index) => (
                         <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#e4e4e4' : '#FFF' }}>
-                            <td>{mask(data.number)}</td>
+                            <td><PhoneInput
+                                    defaultCountry="br"
+                                    value={data.number}
+                                    disabled
+                                    className="custom-phone-input"
+                                    /></td>
                             <td>{data.client}</td>
                             <td>{data.botId}</td>
                             <td>{data.botServerType}</td>

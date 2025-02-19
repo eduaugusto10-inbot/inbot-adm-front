@@ -11,7 +11,21 @@
   align-items: center;
   font-size: 16px;
 }
+.custom-phone-input .react-international-phone-input {
+  background: transparent !important;
+  border: none !important;
+  color: black !important;
+}
 
+.custom-phone-input .react-international-phone-country-selector-button {
+  background: transparent !important;
+}
+
+.custom-phone-input input {
+  background: transparent !important;
+  border: none !important;
+  color: black !important;
+}
 .App-link {
   color: #61dafb;
 }

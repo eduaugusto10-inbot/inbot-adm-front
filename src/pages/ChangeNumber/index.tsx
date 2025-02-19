@@ -7,6 +7,7 @@ import { successMessageChange, errorMessage, successMessageImg, errorMessageImg 
 import { mask } from '../../utils/utils';
 import chevron from "../../img/right-chevron.png";
 import  {validatedUser}  from "../../utils/validateUser";
+import { PhoneInput } from 'react-international-phone';
 
 export function ChangeDeleteNumber() {
   
@@ -99,17 +100,20 @@ export function ChangeDeleteNumber() {
                             <div className="input" style={{ justifyContent: "center"}}>
                                 <div className="row-align" style={{ margin: "10px" }}>
                                     <span className="span-title" style={{ justifyContent:"flex-start" }}>Telefone*</span>
-                                    <input 
-                                        type="text"
-                                        placeholder="Número telefone"
-                                        name="number"
-                                        value={mask(customerData.number)}
-                                        onChange={handleInputChange}
-                                        maxLength={18}
-                                        required
-                                        className="input-values"
-                                        style={{width:"350px" }}
-                                    />
+                                    <PhoneInput
+                                        defaultCountry="br"
+                                        value={customerData.number}
+                                        onChange={(phone: string) => setCustomerData(prevState => ({ ...prevState, number: phone }))}
+                                        inputStyle={{
+                                            width: "305px",
+                                            height: "30px",
+                                            border: "1px solid #A8A8A8",
+                                            marginLeft: "5px",
+                                            padding: "5px",
+                                            borderRadius: "8px",
+                                            alignItems: "center",
+                                        }}
+                                    /> 
                                 </div>
                                 <div className="row-align" style={{ margin: "10px", textAlign: "left" }}>
                                     <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Cliente*</span>
