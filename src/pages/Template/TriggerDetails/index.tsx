@@ -141,7 +141,9 @@ export function TriggerDetails() {
                     } else {
                         aguardando++;
                     }
-                    if(resp.data.data[i].status.toLowerCase()!=="aguardando" && resp.data.data[i].engagement!==null) {
+                    if((resp.data.data[i].status.toLowerCase()=="enviado" || 
+                    resp.data.data[i].status.toLowerCase()=="entregue") && 
+                    resp.data.data[i].engagement!==null) {
                         totalEngagement++;
                     }
                 }
