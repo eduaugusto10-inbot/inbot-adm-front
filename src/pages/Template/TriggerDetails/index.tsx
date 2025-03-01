@@ -151,7 +151,7 @@ export function TriggerDetails() {
                 setSend(enviado);
                 const total = aguardando + erro + enviado + entregue;
                 setEngagements(totalEngagement)
-                setNotEngagements(total - totalEngagement)
+                setNotEngagements(enviado + entregue - totalEngagement)
                 setLoading(false)
             })
             .catch(error => {
