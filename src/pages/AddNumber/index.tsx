@@ -197,16 +197,19 @@ export function AddNumber() {
                                     </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
                                     <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Origem do cadastro</span>
-                                    <input 
-                                        type="text"
-                                        placeholder="Insira a origem"
+                                    <select 
                                         name="origin"
                                         value={newNumber.origin}
                                         onChange={handleInputChange}
                                         className="input-values"
                                         required
                                         style={{width:"350px"}}
-                                    />
+                                    >
+                                        <option value="">Selecione uma origem</option>
+                                        <option value="Número do cliente">Número do cliente</option>
+                                        <option value="Inbot - Chip">Inbot - Chip</option>
+                                        <option value="Inbot - New Wave">Inbot - New Wave</option>
+                                    </select>
                                 </div>
                             </div>
                             <div className="card_2024 column-align" style={{ width: "340px", textAlign: "left", marginLeft: "20px" }}>
@@ -298,7 +301,7 @@ export function AddNumber() {
                                         className="input-values"
                                         style={{width:"350px"}}
                                     >
-                                                                                <option value="OTHER">Other</option>
+                                        <option value="OTHER">Other</option>
                                         <option value="AUTO">Auto</option>
                                         <option value="BEAUTY">Beauty</option>
                                         <option value="APPAREL">Apparel</option>
