@@ -125,6 +125,7 @@ export function TriggerDetails() {
         setLoading(true)   
         api.get(`/whats-customer/${triggerId}`)
             .then(resp => {
+                let channel = "";
                 setCustomerStatus(resp.data.data)
                 let aguardando = 0;
                 let erro = 0;
@@ -132,6 +133,8 @@ export function TriggerDetails() {
                 let entregue = 0;
                 let totalEngagement = 0;
                 for (let i = 0; i < resp.data.data.length; i++) {
+                    channel = resp.data.data[i].email == null 
+                    && resp.data.data[i].phone !== null ? "whatsapp":"teams";
                     if (resp.data.data[i].status === "enviado") {
                         enviado++;
                     } else if (resp.data.data[i].status === "erro") {
@@ -153,7 +156,11 @@ export function TriggerDetails() {
                 setSend(enviado);
                 const total = aguardando + erro + enviado + entregue;
                 setEngagements(totalEngagement)
-                setNotEngagements(enviado + entregue - erro)
+                if(channel == "teams"){
+                    setNotEngagements(enviado - totalEngagement)
+                }else{
+                    setNotEngagements(entregue - enviado)
+                }
                 setLoading(false)
             })
             .catch(error => {
@@ -167,12 +174,15 @@ export function TriggerDetails() {
         api.get(`/whats-customer/${triggerId}`)
             .then(resp => {
                 setCustomerStatus(resp.data.data)
+                let channel = "";
                 let aguardando = 0;
                 let erro = 0;
                 let enviado = 0;
                 let entregue = 0;
                 let totalEngagement = 0;
                 for (let i = 0; i < resp.data.data.length; i++) {
+                    channel = resp.data.data[i].email == null 
+                    && resp.data.data[i].phone !== null ? "whatsapp":"teams";
                     switch (resp.data.data[i].status) {
                         case "enviado":
                             enviado++;
@@ -199,7 +209,11 @@ export function TriggerDetails() {
                 setSend(enviado);
                 const total = aguardando + erro + enviado + entregue;
                 setEngagements(totalEngagement)
-                setNotEngagements(enviado + entregue - erro)
+                if(channel == "teams"){
+                    setNotEngagements(enviado - totalEngagement)
+                }else{
+                    setNotEngagements(entregue - enviado)
+                }
                 setLoading(false)
             })
             .catch(error => {
