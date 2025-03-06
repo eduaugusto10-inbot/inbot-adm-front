@@ -59,6 +59,13 @@ export function AddNumber() {
             url_bot_server: newNumber.url_bot_server,
             origin: newNumber.origin,
             accessToken: newNumber.accessToken,
+            description: newNumber.description,
+            botToken: newNumber.botToken,
+            address: newNumber.address,
+            email: newNumber.email,
+            vertical: newNumber.vertical,
+            websites: newNumber.websites,
+            profile_pic: newNumber.profile_pic,
         }
         api.post('/whats', data)
             .then(res => {

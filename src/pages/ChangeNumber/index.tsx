@@ -46,6 +46,13 @@ export function ChangeDeleteNumber() {
             origin: customerData.origin,
             accessToken: customerData.accessToken,
             activated: customerData.activated,
+            description: customerData.description,
+            botToken: customerData.botToken,
+            address: customerData.address,
+            email: customerData.email,
+            vertical: customerData.vertical,
+            websites: customerData.websites,
+            profile_pic: customerData.profile_pic,
         }
         api.put(`/whats/${location.state.phoneNumber}`, data)
             .then(res => {

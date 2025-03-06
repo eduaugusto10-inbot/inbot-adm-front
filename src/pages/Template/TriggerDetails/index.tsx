@@ -159,7 +159,7 @@ export function TriggerDetails() {
                 if(channel == "teams"){
                     setNotEngagements(enviado - totalEngagement)
                 }else{
-                    setNotEngagements(entregue - enviado)
+                    setNotEngagements(entregue - totalEngagement)
                 }
                 setLoading(false)
             })
@@ -212,7 +212,7 @@ export function TriggerDetails() {
                 if(channel == "teams"){
                     setNotEngagements(enviado - totalEngagement)
                 }else{
-                    setNotEngagements(entregue - enviado)
+                    setNotEngagements(entregue - totalEngagement)
                 }
                 setLoading(false)
             })
