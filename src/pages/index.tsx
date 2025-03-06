@@ -20,6 +20,11 @@ export function AllPhones() {
     const [checkDesenvolvimento, setCheckDesenvolvimento] = useState(true);
     const [checkHomologacao, setCheckHomologacao] = useState(true);
     const [checkProducao, setCheckProducao] = useState(true);
+    
+    // Estados para ordenação
+    const [sortColumn, setSortColumn] = useState<string>("");
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+    
     function AddNewPhone() {
         history("/add");
     }
@@ -34,6 +39,39 @@ export function AllPhones() {
             })
             .catch(error => console.log(error))
     }, [])
+
+    // Função para ordenar os dados
+    const handleSort = (column: string) => {
+        if (sortColumn === column) {
+            // Se já estiver ordenando por esta coluna, inverte a direção
+            setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+        } else {
+            // Se for uma nova coluna, define ela como a coluna de ordenação e começa com ascendente
+            setSortColumn(column);
+            setSortDirection("asc");
+        }
+    };
+
+    // Função para aplicar a ordenação aos dados filtrados
+    const getSortedData = (data: ICustomerData[]) => {
+        if (!sortColumn) return data;
+
+        return [...data].sort((a, b) => {
+            const valueA = a[sortColumn as keyof ICustomerData];
+            const valueB = b[sortColumn as keyof ICustomerData];
+
+            if (valueA === undefined || valueB === undefined) return 0;
+
+            let comparison = 0;
+            if (typeof valueA === 'string' && typeof valueB === 'string') {
+                comparison = valueA.localeCompare(valueB);
+            } else {
+                comparison = Number(valueA) - Number(valueB);
+            }
+
+            return sortDirection === "asc" ? comparison : -comparison;
+        });
+    };
 
     const filteredCustomers = customerData.filter(customer => {
         const isActiveFilterValid = 
@@ -59,7 +97,8 @@ export function AllPhones() {
             (customer.client?.toLowerCase() ?? '').includes(filtro.toLowerCase());
     });
     
-    
+    // Aplicar ordenação aos dados filtrados
+    const sortedCustomers = getSortedData(filteredCustomers);
     
     const clearFiltro = () => {
         setFiltro("");
@@ -67,6 +106,36 @@ export function AllPhones() {
     const handleFiltroChange = (e: ChangeEvent<HTMLInputElement>) => {
         setFiltro(e.target.value);
       };
+
+    // Componente para as setas de ordenação
+    const SortArrows = ({ column }: { column: string }) => (
+        <div style={{ display: "inline-flex", flexDirection: "column", marginLeft: "5px", cursor: "pointer" }}>
+            <div 
+                onClick={() => handleSort(column)} 
+                style={{ 
+                    width: 0, 
+                    height: 0, 
+                    borderLeft: "5px solid transparent", 
+                    borderRight: "5px solid transparent", 
+                    borderBottom: "5px solid " + (sortColumn === column && sortDirection === "asc" ? "#004488" : "#aaa"),
+                    marginBottom: "2px"
+                }}
+            />
+            <div 
+                onClick={() => {
+                    setSortColumn(column);
+                    setSortDirection("desc");
+                }} 
+                style={{ 
+                    width: 0, 
+                    height: 0, 
+                    borderLeft: "5px solid transparent", 
+                    borderRight: "5px solid transparent", 
+                    borderTop: "5px solid " + (sortColumn === column && sortDirection === "desc" ? "#004488" : "#aaa")
+                }}
+            />
+        </div>
+    );
 
     return (
         <div className='column-align' style={{width:"100vw", margin:"10px 0px", alignItems:"center"}}>
@@ -131,21 +200,63 @@ export function AllPhones() {
                 </div>
                 <button onClick={AddNewPhone} className='button-blue' style={{margin:"20px 0px"}}>Adicionar</button>
             </div>
+            
+            <div style={{ width: "90%", textAlign: "left", margin: "10px 0" }}>
+                <span style={{ color: "#004488", fontWeight: "bold" }}>
+                    {sortedCustomers.length} resultado{sortedCustomers.length !== 1 ? 's' : ''} encontrado{sortedCustomers.length !== 1 ? 's' : ''}
+                </span>
+            </div>
+            
             <table className="table-2024 fixed-header-table" style={{textAlign:"left", width:"90%"}}>
                 <thead>
                     <tr className="cells table-2024 border-bottom-zero">
-                        <th>Número</th>
-                        <th>Cliente</th>
-                        <th>Bot ID</th>
-                        <th>Servidor</th>
-                        <th>Observação</th>
-                        <th>Origem</th>
-                        <th>Status</th>
+                        <th>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                                <span>Número</span>
+                                <SortArrows column="number" />
+                            </div>
+                        </th>
+                        <th>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                                <span>Cliente</span>
+                                <SortArrows column="client" />
+                            </div>
+                        </th>
+                        <th>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                                <span>Bot ID</span>
+                                <SortArrows column="botId" />
+                            </div>
+                        </th>
+                        <th>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                                <span>Servidor</span>
+                                <SortArrows column="botServerType" />
+                            </div>
+                        </th>
+                        <th>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                                <span>Observação</span>
+                                <SortArrows column="observation" />
+                            </div>
+                        </th>
+                        <th>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                                <span>Origem</span>
+                                <SortArrows column="origin" />
+                            </div>
+                        </th>
+                        <th>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                                <span>Status</span>
+                                <SortArrows column="activated" />
+                            </div>
+                        </th>
                         <th>Gerenciar</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {customerData && filteredCustomers.map((data, index) => (
+                    {customerData && sortedCustomers.map((data, index) => (
                         <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#e4e4e4' : '#FFF' }}>
                             <td><PhoneInput
                                     defaultCountry="br"

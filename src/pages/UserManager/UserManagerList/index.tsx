@@ -17,6 +17,7 @@ import trash from '../../../img/trash-solid.svg'
 import pencil from '../../../img/pencil.svg'
 import { ToastContainer } from "react-toastify";
 import { successMessageDefault, errorMessageDefault, waitingMessage} from "../../../Components/Toastify";
+import inbotApi from "../../../utils/apiInbot";
 export function UserManagerList() {
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -47,7 +48,10 @@ const [sortOrder, setOrderSort] = useState<string>("")
 const [loadFinished, setLoadFinished] = useState(true)
 const [filterSelected, setFilterSelected] = useState("")
 const [isCustomFields, setIsCustomFields] = useState(false)
+const [showAdvancedFilters, setShowAdvancedFilters] = useState<boolean>(false)
+const [advancedFilters, setAdvancedFilters] = useState<Array<{column: string, value: string}>>([])
 const modalRef = useRef<HTMLDivElement>(null);
+const isSearching = useRef<boolean>(false);
 const [initDate, setInitDate] = useState({
     day: now.getDate(),
     month: now.getMonth() + 1,
@@ -109,22 +113,62 @@ const handleButtonName = (wichButton: string) => {
     };
 
   useEffect(() => {
+    const getData = async () => {
+    if (!searchButton) return;
+    
+    if (isSearching.current) return;
+    isSearching.current = true;
+    
     const qtyDaysInit = getDaysInMonth(initDate.year, initDate.month)
     const qtyDaysFinal = getDaysInMonth(finalDate.year, finalDate.month)
     const finalDay = qtyDaysFinal < finalDate.day ? qtyDaysFinal : finalDate.day
     const initDay = qtyDaysFinal < initDate.day ? qtyDaysInit : initDate.day
-    setSearchButton(false)
-    api.get(`/customfields-parameters/${botId}`)
-    .then(resp => {
-        setCustomFields(resp.data.data)
-    })
-    api.get(`/customer-parameters/${botId}?initialDate=${initDate.year}-${initDate.month}-${initDay}&finalDate=${finalDate.year}-${finalDate.month}-${finalDay}`)
-    .then(resp => {
-        setCustomers(resp.data.data)
-        setQtyCustomer(resp.data.data.length)
+    
+    const resp:any = await inbotApi.get(`/customfields`)
+        setCustomFields(resp)
+    const initialDate = `${initDate.year}-${String(initDate.month).padStart(2, '0')}-${String(initDay).padStart(2, '0')}`;
+    const lastDate = `${finalDate.year}-${String(finalDate.month).padStart(2, '0')}-${String(finalDay).padStart(2, '0')}`;
+    inbotApi.get(`/customermanager?initialDate=${initialDate}&finalDate=${lastDate}&limit=1000`)
+    .then((resp:any) => {
+        setCustomers(resp)
+        setQtyCustomer(resp.length)
         setLoadFinished(true)
+        setSearchButton(false)
+        isSearching.current = false;
     })
-  },[searchButton])
+    .catch(error => {
+        console.error(error);
+        setLoadFinished(true)
+        setSearchButton(false)
+        isSearching.current = false;
+    })
+}
+getData()
+},[searchButton])
+
+  useEffect(() => {
+    const getData = async () => {
+    const qtyDaysInit = getDaysInMonth(initDate.year, initDate.month)
+    const qtyDaysFinal = getDaysInMonth(finalDate.year, finalDate.month)
+    const finalDay = qtyDaysFinal < finalDate.day ? qtyDaysFinal : finalDate.day
+    const initDay = qtyDaysFinal < initDate.day ? qtyDaysInit : initDate.day
+    inbotApi.setBotId(Number(botId));
+    const resp:any = await inbotApi.get(`/customfields`)
+    setCustomFields(resp)
+    console.log(resp)
+    const initialDate = `${initDate.year}-${String(initDate.month).padStart(2, '0')}-${String(initDay).padStart(2, '0')}`;
+    const lastDate = `${finalDate.year}-${String(finalDate.month).padStart(2, '0')}-${String(finalDay).padStart(2, '0')}`;
+    inbotApi.get(`/customermanager?initialDate=${initialDate}&finalDate=${lastDate}&limit=1000`)
+    .then((resp:any) => {
+        setCustomers(resp)
+        setQtyCustomer(resp.length)
+    })
+    .catch(error => {
+        console.error(error);
+    })
+}
+getData()
+},[])
 
 const saveCustomer = async (data: any) => {
     let access = ""
@@ -234,32 +278,23 @@ const saveCustomer = async (data: any) => {
                 customerEdited[elementName] = editedValues[0][elementName];
             } else {
                 for(let i=0;i<customerEdited.customFields.length;i++){
-                    if(customerEdited.customFields[i].id===elementName){
+                    if(customerEdited.customFields[i].customFieldId===elementName){
                         customerEdited.customFields[i].value= editedValues[0][elementName]
                     }
                 }
             }
         }
+        const customer = {
+            name: customerEdited.name,
+            // phone: customerEdited.phone,
+            email: customerEdited.email,
+        }
         customerEdited.botId = botId;
-        let access = ""
-        let token = ""
-        const baseUrl = "https://api.inbot.com.br/user-manager/v1"
-        // const baseUrl = "https://api-stg.inbot.com.br/user-manager/v1"
-        await api.get(`/customer-manager/access-key/${botId}`)
-            .then(resp => access = resp.data.key)
-        await api.post(`/token`,{botId: botId}, {headers:{"x-api-key": access}})
-            .then(resp => token = resp.data.token)
-        let config = {
-        method: 'put',
-        maxBodyLength: Infinity,
-        url: `${baseUrl}/customer/${customerEdited.id}`,
-        headers: { 
-            'Content-Type': 'application/json', 
-            'Authorization': `Bearer ${token}`
-        },
-            data : customerEdited
-        };
-        await axios.request(config).then((response: any) => {
+        inbotApi.setBotId(Number(botId));
+        await inbotApi.patch(`/customerManager/customerId/${customerEdited.id}`, {
+            customer:customer,
+            customFields: customerEdited.customFields})
+        .then(() => {
             setEditedValues([])
             handleSave(index)
             setSearchButton(previous => !previous)
@@ -348,6 +383,9 @@ const saveCustomer = async (data: any) => {
                 if(field === data.id){
                     resp = data.value;
                 }
+                if(field === data.customFieldId){
+                    resp = data.value;
+                }
             }
         }
         if (resp === '') {
@@ -368,8 +406,30 @@ const saveCustomer = async (data: any) => {
     }
     const handleSort = (outrosDadosFiltrados: any) => {
         let filteredItems = outrosDadosFiltrados.filter((item: any) => {
-            const value = item[`${filterSelected}`] || '';
-            return value.toString().toLowerCase().includes(filterSelectedValue);
+            // Filtro básico
+            const basicFilterValid = filterSelected === "" || 
+                (item[`${filterSelected}`] && item[`${filterSelected}`].toString().toLowerCase().includes(filterSelectedValue.toLowerCase()));
+            
+            // Filtro por status (ativo/inativo)
+            const statusFilterValid = !checkActivated || item.activated === 1;
+            
+            // Filtros avançados
+            let advancedFiltersValid = true;
+            if (advancedFilters.length > 0) {
+                advancedFiltersValid = advancedFilters.every(filter => {
+                    if (filter.column === "" || filter.value === "") return true;
+                    
+                    // Verificar se é um campo customizado
+                    if (customFields.some((cf: any) => cf.id === filter.column)) {
+                        return getCustomFieldValue(item, filter.column).toLowerCase().includes(filter.value.toLowerCase());
+                    }
+                    
+                    // Campo padrão
+                    return item[filter.column] && item[filter.column].toString().toLowerCase().includes(filter.value.toLowerCase());
+                });
+            }
+            
+            return basicFilterValid && statusFilterValid && advancedFiltersValid;
         });
     
         if (checkActivated) {
@@ -432,28 +492,65 @@ const saveCustomer = async (data: any) => {
     }
     const hasShowNameAndValue = (customer: any, fields: any, hasCustomField: boolean) => {
         if(!hasCustomField && customer.length > 0){
-            if(customer[0].hasOwnProperty(fields.id)) {
-                return customer[0].hasOwnProperty(fields.id)
+            if(customer[0].hasOwnProperty(fields.customFieldId)) {
+                return customer[0].hasOwnProperty(fields.customFieldId)
             } else if(customer[0].hasOwnProperty(fields)){
                 return true
             }
         }
         return false;
     }
-    const deleteCustomer = async (hashId:string) => {
+    const deleteCustomer = async (customerId:string) => {
         waitingMessage()
-        let access = ""
-        let token = ""
-        await api.get(`/customer-manager/access-key/${botId}`)
-            .then(resp => access = resp.data.key)
-        await api.post(`/token`,{botId: botId}, {headers:{"x-api-key": access}})
-            .then(resp => token = resp.data.token)
-        api.delete(`/customer/${hashId}/botid/${botId}`, {headers: {'Authorization': `Bearer ${token}`} })
+        inbotApi.delete(`/customerManager/customerId/${customerId}`)
         .then(()=> {
             successMessageDefault("Usuário deletado com sucesso")
             setSearchButton(previous => !previous)
         })
     }
+
+    // Função para adicionar um novo filtro avançado
+    const addAdvancedFilter = () => {
+        setAdvancedFilters([...advancedFilters, {column: "", value: ""}]);
+    };
+
+    // Função para remover um filtro avançado
+    const removeAdvancedFilter = (index: number) => {
+        const newFilters = [...advancedFilters];
+        newFilters.splice(index, 1);
+        setAdvancedFilters(newFilters);
+    };
+
+    // Função para atualizar um filtro avançado
+    const updateAdvancedFilter = (index: number, field: 'column' | 'value', value: string) => {
+        const newFilters = [...advancedFilters];
+        newFilters[index][field] = value;
+        setAdvancedFilters(newFilters);
+    };
+
+    // Função para limpar todos os filtros avançados
+    const clearAdvancedFilters = () => {
+        setAdvancedFilters([]);
+    };
+
+    // Função para obter todas as colunas disponíveis (padrão + customizadas)
+    const getAllColumns = () => {
+        const standardColumns = [
+            {id: "id", label: "ID"},
+            {id: "phone", label: "Telefone"},
+            {id: "name", label: "Nome"},
+            {id: "email", label: "E-mail"},
+            {id: "createdAt", label: "Data Cadastro"},
+            {id: "activated", label: "Status"}
+        ];
+        
+        const customFieldColumns = customFields.map((field: any) => ({
+            id: field.id,
+            label: field.customName
+        }));
+        
+        return [...standardColumns, ...customFieldColumns];
+    };
 
   return (
     <div className="column-align" style={{width:"100vw", height:"100vh",backgroundColor:"#ebebeb", padding:"10px 10px 0px 0px", alignItems:"center"}}>
@@ -590,37 +687,32 @@ const saveCustomer = async (data: any) => {
                     ))}
                 </select>
                 <button className="button-blue" onClick={() => {
+                    if (!isSearching.current) {
                         setSearchButton(true)
                         setLoadFinished(false)
-                    }} 
+                    }
+                }} 
                     disabled={!loadFinished}>{loadFinished ? "Buscar" : <div className="in_loader"></div>}</button>
             </div>
-            {/* <div className="row-align" style={{marginBottom:"30px", alignItems:"center"}}>
-                <span className="color-text-label" style={{padding:"0px 50px 0px 20px"}}>Status:</span>
-                <div className={filtersBtn.status.todos ? "border_gradient" : "border_gradient-gray"} onClick={()=>""} style={{marginRight:"15px", cursor:"pointer", marginLeft:"20px"}}><div className={filtersBtn.status.todos ? "number_button_gradient" : "number_button_gradient-gray"} onClick={() => handleStatusChange('todos')}>Todos</div></div>
-                <div className={filtersBtn.status.ativos ? "border_gradient" : "border_gradient-gray"} onClick={()=>""} style={{marginRight:"15px", cursor:"pointer"}}><div className={filtersBtn.status.ativos ? "number_button_gradient" : "number_button_gradient-gray"} onClick={() => handleStatusChange('ativos')}>Ativos</div></div>
-                <div className={filtersBtn.status.inativos ? "border_gradient" : "border_gradient-gray"} onClick={()=>""} style={{marginRight:"15px", cursor:"pointer"}}><div className={filtersBtn.status.inativos ? "number_button_gradient" : "number_button_gradient-gray"} onClick={() => handleStatusChange('inativos')}>Inativos</div></div>
-            </div> */}
             <div className="row-align">
                 <div className="column-align left-align" style={{marginLeft:"20px"}}>
                     <span className="color-text-label">Filtrar por campo:</span>
                     <select onChange={e => setFilterSelected(e.target.value)} name="" id="" className="input-values" style={{border:"none", height:"30px", width:"300px", marginLeft:"0px"}}>
-                        <option value="Escolha uma opção">Escolha uma opção</option>
+                        <option value="">Escolha uma opção</option>
                         <option value="phone">Telefone</option>
                         <option value="name">Nome</option>
                         <option value="email">E-mail</option>
                         {customFields.map((customField: any) => (
-                            <option value={customField.id}>{customField.customName}</option>
+                            <option key={customField.id} value={customField.id}>{customField.customName}</option>
                         ))}
                     </select>
                     <div className="row-align" style={{alignContent:"center"}}>
-                    <span className="color-text-label">Exibir somente usuários ativos:</span>
-                    <input
-                        onChange={(e) => setCheckActivated(e.target.checked)}
-                        style={{ marginLeft: "10px", marginTop:"2px" }}
-                        type="checkbox"
+                        <span className="color-text-label">Exibir somente usuários ativos:</span>
+                        <input
+                            onChange={(e) => setCheckActivated(e.target.checked)}
+                            style={{ marginLeft: "10px", marginTop:"2px" }}
+                            type="checkbox"
                         />
-
                     </div>
                 </div>
                 <div className="column-align left-align" style={{marginLeft:"50px"}}>
@@ -628,6 +720,87 @@ const saveCustomer = async (data: any) => {
                     <input onChange={e => setFilterSelectedValue(e.target.value)} name="" id="" className="input-values" style={{border:"none", height:"30px", width:"300px"}}/>
                 </div>
             </div>
+            
+            {/* Botão para mostrar/ocultar filtros avançados */}
+            <div className="row-align" style={{justifyContent: "flex-end", margin: "10px 20px"}}>
+                <button 
+                    className="button-blue" 
+                    onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                    style={{width: "auto", padding: "5px 15px"}}
+                >
+                    {showAdvancedFilters ? "Ocultar filtros avançados" : "Mostrar filtros avançados"}
+                </button>
+            </div>
+            
+            {/* Seção de filtros avançados */}
+            {showAdvancedFilters && (
+                <div className="column-align" style={{margin: "10px 20px", border: "1px solid #ddd", padding: "15px", borderRadius: "10px", backgroundColor: "#f9f9f9"}}>
+                    <div className="row-align" style={{justifyContent: "space-between", width: "100%", marginBottom: "10px"}}>
+                        <span className="color-text-label" style={{fontWeight: "bold", fontSize: "16px"}}>Filtros Avançados</span>
+                        <div>
+                            <button 
+                                className="button-blue" 
+                                onClick={addAdvancedFilter}
+                                style={{marginRight: "10px", padding: "5px 10px"}}
+                            >
+                                Adicionar filtro
+                            </button>
+                            {advancedFilters.length > 0 && (
+                                <button 
+                                    className="button-cancel" 
+                                    onClick={clearAdvancedFilters}
+                                    style={{padding: "5px 10px"}}
+                                >
+                                    Limpar filtros
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                    
+                    {advancedFilters.length === 0 ? (
+                        <div style={{margin: "10px 0", color: "#666"}}>
+                            Nenhum filtro avançado adicionado. Clique em "Adicionar filtro" para começar.
+                        </div>
+                    ) : (
+                        advancedFilters.map((filter, index) => (
+                            <div key={index} className="row-align" style={{margin: "10px 0", width: "100%", alignItems: "center"}}>
+                                <select 
+                                    value={filter.column} 
+                                    onChange={(e) => updateAdvancedFilter(index, 'column', e.target.value)}
+                                    className="input-values"
+                                    style={{width: "250px", marginRight: "10px"}}
+                                >
+                                    <option value="">Selecione uma coluna</option>
+                                    {getAllColumns().map(column => (
+                                        <option key={column.id} value={column.id}>{column.label}</option>
+                                    ))}
+                                </select>
+                                <input 
+                                    type="text" 
+                                    value={filter.value} 
+                                    onChange={(e) => updateAdvancedFilter(index, 'value', e.target.value)}
+                                    placeholder="Valor do filtro"
+                                    className="input-values"
+                                    style={{width: "300px", marginRight: "10px"}}
+                                />
+                                <button 
+                                    onClick={() => removeAdvancedFilter(index)}
+                                    style={{
+                                        border: "none",
+                                        background: "transparent",
+                                        cursor: "pointer",
+                                        color: "#d9534f",
+                                        fontSize: "18px"
+                                    }}
+                                >
+                                    ✖
+                                </button>
+                            </div>
+                        ))
+                    )}
+                </div>
+            )}
+            
             <div className="column-align" style={{alignItems:"center"}}>
                 <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
             </div>
@@ -650,11 +823,11 @@ const saveCustomer = async (data: any) => {
                     <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>E-mail</span> <div><div className="triangle-up" onClick={()=>handleInitSort("name","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("name","desc",false)}></div></div></div></th>
                     {customFields.map((fields:any, key:any)=>(
                         <th key={key} className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>{fields.customName}</span> <div><div className="triangle-up" onClick={()=>handleInitSort(fields.id,"asc",true)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort(fields.id,"desc",true)}></div></div></div></th>
-                    ))}
-                    <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Data Cadastro</span> <div><div className="triangle-up" onClick={()=>handleInitSort("createdAt","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("createdAt","desc",false)}></div></div></div></th>
-                    <th className="cells">Status</th>
-                    <th className="cells">Gerenciar</th>
-                </tr>
+                    ))}     
+                        <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span style={{padding:"0px 15px"}}>Data Cadastro</span> <div><div className="triangle-up" onClick={()=>handleInitSort("createdAt","asc",false)}></div><div className="triangle-down" style={{marginTop:"2px"}}  onClick={()=>handleInitSort("createdAt","desc",false)}></div></div></div></th>
+                        <th className="cells">Status</th>
+                        <th className="cells">Gerenciar</th>
+                    </tr>
                 </thead>
                 <tbody>
                     

@@ -49,8 +49,18 @@ export function AddNumber() {
     const handleFormSubmit = (event: React.FormEvent) => {
         event.preventDefault();
         setLoading(true)
-
-        api.post('/whats', newNumber)
+        const data={
+            number: newNumber.number.replace(/\D/g, ''),
+            client: newNumber.client,
+            observation: newNumber.observation,
+            botId: newNumber.botId,
+            webhook: newNumber.webhook,
+            botServerType: newNumber.botServerType,
+            url_bot_server: newNumber.url_bot_server,
+            origin: newNumber.origin,
+            accessToken: newNumber.accessToken,
+        }
+        api.post('/whats', data)
             .then(res => {
                 successMessageChange();
                 setLoading(false)
@@ -163,6 +173,22 @@ export function AddNumber() {
                                 </select>
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>URL do botserver*</span>
+                                    <input 
+                                        type="text"
+                                        placeholder="Insira a URL do botserver"
+                                        name="url_bot_server"
+                                        value={newNumber.url_bot_server}
+                                        onChange={handleInputChange}
+                                        className="input-values"
+                                        required
+                                        style={{width:"350px"}}
+                                    />
+                                    </div>
+                                    <div style={{ fontSize: "10px", fontWeight: "bold", color: "#ff0000", marginLeft: "120px", marginTop: "-20px" }}>
+                                        Padrão: https://in.bot/api/bot_gateway
+                                    </div>
+                                <div className="row-align" style={{ margin: "10px" }}>
                                     <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Origem do cadastro</span>
                                     <input 
                                         type="text"
@@ -265,8 +291,7 @@ export function AddNumber() {
                                         className="input-values"
                                         style={{width:"350px"}}
                                     >
-                                        <option value="UNDEFINED">Undefined</option>
-                                        <option value="OTHER">Other</option>
+                                                                                <option value="OTHER">Other</option>
                                         <option value="AUTO">Auto</option>
                                         <option value="BEAUTY">Beauty</option>
                                         <option value="APPAREL">Apparel</option>
@@ -284,6 +309,10 @@ export function AddNumber() {
                                         <option value="TRAVEL">Travel</option>
                                         <option value="RESTAURANT">Restaurant</option>
                                         <option value="NOT_A_BIZ">Not a Biz</option>
+                                        <option value="ALCOHOL">Alcohol</option>
+                                        <option value="ONLINE_GAMBLING">Online Gambling</option>
+                                        <option value="PHYSICAL_GAMBLING">Physical Gambling</option>
+                                        <option value="OTC_DRUGS">Otc Drugs</option>
                                     </select>
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>

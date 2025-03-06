@@ -87,3 +87,7 @@ export const erroMessageQuickReply = () => toast.warn("Preencha o botão");
 export const errorCancelTrigger = () => toast.error("Não permitido cancelar operação",{
     theme:"colored"
 })
+
+export const errorEmptyButtons = () => toast.error("Adicione pelo menos um botão antes de salvar", {
+    theme: "colored"
+});

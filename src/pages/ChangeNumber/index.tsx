@@ -35,7 +35,19 @@ export function ChangeDeleteNumber() {
 
     const saveChanges = () => {
         setLoading(true)
-        api.put(`/whats/${location.state.phoneNumber}`, customerData)
+        const data={
+            number: customerData.number.replace(/\D/g, ''),
+            client: customerData.client,
+            observation: customerData.observation,
+            botId: customerData.botId,
+            webhook: customerData.webhook,
+            botServerType: customerData.botServerType,
+            url_bot_server: customerData.url_bot_server,
+            origin: customerData.origin,
+            accessToken: customerData.accessToken,
+            activated: customerData.activated,
+        }
+        api.put(`/whats/${location.state.phoneNumber}`, data)
             .then(res => {
                 successMessageChange();
                 setLoading(false)
@@ -183,6 +195,22 @@ export function ChangeDeleteNumber() {
                                 </select>
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>URL do botserver*</span>
+                                    <input 
+                                        type="text"
+                                        placeholder="Insira a URL do botserver"
+                                        name="url_bot_server"
+                                        value={customerData.url_bot_server}
+                                        onChange={handleInputChange}
+                                        className="input-values"
+                                        required
+                                        style={{width:"350px"}}
+                                    />
+                                    </div>
+                                    <div style={{ fontSize: "10px", fontWeight: "bold", color: "#ff0000", marginLeft: "120px", marginTop: "-20px" }}>
+                                        Padrão: https://in.bot/api/bot_gateway
+                                    </div>
+                                <div className="row-align" style={{ margin: "10px" }}>
                                     <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Status</span>
                                     <select name="activated" value={customerData.activated} onChange={(event: React.ChangeEvent<HTMLSelectElement>) => handleInputChange(event)} className="input-values" style={{width:"350px"}}>
                                         <option value="">--</option>
@@ -294,7 +322,6 @@ export function ChangeDeleteNumber() {
                                         className="input-values"
                                         style={{width:"350px"}}
                                     >
-                                        <option value="UNDEFINED">Undefined</option>
                                         <option value="OTHER">Other</option>
                                         <option value="AUTO">Auto</option>
                                         <option value="BEAUTY">Beauty</option>
@@ -313,6 +340,10 @@ export function ChangeDeleteNumber() {
                                         <option value="TRAVEL">Travel</option>
                                         <option value="RESTAURANT">Restaurant</option>
                                         <option value="NOT_A_BIZ">Not a Biz</option>
+                                        <option value="ALCOHOL">Alcohol</option>
+                                        <option value="ONLINE_GAMBLING">Online Gambling</option>
+                                        <option value="PHYSICAL_GAMBLING">Physical Gambling</option>
+                                        <option value="OTC_DRUGS">Otc Drugs</option>
                                     </select>
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
