@@ -6,7 +6,7 @@ import { Tooltip } from 'react-tooltip'
 import { erroMessageQuickReply, errorMessageHeader, errorMessageFooter, errorMessageBody, waitingMessage, successCreateTemplate, errorMessage, errorMessageConfig, errorVariableEmpty } from "../../../Components/Toastify";
 import strings from '../strings.json'
 import api from "../../../utils/api";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import whatsappBackground from '../../../img/background_1.png';
 import './index.css'
 import attached from '../../../img/attachment.png'
@@ -338,34 +338,166 @@ export function CreateTemplateAccordion() {
     }
 
     const validatedPayload = () => {
-        if(variables.length > 0) {
-            variables.forEach(variable => {
-                if(variable.text.length === 0) {
-                    errorVariableEmpty()
-                    return;
+        // Validação dos campos obrigatórios
+        const requiredFields: { [key: string]: string } = {
+            templateName: "Nome do template",
+            templateType: "Categoria"
+        };
+        
+        let hasError = false;
+        let firstErrorField = '';
+        const missingFields: string[] = [];
+        
+        // Verificar cada campo obrigatório
+        for (const [field, label] of Object.entries(requiredFields)) {
+            let value = '';
+            if (field === 'templateName') value = templateName;
+            if (field === 'templateType') value = templateType;
+
+            if (!value) {
+                hasError = true;
+                missingFields.push(label);
+                
+                // Guardar o primeiro campo com erro para definir o accordion
+                if (!firstErrorField) {
+                    firstErrorField = field;
                 }
-            })
+            }
         }
-        if (templateName.length === 0 || templateType === ""){
-            errorMessageConfig()
-            return;
-        }
-        if (headers === undefined || 
-            (headers !== undefined && headers?.parameters && headers?.parameters[0]?.type === "text" && template.header === "")) {
-            errorMessageHeader()
-            return;
-        }
-        if (template.footer === "" && rodape === false) {
-            errorMessageFooter()
-            return;
-        }
+
+        // Verificar o corpo da mensagem
         if (template.body === "") {
-            errorMessageBody()
+            hasError = true;
+            missingFields.push("Corpo da mensagem");
+            if (!firstErrorField) {
+                firstErrorField = 'body';
+            }
+        }
+
+        // Verificar o cabeçalho se estiver habilitado
+        if (typeOfHeader === "header" && template.header === "") {
+            hasError = true;
+            missingFields.push("Cabeçalho");
+            if (!firstErrorField) {
+                firstErrorField = 'header';
+            }
+        }
+
+        // Verificar o rodapé se estiver habilitado
+        if (rodapeType === "rodape" && template.footer === "") {
+            hasError = true;
+            missingFields.push("Rodapé");
+            if (!firstErrorField) {
+                firstErrorField = 'footer';
+            }
+        }
+
+        // Verificar botões se estiverem habilitados
+        if (typeOfButtons === "quickReply" && buttons.length === 0) {
+            hasError = true;
+            missingFields.push("Botões");
+            if (!firstErrorField) {
+                firstErrorField = 'buttons';
+            }
+        }
+
+        if (typeOfButtons === "cta" && buttonsCTA.length === 0) {
+            hasError = true;
+            missingFields.push("Botões");
+            if (!firstErrorField) {
+                firstErrorField = 'buttonsCTA';
+            }
+        }
+
+        // Verificar variáveis
+        if (variables.length > 0) {
+            for (const variable of variables) {
+                if (variable.text.length === 0) {
+                    hasError = true;
+                    missingFields.push("Variáveis");
+                    break;
+                }
+            }
+        }
+
+        // Se houver erro, não continua com o envio do formulário
+        if (hasError) {
+            // Abrir o accordion correspondente ao primeiro campo com erro
+            if (firstErrorField === 'templateName' || firstErrorField === 'templateType') {
+                setAccordionState({
+                    channelTrigger: false,
+                    config: true,
+                    header: false,
+                    body: false,
+                    footer: false,
+                    botao: false
+                });
+            } else if (firstErrorField === 'header') {
+                setAccordionState({
+                    channelTrigger: false,
+                    config: false,
+                    header: true,
+                    body: false,
+                    footer: false,
+                    botao: false
+                });
+            } else if (firstErrorField === 'body') {
+                setAccordionState({
+                    channelTrigger: false,
+                    config: false,
+                    header: false,
+                    body: true,
+                    footer: false,
+                    botao: false
+                });
+            } else if (firstErrorField === 'footer') {
+                setAccordionState({
+                    channelTrigger: false,
+                    config: false,
+                    header: false,
+                    body: false,
+                    footer: true,
+                    botao: false
+                });
+            } else if (firstErrorField === 'buttons' || firstErrorField === 'buttonsCTA') {
+                setAccordionState({
+                    channelTrigger: false,
+                    config: false,
+                    header: false,
+                    body: false,
+                    footer: false,
+                    botao: true
+                });
+            }
+            
+            // Mostrar toasts com um pequeno atraso entre eles
+            if (missingFields.length > 3) {
+                // Se houver mais de 3 campos faltando, mostrar uma mensagem genérica
+                toast.error(`Preencha todos os campos obrigatórios (${missingFields.length} campos faltando)`, {
+                    theme: "colored"
+                });
+            } else {
+                // Mostrar mensagens específicas para cada campo faltando (até 3)
+                missingFields.forEach((field, index) => {
+                    setTimeout(() => {
+                        toast.error(`O campo ${field} é obrigatório`, {
+                            theme: "colored"
+                        });
+                    }, index * 300); // 300ms de atraso entre cada toast
+                });
+            }
+            
+            return false;
+        }
+
+        return true;
+    };
+    const createPayload = () => {
+        // Validar os campos obrigatórios antes de criar o payload
+        if (!validatedPayload()) {
             return;
         }
-        handleButtonName("Salvar")
-    }
-    const createPayload = () => {
+        
         if (headers === undefined) {
             errorMessageHeader()
             return;
@@ -868,7 +1000,7 @@ export function CreateTemplateAccordion() {
                             }</div>
                     <div style={{ width:"100%", flexDirection: "row", textAlign: "end", alignContent: "end", alignItems: "end", padding:"15px" }}>
                         <button className="button-cancel" onClick={() => handleButtonName("Cancelar")}>Cancelar</button>
-                        <button className="button-save" onClick={() => validatedPayload()}>Salvar</button>
+                        <button className="button-save" onClick={() => createPayload()}>Salvar</button>
                     </div>
                     </div>}
                 </div>

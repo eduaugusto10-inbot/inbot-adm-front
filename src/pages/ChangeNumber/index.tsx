@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { AccordionStateWhats, ICustomerData, defaultCustomerData } from '../types';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { successMessageChange, errorMessage, successMessageImg, errorMessageImg } from '../../Components/Toastify'
 import { mask } from '../../utils/utils';
 import chevron from "../../img/right-chevron.png";
@@ -15,7 +15,8 @@ export function ChangeDeleteNumber() {
     const location = useLocation()
     const [customerData, setCustomerData] = useState<ICustomerData>(defaultCustomerData);
     const [profilePic, setProfilePic] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false)
+    const [loading, setLoading] = useState<boolean>(false);
+    const [fieldErrors, setFieldErrors] = useState<{[key: string]: boolean}>({});
     const [accordionState, setAccordionState] = useState<AccordionStateWhats>({
         inbot: true,
         smarters: false,
@@ -43,6 +44,8 @@ export function ChangeDeleteNumber() {
             webhook: customerData.webhook,
             botServerType: customerData.botServerType,
             url_bot_server: customerData.url_bot_server,
+            url_inchat: customerData.url_inchat,
+            server: customerData.server,
             origin: customerData.origin,
             accessToken: customerData.accessToken,
             activated: customerData.activated,
@@ -78,14 +81,156 @@ export function ChangeDeleteNumber() {
     };
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = event.target;
+        
+        // Limpar o erro do campo quando o usuário começar a digitar
+        if (fieldErrors[name]) {
+            setFieldErrors(prev => ({
+                ...prev,
+                [name]: false
+            }));
+        }
+        
+        // Se o campo for server (Servidor), definir os valores corretos
+        if (name === 'server') {
+            let serverUrl = '';
+            let inchatUrl = '';
+            
+            switch(value) {
+                case 'Principal':
+                    serverUrl = 'https://in.bot/api/bot_gateway';
+                    inchatUrl = 'https://proxy1.in.bot/api';
+                    break;
+                case 'OEC':
+                    serverUrl = 'https://oec.in.bot/api/bot_gateway';
+                    inchatUrl = 'https://oec.in.bot/node/api';
+                    break;
+                case 'FS':
+                    serverUrl = 'https://fs.in.bot/api/bot_gateway';
+                    inchatUrl = 'https://fs.in.bot/node/api';
+                    break;
+                case 'Tecban':
+                    serverUrl = 'https://tecban-chat.in.bot/api/bot_gateway';
+                    inchatUrl = 'https://tecban-chat.in.bot/node/api';
+                    break;
+                default:
+                    serverUrl = '';
+                    inchatUrl = '';
+            }
+            
+            setCustomerData(prevState => ({
+                ...prevState,
+                server: value,
+                url_bot_server: serverUrl,
+                url_inchat: inchatUrl
+            }));
+            
+            return;
+        }
+        
         setCustomerData(prevState => ({
             ...prevState,
             [name]: value,
         }));
     };
 
+    // Função para obter o estilo do campo com base no estado de erro
+    const getInputStyle = (fieldName: string) => {
+        const baseStyle = {width:"350px"};
+        return fieldErrors[fieldName] 
+            ? {...baseStyle, border: "1px solid red", backgroundColor: "#fff0f0"} 
+            : baseStyle;
+    };
+
     const handleFormSubmit = (event: React.FormEvent) => {
         event.preventDefault();
+        
+        // Validação dos campos obrigatórios
+        const requiredFields: { [key: string]: string } = {
+            number: "Telefone",
+            client: "Cliente",
+            botId: "Bot ID",
+            webhook: "Gateway",
+            botServerType: "Ambiente Bot Server",
+            server: "Servidor",
+            profile_pic: "Link da imagem",
+            description: "Descrição",
+            accessToken: "Access token",
+            origin: "Origem do cadastro"
+        };
+        
+        let hasError = false;
+        const newFieldErrors: {[key: string]: boolean} = {};
+        let firstErrorField = '';
+        const missingFields: string[] = [];
+        
+        // Verificar cada campo obrigatório
+        for (const [field, label] of Object.entries(requiredFields)) {
+            if (!customerData[field as keyof ICustomerData]) {
+                newFieldErrors[field] = true;
+                hasError = true;
+                missingFields.push(label);
+                
+                // Guardar o primeiro campo com erro para rolar até ele
+                if (!firstErrorField) {
+                    firstErrorField = field;
+                }
+                
+                // Abrir o accordion correspondente ao campo com erro
+                if (field === 'description' || field === 'accessToken') {
+                    setAccordionState({
+                        inbot: false,
+                        smarters: true,
+                        finish: false
+                    });
+                } else {
+                    setAccordionState({
+                        inbot: true,
+                        smarters: false,
+                        finish: false
+                    });
+                }
+            }
+        }
+        
+        // Atualizar o estado de erros dos campos
+        setFieldErrors(newFieldErrors);
+        
+        // Se houver erro, não continua com o envio do formulário
+        if (hasError) {
+            // Mostrar toasts com um pequeno atraso entre eles
+            if (missingFields.length > 3) {
+                // Se houver mais de 3 campos faltando, mostrar uma mensagem genérica
+                toast.error(`Preencha todos os campos obrigatórios (${missingFields.length} campos faltando)`, {
+                    theme: "colored"
+                });
+            } else {
+                // Mostrar mensagens específicas para cada campo faltando (até 3)
+                missingFields.forEach((field, index) => {
+                    setTimeout(() => {
+                        toast.error(`O campo ${field} é obrigatório`, {
+                            theme: "colored"
+                        });
+                    }, index * 300); // 300ms de atraso entre cada toast
+                });
+            }
+            
+            // Rolar até o primeiro campo com erro após um pequeno delay para garantir que o accordion esteja aberto
+            setTimeout(() => {
+                let errorElement;
+                
+                if (firstErrorField === 'number') {
+                    errorElement = document.getElementById('phone-input-container');
+                } else {
+                    errorElement = document.querySelector(`[name="${firstErrorField}"]`);
+                }
+                
+                if (errorElement) {
+                    errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+            return;
+        }
+        
         saveChanges();
     };
 
@@ -117,22 +262,32 @@ export function ChangeDeleteNumber() {
                     <div className="column accordeon-new" style={{width:"800px"}} >
                         <div className="row-align" style={{ textAlign: "left", backgroundColor: "#FFF", width: "100%" }}>
                             <div className="input" style={{ justifyContent: "center"}}>
-                                <div className="row-align" style={{ margin: "10px" }}>
+                                <div className="row-align" style={{ margin: "10px" }} id="phone-input-container">
                                     <span className="span-title" style={{ justifyContent:"flex-start" }}>Telefone*</span>
                                     <PhoneInput
                                         defaultCountry="br"
                                         value={customerData.number}
-                                        onChange={(phone: string) => setCustomerData(prevState => ({ ...prevState, number: phone }))}
+                                        onChange={(phone: string) => {
+                                            // Limpar o erro do campo quando o usuário começar a digitar
+                                            if (fieldErrors['number']) {
+                                                setFieldErrors(prev => ({
+                                                    ...prev,
+                                                    number: false
+                                                }));
+                                            }
+                                            setCustomerData(prevState => ({ ...prevState, number: phone }));
+                                        }}
                                         inputStyle={{
                                             width: "305px",
                                             height: "30px",
-                                            border: "1px solid #A8A8A8",
+                                            border: fieldErrors['number'] ? "1px solid red" : "1px solid #A8A8A8",
+                                            backgroundColor: fieldErrors['number'] ? "#fff0f0" : "white",
                                             marginLeft: "5px",
                                             padding: "5px",
                                             borderRadius: "8px",
                                             alignItems: "center",
                                         }}
-                                    /> 
+                                    />
                                 </div>
                                 <div className="row-align" style={{ margin: "10px", textAlign: "left" }}>
                                     <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Cliente*</span>
@@ -143,7 +298,7 @@ export function ChangeDeleteNumber() {
                                         value={customerData.client}
                                         onChange={handleInputChange}
                                         className="input-values"
-                                        style={{width:"350px"}}
+                                        style={getInputStyle('client')}
                                         required
                                     />
                                 </div>
@@ -156,7 +311,7 @@ export function ChangeDeleteNumber() {
                                         value={customerData.observation}
                                         onChange={handleInputChange}
                                         className="input-values"
-                                        style={{width:"350px"}}
+                                        style={getInputStyle('observation')}
                                     />
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
@@ -169,14 +324,14 @@ export function ChangeDeleteNumber() {
                                         onChange={handleInputChange}
                                         className="input-values"
                                         required
-                                        style={{width:"350px"}}
+                                        style={getInputStyle('botId')}
                                     />
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
                                     <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Gateway*</span>
                                     <select
                                     className="input-values"
-                                    style={{width:"350px"}}
+                                    style={getInputStyle('webhook')}
                                     name="webhook"
                                     value={customerData.webhook}
                                     onChange={(event: React.ChangeEvent<HTMLSelectElement>) => handleInputChange(event)}
@@ -187,10 +342,10 @@ export function ChangeDeleteNumber() {
                                 </select>
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
-                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Bot Server*</span>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Ambiente Bot Server*</span>
                                     <select
                                         className="input-values"
-                                        style={{width:"350px"}}
+                                        style={getInputStyle('botServerType')}
                                         name="botServerType"
                                         value={customerData.botServerType}
                                         onChange={(event: React.ChangeEvent<HTMLSelectElement>) => handleInputChange(event)}
@@ -202,24 +357,31 @@ export function ChangeDeleteNumber() {
                                 </select>
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
-                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>URL do botserver*</span>
-                                    <input 
-                                        type="text"
-                                        placeholder="Insira a URL do botserver"
-                                        name="url_bot_server"
-                                        value={customerData.url_bot_server}
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Servidor*</span>
+                                    <select 
+                                        name="server"
+                                        value={customerData.server}
                                         onChange={handleInputChange}
                                         className="input-values"
                                         required
-                                        style={{width:"350px"}}
-                                    />
-                                    </div>
-                                    <div style={{ fontSize: "10px", fontWeight: "bold", color: "#ff0000", marginLeft: "120px", marginTop: "-20px" }}>
-                                        Padrão: https://in.bot/api/bot_gateway
-                                    </div>
+                                        style={getInputStyle('server')}
+                                    >
+                                        <option value="">Selecione uma opção</option>
+                                        <option value="Principal">Principal</option>
+                                        <option value="Tecban">Tecban</option>
+                                        <option value="FS">FS</option>
+                                        <option value="OEC">OEC</option>
+                                    </select>
+                                </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
                                     <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Status</span>
-                                    <select name="activated" value={customerData.activated} onChange={(event: React.ChangeEvent<HTMLSelectElement>) => handleInputChange(event)} className="input-values" style={{width:"350px"}}>
+                                    <select 
+                                        name="activated" 
+                                        value={customerData.activated} 
+                                        onChange={handleInputChange} 
+                                        className="input-values" 
+                                        style={getInputStyle('activated')}
+                                    >
                                         <option value="">--</option>
                                         <option value="1">Ativo</option>
                                         <option value="0">Inativo</option>
@@ -233,7 +395,7 @@ export function ChangeDeleteNumber() {
                                         onChange={handleInputChange}
                                         className="input-values"
                                         required
-                                        style={{width:"350px"}}
+                                        style={getInputStyle('origin')}
                                     >
                                         <option value="">Selecione uma origem</option>
                                         <option value="Número do cliente">Número do cliente</option>
@@ -285,7 +447,7 @@ export function ChangeDeleteNumber() {
                                         value={customerData.websites}
                                         onChange={handleInputChange}
                                         className="input-values"
-                                        style={{width:"350px" }}
+                                        style={getInputStyle('websites')}
                                     />
                                 </div>
                                 <div className="row-align" style={{ margin: "10px", textAlign: "left" }}>
@@ -297,7 +459,7 @@ export function ChangeDeleteNumber() {
                                         value={customerData.email}
                                         onChange={handleInputChange}
                                         className="input-values"
-                                        style={{width:"350px"}}
+                                        style={getInputStyle('email')}
                                     />
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
@@ -310,7 +472,7 @@ export function ChangeDeleteNumber() {
                                         onChange={handleInputChange}
                                         className="input-values"
                                         required
-                                        style={{width:"350px"}}
+                                        style={getInputStyle('description')}
                                     />
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
@@ -321,6 +483,7 @@ export function ChangeDeleteNumber() {
                                         value={customerData.address}
                                         onChange={handleInputChange}
                                         className="textarea-values"
+                                        style={getInputStyle('address')}
                                     />
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
@@ -330,7 +493,7 @@ export function ChangeDeleteNumber() {
                                         value={customerData.vertical}
                                         onChange={handleInputChange}
                                         className="input-values"
-                                        style={{width:"350px"}}
+                                        style={getInputStyle('vertical')}
                                     >
                                         <option value="OTHER">Other</option>
                                         <option value="AUTO">Auto</option>
@@ -365,6 +528,7 @@ export function ChangeDeleteNumber() {
                                         onChange={handleInputChange}
                                         className="textarea-values"
                                         required
+                                        style={getInputStyle('accessToken')}
                                     />
                                 </div>
                             </div>

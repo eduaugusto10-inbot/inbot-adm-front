@@ -6,7 +6,7 @@ import { Tooltip } from 'react-tooltip'
 import { errorMessageBody, successCreateTemplate, errorMessage, errorMessageConfig, errorVariableEmpty } from "../../../Components/Toastify";
 import strings from '../strings.json'
 import api from "../../../utils/api";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import './index.css'
 import attached from '../../../img/attachment.png'
 import Alert from "../../../Components/Alert";
@@ -66,6 +66,7 @@ export function CreateTemplateAccordion() {
     const [fileName, setFileName] = useState('');
     const [hasHeader, setHasHeader] = useState<boolean>(false)
     const [hasButtons, setHasButtons] = useState<boolean>(false)
+    const [fieldErrors, setFieldErrors] = useState<{[key: string]: boolean}>({});
     
     useEffect(() => {
         if(location?.state?.duplicated) {
@@ -224,25 +225,137 @@ export function CreateTemplateAccordion() {
     }
 
     const validatedPayload = () => {
-        if(variables.length > 0) {
-            variables.forEach(variable => {
-                if(variable.text.length === 0) {
-                    errorVariableEmpty()
-                    return;
+        // Validação dos campos obrigatórios
+        const requiredFields: { [key: string]: string } = {
+            templateName: "Nome do template",
+            templateLanguage: "Idioma"
+        };
+        
+        let hasError = false;
+        let firstErrorField = '';
+        const missingFields: string[] = [];
+        
+        // Verificar cada campo obrigatório
+        for (const [field, label] of Object.entries(requiredFields)) {
+            let value = '';
+            if (field === 'templateName') value = templateName;
+            if (field === 'templateLanguage') value = templateLanguage;
+
+            if (!value) {
+                hasError = true;
+                missingFields.push(label);
+                
+                // Guardar o primeiro campo com erro para definir o accordion
+                if (!firstErrorField) {
+                    firstErrorField = field;
                 }
-            })
+            }
         }
-        if (templateName.length === 0 || templateLanguage === ""){
-            errorMessageConfig()
-            return;
-        }
+
+        // Verificar o corpo da mensagem
         if (template.body === "") {
-            errorMessageBody()
+            hasError = true;
+            missingFields.push("Corpo da mensagem");
+            if (!firstErrorField) {
+                firstErrorField = 'body';
+            }
+        }
+
+        // Verificar o cabeçalho se estiver habilitado
+        if (hasHeader && !template.header) {
+            hasError = true;
+            missingFields.push("Cabeçalho");
+            if (!firstErrorField) {
+                firstErrorField = 'header';
+            }
+        }
+
+        // Verificar botões se estiverem habilitados
+        if (hasButtons && buttons.length === 0) {
+            hasError = true;
+            missingFields.push("Botões");
+            if (!firstErrorField) {
+                firstErrorField = 'buttons';
+            }
+        }
+
+        // Verificar variáveis
+        if (variables.length > 0) {
+            for (const variable of variables) {
+                if (variable.text.length === 0) {
+                    hasError = true;
+                    missingFields.push("Variáveis");
+                    break;
+                }
+            }
+        }
+
+        // Se houver erro, não continua com o envio do formulário
+        if (hasError) {
+            // Abrir o accordion correspondente ao primeiro campo com erro
+            if (firstErrorField === 'templateName' || firstErrorField === 'templateLanguage') {
+                setAccordionState({
+                    channelTrigger: false,
+                    config: true,
+                    header: false,
+                    body: false,
+                    botao: false
+                });
+            } else if (firstErrorField === 'header') {
+                setAccordionState({
+                    channelTrigger: false,
+                    config: false,
+                    header: true,
+                    body: false,
+                    botao: false
+                });
+            } else if (firstErrorField === 'body') {
+                setAccordionState({
+                    channelTrigger: false,
+                    config: false,
+                    header: false,
+                    body: true,
+                    botao: false
+                });
+            } else if (firstErrorField === 'buttons') {
+                setAccordionState({
+                    channelTrigger: false,
+                    config: false,
+                    header: false,
+                    body: false,
+                    botao: true
+                });
+            }
+            
+            // Mostrar toasts com um pequeno atraso entre eles
+            if (missingFields.length > 3) {
+                // Se houver mais de 3 campos faltando, mostrar uma mensagem genérica
+                toast.error(`Preencha todos os campos obrigatórios (${missingFields.length} campos faltando)`, {
+                    theme: "colored"
+                });
+            } else {
+                // Mostrar mensagens específicas para cada campo faltando (até 3)
+                missingFields.forEach((field, index) => {
+                    setTimeout(() => {
+                        toast.error(`O campo ${field} é obrigatório`, {
+                            theme: "colored"
+                        });
+                    }, index * 300); // 300ms de atraso entre cada toast
+                });
+            }
+            
+            return false;
+        }
+
+        return true;
+    };
+
+    const createPayload = () => {
+        // Validar os campos obrigatórios antes de criar o payload
+        if (!validatedPayload()) {
             return;
         }
-        handleButtonName("Salvar")
-    }
-    const createPayload = () => {
+        
         const payload:PayloadTeams  = {
             templateName: templateName,
             message: template.body,
@@ -267,7 +380,6 @@ export function CreateTemplateAccordion() {
                 console.log("$s ERROR create template: %O", new Date(), err)
                 errorMessage()
             })
-
     }
     const modalRef = useRef<HTMLDivElement>(null);
     const { isOpen, toggle } = useModal();
@@ -297,18 +409,15 @@ export function CreateTemplateAccordion() {
           .replace(/[~´`^"']/g, '');
       }
     const handleButtonClick = (buttonId: string) => {
-        switch (buttonId) {
-            case "Salvar":
-                createPayload()
-                toggle();
-                break;
-            case "Cancelar":
-                toggle();
-                BackToList();
-                break;        
-            default:
-                toggle();
-                break;
+        if (buttonId === "Salvar") {
+            createPayload()
+        } else if (buttonId === "Voltar") {
+            toggle()
+        } else if (buttonId === "Cancelar") {
+            toggle();
+            BackToList();
+        } else if(buttonId === "Fechar") {
+            toggle();
         }
     };
     const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
@@ -522,7 +631,7 @@ export function CreateTemplateAccordion() {
                            </div>
                     <div style={{ width:"100%", flexDirection: "row", textAlign: "end", alignContent: "end", alignItems: "end", padding:"15px" }}>
                         <button className="button-cancel" onClick={() => handleButtonName("Cancelar")}>Cancelar</button>
-                        <button className="button-save" onClick={() => validatedPayload()}>Salvar</button>
+                        <button className="button-save" onClick={() => createPayload()}>Salvar</button>
                     </div>
                     </div>}
                 </div>

@@ -188,7 +188,7 @@ export function AllPhones() {
                     </div>
                     <div style={{ alignContent: "center", color: "#004488"}}>                                                
                         <div style={{ alignContent: "center", color: "#004488", marginBottom:'15px' }}>
-        <span><strong>Servidor: </strong></span>
+        <span><strong>Ambiente Bot Server: </strong></span>
         <input type="checkbox" style={{ margin: "0px 5px 0px 10px" }} checked={checkDesenvolvimento} onChange={(e) => setCheckDesenvolvimento(e.target.checked)}/>
         <span>Desenvolvimento</span>
         <input type="checkbox" style={{ margin: "0px 5px 0px 10px" }} checked={checkHomologacao} onChange={(e) => setCheckHomologacao(e.target.checked)}/>
@@ -230,7 +230,7 @@ export function AllPhones() {
                         </th>
                         <th>
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                                <span>Servidor</span>
+                                <span>Ambiente Bot Server</span>
                                 <SortArrows column="botServerType" />
                             </div>
                         </th>
