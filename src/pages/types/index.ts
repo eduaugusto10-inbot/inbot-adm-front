@@ -16,7 +16,7 @@ export interface ICustomerData {
   webhook: string;
   botToken: string;
   botServerType: string;
-  url_bot_server: string;
+  url_server: string;
   url_inchat: string;
   server: string;
   address: string;
@@ -78,7 +78,7 @@ export const defaultCustomerData: ICustomerData = {
   botToken: "",
   webhook: "",
   botServerType: "",
-  url_bot_server: "",
+  url_server: "",
   url_inchat: "",
   server: "",
   address: "",

@@ -43,7 +43,7 @@ export function ChangeDeleteNumber() {
             botId: customerData.botId,
             webhook: customerData.webhook,
             botServerType: customerData.botServerType,
-            url_bot_server: customerData.url_bot_server,
+            url_server: customerData.url_server,
             url_inchat: customerData.url_inchat,
             server: customerData.server,
             origin: customerData.origin,
@@ -97,30 +97,30 @@ export function ChangeDeleteNumber() {
             
             switch(value) {
                 case 'Principal':
-                    serverUrl = 'https://in.bot/api/bot_gateway';
+                    serverUrl = 'in.bot';
                     inchatUrl = 'https://proxy1.in.bot/api';
                     break;
                 case 'OEC':
-                    serverUrl = 'https://oec.in.bot/api/bot_gateway';
+                    serverUrl = 'oec.in.bot';
                     inchatUrl = 'https://oec.in.bot/node/api';
                     break;
                 case 'FS':
-                    serverUrl = 'https://fs.in.bot/api/bot_gateway';
+                    serverUrl = 'fs.in.bot';
                     inchatUrl = 'https://fs.in.bot/node/api';
                     break;
                 case 'Tecban':
-                    serverUrl = 'https://tecban-chat.in.bot/api/bot_gateway';
+                    serverUrl = 'tecban-chat.in.bot';
                     inchatUrl = 'https://tecban-chat.in.bot/node/api';
                     break;
                 default:
-                    serverUrl = '';
-                    inchatUrl = '';
+                    serverUrl = 'in.bot';
+                    inchatUrl = 'https://proxy1.in.bot/api';
             }
             
             setCustomerData(prevState => ({
                 ...prevState,
                 server: value,
-                url_bot_server: serverUrl,
+                url_server: serverUrl,
                 url_inchat: inchatUrl
             }));
             

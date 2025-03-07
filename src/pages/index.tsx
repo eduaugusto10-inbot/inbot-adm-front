@@ -4,7 +4,6 @@ import { ICustomerData } from './types';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
-import loupe from "../img/loupe.png"
 export function AllPhones() {
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -236,6 +235,12 @@ export function AllPhones() {
                         </th>
                         <th>
                             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                                <span>Servidor</span>
+                                <SortArrows column="server" />
+                            </div>
+                        </th>
+                        <th>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
                                 <span>Observação</span>
                                 <SortArrows column="observation" />
                             </div>
@@ -267,6 +272,7 @@ export function AllPhones() {
                             <td>{data.client}</td>
                             <td>{data.botId}</td>
                             <td>{data.botServerType}</td>
+                            <td>{data.server}</td>
                             <td>{data.observation}</td>
                             <td>{data.origin}</td>
                             <td><span style={{fontWeight: "bolder", color: data.activated ? "green" : "red"}}>{data.activated ? "Ativo" : "Inativo"}</span></td>
