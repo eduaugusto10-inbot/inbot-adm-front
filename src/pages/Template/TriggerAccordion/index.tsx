@@ -48,17 +48,22 @@ export function Accordion() {
         if(logged.channel === 'teams' ){
             history(`/template-trigger-teams?bot_id=${botId}&token=${searchParams.get("token")}`)
         }
-        api.get(`/whats-botid/${botId}`)
+        api.get(`/whats-botid-all/${botId}`)
             .then(resp => {
-                setPhone(resp.data.number)
+                // Extrair todos os números de disparo da resposta da API
+                const botNumbers = resp.data.bot.map((bot: any) => bot.number);
+                setDispatchNumbers(botNumbers);
+                setSelectedDispatchNumber("");
+                
+                setPhone(resp.data.bot[0].number)
                 if (searchParams.get('bot_id') === null) {
                     window.location.href = "https://in.bot/inbot-admin";
                 }
                 api.get(`/whatsapp/trigger-bot/${botId}`)
                     .then(resp => setTriggerNames(resp.data))
                     .catch(error => console.log(error))
-                const token = resp.data.accessToken;
-                setPhone(resp.data.number)              
+                const token = resp.data.bot[0].accessToken;
+                setPhone(resp.data.bot[0].number)              
                 api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
                     .then(resp => {
                         setTemplates(resp.data.data.messageTemplates)
@@ -122,6 +127,8 @@ export function Accordion() {
     const [blockAddNumber, setBlockAddNumber] = useState<boolean>(false)
     const [phone, setPhone] = useState("")
     const [templateName, setTemplateName] = useState("")
+    const [dispatchNumbers, setDispatchNumbers] = useState<string[]>([])
+    const [selectedDispatchNumber, setSelectedDispatchNumber] = useState<string>("")
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [fileName, setFileName] = useState('');
     const [createTriggerMenu, setCreateTriggerMenu] = useState(false)
@@ -491,17 +498,56 @@ export function Accordion() {
        }
      }, [fileName]);
      
-    const createTrigger = async() => {
-        if((listVariables.length === 0 && !typeClient) || (fileData.length === 0 && typeClient)){
-            errorNoRecipient()
-            return;
+    const validatedPayload = (): boolean => {
+        if(typeOfHeader === "TEXT" && headerText === ""){
+            return false;
         }
-        if (campaignName.length === 0) {
+        if(bodyText === ""){
+            return false;
+        }
+        if(qtButtons > 0 && titleButton1 === ""){
+            return false;
+        }
+        if(qtButtons > 1 && titleButton2 === ""){
+            return false;
+        }
+        if(qtButtons > 2 && titleButton3 === ""){
+            return false;
+        }
+        return true;
+    }
+
+    const createTrigger = async() => {
+        if(campaignName === ""){
             errorCampaingEmpty()
             return;
         }
-        if (triggerMode.length === 0) {
+        if(triggerMode === ""){
             errorTriggerMode()
+            return;
+        }
+        if(selectedDispatchNumber === ""){
+            setErrorMessage("Por favor, selecione um número de disparo.")
+            return;
+        }
+        if(listVariables.length === 0 && fileData.length === 0){
+            errorNoRecipient()
+            return;
+        }
+        if(typeOfHeader === "IMAGE" && urlMidia === ""){
+            errorMidiaEmpty()
+            return;
+        }
+        if(typeOfHeader === "VIDEO" && urlMidia === ""){
+            errorMidiaEmpty()
+            return;
+        }
+        if(typeOfHeader === "DOCUMENT" && urlMidia === ""){
+            errorMidiaEmpty()
+            return;
+        }
+        if(!validatedPayload()){
+            errorMessagePayload()
             return;
         }
         waitingMessage();
@@ -514,7 +560,7 @@ export function Accordion() {
             "channel": "whatsapp",
             "status": "criando",
             "botId": botId,
-            "phoneTrigger": phone,
+            "phoneTrigger": selectedDispatchNumber || phone,
         }
 
         await api.post('/whatsapp/trigger', data)
@@ -576,33 +622,6 @@ export function Accordion() {
         }
         toggle();
     }
-    const validatedPayload = () => {
-        if(qtButtons > 0 && (payload1 === undefined || payload1.length === 0)){
-            errorMessagePayload()
-            return;
-        }
-        if(qtButtons > 1 && (payload2 === undefined || payload2.length === 0)){
-            errorMessagePayload()
-            return;
-        }
-        if(qtButtons > 2 && (payload3 === undefined || payload3.length === 0)){
-            errorMessagePayload()
-            return;
-        }
-        if((listVariables.length === 0 && !typeClient) || (fileData.length === 0 && typeClient)){
-            errorNoRecipient()
-            return;
-        }
-        if (campaignName.length === 0) {
-            errorCampaingEmpty()
-            return;
-        }
-        if (triggerMode.length === 0) {
-            errorTriggerMode()
-            return;
-        }
-        handleButtonName("Salvar")
-    }
     const handleButtonClick = (buttonId: string) => {
         if (buttonId === "Salvar") {
             createTrigger()
@@ -649,6 +668,13 @@ export function Accordion() {
         setBlockAddNumber(phone.toString().length >= 5)          
       }
 
+    const handleDispatchNumberChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedDispatchNumber(e.target.value);
+        if (e.target.value !== "" && errorMessage && errorMessage.includes("número de disparo")) {
+            setErrorMessage("");
+        }
+    }
+
     return (
         <div className="container-trigger width-95-perc" style={{ padding:"10px 0px"}}>
             <Modal buttonA={buttonA} buttonB={buttonB} isOpen={isOpen} modalRef={modalRef} text={text} toggle={toggle} question={textToModal} warning={warningText} onButtonClick={handleButtonClick}></Modal>
@@ -689,26 +715,50 @@ export function Accordion() {
                 {accordionState.config &&
                 <div className="body-no-background" style={{width:"100%"}}>
                 <div className="accordeon-new" style={{width:"90%", textAlign:"right"}}>
-                    <div className="body line" style={{ display: "flex", justifyContent: "space-around", flexDirection: "row", alignContent: "center", backgroundColor: "#FFF" }}>
-                        <div>
-                            <div style={{ display: "flex", flexDirection: "column" }}>
-                                <span className="span-title" style={{width:"100%", justifyContent:"left", marginLeft:"12px"}}>Nome da campanha</span>
-                                <input className="input-values" type="text" value={campaignName} onChange={e => handleCampaignName(e.target.value)} />
+                    <div className="body line" style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", backgroundColor: "#FFF", padding: "15px" }}>
+                        <div style={{ width: "100%", marginBottom: "15px" }}>
+                            <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                                <span className="span-title" style={{width:"25%", textAlign:"right",  justifyContent: "left"}}>Nome da campanha</span>
+                                <div>
+                                    <input className="input-values" type="text" value={campaignName} onChange={e => handleCampaignName(e.target.value)} />
+                                    {errorMessage && errorMessage.includes("campanha") && <p style={{ color: 'red', fontSize: "10px", fontWeight: "bolder", marginTop: "5px" }}>{errorMessage}</p>}
+                                </div>
                             </div>
-                            {errorMessage && <p style={{ color: 'red', fontSize: "10px", fontWeight: "bolder" }}>{errorMessage}</p>}
                         </div>
-                        <div style={{ display: "flex", flexDirection: "column" }}>
-                            <span className="span-title" style={{width:"100%", justifyContent:"left", marginLeft:"12px"}}>Selecionar template </span>
-                            <select value={templateName} className="input-values" onChange={ e => openModal(e.target.value)}>
-                                <option value="">{templateName ?? "--"}</option>
-                                {templates.map((template, key) => (
-                                    <option key={key} value={template.ID}>{template.name}</option>
-                                ))}
-                            </select>
+                        <div style={{ width: "100%", marginBottom: "15px" }}>
+                            <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                                <span className="span-title" style={{width:"25%", textAlign:"right",  justifyContent: "left"}}>Selecionar template</span>
+                                <div>
+                                    <select value={templateName} className="input-values" onChange={ e => openModal(e.target.value)}>
+                                        <option value="">{templateName ?? "--"}</option>
+                                        {templates.map((template, key) => (
+                                            <option key={key} value={template.ID}>{template.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
                         </div>
+                        <div style={{ width: "100%", marginBottom: "15px" }}>
+                            <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                                <span className="span-title" style={{width:"25%", textAlign:"right", justifyContent: "left"}}>Número de disparo</span>
+                                <div>
+                                    <select value={selectedDispatchNumber} className="input-values" onChange={handleDispatchNumberChange}>
+                                        <option value="">Selecione um número</option>
+                                        {dispatchNumbers.map((number, key) => (
+                                            <option key={key} value={number}>{mask(number)}</option>
+                                        ))}
+                                    </select>
+                                    {selectedDispatchNumber === "" && errorMessage && errorMessage.includes("número de disparo") && 
+                                        <p style={{ color: 'red', fontSize: "10px", fontWeight: "bolder", marginTop: "5px" }}>{errorMessage}</p>
+                                    }
+                                </div>
+                            </div>
                         </div>
-                        <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('recebidores')}>Próximo</button>
+                        <div style={{ width: "100%", display: "flex", justifyContent: "flex-end", marginTop: "15px" }}>
+                            <button style={{width:"80px"}} className="button-next" onClick={() => toggleAccordion('recebidores')}>Próximo</button>
+                        </div>
                     </div>
+                </div>
                 </div>}
             </div>
             <div className="config-recebidores" style={{ maxHeight: "1080px", maxWidth:'900px' }}>
@@ -1063,14 +1113,15 @@ export function Accordion() {
                         <div className="accordeon-new" style={{padding:"0px 15px 15px 10px"}}>
                             <div style={{ justifyContent: "center"}}>
                                 <div style={{ display: "flex", flexDirection: "column", textAlign: "left", width: "90%" }}>
+                                    <span className="span-title-resume">Nome da campanha: {campaignName}</span>
                                     <span className="span-title-resume">Template: {templateName}</span>
-                                    <span className="span-title-resume">Telefone do disparo: {mask(phone)}</span>
+                                    <span className="span-title-resume">Telefone do disparo: {mask(selectedDispatchNumber || phone)}</span>
                                     <span className="span-title-resume">Data e hora do disparo: {triggerMode==="imediato" ? "imediato" : `agendado dia ${formatDate(dates)} às ${hours}`}</span>
                                     <span className="span-title-resume">Quantidade de disparos: {typeClient === false ? listVariables.length : fileData.length > 0 ? fileData.length : "0"}</span>
                                 </div>
                                 <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", width: "100%" }}>
                                     <button className="button-cancel" onClick={() => handleButtonName("Cancelar")}>Cancelar</button>
-                                    <button className="button-save" onClick={() => validatedPayload()}>Salvar</button>
+                                    <button className="button-save" onClick={() => handleButtonName("Salvar")}>Salvar</button>
                                 </div>
                             </div>
                         </div>
