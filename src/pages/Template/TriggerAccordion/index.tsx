@@ -31,13 +31,12 @@ export function Accordion() {
         window.location.href = "https://in.bot/inbot-admin";
     }
     var botId = searchParams.get('bot_id') ?? "0";
-    
 
     const history = useNavigate();
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-        const logged: any = await validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
+        const logged: any = await validatedUser(searchParams.get('bot_id'), searchParams.get("token"),searchParams.get('url_base_api')) ?? false;
         console.log(`Logged: ${JSON.stringify(logged)}`)
         if(!logged){
             history(`/template-warning-no-whats?bot_id=${botId}`);
@@ -46,10 +45,10 @@ export function Accordion() {
             setIsTeamsEnabled(false)
         }
         if(logged.channel === 'teams' ){
-            history(`/template-trigger-teams?bot_id=${botId}&token=${searchParams.get("token")}`)
+            history(`/template-trigger-teams?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get('url_base_api')}`)
         }
         api.get(`/whats-botid-all/${botId}`)
-            .then(resp => {
+            .then(async(resp) => {
                 // Extrair todos os números de disparo da resposta da API
                 const botNumbers = resp.data.bot.map((bot: any) => bot.number);
                 setDispatchNumbers(botNumbers);
@@ -63,12 +62,14 @@ export function Accordion() {
                     .then(resp => setTriggerNames(resp.data))
                     .catch(error => console.log(error))
                 const token = resp.data.bot[0].accessToken;
-                setPhone(resp.data.bot[0].number)              
-                api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
-                    .then(resp => {
-                        setTemplates(resp.data.data.messageTemplates)
-                        setCreateTriggerMenu(true)
-                    })
+                setPhone(resp.data.bot[0].number)      
+                try{       
+                const templatesResp = await api.get(`/token-templates?token=${token}`); 
+                setTemplates(templatesResp.data.data.messageTemplates);
+                setCreateTriggerMenu(true)
+                }catch(error){
+                    console.log("Erro ao pegar os templates")
+                }
             }).catch(error => history(`/template-warning-no-whats?bot_id=${botId}`))
         };
     
@@ -80,7 +81,7 @@ export function Accordion() {
     }, []);
 
     function BackToList() {
-        history(`/trigger-list?bot_id=${botId}&token=${searchParams.get("token")}`);
+        history(`/trigger-list?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get('url_base_api')}`);
     }
 
     const [accordionState, setAccordionState] = useState<AccordionState>({
@@ -699,7 +700,7 @@ export function Accordion() {
                     <div className="body" style={{ backgroundColor: "#FFF"}}>
                         <div className="line" style={{marginTop:"17px"}}>
                             <input type="radio" disabled={!isWhatsAppEnabled} name="disparo" value=""  className="input-spaces" checked={true} /><span>WhatsApp</span>
-                            <input type="radio" disabled={!isTeamsEnabled} name="disparo" value="" onChange={() => history(`/template-trigger-teams?bot_id=${botId}&token=${searchParams.get("token")}`)} className="input-spaces" checked={false} /><span>Teams</span>
+                            <input type="radio" disabled={!isTeamsEnabled} name="disparo" value="" onChange={() => history(`/template-trigger-teams?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get('url_base_api')}`)} className="input-spaces" checked={false} /><span>Teams</span>
                         </div>
                     </div>
                     <div style={{width:"100%", textAlign:"right"}}>

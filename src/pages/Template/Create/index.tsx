@@ -24,7 +24,7 @@ export function CreateTemplateAccordion() {
 
     const history = useNavigate();
     function BackToList() {
-        history(`/template-list?bot_id=${botId}&token=${searchParams.get("token")}`)
+        history(`/template-list?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get('url_base_api')}`)
     }
     const [isWhatsAppEnabled, setIsWhatsAppEnabled] = useState(true);
     const [isTeamsEnabled, setIsTeamsEnabled] = useState(true);
@@ -38,13 +38,13 @@ export function CreateTemplateAccordion() {
     const location = useLocation()
     useEffect(() => {
         const fetchData = async () => {
-        const logged:any = await validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
+        const logged:any = await validatedUser(searchParams.get('bot_id'), searchParams.get("token"),searchParams.get('url_base_api')) ?? false;
         console.log(`Logged: ${JSON.stringify(logged)}`)
         if(!logged.logged){
             history(`/template-warning-no-whats?bot_id=${botId}`);
         }
         if(logged.channel === 'teams' ){
-            history(`/template-create-teams?bot_id=${botId}&token=${searchParams.get("token")}`)
+            history(`/template-create-teams?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get('url_base_api')}`)
         }
         if(logged.channel === 'whats' ){
             setIsTeamsEnabled(false)
@@ -702,7 +702,7 @@ export function CreateTemplateAccordion() {
                     <div className="body" style={{ backgroundColor: "#FFF"}}>
                         <div className="line" style={{marginTop:"17px"}}>
                             <input type="radio" disabled={!isWhatsAppEnabled} name="disparo" value=""  className="input-spaces" checked={true} /><span>WhatsApp</span>
-                            <input type="radio" disabled={!isTeamsEnabled} name="disparo" value="" onChange={() => history(`/template-create-teams?bot_id=${botId}&token=${searchParams.get("token")}`)} className="input-spaces" checked={false} /><span>Teams</span>
+                            <input type="radio" disabled={!isTeamsEnabled} name="disparo" value="" onChange={() => history(`/template-create-teams?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get('url_base_api')}`)} className="input-spaces" checked={false} /><span>Teams</span>
                         </div>
                     </div>
                     <div style={{width:"100%", textAlign:"right"}}>

@@ -96,7 +96,7 @@ export function ListAll() {
     };
     
     function SendTemplate(name: string, variableQuantity: number, qtButtons: number, headerConfig: string | null, templateID: string) {
-        history(`/template-trigger-teams?bot_id=${botId}&token=${searchParams.get("token")}`, { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: "", phone: phone, headerConfig: headerConfig, qtButtons: qtButtons, templateID: templateID } });
+        history(`/template-trigger-teams?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get('url_base_api')}`, { state: { templateName: name, variableQuantity: variableQuantity, urlLogo: "", phone: phone, headerConfig: headerConfig, qtButtons: qtButtons, templateID: templateID } });
     }
 
     const loadTemplate = (id: number) => {
@@ -234,7 +234,7 @@ export function ListAll() {
             }
         });
         const buttonsTexts = findButton(sortTemplates[id].components, "button")
-        history(`/template-create-teams?bot_id=${botId}&token=${searchParams.get("token")}`, { 
+        history(`/template-create-teams?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get('url_base_api')}`, { 
             state: { 
                 duplicated: true,
                 variableQuantity: variableQuantity, 
@@ -309,7 +309,7 @@ export function ListAll() {
                     </div>}
                     <div className="row-align" style={{margin: "20px"}}>
                         <span>Whatsapp</span>
-                        <div className="switch switch-on" style={{margin:"0px 10px"}} onClick={() => history(`/template-list?bot_id=${botId}&token=${searchParams.get("token")}`)}>
+                        <div className="switch switch-on" style={{margin:"0px 10px"}} onClick={() => history(`/template-list?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get('url_base_api')}`)}>
                             <div className="slider slider-on" />
                         </div>
                         <span>Teams</span>

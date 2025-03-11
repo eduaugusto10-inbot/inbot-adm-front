@@ -13,7 +13,7 @@ export function AddNumber() {
    
     const history = useNavigate();
     function BackToHome() {
-        history("/?token=123&bot_id=123");
+        history("/?token=123&bot_id=123&url_base_api=1234");
     }
     const [newNumber, setNewNumber] = useState<ICustomerData>(defaultCustomerData);
     const [loading, setLoading] = useState<boolean>(false);

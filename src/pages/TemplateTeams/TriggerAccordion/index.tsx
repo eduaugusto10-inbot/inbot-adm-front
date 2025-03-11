@@ -24,7 +24,7 @@ export function Accordion() {
         window.location.href = "https://in.bot/inbot-admin";
     }
     var botId = searchParams.get('bot_id') ?? "0";
-    
+    const baseUrl = searchParams.get('url_base_api')
 
     const history = useNavigate();
     useEffect(() => {
@@ -33,7 +33,7 @@ export function Accordion() {
         }
     }, []);
     function BackToList() {
-        history(`/trigger-list?bot_id=${botId}&token=${searchParams.get("token")}`);
+        history(`/trigger-list?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get('url_base_api')}`);
     }
 
     const [accordionState, setAccordionState] = useState<AccordionState>({
@@ -85,13 +85,13 @@ export function Accordion() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const logged:any = await validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
+            const logged:any = await validatedUser(searchParams.get('bot_id'), searchParams.get("token"),searchParams.get('url_base_api')) ?? false;
             console.log(`Logged: ${JSON.stringify(logged)}`)
             if(!logged.logged){
                 history(`/template-warning-no-whats?bot_id=${botId}`);
             }
             if(logged.channel === 'whats' ){
-                history(`/template-trigger?bot_id=${botId}&token=${searchParams.get("token")}`)
+                history(`/template-trigger?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get('url_base_api')}`)
             }
             if(logged.channel === 'teams' ){
                 setIsWhatsAppEnabled(false)
@@ -581,7 +581,7 @@ export function Accordion() {
                 <div className="accordeon-new">
                     <div className="body" style={{ backgroundColor: "#FFF"}}>
                         <div className="line" style={{marginTop:"17px"}}>
-                            <input type="radio" disabled={!isWhatsAppEnabled} name="disparo" value="" onChange={() => history(`/template-trigger?bot_id=${botId}&token=${searchParams.get("token")}`)} className="input-spaces" checked={false} /><span>WhatsApp</span>
+                            <input type="radio" disabled={!isWhatsAppEnabled} name="disparo" value="" onChange={() => history(`/template-trigger?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get('url_base_api')}`)} className="input-spaces" checked={false} /><span>WhatsApp</span>
                             <input type="radio" disabled={!isTeamsEnabled} name="disparo" value=""  className="input-spaces" checked={true} /><span>Teams</span>
                         </div>
                     </div>

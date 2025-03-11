@@ -22,7 +22,7 @@ export function TriggerList() {
     const history = useNavigate();
     useEffect(() => {
         const fetchData = async () => {
-            const logged:any = await validatedUser(searchParams.get('bot_id'), searchParams.get("token")) ?? false;
+            const logged:any = await validatedUser(searchParams.get('bot_id'), searchParams.get("token"),searchParams.get('url_base_api')) ?? false;
             console.log(`Logged: ${JSON.stringify(logged)}`)
             if(!logged.logged){
                 history(`/template-warning-no-whats?bot_id=${botId}`);
@@ -222,7 +222,7 @@ export function TriggerList() {
         const sortTrigger = handleSort(dataTreat);
         const triggerId = sortTrigger[id].id;
         const triggerStatus = sortTrigger[id].status;
-        history(`/trigger-details?bot_id=${botId}&token=${searchParams.get("token")}`, { state: { triggerId: triggerId, urlLogo: "", triggerStatus: triggerStatus } });
+        history(`/trigger-details?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get('url_base_api')}`, { state: { triggerId: triggerId, urlLogo: "", triggerStatus: triggerStatus } });
     }
     const changeStatus = (id: number) => {
         const sortTrigger = handleSort(dataTreat)
