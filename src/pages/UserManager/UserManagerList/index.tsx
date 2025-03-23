@@ -155,7 +155,6 @@ getData()
     inbotApi.setBotId(Number(botId));
     const resp:any = await inbotApi.get(`/customfields`)
     setCustomFields(resp)
-    console.log(resp)
     const initialDate = `${initDate.year}-${String(initDate.month).padStart(2, '0')}-${String(initDay).padStart(2, '0')}`;
     const lastDate = `${finalDate.year}-${String(finalDate.month).padStart(2, '0')}-${String(finalDay).padStart(2, '0')}`;
     inbotApi.get(`/customermanager?initialDate=${initialDate}&finalDate=${lastDate}&limit=1000`)
@@ -273,27 +272,48 @@ const saveCustomer = async (data: any) => {
         waitingMessage()
         let customerEdited = handleSort(customers)[index];
         const VALUES: string[] = ['name','phone','email','activated']
-        for (const elementName of Object.keys(editedValues[0])){
+        
+        // Create a copy of the customer's custom fields
+        const updatedCustomFields = [...customerEdited.customFields];
+        
+        for (const elementName of Object.keys(editedValues[0] || {})){
             if(VALUES.includes(elementName)){
                 customerEdited[elementName] = editedValues[0][elementName];
             } else {
-                for(let i=0;i<customerEdited.customFields.length;i++){
-                    if(customerEdited.customFields[i].customFieldId===elementName){
-                        customerEdited.customFields[i].value= editedValues[0][elementName]
-                    }
+                // Find and update the custom field
+                const customFieldIndex = updatedCustomFields.findIndex(
+                    cf => cf.customFieldId === elementName
+                );
+                
+                if(customFieldIndex !== -1) {
+                    updatedCustomFields[customFieldIndex].value = editedValues[0][elementName];
+                } else {
+                    // If the custom field doesn't exist yet, add it
+                    updatedCustomFields.push({
+                        customFieldId: elementName,
+                        value: editedValues[0][elementName]
+                    });
                 }
             }
         }
-        const customer = {
+        
+        // Update the customer's custom fields
+        customerEdited.customFields = updatedCustomFields;
+        
+        // Format the data according to the required structure
+        const requestData = {
             name: customerEdited.name,
-            // phone: customerEdited.phone,
+            phone: customerEdited.phone,
             email: customerEdited.email,
-        }
+            customFields: updatedCustomFields.map(field => ({
+                customFieldId: Number(field.customFieldId || field.id),
+                value: field.value
+            }))
+        };
+        
         customerEdited.botId = botId;
         inbotApi.setBotId(Number(botId));
-        await inbotApi.patch(`/customerManager/customerId/${customerEdited.id}`, {
-            customer:customer,
-            customFields: customerEdited.customFields})
+        await inbotApi.patch(`/customerManager/customerId/${customerEdited.id}`, requestData)
         .then(() => {
             setEditedValues([])
             handleSave(index)
@@ -491,13 +511,18 @@ const saveCustomer = async (data: any) => {
         return value === "null" ? ' ' : value;
     }
     const hasShowNameAndValue = (customer: any, fields: any, hasCustomField: boolean) => {
-        if(!hasCustomField && customer.length > 0){
-            if(customer[0].hasOwnProperty(fields.customFieldId)) {
-                return customer[0].hasOwnProperty(fields.customFieldId)
-            } else if(customer[0].hasOwnProperty(fields)){
-                return true
-            }
+        if(!customer || customer.length === 0) return false;
+        
+        // For custom fields, check if the field exists in editedValues
+        if(hasCustomField) {
+            return customer[0] && fields.id in customer[0];
         }
+        
+        // For standard fields
+        if(customer[0]) {
+            return fields in customer[0];
+        }
+        
         return false;
     }
     const deleteCustomer = async (customerId:string) => {
@@ -839,7 +864,7 @@ const saveCustomer = async (data: any) => {
                         <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" className="input-values" style={{width:"95%"}} value={editMode[index] && hasShowNameAndValue(editedValues, 'name', false) ? editedValues[0]?.name : customer.name} onChange={(e) => handleChange(e, 0, 'name')}/> : customer.name}</span></td>
                         <td className="cells border-gray"><span className="font-size-12">{editMode[index] ? <input type="text" className="input-values" style={{width:"95%"}} value={editMode[index] && hasShowNameAndValue(editedValues, 'email', false) ? editedValues[0]?.email : customer.email} onChange={(e) => handleChange(e, 0, 'email')}/> : customer.email}</span></td>
                         {customFields.map((fields:any, key:any)=>(
-                        <td className="border-gray" key={key}><span className="font-size-12">{editMode[index] ? <input type="text" className="input-values" style={{width:"95%"}} value={editMode[index] && hasShowNameAndValue(editedValues, fields, false) ? showNameAndValue(editedValues, fields, false) : showNameAndValue(customer, fields, true)} onChange={(e) => handleChange(e, 0, fields.id)}/> :  showNameAndValue(customer, fields, true)}</span></td>
+                        <td className="border-gray" key={key}><span className="font-size-12">{editMode[index] ? <input type="text" className="input-values" style={{width:"95%"}} value={editMode[index] && editedValues[0] && editedValues[0][fields.id] !== undefined ? editedValues[0][fields.id] : showNameAndValue(customer, fields, true)} onChange={(e) => handleChange(e, 0, fields.id)}/> :  showNameAndValue(customer, fields, true)}</span></td>
                     ))}     
                         <td className="border-gray"><span style={{fontSize:"12px"}}>{adjustTimeWithout3Hour(customer.createdAt)}</span></td>
                         <td className="cells border-gray"><span  className="font-size-12">{editMode[index] ? <select  className="input-values" style={{width:"80px"}} value={editMode[index] && editedValues[0]?.activated ? editedValues[0]?.activated : customer.activated} onChange={(e) => handleChange(e, 0, 'activated')}><option value='1'>Ativo</option><option value='0'>Inativo</option></select> : <div id="statusCells"><span style={{fontWeight: "bolder",color: customer.activated ? "green" : "red"}}>{customer.activated ? "Ativo" : "Inativo"}</span></div>}</span></td>
