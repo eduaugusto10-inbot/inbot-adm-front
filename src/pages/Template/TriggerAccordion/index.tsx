@@ -900,7 +900,7 @@ export function Accordion() {
                                                             </div>
                                                             </div>
                             <div style={{ maxHeight: "500px", overflowY: 'auto', marginBottom: "10px", display: "flex", flexDirection:"column", alignItems: "center", padding:"10px 0px" }}>
-                                <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", width:"97%", padding:"10px"}}>
+                                <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", width:"97%", padding:"2px 0px 10px 0px"}}>
                                     <thead>
                                         <tr  className="cells table-2024 border-bottom-zero">
                                             <th  className="cells" style={{fontSize:"10px"}}><div style={{background:"#FFF",  borderRadius:"6px"}}>Telefone</div></th>
@@ -918,15 +918,15 @@ export function Accordion() {
                                     <tbody style={{ backgroundColor: '#F9F9F9', fontSize: "12px" }}>
                                         {listVariables.length > 0 && listVariables.map((unicVariable, rowIndex) => (
                                             <tr key={rowIndex}>
-                                                <th>{unicVariable.phone}</th>
-                                                {variables.length>0 && <th>{unicVariable.variable_1}</th>}
-                                                {variables.length>1 && <th>{unicVariable.variable_2}</th>}
-                                                {variables.length>2 && <th>{unicVariable.variable_3}</th>}
-                                                {variables.length>3 && <th>{unicVariable.variable_4}</th>}
-                                                {variables.length>4 && <th>{unicVariable.variable_5}</th>}
-                                                {variables.length>5 && <th>{unicVariable.variable_6}</th>}
-                                                {variables.length>6 && <th>{unicVariable.variable_7}</th>}
-                                                {variables.length>7 && <th>{unicVariable.variable_8}</th>}
+                                                <th className="border-gray">{unicVariable.phone}</th>
+                                                {variables.length>0 && <th className="border-gray">{unicVariable.variable_1}</th>}
+                                                {variables.length>1 && <th className="border-gray">{unicVariable.variable_2}</th>}
+                                                {variables.length>2 && <th className="border-gray">{unicVariable.variable_3}</th>}
+                                                {variables.length>3 && <th className="border-gray">{unicVariable.variable_4}</th>}
+                                                {variables.length>4 && <th className="border-gray">{unicVariable.variable_5}</th>}
+                                                {variables.length>5 && <th className="border-gray">{unicVariable.variable_6}</th>}
+                                                {variables.length>6 && <th className="border-gray">{unicVariable.variable_7}</th>}
+                                                {variables.length>7 && <th className="border-gray">{unicVariable.variable_8}</th>}
                                                 {headerConfig !== "text" && headerConfig !== null &&<th>{unicVariable.media_url} OI</th>}
                                             </tr>
                                         ))}
@@ -1031,16 +1031,18 @@ export function Accordion() {
                     </div>
                 </div>
             </div>
-                                                            </div>
-                                                            </div>
-                            <input type="text" value={fileName} disabled style={{width:"300px", borderRadius:"8px"}}/>
-                            <button type="button" style={{width:"120px", marginLeft:"7px"}} onClick={() => handleButtonName("warningFile")} className="button-blue">Escolher arquivo</button>
+                            </div>
+                            </div>
+                            <div style={{ padding:"10px"}}>
+                                <input type="text" value={fileName} disabled style={{width:"300px", borderRadius:"8px"}}/>
+                                <button type="button" style={{width:"120px", marginLeft:"7px"}} onClick={() => handleButtonName("warningFile")} className="button-blue">Escolher arquivo</button>
+                            </div>
                             <div style={{ maxHeight: "500px", maxWidth:"900px", overflowY: 'auto', marginBottom: "10px", flexDirection:"column", alignItems: "center", padding:"10px 0px" }}>
                                 <table className="table-2024 fixed-header-table" style={{backgroundColor:"#FFF", width:"97%", padding:"10px"}}>
                                     <thead>
-                                        <tr className="font-size-12">
+                                        <tr className="cells table-2024 border-bottom-zero font-size-12">
                                             {headerTable && headerTable.length > 0 && headerTable[0].map((cell: any, index: number) => (
-                                                <th key={index}>{cell}</th>
+                                                <th className="cells" key={index}>{cell}</th>
                                             ))}
                                         </tr>
                                     </thead>

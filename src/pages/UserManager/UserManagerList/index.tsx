@@ -641,7 +641,7 @@ const saveCustomer = async (data: any) => {
                     />
                     <input type="text" value={fileName} disabled/>
                     <button type="button" onClick={() => fileInputRef.current?.click()} className="button-blue" style={{margin:"9px"}}>Anexar</button>
-            <div className="column-align" style={{ padding:"20px", overflowX:'auto', overflowY:"auto", maxHeight:"100vh" }}>
+            <div className="column-align" style={{ padding:"2px 20px 20px 20px", overflowX:'auto', overflowY:"auto", maxHeight:"100vh" }}>
                 <table className="table-2024 fixed-header-table" style={{ minWidth: "90%",flexShrink: "0" }}>
                     <thead>
                     <tr className="cells table-2024 border-bottom-zero font-size-12">
@@ -829,7 +829,7 @@ const saveCustomer = async (data: any) => {
             <div className="column-align" style={{alignItems:"center"}}>
                 <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
             </div>
-            <div className="row-align" style={{justifyContent: "space-between", margin:"10px 20px 0px 30px"}}>
+            <div className="row-align" style={{justifyContent: "space-between", margin:"10px 20px 0px 30px", paddingBottom:"10px"}}>
                 <span className="color-text-label font-size-12">{qtyCustomerCounter(qtyCustomer)}</span>
                 <DownloadTableExcel
                     filename="users table"
@@ -838,7 +838,7 @@ const saveCustomer = async (data: any) => {
                         <button className="button-blue" style={{width:"150px", margin:"1px"}}> Exportar excel </button>
                 </DownloadTableExcel>
             </div>
-                    <div className="column-align" style={{ padding:"20px", overflowX:'auto', overflowY:"auto", maxHeight:"100vh" }}>
+                    <div className="column-align" style={{ padding:"2px 20px 20px 20px", overflowX:'auto', overflowY:"auto", maxHeight:"100vh" }}>
             <table className="table-2024 fixed-header-table" style={{ minWidth: "90%",flexShrink: "0" }} ref={tableRef}>
                 <thead>
                 <tr className="cells table-2024 border-bottom-zero font-size-12">
