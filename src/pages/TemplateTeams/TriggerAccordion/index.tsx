@@ -598,16 +598,16 @@ export function Accordion() {
                 {accordionState.config &&
                 <div className="body-no-background" style={{width:"100%"}}>
                 <div className="accordeon-new" style={{width:"90%", textAlign:"right"}}>
-                    <div className="body line" style={{ display: "flex", justifyContent: "space-around", flexDirection: "row", alignContent: "center", backgroundColor: "#FFF" }}>
+                    <div className="body line" style={{ display: "flex", justifyContent: "space-around", flexDirection: "column", alignItems: "start", backgroundColor: "#FFF" }}>
                         <div>
-                            <div style={{ display: "flex", flexDirection: "column" }}>
-                                <span className="span-title" style={{width:"100%", justifyContent:"left", marginLeft:"12px"}}>Nome da campanha</span>
+                            <div style={{ display: "flex", flexDirection: "row" }}>
+                                <span className="span-title" style={{width:"40%", justifyContent:"left", marginLeft:"12px"}}>Nome da campanha</span>
                                 <input className="input-values" type="text" value={campaignName} onChange={e => handleCampaignName(e.target.value)} />
                             </div>
                             {errorMessage && <p style={{ color: 'red', fontSize: "10px", fontWeight: "bolder" }}>{errorMessage}</p>}
                         </div>
-                        <div style={{ display: "flex", flexDirection: "column" }}>
-                            <span className="span-title" style={{width:"100%", justifyContent:"left", marginLeft:"12px"}}>Selecionar template </span>
+                        <div style={{ display: "flex", flexDirection: "row" }}>
+                            <span className="span-title" style={{width:"40%", justifyContent:"left", marginLeft:"12px"}}>Selecionar template </span>
                             <select value={templateName} className="input-values" onChange={ e => openModal(e.target.value)}>
                                 <option value="">{templateName ?? "--"}</option>
                                 {templates.map((template, key) => (
@@ -615,16 +615,15 @@ export function Accordion() {
                                 ))}
                             </select>
                         </div>
-                        </div>
-                        <div className="column-align">
-                            <span className="span-title" style={{width:"30%", justifyContent:"left", marginLeft:"12px"}}>Bot de disparo: </span>
-                            <div className="row-align" style={{marginLeft:'10px'}}>
-                                    {botList.map((bot: any, key: number) => (
-                                    <div className="line">
-                                        <input type="radio" name={bot.name} value={bot.id} onChange={handleMode} className="input-spaces" checked={mode === false} /><span>{bot.name}</span>
-                                    </div>
-                                    ))}
-                                </div>
+                            <div className="row-align">
+                                <span className="span-title" style={{width:"31%", justifyContent:"left", marginLeft:"12px", marginRight:"35px"}}>Bot de disparo: </span>
+                                    <select onChange={handleMode} className="input-values">
+                                    <option value="">Selecione bot de disparo</option>
+                                        {botList.map((bot: any, key: number) => (                                    
+                                                <option value={bot.id}>{bot.name}</option>
+                                        ))}
+                                        </select>
+                            </div>
                         </div>
                         <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('recebidores')}>Próximo</button>
                     </div>
