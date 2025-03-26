@@ -172,7 +172,7 @@ getData()
 const saveCustomer = async (data: any) => {
     let access = ""
     let token = ""
-    const baseUrl = "https://api.inbot.com.br/user-manager/v1"
+    const baseUrl = "https://api-stg.inbot.com.br/user-manager/v1"
     await api.get(`/customer-manager/access-key/${botId}`)
         .then(resp => access = resp.data.key)
     await api.post(`/token`,{botId: botId}, {headers:{"x-api-key": access}})
