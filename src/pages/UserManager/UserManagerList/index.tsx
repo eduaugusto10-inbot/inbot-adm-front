@@ -581,7 +581,7 @@ const saveCustomer = async (data: any) => {
     <div className="column-align" style={{width:"100vw", height:"100vh",backgroundColor:"#ebebeb", padding:"10px 10px 0px 0px", alignItems:"center"}}>
         <ToastContainer />
         <Modal buttonA={buttonA} buttonB={buttonB} text={text} isOpen={isOpen} modalRef={modalRef} toggle={toggle} question={textToModal} warning={warning} onButtonClick={handleButtonClick}></Modal>
-        <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Gestão de Usuários</h1>
+        <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Gestão de Usuários - Homologação</h1>
         <div className="column-align" style={{alignItems:"center", width:"100%"}}>
             <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
         </div>

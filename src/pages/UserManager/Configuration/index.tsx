@@ -65,7 +65,7 @@ export function Configuration(){
     return(
         <div className="width-95-perc" style={{ backgroundColor:"#ebebeb", padding:"10px 100px 100px 100px"}}>
             <ToastContainer />
-            <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Gestão de Usuários - Configuração BD</h1>
+            <h1 style={{ fontSize: "23px", fontWeight: "bolder", color: "#324d69", width:"100%" }} className="title_2024">Gestão de Usuários - Configuração BD - Homologação</h1>
             <div className="column-align" style={{alignItems:"center"}}>
               <div className="hr_color" style={{width:"97%", marginTop:"15px"}}></div>
             </div>
