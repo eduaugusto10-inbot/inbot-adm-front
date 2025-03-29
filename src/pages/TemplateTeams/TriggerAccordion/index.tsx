@@ -46,6 +46,7 @@ export function Accordion() {
     const [fileData, setFileData] = useState<any[][]>([]);
     const [typeClient, setTypeClients] = useState<boolean>();
     const [mode, setMode] = useState<boolean>(false);
+    const [botTeamsInstanceId, setBotTeamsInstanceId] = useState<any>()
     const [text, setText] = useState<string>("")
     const [showType, setShowType] = useState<boolean>(false)
     const [triggerMode, setTriggerMode] = useState<string>("imediato")
@@ -426,7 +427,7 @@ export function Accordion() {
             "typeTrigger": triggerMode,
             "timeTrigger": triggerMode === "agendado" ? `${dates} ${hours}` : null,
             "status": "aguardando",
-            "teamsInstanceId": botList[0].id,
+            "teamsInstanceId": botTeamsInstanceId,
             "botId": botId,
             "phoneTrigger": '',
             "channel": 'teams'
@@ -617,7 +618,7 @@ export function Accordion() {
                         </div>
                             <div className="row-align">
                                 <span className="span-title" style={{width:"31%", justifyContent:"left", marginLeft:"12px", marginRight:"35px"}}>Bot de disparo: </span>
-                                    <select onChange={handleMode} className="input-values">
+                                    <select value={botTeamsInstanceId} onChange={(e) => setBotTeamsInstanceId(e.target.value)} className="input-values">
                                     <option value="">Selecione bot de disparo</option>
                                         {botList.map((bot: any, key: number) => (                                    
                                                 <option value={bot.id}>{bot.name}</option>
