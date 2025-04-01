@@ -430,7 +430,9 @@ export function Accordion() {
             "teamsInstanceId": botTeamsInstanceId,
             "botId": botId,
             "phoneTrigger": '',
-            "channel": 'teams'
+            "channel": 'teams',
+            "triggerOrigin":"SITE",
+            "category": null,
         }
 
         api.post('/whatsapp/trigger', data)

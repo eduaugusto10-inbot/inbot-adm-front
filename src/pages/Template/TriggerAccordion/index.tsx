@@ -96,6 +96,7 @@ export function Accordion() {
     const [typeClient, setTypeClients] = useState<boolean>();
     const [mode, setMode] = useState<boolean>(false);
     const [text, setText] = useState<string>("")
+    const [categoryTemplate, setCategoryTemplate] = useState<string>("")
     const [showType, setShowType] = useState<boolean>(false)
     const [triggerMode, setTriggerMode] = useState<string>("imediato")
     const [campaignName, setCampaignName] = useState<string>("")
@@ -476,6 +477,7 @@ export function Accordion() {
                 });
                 setQtButtons(hasManyButtons(template.components))
                 setHeaderConfig(hasMedia(template.components))
+                setCategoryTemplate(template.category)
                 return;
             }
         })
@@ -560,6 +562,8 @@ export function Accordion() {
             // "status": "aguardando",
             "channel": "whatsapp",
             "status": "criando",
+            "category": categoryTemplate,
+            "triggerOrigin":"SITE",
             "botId": botId,
             "phoneTrigger": selectedDispatchNumber || phone,
         }
