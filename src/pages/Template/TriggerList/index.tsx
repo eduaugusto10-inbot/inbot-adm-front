@@ -184,6 +184,9 @@ export function TriggerList() {
         setMenuPosition({ top: rect.top + window.scrollY, left: rect.left + window.scrollX });
         setMenuOpen(true);
     };
+    const capitalizeFirstLetter = (str: string) => {
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+      }
 
     const handleMouseEnterMenu = (index: number) => {
         setHoveredRowMenu(index);
@@ -405,7 +408,8 @@ export function TriggerList() {
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Enviado com sucesso</span> <div><div className="triangle-up" onClick={()=>handleInitSort("total","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("total","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Entregue com Sucesso</span> <div><div className="triangle-up" onClick={()=>handleInitSort("entregue","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("enviado","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de Erro</span> <div><div className="triangle-up" onClick={()=>handleInitSort("erro","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
-                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Engajamento</span> <div><div className="triangle-up" onClick={()=>handleInitSort("erro","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
+                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Engajamento</span> <div><div className="triangle-up" onClick={()=>handleInitSort("engajamento","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
+                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Origem</span> <div><div className="triangle-up" onClick={()=>handleInitSort("triggerOrigin","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
                                 <th className="cells">Opções</th>
                             </tr>
                         </thead>
@@ -427,6 +431,7 @@ export function TriggerList() {
                                         <td><span>{trigger?.entregue > 0 ? trigger.entregue : trigger.enviado}</span></td>
                                         <td><span>{trigger.erro}</span></td>
                                         <td><span>{trigger.status === 'aguardando' ? 0 : trigger.engajado}</span></td>
+                                        <td><span>{capitalizeFirstLetter(trigger.triggerOrigin)}</span></td>
                                         <td><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>
                                     </tr>
                                 </React.Fragment>

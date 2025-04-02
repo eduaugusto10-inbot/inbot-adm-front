@@ -563,7 +563,7 @@ export function Accordion() {
             "channel": "whatsapp",
             "status": "criando",
             "category": categoryTemplate,
-            "triggerOrigin":"SITE",
+            "triggerOrigin":"MANUAL",
             "botId": botId,
             "phoneTrigger": selectedDispatchNumber || phone,
         }

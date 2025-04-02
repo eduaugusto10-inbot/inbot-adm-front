@@ -431,7 +431,7 @@ export function Accordion() {
             "botId": botId,
             "phoneTrigger": '',
             "channel": 'teams',
-            "triggerOrigin":"SITE",
+            "triggerOrigin":"MANUAL",
             "category": null,
         }
 
