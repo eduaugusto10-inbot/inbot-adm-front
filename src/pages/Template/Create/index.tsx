@@ -644,12 +644,16 @@ export function CreateTemplateAccordion() {
         toggle();
     }
     const removeAccentsAndCommas = (str: string) => {
-        return str
+        // Primeiro remove acentuações
+        let result = str
           .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .replace(/,/g, '')
-          .replace(/[~´`^"']/g, '');
-      }
+          .replace(/[\u0300-\u036f]/g, '');
+          
+        // Depois mantém apenas letras, números e underline
+        result = result.replace(/[^a-zA-Z0-9_]/g, '');
+        
+        return result.toLowerCase();
+    }
     const handleButtonClick = (buttonId: string) => {
         if (buttonId === "Salvar") {
             createPayload()
