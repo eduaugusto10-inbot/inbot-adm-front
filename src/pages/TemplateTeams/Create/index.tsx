@@ -402,12 +402,16 @@ export function CreateTemplateAccordion() {
         toggle();
     }
     const removeAccentsAndCommas = (str: string) => {
-        return str
+        // Primeiro remove acentuações
+        let result = str
           .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .replace(/,/g, '')
-          .replace(/[~´`^"']/g, '');
-      }
+          .replace(/[\u0300-\u036f]/g, '');
+          
+        // Depois mantém apenas letras, números e underline
+        result = result.replace(/[^a-zA-Z0-9_]/g, '');
+        
+        return result.toLowerCase();
+    }
     const handleButtonClick = (buttonId: string) => {
         if (buttonId === "Salvar") {
             createPayload()
@@ -421,7 +425,6 @@ export function CreateTemplateAccordion() {
         }
     };
     const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
-
         const imagemSelecionada = event.target.files?.[0];
         if (imagemSelecionada) {
             setFileName(imagemSelecionada.name)
@@ -429,6 +432,12 @@ export function CreateTemplateAccordion() {
             reader.onload = () => {
                 const dataUrl = reader.result as string;
                 setMidia(dataUrl);
+                
+                // Adicione esta linha para definir template.header com o fileName quando uma imagem é carregada
+                setTemplate(prevState => ({
+                    ...prevState,
+                    "header": imagemSelecionada.name
+                }));
             };
             reader.readAsDataURL(imagemSelecionada);
         }
@@ -476,7 +485,7 @@ export function CreateTemplateAccordion() {
                                         name="templateName"
                                         value={templateName}
                                         style={{width:"350px" }}
-                                        onChange={e => setTemplateName(removeAccentsAndCommas(e.target.value).replace(/\s/g, '').toLowerCase())}
+                                        onChange={e => setTemplateName(removeAccentsAndCommas(e.target.value))}
                                     />
                                     <a data-tooltip-id="my-tooltip-multiline" data-tooltip-html="Utilizar apenas letras, números e underline.<br /> Não utilizar espaços, acentuações e virgulas.<br />Exemplo correto: template_1">
                                         <img src={alert} width={20} height={20} alt="alerta" />
