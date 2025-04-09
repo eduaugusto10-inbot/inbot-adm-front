@@ -519,7 +519,7 @@ export function CreateTemplateAccordion() {
         const components: any[] = [];
         if (typeOfButtons === "quickReply") {
             buttonQR = {
-                type: "button",
+                type: "BUTTONS",
                 parameters: []
             }
             let errorQR = false;
@@ -538,7 +538,7 @@ export function CreateTemplateAccordion() {
         }
         if (typeOfButtons === "cta") {
             buttonQR = {
-                type: "button",
+                type: "BUTTONS",
                 parameters: []
             }
             let errorQR = false;
@@ -559,7 +559,7 @@ export function CreateTemplateAccordion() {
 
         if (template.footer) {
             footer = {
-                type: "footer",
+                type: "FOOTER",
                 parameters: [{
                     type: "text",
                     text: template.footer,
@@ -569,7 +569,7 @@ export function CreateTemplateAccordion() {
         }
         if (headers?.parameters?.[0].type === "text") {
             header = {
-                type: "header",
+                type: "HEADER",
                 parameters: [
                     {
                         type: headers?.parameters?.[0].type,
@@ -583,7 +583,7 @@ export function CreateTemplateAccordion() {
             headers?.parameters?.[0].type === "video" ||
             headers?.parameters?.[0].type === "document") {
             header = {
-                type: "header",
+                type: "HEADER",
                 parameters: [
                     {
                         type: headers?.parameters?.[0].type,
@@ -593,7 +593,7 @@ export function CreateTemplateAccordion() {
             components.push(header);
         }
         body = {
-            type: "body",
+            type: "BODY",
             parameters: [
                 {
                     type: "text",
@@ -612,7 +612,8 @@ export function CreateTemplateAccordion() {
         payload["category"] = templateType;
         payload["name"] = templateName;
         payload["language"] = "pt_BR";//configTemplate.language;
-        api.post(`/whats/template/${botId}`, payload)
+        const data: { payload: any } = { payload };
+        api.post(`/whats/template/${botId}`, data)
             .then(() => {
                 successCreateTemplate()
                 setTimeout(() => BackToList(), 3000)
