@@ -65,7 +65,7 @@ export function Accordion() {
                 setPhone(resp.data.bot[0].number)      
                 try{       
                 const templatesResp = await api.get(`/token-templates?token=${token}`); 
-                setTemplates(templatesResp.data.data.messageTemplates);
+                setTemplates(templatesResp.data.data);
                 setCreateTriggerMenu(true)
                 }catch(error){
                     console.log("Erro ao pegar os templates")

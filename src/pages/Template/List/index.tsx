@@ -37,7 +37,11 @@ export function ListAll() {
     
                 const token = resp.data.accessToken;
                 const templatesResp = await api.get(`/token-templates?token=${token}`);
-                setTemplates(templatesResp.data.data.messageTemplates);
+                if (templatesResp.data && templatesResp.data.data) {
+                    setTemplates(templatesResp.data.data);
+                } else {
+                    setTemplates([]);
+                }
             } catch (error) {
                 console.log(error);
             } finally {
@@ -230,6 +234,8 @@ export function ListAll() {
 
     const sendtemplate = (id: number) => {
         const sortTemplates = handleSort(dadosFiltrados);
+        if (!sortTemplates || sortTemplates.length === 0 || !sortTemplates[id]) return;
+        
         sortTemplates[id].components.forEach((element: any) => {
             if (element.type === "body")
                 SendTemplate(sortTemplates[id].name, encontrarMaiorNumero(element.parameters[0].text), hasManyButtons(sortTemplates[id].components), hasMedia(sortTemplates[id].components), sortTemplates[id].ID)
@@ -237,6 +243,8 @@ export function ListAll() {
     }
     const deleteTemplate = (id: number) => {
         const sortTemplates = handleSort(dadosFiltrados);
+        if (!sortTemplates || sortTemplates.length === 0 || !sortTemplates[id]) return;
+        
         setMenuOpen(false);
         waitingMessage()
         api.delete(`https://whatsapp.smarters.io/api/v1/messageTemplates/${sortTemplates[id].name}`, { headers: { 'Authorization': token } })
@@ -244,7 +252,11 @@ export function ListAll() {
                 successMessageDeleteTemplate()
                 api.get('https://whatsapp.smarters.io/api/v1/messageTemplates', { headers: { 'Authorization': token } })
                 .then(resp => {
-                    setTemplates(resp.data.data.messageTemplates)
+                    if (resp.data && resp.data.data) {
+                        setTemplates(resp.data.data)
+                    } else {
+                        setTemplates([]);
+                    }
                 })
             })
             .catch(error => {
@@ -254,6 +266,8 @@ export function ListAll() {
     }
     const duplicaTemplate = (id: number) => {
         const sortTemplates = handleSort(dadosFiltrados);
+        if (!sortTemplates || sortTemplates.length === 0 || !sortTemplates[id]) return;
+        
         setMenuOpen(false);
         let variableQuantity = 0;
         let bodyText = "";
@@ -283,9 +297,9 @@ export function ListAll() {
         });
     }
 
-    const dadosFiltrados = templates.filter(template =>
+    const dadosFiltrados = templates ? templates.filter(template =>
         template.name.toLowerCase().includes(filtro.toLowerCase())
-      );
+      ) : [];
 
       const handleFiltroChange = (e: ChangeEvent<HTMLInputElement>) => {
         setFiltro(e.target.value);
@@ -296,6 +310,9 @@ export function ListAll() {
         setOrderSort(orderBy)
     }
     const handleSort = (outrosDadosFiltrados: any) => {
+            if (!outrosDadosFiltrados || !Array.isArray(outrosDadosFiltrados) || outrosDadosFiltrados.length === 0) {
+                return [];
+            }
 
             const sortedItems = [...outrosDadosFiltrados];
             if(sortType === ""){
@@ -362,7 +379,7 @@ export function ListAll() {
                             </tr>
                         </thead>
                         <tbody>
-                            {handleSort(dadosFiltrados).map((template, index) => (
+                            {handleSort(dadosFiltrados)?.length > 0 ? handleSort(dadosFiltrados).map((template, index) => (
                                 <tr
                                     key={index}
                                     style={{ border: '1px solid #0171BD', backgroundColor: index % 2 === 0 ? '#e4e4e4' : '#FFF' }}
@@ -375,7 +392,11 @@ export function ListAll() {
                                     <td style={{textAlign:"center"}}><span>{template.language}</span></td>
                                     <td style={{textAlign:"center"}}><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>
                                 </tr>
-                            ))}
+                            )) : (
+                                <tr>
+                                    <td colSpan={5} style={{textAlign: "center"}}>Nenhum template encontrado</td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>}

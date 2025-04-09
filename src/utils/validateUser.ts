@@ -29,7 +29,6 @@ export const validatedUser = async (
         if (resp.data.length) hasTeams = true;
       })
       .catch((error) => console.log(error));
-    // http://localhost:3000/#/trigger-list?token=1738103610-b500a9365289ee98&bot_id=693
     console.log("hasTeams", hasTeams);
     console.log("hasWhats", hasWhats);
     if (resp.data.bot_id === botId && hasTeams && !hasWhats) {
