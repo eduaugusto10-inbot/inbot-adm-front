@@ -385,7 +385,7 @@ export function Accordion() {
     const hasMedia = (headerElement: any) => {
         let headerType = null;
         headerElement.forEach((element: any) => {
-            if (element.type === "header") {
+            if (element.type === "HEADER") {
                 switch (element.parameters[0].type) {
                     case "video":
                         headerType = "video";
@@ -409,7 +409,7 @@ export function Accordion() {
     const hasManyButtons = (headerElement: any) => {
         let buttons = 0;
         headerElement.forEach((element: any) => {
-            if (element.type === "button") {
+            if (element.type === "BUTTONS") {
                 if (element.parameters[0].type === "quickReply") {
                     buttons = element.parameters.length;
                     if(buttons > 0) setTitleButton1(element.parameters[0].text)
@@ -417,14 +417,14 @@ export function Accordion() {
                     if(buttons > 2) setTitleButton3(element.parameters[2].text)
                 }
             }
-            if(element.type === "body") {
+            if(element.type === "BODY") {
                 setBodyText(element.parameters[0].text)
             }
-            if(element.type === "header") {
+            if(element.type === "HEADER") {
                 setHeaderText(element.parameters[0]?.text)
                 setTypeOfHeader(element.parameters[0].type)
             }
-            if(element.type === "footer") {
+            if(element.type === "FOOTER") {
                 setFooterText(element.parameters[0].text)
             }
         });
@@ -469,9 +469,10 @@ export function Accordion() {
         setFileName("")
         templates.forEach((template: ITemplateList) => {
             if(template.ID===e){
-                setTemplateName(template.name);   
+                setTemplateName(template.name);
                 template.components.forEach((element: any) => {
-                    if (element.type === "body"){
+                    console.log(element)
+                    if (element.type === "BODY"){
                         setVariableQty(encontrarMaiorNumero(element.parameters[0].text))
                     }                    
                 });
