@@ -14,7 +14,6 @@ export function ChangeDeleteNumber() {
     const history = useNavigate();
     const location = useLocation()
     const [customerData, setCustomerData] = useState<ICustomerData>(defaultCustomerData);
-    const [profilePic, setProfilePic] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [fieldErrors, setFieldErrors] = useState<{[key: string]: boolean}>({});
     const [accordionState, setAccordionState] = useState<AccordionStateWhats>({
@@ -29,7 +28,6 @@ export function ChangeDeleteNumber() {
         api.get(`/whats/${location.state.phoneNumber}`)
             .then(res => {
                 setCustomerData(res.data)
-                setProfilePic(res.data.profile_pic)
             })
             .catch(error => console.log(error))
     }, [])
@@ -236,7 +234,7 @@ export function ChangeDeleteNumber() {
 
     const handleImage = (event: React.FormEvent) => {
         event.preventDefault();
-        api.post('/whats/image', { "image": profilePic, "phoneNumber": customerData.number })
+        api.post('/whats/image', { "image": customerData.profile_pic, "phoneNumber": customerData.number })
             .then(res => {
                 successMessageImg();
                 setTimeout(() => history("/?token=123&bot_id=403"), 2000)
@@ -408,18 +406,15 @@ export function ChangeDeleteNumber() {
                                 <div className="row-align" style={{ height:"50px"}}>
                                     <div style={{ display: "flex", flexDirection: "column", minHeight: "200px" }}>
                                     <div className='div-img'>
-                        <img src={profilePic} width={200} height={200} alt='logo da empresa' style={{ margin: "7px", padding: "7px" }} />
+                        <img src={customerData.profile_pic} width={200} height={200} alt='logo da empresa' style={{ margin: "7px", padding: "7px" }} />
                         <input
                             className='input'
                             type="text"
-                            value={profilePic}
-                            onChange={e => setProfilePic(e.target.value)}
+                            name="profile_pic"
+                            value={customerData.profile_pic}
+                            onChange={handleInputChange}
                             style={{ margin: "7px" }}
                         />
-                        <button
-                            onClick={handleImage}
-                            className='button-blue'
-                            style={{ width:"100px", margin: "7px" }}>Enviar imagem</button>
                     </div>
                                 </div>
                                 </div>
