@@ -314,6 +314,7 @@ export interface Filters {
 export interface ITriggerListFilter {
   campaign_name: string;
   template_name: string;
+  category: string;
   type_trigger: string;
   time_trigger: string;
   data_criacao: string;

@@ -15,8 +15,6 @@ import axios from "axios";
 
 export function ListAll() {
     const [searchParams, setSearchParams] = useSearchParams();
-    const [isWhatsAppEnabled, setIsWhatsAppEnabled] = useState(true);
-    const [isTeamsEnabled, setIsTeamsEnabled] = useState(true);
     if (searchParams.get('bot_id') === null) {
         window.location.href = "https://in.bot/inbot-admin";
     }

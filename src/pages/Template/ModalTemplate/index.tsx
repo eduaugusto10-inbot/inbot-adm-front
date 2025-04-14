@@ -8,7 +8,7 @@ export function ModalTemplate(props: any) {
     }
 
     const findButton = (obj: any, type: string) => {
-        return obj.find((comp: any) => comp.type === "button")?.parameters || [];
+        return obj.find((comp: any) => comp.type === "BUTTONS")?.parameters || [];
     }
 
     return (
@@ -18,15 +18,15 @@ export function ModalTemplate(props: any) {
                 <div className="overlay-text">
                     <div className="texts" style={{ maxHeight: '450px', overflowY: 'auto' }}>
                         <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', backgroundColor: "none" }}>
-                            {findText(props.modalTemplate.components, "header")}
+                            {findText(props.modalTemplate.components, "HEADER")}
                         </label>
                         <label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>
-                            {findText(props.modalTemplate.components, "body")}
+                            {findText(props.modalTemplate.components, "BODY")}
                         </label>
                         <label className="footer" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', fontSize: "12px" }}>
                             {findText(props.modalTemplate.components, "footer")}
                         </label>
-                        {findButton(props.modalTemplate.components, "button") !== undefined && findButton(props.modalTemplate.components, "button").map((button: { text: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; }) => (
+                        {findButton(props.modalTemplate.components, "BUTTONS") !== undefined && findButton(props.modalTemplate.components, "BUTTONS").map((button: { text: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; }) => (
                             <div className="quickReply-texts">
                                 <div className="quick-reply"><label>{button.text}</label></div>
                             </div>
