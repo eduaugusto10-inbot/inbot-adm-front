@@ -70,7 +70,7 @@ export function Accordion() {
                 }catch(error){
                     console.log("Erro ao pegar os templates")
                 }
-            }).catch(error => history(`/template-warning-no-whats?bot_id=${botId}`))
+            }).catch(error => console.log(error) )//history(`/template-warning-no-whats?bot_id=${botId}`))
         };
     
         if (searchParams.get('bot_id') === null) {
