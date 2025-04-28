@@ -4,9 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import { ToastContainer, toast } from "react-toastify";
 import { successMessageChange, errorMessage, successMessageImg, errorMessageImg } from '../../Components/Toastify'
-import { mask } from '../../utils/utils';
 import chevron from "../../img/right-chevron.png";
-import  {validatedUser}  from "../../utils/validateUser";
 import { PhoneInput } from 'react-international-phone';
 
 export function ChangeDeleteNumber() {

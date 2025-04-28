@@ -208,7 +208,6 @@ export function TriggerList() {
         api.get(`/whatsapp/trigger-bot/${botId}`)
             .then(resp => {
                 setTriggerList(resp.data.data)
-                // setDataTreat(resp.data.data)
                 filtersByStatus(resp.data.data)
                 setLoading(false)
             })
@@ -226,7 +225,7 @@ export function TriggerList() {
                 });
         }, 15000);
         return () => clearInterval(intervalId);
-    }, [botId, initDate, finalDate, filtro, filters]);
+    }, [botId, initDate, finalDate, filtro, filters, selectedChannel]);
 
     function detailedTrigger(id: number) {
         const sortTrigger = handleSort(dataTreat);
@@ -298,17 +297,19 @@ export function TriggerList() {
 
       const exportToExcel = () => {
         const processedData = handleSort(dataTreat).map((trigger: any) => ({
-          Campanha: trigger.campaign_name,
-          Template: trigger.template_name,
-          DataCriacao: trigger.data_criacao ? trigger.data_criacao : "--",
-          HoraTrigger: trigger.time_trigger ? trigger.time_trigger : "--",
-          Status: trigger.status,
-          Canal: trigger.channel === "whatsapp" ? "Whatsapp" : trigger.channel === "teams" ? "Teams" : "Outro",
-          Total: trigger.total,
-          Erro: trigger.erro,
-          Entregue: trigger.entregue > 0 ? trigger.entregue : trigger.enviado,
-          Enviado: trigger.enviado,
-          Engajado: trigger.status === "aguardando" ? 0 : trigger.engajado,
+          'Nome da campanha': trigger.campaign_name,
+          'Template': trigger.template_name,
+          'Categoria': capitalizeFirstLetter(trigger.category?? '--'),
+          'Data criação': trigger.data_criacao ? adjustTimeWithout3Hour(trigger.data_criacao) : "--",
+          'Data envio': trigger.time_trigger ? adjustTimeWithout3Hour(trigger.time_trigger) : "--",
+          'Status': trigger.status,
+          'Canal': trigger.channel === "whatsapp" ? "Whatsapp" : trigger.channel === "teams" ? "Teams" : "Outro",
+          'Total de disparos': trigger.total,
+          'Erro': trigger.erro,
+          'Enviado não entregue': statusName(trigger.status)=="Executado" && trigger.channel==='whatsapp' ? trigger.enviado : "0",
+          'Entregue': trigger.entregue,
+          'Engajamento': trigger.status === 'aguardando' ? 0 : trigger.engajado,
+          'Origem': capitalizeFirstLetter(trigger.triggerOrigin),
         }));
     
         const worksheet = XLSX.utils.json_to_sheet(processedData);
@@ -446,7 +447,7 @@ export function TriggerList() {
                                     >
                                         <td><span>{trigger.campaign_name}</span></td>
                                         <td><span>{trigger.template_name}</span></td>
-                                        <td><span>{trigger.category?? '--'}</span></td>
+                                        <td><span>{capitalizeFirstLetter(trigger.category?? '--')}</span></td>
                                         <td><span>{trigger.data_criacao ? adjustTimeWithout3Hour(trigger.data_criacao) : "--"}</span></td>
                                         <td><span>{trigger.time_trigger ? adjustTimeWithout3Hour(trigger.time_trigger) : "--"}</span></td>
                                         <td><div id="statusCells" style={{ borderRadius: "20px", padding: "7px" }}><span style={{ fontWeight: "bolder", color: statusColor(trigger.status) }}>{statusName(trigger.status)}</span></div></td>
