@@ -11,7 +11,6 @@ import { errorMessage, successMessageDeleteTemplate, waitingMessage } from "../.
 import loupe from '../../../img/loupe.png'
 import  {validatedUser}  from "../../../utils/validateUser";
 import { DraggableComponent } from "../../../Components/Draggable";
-import axios from "axios";
 
 export function ListAll() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -252,10 +251,33 @@ export function ListAll() {
         const sortTemplates = handleSort(dadosFiltrados);
         if (!sortTemplates || sortTemplates.length === 0 || !sortTemplates[id]) return;
         
+        let variableQuantity = 0;
+        let bodyText = "";
+        let headerConfig = null;
+        let qtButtons = 0;
+        
         sortTemplates[id].components.forEach((element: any) => {
-            if (element.type === "body")
-                SendTemplate(sortTemplates[id].name, encontrarMaiorNumero(element.parameters[0].text), hasManyButtons(sortTemplates[id].components), hasMedia(sortTemplates[id].components), sortTemplates[id].ID)
+            if (element.type === "body") {
+                variableQuantity = encontrarMaiorNumero(element.parameters[0].text);
+                bodyText = element.parameters[0].text;
+            }
+            if (element.type === "header") {
+                headerConfig = hasMedia(sortTemplates[id].components);
+            }
+            if (element.type === "button") {
+                qtButtons = hasManyButtons(sortTemplates[id].components);
+            }
         });
+        
+        SendTemplate(
+            sortTemplates[id].name,
+            variableQuantity,
+            qtButtons,
+            headerConfig,
+            sortTemplates[id].ID
+        );
+        
+        setMenuOpen(false);
     }
     const deleteTemplate = (id: number) => {
         const sortTemplates = handleSort(dadosFiltrados);
