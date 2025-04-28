@@ -20,6 +20,25 @@ export function ListAll() {
     }
     var botId = searchParams.get('bot_id') ?? "0";
     const history = useNavigate();
+    const [templates, setTemplates] = useState<ITemplateList[]>([])
+    const [phone, setPhone] = useState<string>("")
+    const [token, setToken] = useState<string>('')
+    const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+    const [modal, setModal] = useState<boolean>(false)
+    const [modalObject, setModalObject] = useState<any>()
+    const [hoveredRowMenu, setHoveredRowMenu] = useState<number | null>(null);
+    const [menuOpen, setMenuOpen] = useState<boolean>(false);
+    const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+    const [selectedRow, setSelectedRow] = useState<number | null>(null);
+    const [filtro, setFiltro] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(true)
+    const [sortType, setSortType] = useState<string>("")
+    const [sortOrder, setOrderSort] = useState<string>("")
+    const [buttonsDuplicated, setButtonsDuplicated] = useState<any>()
+    const menuRef = useRef<HTMLDivElement>(null);
+    const [hiddenVideo, setHiddenVideo] = useState<boolean>(false)
+    const [headerText, setHeaderText] = useState("")
+
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
@@ -47,27 +66,26 @@ export function ListAll() {
             }
         };
     
-            fetchData();
+        fetchData();
     }, []);
+
+    useEffect(() => {
+        const updateTemplates = async () => {
+            try {
+                const templatesResp = await api.get(`/token-templates?token=${token}`);
+                if (templatesResp.data && templatesResp.data.data) {
+                    setTemplates(templatesResp.data.data);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        const interval = setInterval(updateTemplates, 60000);
+
+        return () => clearInterval(interval);
+    }, [token]);
     
-    const [modal, setModal] = useState<boolean>(false)
-    const [modalObject, setModalObject] = useState<any>()
-    const [templates, setTemplates] = useState<ITemplateList[]>([])
-    const [phone, setPhone] = useState<string>("")
-    const [hoveredRow, setHoveredRow] = useState<number | null>(null);
-    const [headerText, setHeaderText] = useState("")
-    const [loading, setLoading] = useState<boolean>(true)
-    const [hoveredRowMenu, setHoveredRowMenu] = useState<number | null>(null);
-    const [menuOpen, setMenuOpen] = useState<boolean>(false);
-    const [menuPosition, setMenuPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
-    const [selectedRow, setSelectedRow] = useState<number | null>(null);
-    const [filtro, setFiltro] = useState<string>('');
-    const [token, setToken] = useState<string>('')
-    const [sortType, setSortType] = useState<string>("")
-    const [sortOrder, setOrderSort] = useState<string>("")
-    const [buttonsDuplicated, setButtonsDuplicated] = useState<any>()
-    const menuRef = useRef<HTMLDivElement>(null);
-    const [hiddenVideo, setHiddenVideo] = useState<boolean>(false)
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
