@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { read, utils } from "xlsx";
-import { errorCampaingEmpty, errorDuplicatedPhone, errorEmptyVariable, errorPhoneEmpty, errorTriggerMode, successCreateTrigger, waitingMessage, errorNoRecipient, errorMidiaEmpty, errorMessagePayload } from "../../../Components/Toastify";
+import { errorCampaingEmpty, errorDuplicatedPhone, errorEmptyVariable, errorPhoneEmpty, errorTriggerMode, successCreateTrigger, waitingMessage, errorNoRecipient, errorMidiaEmpty, errorMessagePayload, errorMessageDefault } from "../../../Components/Toastify";
 import api from "../../../utils/api";
 import attached from '../../../img/attachment.png'
 import { ToastContainer } from "react-toastify";
@@ -19,6 +19,8 @@ import 'react-tooltip/dist/react-tooltip.css'
 import { Tooltip } from 'react-tooltip'
 import  {validatedUser}  from "../../../utils/validateUser";
 import { DraggableComponent } from "../../../Components/Draggable";
+import { errorMessage } from "../../../Components/Toastify";
+import { toast } from 'react-toastify';
 
 export function Accordion() {
 
@@ -65,10 +67,25 @@ export function Accordion() {
                 setPhone(resp.data.bot[0].number)      
                 try{       
                 const templatesResp = await api.get(`/token-templates?token=${token}`); 
-                setTemplates(templatesResp.data.data);
-                setCreateTriggerMenu(true)
-                }catch(error){
-                    console.log("Erro ao pegar os templates")
+                if (templatesResp.data && templatesResp.data.data && templatesResp.data.data.length > 0) {
+                    setTemplates(templatesResp.data.data);
+                    setCreateTriggerMenu(true);
+                } else {
+                    setTemplates([]);
+                    setCreateTriggerMenu(false);
+                    errorMessageDefault("Por favor, criar um template antes de criar a campanha");
+                    setTimeout(() => {
+                        toast.warn("Redirecionando...", {
+                            theme: "colored"
+                        });
+                        setTimeout(() => {
+                            history(`/template-create?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get('url_base_api')}`);
+                        }, 2000);
+                    }, 2000);
+                }
+                } catch (error) {
+                    console.log(error);
+                    errorMessageDefault("Erro ao carregar templates");
                 }
             }).catch(error => console.log(error) )//history(`/template-warning-no-whats?bot_id=${botId}`))
         };
