@@ -1015,15 +1015,15 @@ export function CreateTemplateAccordion() {
                 <button  style={{width:"150px", height:"40px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={()=> setShowTempalte(!showTemplate)}>Exibir template</button>
             </div>}
             {!showTemplate &&
-            <div onClick={()=> setShowTempalte(!showTemplate)} className="image-container rigth fixed" style={{ position: "fixed", color: "#000", alignContent: "end", textAlign: "end", right: "20px", bottom: "0px" }}>
+            <div onClick={()=> setShowTempalte(!showTemplate)} className="image-container rigth fixed" style={{ position: "fixed", color: "#000", alignContent: "end", textAlign: "end", right: "50px", bottom: "0px" }}>
                 <img src={whatsappBackground} alt="Logo" width={350} height={600} />
-                <div className="overlay-text">
-                    <div className="texts">
+                <div className="overlay-text-template" style={{ overflowY: 'auto', maxHeight: '80%' }}>
+                    <div className="texts" style={{width:"100%"}}>
                         {typeOfHeader === "text" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{template.header}</label>}
                         {typeOfHeader === "image" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={midia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
                         {typeOfHeader === "document" && <div className="column-align" style={{padding:"10px"}}><label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><img src={attached} style={{ maxWidth: '100%', maxHeight: '200px', border:"1px solid #c3c3c3", borderRadius:"8px"}} alt="" /></label></div>}
                         {typeOfHeader === "video" && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}><video width="160" height="120" controls><source src={midia} type="video/mp4" /></video></label>}
-                        {<label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {handleChangeText(template.body).length > 256 ? handleChangeText(template.body).slice(0,256)+"...veja mais" : handleChangeText(template.body)}</label>}
+                        <label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{handleChangeText(template.body)}</label>
                         {<label className="footer font-size-12" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}>{template.footer}</label>}
                         {typeOfButtons === "quickReply" && <div className="quickReply-texts">
                             {buttons.length > 0 && (<div className="quick-reply"><label >{buttons[0].text}</label></div>)}

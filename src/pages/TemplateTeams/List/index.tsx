@@ -1,6 +1,7 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import './style.css'
 import api from "../../../utils/api";
+import inbotApi from "../../../utils/apiInbot";
 import { ITemplateList, ITemplateListTeams } from "../../types";
 import dots from "../../../img/dots.png"
 import { useNavigate } from "react-router-dom";
@@ -214,12 +215,15 @@ export function ListAll() {
         const sortTemplates = handleSort(dadosFiltrados);
         setMenuOpen(false);
         waitingMessage()
-        api.delete(`${sortTemplates[id].id}`)
+        inbotApi.setBotId(Number(botId));
+        inbotApi.delete(`/teams/template/${sortTemplates[id].id}`)
             .then(() => {
                 successMessageDeleteTemplate()        
+                window.location.reload();
             })
             .catch((error) => {
                 errorMessage()
+                console.error("Erro ao deletar template:", error)
             })
     }
     const duplicaTemplate = (id: number) => {
@@ -371,10 +375,10 @@ export function ListAll() {
                                     onMouseLeave={handleMouseLeaveMenu}> <td onClick={() => loadTemplate(selectedRow)}>Visualizar</td></li>
                                 {/* <li key={3} className="menu-line" style={{ backgroundColor: hoveredRowMenu === 3 ? '#e4e4e4' : 'white'}}
                                     onMouseEnter={() => handleMouseEnterMenu(3)}
-                                    onMouseLeave={handleMouseLeaveMenu}><td onClick={() => duplicaTemplate(selectedRow)}>Duplicar</td></li>
-                                <li key={4} className="menu-line" style={{ backgroundColor: hoveredRowMenu === 4 ? '#e4e4e4' : 'white', borderBottom:"none", borderBottomRightRadius:"20px", borderBottomLeftRadius:"20px"}}
+                                    onMouseLeave={handleMouseLeaveMenu}><td onClick={() => duplicaTemplate(selectedRow)}>Duplicar</td></li>*/}
+                                <li key={4} className="menu-line" style={{ backgroundColor: hoveredRowMenu === 4 ? '#e4e4e4' : 'white', borderBottom:"none", borderBottomRightRadius:"20px", borderBottomLeftRadius:"20px"}} 
                                     onMouseEnter={() => handleMouseEnterMenu(4)}
-                                    onMouseLeave={handleMouseLeaveMenu}><td onClick={() => deleteTemplate(selectedRow)}>Deletar</td></li> */}
+                                    onMouseLeave={handleMouseLeaveMenu}><td onClick={() => deleteTemplate(selectedRow)}>Deletar</td></li>
                         </ul>
                     </div>
                 )}
