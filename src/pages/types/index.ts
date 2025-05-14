@@ -26,6 +26,7 @@ export interface ICustomerData {
   profile_pic: string;
   activated: number;
   origin: string;
+  about: string;
 }
 
 export interface ITemplate {
@@ -88,6 +89,7 @@ export const defaultCustomerData: ICustomerData = {
   profile_pic: "",
   activated: 0,
   origin: "",
+  about: "",
 };
 
 export interface ITemplateList {

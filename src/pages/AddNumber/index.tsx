@@ -8,6 +8,8 @@ import { mask } from '../../utils/utils';
 import chevron from "../../img/right-chevron.png";
 import  {validatedUser}  from "../../utils/validateUser";
 import { PhoneInput } from 'react-international-phone';
+import 'react-tooltip/dist/react-tooltip.css';
+import { Tooltip } from 'react-tooltip';
 
 export function AddNumber() {
    
@@ -107,7 +109,8 @@ export function AddNumber() {
             profile_pic: "Link da imagem",
             description: "Descrição",
             accessToken: "Access token",
-            origin: "Origem do cadastro"
+            origin: "Origem do cadastro",
+            about: "Sobre"
         };
         
         let hasError = false;
@@ -203,6 +206,7 @@ export function AddNumber() {
             vertical: newNumber.vertical,
             websites: newNumber.websites,
             profile_pic: newNumber.profile_pic,
+            about: newNumber.about
         }
         api.post('/whats', data)
             .then(res => {
@@ -373,7 +377,10 @@ export function AddNumber() {
                                     <div style={{ display: "flex", flexDirection: "column", minHeight: "200px" }}>
                                     <div className='div-img'>
                                     <img src={newNumber.profile_pic} width={200} height={200} alt='logo da empresa' style={{ margin: "7px", padding: "7px" }} />
-                                    <label>Insira o link da imagem(640x640)*</label>
+                                    <label>Insira o link da imagem(640x640)*
+                                        <span data-tooltip-id="tooltip-profile_pic" data-tooltip-content="URL da nova imagem de perfil." style={{marginLeft: '5px', cursor: 'pointer'}}>🛈</span>
+                                    </label>
+                                    <Tooltip id="tooltip-profile_pic" place="top" />
                                     <input
                                         type="text"
                                         name='profile_pic'
@@ -402,7 +409,28 @@ export function AddNumber() {
                         <div className="row-align" style={{ textAlign: "left", backgroundColor: "#FFF", width: "100%" }}>
                             <div className="input" style={{ justifyContent: "center"}}>
                                 <div className="row-align" style={{ margin: "10px" }}>
-                                    <span className="span-title" style={{ justifyContent:"flex-start" }}>Página da internet</span>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>
+                                        Sobre*
+                                        <span data-tooltip-id="tooltip-about" data-tooltip-content="Texto resumido dizendo sobre o que é o negócio." style={{marginLeft: '5px', cursor: 'pointer'}}>🛈</span>
+                                    </span>
+                                    <Tooltip id="tooltip-about" place="top" />
+                                    <input 
+                                        type="text"
+                                        placeholder="Sobre o cliente ou número"
+                                        name="about"
+                                        value={newNumber.about}
+                                        onChange={handleInputChange}
+                                        className="input-values"
+                                        required
+                                        style={getInputStyle('about')}
+                                    />
+                                </div>
+                                <div className="row-align" style={{ margin: "10px" }}>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>
+                                        Página da internet
+                                        <span data-tooltip-id="tooltip-websites" data-tooltip-content="Websites do negócio." style={{marginLeft: '5px', cursor: 'pointer'}}>🛈</span>
+                                    </span>
+                                    <Tooltip id="tooltip-websites" place="top" />
                                     <input 
                                         type="text"
                                         placeholder="Página de internet"
@@ -414,7 +442,11 @@ export function AddNumber() {
                                     />
                                 </div>
                                 <div className="row-align" style={{ margin: "10px", textAlign: "left" }}>
-                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>E-mail</span>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>
+                                        E-mail
+                                        <span data-tooltip-id="tooltip-email" data-tooltip-content="Email para contato." style={{marginLeft: '5px', cursor: 'pointer'}}>🛈</span>
+                                    </span>
+                                    <Tooltip id="tooltip-email" place="top" />
                                     <input 
                                         type="email"
                                         placeholder="E-mail"
@@ -426,7 +458,11 @@ export function AddNumber() {
                                     />
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
-                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Descrição</span>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>
+                                        Descrição
+                                        <span data-tooltip-id="tooltip-description" data-tooltip-content="Descrição do negócio." style={{marginLeft: '5px', cursor: 'pointer'}}>🛈</span>
+                                    </span>
+                                    <Tooltip id="tooltip-description" place="top" />
                                     <input 
                                         type="text"
                                         placeholder="Descrição"
@@ -439,17 +475,26 @@ export function AddNumber() {
                                     />
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
-                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Endereço</span>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>
+                                        Endereço
+                                        <span data-tooltip-id="tooltip-address" data-tooltip-content="Endereço oficial do negócio." style={{marginLeft: '5px', cursor: 'pointer'}}>🛈</span>
+                                    </span>
+                                    <Tooltip id="tooltip-address" place="top" />
                                     <textarea 
                                         placeholder="Endereço"
                                         name="address"
                                         value={newNumber.address}
                                         onChange={handleInputChange}
                                         className="textarea-values"
+                                        style={getInputStyle('address')}
                                     />
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
-                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Vertical</span>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>
+                                        Vertical
+                                        <span data-tooltip-id="tooltip-vertical" data-tooltip-content="Vertente do negócio." style={{marginLeft: '5px', cursor: 'pointer'}}>🛈</span>
+                                    </span>
+                                    <Tooltip id="tooltip-vertical" place="top" />
                                     <select
                                         name="vertical"
                                         value={newNumber.vertical}
@@ -482,7 +527,11 @@ export function AddNumber() {
                                     </select>
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
-                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Access token</span>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>
+                                        Access token*
+                                        <span data-tooltip-id="tooltip-accessToken" data-tooltip-content="Token de acesso da integração." style={{marginLeft: '5px', cursor: 'pointer'}}>🛈</span>
+                                    </span>
+                                    <Tooltip id="tooltip-accessToken" place="top" />
                                     <textarea 
                                         placeholder="Access token"
                                         name="accessToken"

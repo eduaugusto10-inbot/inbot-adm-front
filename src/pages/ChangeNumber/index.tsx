@@ -6,6 +6,8 @@ import { ToastContainer, toast } from "react-toastify";
 import { successMessageChange, errorMessage, successMessageImg, errorMessageImg } from '../../Components/Toastify'
 import chevron from "../../img/right-chevron.png";
 import { PhoneInput } from 'react-international-phone';
+import 'react-tooltip/dist/react-tooltip.css';
+import { Tooltip } from 'react-tooltip';
 
 export function ChangeDeleteNumber() {
   
@@ -52,6 +54,7 @@ export function ChangeDeleteNumber() {
             vertical: customerData.vertical,
             websites: customerData.websites,
             profile_pic: customerData.profile_pic,
+            about: customerData.about
         }
         api.put(`/whats/${location.state.phoneNumber}`, data)
             .then(res => {
@@ -151,7 +154,8 @@ export function ChangeDeleteNumber() {
             profile_pic: "Link da imagem",
             description: "Descrição",
             accessToken: "Access token",
-            origin: "Origem do cadastro"
+            origin: "Origem do cadastro",
+            about: "Sobre"
         };
         
         let hasError = false;
@@ -405,6 +409,9 @@ export function ChangeDeleteNumber() {
                                     <div style={{ display: "flex", flexDirection: "column", minHeight: "200px" }}>
                                     <div className='div-img'>
                         <img src={customerData.profile_pic} width={200} height={200} alt='logo da empresa' style={{ margin: "7px", padding: "7px" }} />
+                        <label>Insira o link da imagem(640x640)*
+                            <span data-tooltip-id="tooltip-profile_pic" data-tooltip-content="URL da nova imagem de perfil." style={{marginLeft: '5px', cursor: 'pointer'}}>🛈</span>
+                        </label>
                         <input
                             className='input'
                             type="text"
@@ -432,7 +439,28 @@ export function ChangeDeleteNumber() {
                         <div className="row-align" style={{ textAlign: "left", backgroundColor: "#FFF", width: "100%" }}>
                             <div className="input" style={{ justifyContent: "center"}}>
                                 <div className="row-align" style={{ margin: "10px" }}>
-                                    <span className="span-title" style={{ justifyContent:"flex-start" }}>Página da internet</span>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>
+                                        Sobre*
+                                        <span data-tooltip-id="tooltip-about" data-tooltip-content="Texto resumido dizendo sobre o que é o negócio." style={{marginLeft: '5px', cursor: 'pointer'}}>🛈</span>
+                                    </span>
+                                    <Tooltip id="tooltip-about" place="top" />
+                                    <input 
+                                        type="text"
+                                        placeholder="Sobre o cliente ou número"
+                                        name="about"
+                                        value={customerData.about}
+                                        onChange={handleInputChange}
+                                        className="input-values"
+                                        required
+                                        style={getInputStyle('about')}
+                                    />
+                                </div>
+                                <div className="row-align" style={{ margin: "10px" }}>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>
+                                        Página da internet
+                                        <span data-tooltip-id="tooltip-websites" data-tooltip-content="Websites do negócio." style={{marginLeft: '5px', cursor: 'pointer'}}>🛈</span>
+                                    </span>
+                                    <Tooltip id="tooltip-websites" place="top" />
                                     <input 
                                         type="text"
                                         placeholder="Página de internet"
@@ -444,7 +472,11 @@ export function ChangeDeleteNumber() {
                                     />
                                 </div>
                                 <div className="row-align" style={{ margin: "10px", textAlign: "left" }}>
-                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>E-mail</span>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>
+                                        E-mail
+                                        <span data-tooltip-id="tooltip-email" data-tooltip-content="Email para contato." style={{marginLeft: '5px', cursor: 'pointer'}}>🛈</span>
+                                    </span>
+                                    <Tooltip id="tooltip-email" place="top" />
                                     <input 
                                         type="email"
                                         placeholder="E-mail"
@@ -456,7 +488,11 @@ export function ChangeDeleteNumber() {
                                     />
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
-                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Descrição</span>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>
+                                        Descrição
+                                        <span data-tooltip-id="tooltip-description" data-tooltip-content="Descrição do negócio." style={{marginLeft: '5px', cursor: 'pointer'}}>🛈</span>
+                                    </span>
+                                    <Tooltip id="tooltip-description" place="top" />
                                     <input 
                                         type="text"
                                         placeholder="Descrição"
@@ -469,7 +505,11 @@ export function ChangeDeleteNumber() {
                                     />
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
-                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Endereço</span>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>
+                                        Endereço
+                                        <span data-tooltip-id="tooltip-address" data-tooltip-content="Endereço oficial do negócio." style={{marginLeft: '5px', cursor: 'pointer'}}>🛈</span>
+                                    </span>
+                                    <Tooltip id="tooltip-address" place="top" />
                                     <textarea 
                                         placeholder="Endereço"
                                         name="address"
@@ -480,7 +520,11 @@ export function ChangeDeleteNumber() {
                                     />
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
-                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Vertical</span>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>
+                                        Vertical
+                                        <span data-tooltip-id="tooltip-vertical" data-tooltip-content="Vertente do negócio." style={{marginLeft: '5px', cursor: 'pointer'}}>🛈</span>
+                                    </span>
+                                    <Tooltip id="tooltip-vertical" place="top" />
                                     <select
                                         name="vertical"
                                         value={customerData.vertical}
@@ -513,15 +557,19 @@ export function ChangeDeleteNumber() {
                                     </select>
                                 </div>
                                 <div className="row-align" style={{ margin: "10px" }}>
-                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>Access token</span>
+                                    <span className="span-title" style={{ textAlign: "left", justifyContent:"flex-start" }}>
+                                        Access token*
+                                        <span data-tooltip-id="tooltip-accessToken" data-tooltip-content="Token de acesso da integração." style={{marginLeft: '5px', cursor: 'pointer'}}>🛈</span>
+                                    </span>
+                                    <Tooltip id="tooltip-accessToken" place="top" />
                                     <textarea 
                                         placeholder="Access token"
                                         name="accessToken"
                                         value={customerData.accessToken}
                                         onChange={handleInputChange}
                                         className="textarea-values"
+                                        style={fieldErrors['accessToken'] ? { border: "1px solid red", backgroundColor: "#fff0f0" } : {}}
                                         required
-                                        style={getInputStyle('accessToken')}
                                     />
                                 </div>
                             </div>
