@@ -129,41 +129,66 @@ export function TriggerList() {
             setOrderSort(orderBy)
         }
         const handleSort = (outrosDadosFiltrados: any) => {
-
-                const sortedItems = [...outrosDadosFiltrados];
-                if(sortType === ""){
-                    return sortedItems;
-                }
-                if(sortType==="total" || sortType==="erro" || sortType==="enviado" || sortType==="entregue") {
-                    if (sortOrder === "asc") {
-                        sortedItems.sort((a, b) => {
-                        const valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : Infinity;
-                        const valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : Infinity;
+            const sortedItems = [...outrosDadosFiltrados];
+            if(sortType === ""){
+                return sortedItems;
+            }
+            
+            // Campos numéricos que precisam ser convertidos para número
+            const numericalFields = ["total", "erro", "enviado", "engajado"];
+            
+            if(numericalFields.includes(sortType)) {
+                if (sortOrder === "asc") {
+                    sortedItems.sort((a, b) => {
+                        const valorA = a[sortType] !== undefined && a[sortType] !== null ? Number(a[sortType]) : 0;
+                        const valorB = b[sortType] !== undefined && b[sortType] !== null ? Number(b[sortType]) : 0;
                         return valorA - valorB;
-                        });
-                    } else if (sortOrder === "desc") {
-                        sortedItems.sort((a, b) => {
-                        const valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : Infinity;
-                        const valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : Infinity;
+                    });
+                } else if (sortOrder === "desc") {
+                    sortedItems.sort((a, b) => {
+                        const valorA = a[sortType] !== undefined && a[sortType] !== null ? Number(a[sortType]) : 0;
+                        const valorB = b[sortType] !== undefined && b[sortType] !== null ? Number(b[sortType]) : 0;
                         return valorB - valorA;
-                        });
-                    }
-                } else {
-                    if (sortOrder === "asc") {
-                        sortedItems.sort((a, b) => {
+                    });
+                }
+            } else if (sortType === "entregue") {
+                if (sortOrder === "asc") {
+                    sortedItems.sort((a, b) => {
+                        const valorA = a.channel === 'whatsapp' ? 
+                            (a.entregue !== undefined && a.entregue !== null ? Number(a.entregue) : 0) :
+                            (Number(a.enviado || 0) + Number(a.entregue || 0));
+                        const valorB = b.channel === 'whatsapp' ? 
+                            (b.entregue !== undefined && b.entregue !== null ? Number(b.entregue) : 0) :
+                            (Number(b.enviado || 0) + Number(b.entregue || 0));
+                        return valorA - valorB;
+                    });
+                } else if (sortOrder === "desc") {
+                    sortedItems.sort((a, b) => {
+                        const valorA = a.channel === 'whatsapp' ? 
+                            (a.entregue !== undefined && a.entregue !== null ? Number(a.entregue) : 0) :
+                            (Number(a.enviado || 0) + Number(a.entregue || 0));
+                        const valorB = b.channel === 'whatsapp' ? 
+                            (b.entregue !== undefined && b.entregue !== null ? Number(b.entregue) : 0) :
+                            (Number(b.enviado || 0) + Number(b.entregue || 0));
+                        return valorB - valorA;
+                    });
+                }
+            } else {
+                if (sortOrder === "asc") {
+                    sortedItems.sort((a, b) => {
                         const valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : 'Z';
                         const valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : 'Z';
                         return valorA.localeCompare(valorB);
-                        });
-                    } else if (sortOrder === "desc") {
-                        sortedItems.sort((a, b) => {
+                    });
+                } else if (sortOrder === "desc") {
+                    sortedItems.sort((a, b) => {
                         const valorA = a[sortType] !== undefined && a[sortType] !== null ? a[sortType] : 'Z';
                         const valorB = b[sortType] !== undefined && b[sortType] !== null ? b[sortType] : 'Z';
                         return valorB.localeCompare(valorA);
-                        });
-                    }                    
-                }
-                return sortedItems
+                    });
+                }                    
+            }
+            return sortedItems;
         }
 
         const filterByDate = (values: any) => {
@@ -432,8 +457,8 @@ export function TriggerList() {
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Total de disparos</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("total","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("total","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Erro</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("erro","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Enviado não entregue</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("total","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("total","desc")}></div></div></div></th>
-                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Entregue</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("entregue","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("enviado","desc")}></div></div></div></th>
-                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Engajamento</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("engajamento","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
+                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Entregue</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("entregue","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("entregue","desc")}></div></div></div></th>
+                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Engajamento</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("engajado","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("engajado","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Origem</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("triggerOrigin","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
                                 <th className="cells">Opções</th>
                             </tr>
