@@ -448,7 +448,7 @@ export function TriggerDetails() {
                             <td><span className="font-size-12">{adjustTime(customer.data_criacao)}</span></td>
                             <td><span className="font-size-12">{customer.data_disparo ? adjustTime(customer.data_disparo) : "----"}</span></td>
                             <td><span className="font-size-12">{triggerStatus.toLowerCase()!=="aguardando" && customer.engagement ? adjustTimeWithout3Hour(customer.engagement) : "----"}</span></td>
-                            <td><span className="font-size-12"><a href={`https://in.bot/inbot-admin?action=view_log2&bot_id=${botId}&user_id=${customer.phone}&date=${customer.data_disparo}`} target="_blank">{customer.phone}</a></span></td>
+                            <td><span className="font-size-12"><a href={`https://in.bot/inbot-admin?action=view_log2&bot_id=${botId}&user_id=${customer.phone}&date=${customer.data_disparo}`} target="_blank">{'${customer.phone}'}</a></span></td>
                             <td><span className="font-size-12">{customer.log ?? "----"}</span></td>
                             {triggerStatus.toLowerCase()==="aguardando" && <td><div onClick={()=> openModal(customer.id)}><img src={trash} width={15} height={15} style={{cursor:"pointer"}}/></div></td>}
                         </tr>
