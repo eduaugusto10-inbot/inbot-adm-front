@@ -1,6 +1,44 @@
 import axios from "axios";
 import api from "./api";
 
+// Função utilitária para obter o nome do usuário do localStorage
+export const getAdminName = (): string | null => {
+  return localStorage.getItem("admin_name");
+};
+
+// Função utilitária para obter o tipo do usuário do localStorage
+export const getAdminType = (): string | null => {
+  return localStorage.getItem("admin_type");
+};
+
+// Função utilitária para obter o email do usuário do localStorage
+export const getAdminEmail = (): string | null => {
+  return localStorage.getItem("admin_email");
+};
+
+// Função utilitária para obter o ID do usuário do localStorage
+export const getAdminId = (): string | null => {
+  return localStorage.getItem("admin_id");
+};
+
+// Função utilitária para obter todas as informações do admin
+export const getAdminInfo = () => {
+  return {
+    name: getAdminName(),
+    type: getAdminType(),
+    email: getAdminEmail(),
+    id: getAdminId(),
+  };
+};
+
+// Função utilitária para limpar todas as informações do usuário do localStorage
+export const clearAdminData = (): void => {
+  localStorage.removeItem("admin_name");
+  localStorage.removeItem("admin_type");
+  localStorage.removeItem("admin_email");
+  localStorage.removeItem("admin_id");
+};
+
 export const validatedUser = async (
   botId: string | null,
   token: string | null,
@@ -15,6 +53,21 @@ export const validatedUser = async (
     let hasTeams = false;
     const url = `${baseUrl}validate_admin_token?token=${token}&is_ajax=1`;
     const resp = await axios.get(url);
+
+    // Salvar informações do usuário no localStorage
+    if (resp.data.admin_name) {
+      localStorage.setItem("admin_name", resp.data.admin_name);
+    }
+    if (resp.data.admin_type) {
+      localStorage.setItem("admin_type", resp.data.admin_type);
+    }
+    if (resp.data.admin_email) {
+      localStorage.setItem("admin_email", resp.data.admin_email);
+    }
+    if (resp.data.admin_id) {
+      localStorage.setItem("admin_id", resp.data.admin_id.toString());
+    }
+
     await api
       .get(`/whats-botid/${botId}`)
       .then((resp) => {

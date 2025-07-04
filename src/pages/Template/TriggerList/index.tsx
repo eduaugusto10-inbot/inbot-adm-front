@@ -358,7 +358,7 @@ export function TriggerList() {
           'Enviado não entregue': statusName(trigger.status)=="Executado" && trigger.channel==='whatsapp' ? trigger.enviado : "0",
           'Entregue': trigger.entregue,
           'Engajamento': trigger.status === 'aguardando' ? 0 : trigger.engajado,
-          'Origem': capitalizeFirstLetter(trigger.triggerOrigin),
+          'Usuário/Origem da Criação': trigger.triggerOrigin === 'MANUAL' ? (trigger.created_by || 'Manual') : capitalizeFirstLetter(trigger.triggerOrigin),
         }));
     
         const worksheet = XLSX.utils.json_to_sheet(processedData);
@@ -485,7 +485,7 @@ export function TriggerList() {
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Enviado não entregue</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("total","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("total","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Entregue</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("entregue","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("entregue","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Engajamento</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("engajado","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("engajado","desc")}></div></div></div></th>
-                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Origem</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("triggerOrigin","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
+                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Usuário/Origem da Criação</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("triggerOrigin","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
                                 <th className="cells">Opções</th>
                             </tr>
                         </thead>
@@ -509,7 +509,7 @@ export function TriggerList() {
                                         <td><span>{statusName(trigger.status)=="Executado" && trigger.channel==='whatsapp' ? trigger.enviado : "0"}</span></td>
                                         <td><span>{trigger.channel==='whatsapp' ? trigger.entregue : parseInt(trigger.enviado) + parseInt(trigger.entregue) }</span></td>
                                         <td><span>{trigger.status === 'aguardando' ? 0 : trigger.engajado}</span></td>
-                                        <td><span>{capitalizeFirstLetter(trigger.triggerOrigin)}</span></td>
+                                        <td><span>{trigger.triggerOrigin === 'MANUAL' ? (trigger.created_by || 'Manual') : capitalizeFirstLetter(trigger.triggerOrigin)}</span></td>
                                         <td><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>
                                     </tr>
                                 </React.Fragment>
