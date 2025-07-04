@@ -310,6 +310,7 @@ export interface Filters {
     enviado: boolean;
     erro: boolean;
     cancelado: boolean;
+    criando: boolean;
   };
 }
 
@@ -327,6 +328,7 @@ export interface ITriggerListFilter {
     enviado: boolean;
     erro: boolean;
     cancelado: boolean;
+    criando: boolean;
   };
 }
 
