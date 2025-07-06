@@ -433,7 +433,7 @@ export function Accordion() {
             "channel": 'teams',
             "triggerOrigin":"MANUAL",
             "category": null,
-            "created_by": getAdminName(),
+            "createdBy": getAdminName(),
         }
 
         api.post('/whatsapp/trigger', data)

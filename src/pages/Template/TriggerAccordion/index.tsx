@@ -584,7 +584,7 @@ export function Accordion() {
             "triggerOrigin":"MANUAL",
             "botId": botId,
             "phoneTrigger": selectedDispatchNumber || phone,
-            "created_by": getAdminName(),
+            "createdBy": getAdminName(),
         }
 
         await api.post('/whatsapp/trigger', data)
