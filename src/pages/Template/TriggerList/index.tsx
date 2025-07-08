@@ -41,8 +41,8 @@ export function TriggerList() {
     const [filtro, setFiltro] = useState<string>('');
     const [dataTreat, setDataTreat] = useState<any>([])
     const menuRef = useRef<HTMLDivElement>(null);
-    const [sortType, setSortType] = useState<string>("")
-    const [sortOrder, setOrderSort] = useState<string>("")
+    const [sortType, setSortType] = useState<string>("data_criacao")
+    const [sortOrder, setOrderSort] = useState<string>("desc")
     const [changeDateFilter, setChangeDateFilter] = useState<boolean>(false)
     const [initDate, setInitDate] = useState({
         day: 1,
@@ -68,6 +68,7 @@ export function TriggerList() {
             enviado: true,
             erro: true,
             cancelado: true,
+            criando: true,
         }
     });
     
@@ -113,7 +114,8 @@ export function TriggerList() {
                 (filters.status.executado && trigger.status === 'executado') ||
                 (filters.status.entregue && trigger.status === 'entregue') ||
                 (filters.status.erro && trigger.status === 'erro') ||
-                (filters.status.cancelado && trigger.status === 'cancelado')
+                (filters.status.cancelado && trigger.status === 'cancelado') ||
+                (filters.status.criando && trigger.status === 'criando')
             ) {
                 return true;
             }
@@ -136,6 +138,9 @@ export function TriggerList() {
             
             // Campos numéricos que precisam ser convertidos para número
             const numericalFields = ["total", "erro", "enviado", "engajado"];
+            
+            // Campos de data que precisam ser convertidos para Date
+            const dateFields = ["data_criacao", "time_trigger"];
             
             if(numericalFields.includes(sortType)) {
                 if (sortOrder === "asc") {
@@ -171,6 +176,20 @@ export function TriggerList() {
                             (b.entregue !== undefined && b.entregue !== null ? Number(b.entregue) : 0) :
                             (Number(b.enviado || 0) + Number(b.entregue || 0));
                         return valorB - valorA;
+                    });
+                }
+            } else if (dateFields.includes(sortType)) {
+                if (sortOrder === "asc") {
+                    sortedItems.sort((a, b) => {
+                        const dateA = a[sortType] !== undefined && a[sortType] !== null ? new Date(a[sortType]).getTime() : 0;
+                        const dateB = b[sortType] !== undefined && b[sortType] !== null ? new Date(b[sortType]).getTime() : 0;
+                        return dateA - dateB;
+                    });
+                } else if (sortOrder === "desc") {
+                    sortedItems.sort((a, b) => {
+                        const dateA = a[sortType] !== undefined && a[sortType] !== null ? new Date(a[sortType]).getTime() : 0;
+                        const dateB = b[sortType] !== undefined && b[sortType] !== null ? new Date(b[sortType]).getTime() : 0;
+                        return dateB - dateA;
                     });
                 }
             } else {
@@ -286,6 +305,8 @@ export function TriggerList() {
                 return "Aguardando"
             case "erro":
                 return "Erro"
+            case "criando":
+                return "Criando"
             default:
                 return "Cancelado"
         }
@@ -300,6 +321,8 @@ export function TriggerList() {
                 return "orange"
             case "cancelado":
                 return "gray"
+            case "criando":
+                return "purple"
             default:
                 return "red"
         }
@@ -324,6 +347,7 @@ export function TriggerList() {
         const processedData = handleSort(dataTreat).map((trigger: any) => ({
           'Nome da campanha': trigger.campaign_name,
           'Template': trigger.template_name,
+          'Número de Origem': trigger.phone_trigger ?? '--',
           'Categoria': capitalizeFirstLetter(trigger.category?? '--'),
           'Data criação': trigger.data_criacao ? adjustTimeWithout3Hour(trigger.data_criacao) : "--",
           'Data envio': trigger.time_trigger ? adjustTimeWithout3Hour(trigger.time_trigger) : "--",
@@ -334,7 +358,7 @@ export function TriggerList() {
           'Enviado não entregue': statusName(trigger.status)=="Executado" && trigger.channel==='whatsapp' ? trigger.enviado : "0",
           'Entregue': trigger.entregue,
           'Engajamento': trigger.status === 'aguardando' ? 0 : trigger.engajado,
-          'Origem': capitalizeFirstLetter(trigger.triggerOrigin),
+          'Usuário/Origem da Criação': trigger.triggerOrigin === 'MANUAL' ? (trigger.created_by || 'Manual') : capitalizeFirstLetter(trigger.triggerOrigin),
         }));
     
         const worksheet = XLSX.utils.json_to_sheet(processedData);
@@ -413,6 +437,7 @@ export function TriggerList() {
                             <div className={filters.status.executado ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer", fontSize:"13.6px"}} onClick={()=>""}><div className={filters.status.executado ? "number_button_gradient" : "number_button_gradient-gray"}  onClick={() => handleStatusChange('executado')}>Executado</div></div>
                             <div className={filters.status.erro ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer", fontSize:"13.6px"}} onClick={()=>""}><div className={filters.status.erro ? "number_button_gradient" : "number_button_gradient-gray"}  onClick={() => handleStatusChange('erro')}>Erro</div></div>
                             <div className={filters.status.cancelado ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer", fontSize:"13.6px"}} onClick={()=>""}><div className={filters.status.cancelado ? "number_button_gradient" : "number_button_gradient-gray"}  onClick={() => handleStatusChange('cancelado')}>Cancelado</div></div>
+                            <div className={filters.status.criando ? "border_gradient" : "border_gradient-gray"} style={{marginRight:"15px", cursor:"pointer", fontSize:"13.6px"}} onClick={()=>""}><div className={filters.status.criando ? "number_button_gradient" : "number_button_gradient-gray"}  onClick={() => handleStatusChange('criando')}>Criando</div></div>
                         </div>
                         <div className="row-align" style={{marginBottom:"30px", alignItems:"center"}}>
                             <span style={{ color: "#002080", fontWeight:"bolder" }}>Canal: </span>
@@ -449,6 +474,7 @@ export function TriggerList() {
                             <tr className="cells table-2024 border-bottom-zero">
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Nome</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("campaign_name","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("campaign_name","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Template</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("template_name","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("template_name","desc")}></div></div></div></th>
+                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Número de Origem</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("phone_trigger","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("phone_trigger","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Categoria</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("category","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("category","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data criação</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("data_criacao","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("data_criacao","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Data de envio</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("time_trigger","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("time_trigger","desc")}></div></div></div></th>
@@ -459,7 +485,7 @@ export function TriggerList() {
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Enviado não entregue</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("total","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("total","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Entregue</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("entregue","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("entregue","desc")}></div></div></div></th>
                                 <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Engajamento</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("engajado","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("engajado","desc")}></div></div></div></th>
-                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Origem</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("triggerOrigin","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
+                                <th className="cells"><div className="row-align" style={{justifyContent: "space-between", alignItems:"center"}}><span></span><span>Usuário/Origem da Criação</span> <div style={{marginLeft:"10px"}}><div className="triangle-up" onClick={()=>handleInitSort("triggerOrigin","asc")}></div><div className="triangle-down" style={{marginTop:"4px"}}  onClick={()=>handleInitSort("erro","desc")}></div></div></div></th>
                                 <th className="cells">Opções</th>
                             </tr>
                         </thead>
@@ -472,6 +498,7 @@ export function TriggerList() {
                                     >
                                         <td><span>{trigger.campaign_name}</span></td>
                                         <td><span>{trigger.template_name}</span></td>
+                                        <td><span>{trigger.phone_trigger ?? '--'}</span></td>
                                         <td><span>{capitalizeFirstLetter(trigger.category?? '--')}</span></td>
                                         <td><span>{trigger.data_criacao ? adjustTimeWithout3Hour(trigger.data_criacao) : "--"}</span></td>
                                         <td><span>{trigger.time_trigger ? adjustTimeWithout3Hour(trigger.time_trigger) : "--"}</span></td>
@@ -482,7 +509,7 @@ export function TriggerList() {
                                         <td><span>{statusName(trigger.status)=="Executado" && trigger.channel==='whatsapp' ? trigger.enviado : "0"}</span></td>
                                         <td><span>{trigger.channel==='whatsapp' ? trigger.entregue : parseInt(trigger.enviado) + parseInt(trigger.entregue) }</span></td>
                                         <td><span>{trigger.status === 'aguardando' ? 0 : trigger.engajado}</span></td>
-                                        <td><span>{capitalizeFirstLetter(trigger.triggerOrigin)}</span></td>
+                                        <td><span>{trigger.triggerOrigin === 'MANUAL' ? (trigger.created_by || 'Manual') : capitalizeFirstLetter(trigger.triggerOrigin)}</span></td>
                                         <td><span onClick={(e) => handleOptionClick(index, e)}><img src={dots} width={20} alt="menu" style={{ cursor: "pointer" }} /></span></td>
                                     </tr>
                                 </React.Fragment>

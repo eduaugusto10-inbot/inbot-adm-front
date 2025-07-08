@@ -58,6 +58,7 @@ export function TriggerDetails() {
             entregue: true,
             erro: true,
             cancelado: true,
+            criando: true,
         }
     });
 
@@ -327,7 +328,9 @@ export function TriggerDetails() {
             (filters.status.aguardando && customer.status === 'aguardando') ||
             (filters.status.enviado && customer.status === 'enviado') ||
             (filters.status.entregue && customer.status === 'entregue') ||
-            (filters.status.erro && customer.status === 'erro')
+            (filters.status.erro && customer.status === 'erro') ||
+            (filters.status.cancelado && customer.status === 'cancelado') ||
+            (filters.status.criando && customer.status === 'criando')
         ) {
             return true;
         }
@@ -346,6 +349,10 @@ export function TriggerDetails() {
         } else if (buttonId === "Não") {
             toggle()
         } 
+    };
+
+    const formatPhoneForExcel = (phone: string) => {
+        return ` ${phone}`; // Adiciona espaço em branco no início para forçar Excel a tratar como texto
     };
 
     return (
@@ -368,6 +375,8 @@ export function TriggerDetails() {
                                     <div><input type="checkbox" onChange={() => handleStatusChange('enviado')} checked={filters.status.enviado} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Enviado</span></div>
                                     <div><input type="checkbox" onChange={() => handleStatusChange('entregue')} checked={filters.status.entregue} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Entregue</span></div>
                                     <div><input type="checkbox" onChange={() => handleStatusChange('erro')} checked={filters.status.erro} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Erro</span></div>
+                                    <div><input type="checkbox" onChange={() => handleStatusChange('cancelado')} checked={filters.status.cancelado} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Cancelado</span></div>
+                                    <div><input type="checkbox" onChange={() => handleStatusChange('criando')} checked={filters.status.criando} /><span style={{ marginLeft: "5px", fontWeight: "normal" }}>Criando</span></div>
                                 </div>
                             </div>
                             <div style={{ display: "flex", flexDirection: "column", margin: "10px", textAlign: "left" }}>
@@ -448,7 +457,7 @@ export function TriggerDetails() {
                             <td><span className="font-size-12">{adjustTime(customer.data_criacao)}</span></td>
                             <td><span className="font-size-12">{customer.data_disparo ? adjustTime(customer.data_disparo) : "----"}</span></td>
                             <td><span className="font-size-12">{triggerStatus.toLowerCase()!=="aguardando" && customer.engagement ? adjustTimeWithout3Hour(customer.engagement) : "----"}</span></td>
-                            <td><span className="font-size-12"><a href={`https://in.bot/inbot-admin?action=view_log2&bot_id=${botId}&user_id=${customer.phone}&date=${customer.data_disparo}`} target="_blank">{'${customer.phone}'}</a></span></td>
+                            <td><span className="font-size-12"><a href={`https://in.bot/inbot-admin?action=view_log2&bot_id=${botId}&user_id=${customer.phone}&date=${customer.data_disparo}`} target="_blank">{formatPhoneForExcel(customer.phone)}_</a></span></td>
                             <td><span className="font-size-12">{customer.log ?? "----"}</span></td>
                             {triggerStatus.toLowerCase()==="aguardando" && <td><div onClick={()=> openModal(customer.id)}><img src={trash} width={15} height={15} style={{cursor:"pointer"}}/></div></td>}
                         </tr>

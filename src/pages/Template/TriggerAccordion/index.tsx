@@ -17,7 +17,7 @@ import chevron from '../../../img/right-chevron.png'
 import info from "../../../img/circle-info-solid.svg"
 import 'react-tooltip/dist/react-tooltip.css'
 import { Tooltip } from 'react-tooltip'
-import  {validatedUser}  from "../../../utils/validateUser";
+import  {validatedUser, getAdminName}  from "../../../utils/validateUser";
 import { DraggableComponent } from "../../../Components/Draggable";
 import { errorMessage } from "../../../Components/Toastify";
 import { toast } from 'react-toastify';
@@ -584,6 +584,7 @@ export function Accordion() {
             "triggerOrigin":"MANUAL",
             "botId": botId,
             "phoneTrigger": selectedDispatchNumber || phone,
+            "createdBy": getAdminName(),
         }
 
         await api.post('/whatsapp/trigger', data)

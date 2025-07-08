@@ -14,7 +14,7 @@ import chevron from '../../../img/right-chevron.png'
 import info from "../../../img/circle-info-solid.svg"
 import 'react-tooltip/dist/react-tooltip.css'
 import { Tooltip } from 'react-tooltip'
-import { validatedUser } from "../../../utils/validateUser";
+import { validatedUser, getAdminName } from "../../../utils/validateUser";
 
 export function Accordion() {
 
@@ -433,6 +433,7 @@ export function Accordion() {
             "channel": 'teams',
             "triggerOrigin":"MANUAL",
             "category": null,
+            "createdBy": getAdminName(),
         }
 
         api.post('/whatsapp/trigger', data)
