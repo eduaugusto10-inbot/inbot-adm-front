@@ -12,10 +12,10 @@ import axios from "axios";
 
 const api = axios.create({
   // baseURL: 'http://localhost:19000',
-  baseURL: "https://api-stg.inbot.com.br/user-manager/v1",
-  // baseURL:
-  //   process.env.REACT_APP_BASE_URL ||
-  //   "https://api.inbot.com.br/user-manager/v1",
+  // baseURL: "https://api-stg.inbot.com.br/user-manager/v1",
+  baseURL:
+    //   process.env.REACT_APP_BASE_URL ||
+    "https://api.inbot.com.br/user-manager/v1",
 });
 
 export default api;
