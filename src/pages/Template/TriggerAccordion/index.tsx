@@ -686,13 +686,13 @@ export function Accordion() {
 function convertServerType(botServerType: string) {
   switch (botServerType) {
     case "production":
-      return "produção";
+      return "Principal";
     case "staging":
-      return "homologação";
+      return "Teste";
     case "development":
-      return "desenvolvimento";
+      return "Teste";
     default:
-      return "desconhecido";
+      return "Teste";
   }
 }
 
