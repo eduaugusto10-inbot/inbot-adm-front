@@ -52,7 +52,8 @@ export function Accordion() {
         api.get(`/whats-botid-all/${botId}`)
             .then(async(resp) => {
                 // Extrair todos os números de disparo da resposta da API
-                const botNumbers = resp.data.bot.map((bot: any) => bot.number);
+                const botNumbers = resp.data.bot.map((bot: any) => ({number: bot.number, botServerType: bot.botServerType}));
+
                 setDispatchNumbers(botNumbers);
                 setSelectedDispatchNumber("");
                 
@@ -146,7 +147,8 @@ export function Accordion() {
     const [blockAddNumber, setBlockAddNumber] = useState<boolean>(false)
     const [phone, setPhone] = useState("")
     const [templateName, setTemplateName] = useState("")
-    const [dispatchNumbers, setDispatchNumbers] = useState<string[]>([])
+    const [dispatchNumbers, setDispatchNumbers] = useState<{number: string, botServerType: string}[]>([])
+
     const [selectedDispatchNumber, setSelectedDispatchNumber] = useState<string>("")
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [fileName, setFileName] = useState('');
@@ -681,7 +683,19 @@ export function Accordion() {
         });
         return total -1;
     };
-    
+function convertServerType(botServerType: string) {
+  switch (botServerType) {
+    case "production":
+      return "produção";
+    case "staging":
+      return "homologação";
+    case "development":
+      return "desenvolvimento";
+    default:
+      return "desconhecido";
+  }
+}
+
     function formatDate(dateString: string): string {
         const [year, month, day] = dateString.split('-').map(Number);
         return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${year}`;
@@ -769,7 +783,8 @@ export function Accordion() {
                                     <select value={selectedDispatchNumber} className="input-values" onChange={handleDispatchNumberChange}>
                                         <option value="">Selecione um número</option>
                                         {dispatchNumbers.map((number, key) => (
-                                            <option key={key} value={number}>{mask(number)}</option>
+                                            <option key={key} value={number.number}>{mask(number.number)+" - "+convertServerType(number.botServerType)}</option>
+
                                         ))}
                                     </select>
                                     {selectedDispatchNumber === "" && errorMessage && errorMessage.includes("número de disparo") && 

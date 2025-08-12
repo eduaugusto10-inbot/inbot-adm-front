@@ -170,28 +170,19 @@ getData()
 },[])
 
 const saveCustomer = async (data: any) => {
-    let access = ""
-    let token = ""
-    const baseUrl = "https://api.inbot.com.br/user-manager/v1"
-    await api.get(`/customer-manager/access-key/${botId}`)
-        .then(resp => access = resp.data.key)
-    await api.post(`/token`,{botId: botId}, {headers:{"x-api-key": access}})
-        .then(resp => token = resp.data.token)
-    let config = {
-    method: 'post',
-    maxBodyLength: Infinity,
-    url: `${baseUrl}/customer`,
-    headers: { 
-        'Content-Type': 'application/json', 
-        'Authorization': `Bearer ${token}`
-    },
-        data : data
-    };
-    await axios.request(config)
-    .catch((error:any) => {
-        console.log(error);
-    });
-
+    try {
+        // Certifique-se que o botId está configurado
+        inbotApi.setBotId(Number(botId));
+        
+        // Use o método post do inbotApi que já gerencia a autenticação
+        await inbotApi.post('/customerManager', data);
+        
+        // Se necessário, adicione um retorno de sucesso ou tratamento adicional
+        return true;
+    } catch (error) {
+        console.error("Erro ao salvar cliente:", error);
+        throw error; // Propague o erro para tratamento adequado
+    }
 }
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -372,26 +363,26 @@ const saveCustomer = async (data: any) => {
         fileData.slice(1).map((row, rowIndex) => {
 
           const obj: any = {};
-          const customFields: any = []
+          const customFieldsArray: any = []
           row.forEach((cell, columnIndex) => {
-            obj['botId'] = botId;
             if(columnIndex < 3) {
-                obj[headers[columnIndex]] = cell; 
+                obj[headers[columnIndex]] = String(cell); // Garantir que seja string
             }
-            if(columnIndex < 3) {
-                obj[headers[columnIndex]] = cell; 
-            }
-            if(columnIndex > 2){
-                customFields.push({id : headers[columnIndex], value: cell})
+            if(columnIndex > 2 && headers[columnIndex] && cell){
+                customFieldsArray.push({
+                    customFieldId: Number(headers[columnIndex]), // Converter para número
+                    value: String(cell) // Garantir que seja string
+                })
             }
           });
-          obj["customFields"] = customFields
+          obj["customFields"] = customFieldsArray
           if(obj?.name) {
             jsonData.push(obj)
           }
         });
         await Promise.all(jsonData.map(async (element: any) => {
-            await saveCustomer(element);
+            const { botId: _, ...dataToSend } = element;
+            await saveCustomer(dataToSend);
         }));
         handleButtonName("Sucesso")
         setLoading(false)
@@ -430,21 +421,17 @@ const saveCustomer = async (data: any) => {
             const basicFilterValid = filterSelected === "" || 
                 (item[`${filterSelected}`] && item[`${filterSelected}`].toString().toLowerCase().includes(filterSelectedValue.toLowerCase()));
             
-            // Filtro por status (ativo/inativo)
             const statusFilterValid = !checkActivated || item.activated === 1;
             
-            // Filtros avançados
             let advancedFiltersValid = true;
             if (advancedFilters.length > 0) {
                 advancedFiltersValid = advancedFilters.every(filter => {
                     if (filter.column === "" || filter.value === "") return true;
                     
-                    // Verificar se é um campo customizado
                     if (customFields.some((cf: any) => cf.id === filter.column)) {
                         return getCustomFieldValue(item, filter.column).toLowerCase().includes(filter.value.toLowerCase());
                     }
                     
-                    // Campo padrão
                     return item[filter.column] && item[filter.column].toString().toLowerCase().includes(filter.value.toLowerCase());
                 });
             }
