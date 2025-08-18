@@ -13,6 +13,7 @@ import Configuration from "../pages/UserManager/Configuration"
 import WarningNoWhats from "../pages/Template/WarningNoWhats"
 import TeamsList from "../pages/TemplateTeams/List"
 import TeamAccordion from '../pages/TemplateTeams/TriggerAccordion';
+import MetaConfig from '../pages/MetaConfig';
 const Router = () => (
     <HashRouter>
         <Routes>
@@ -35,6 +36,8 @@ const Router = () => (
             <Route path='/template-trigger-teams' element={<TeamAccordion />} />
             {/* ROTAS CASO NAO HOUVER CADASTRO EM NOSSO SISTEMA */}
             <Route path='/template-warning-no-whats' element={<WarningNoWhats />} />
+            {/* ROTA PARA CONFIGURAÇÕES META */}
+            <Route path='/meta-config' element={<MetaConfig />} />
         </Routes>
     </HashRouter>
 

@@ -591,17 +591,36 @@ export function Accordion() {
 
         await api.post('/whatsapp/trigger', data)
             .then(resp => {
+                console.log('✅ Campanha criada com sucesso:', resp.data);
                 if (typeClient) {
                     handleSubmitListDataFile(fileData, resp.data.data.insertId)
                 } else {
                     handleSubmitManualListData(resp.data.data.insertId)
                 }
                 successCreateTrigger()
+                console.log('🔄 Atualizando status para aguardando...');
                 api.put(`/whatsapp/trigger/${resp.data.data.insertId}?status=aguardando`)
+                    .then(() => {
+                        console.log('✅ Status atualizado para aguardando');
+                    })
+                    .catch(updateErr => {
+                        console.error('❌ Erro ao atualizar status:', updateErr);
+                        // Se falhar ao atualizar para aguardando, marca como erro
+                        api.put(`/whatsapp/trigger/${resp.data.data.insertId}?status=erro`)
+                            .catch(finalErr => console.error('❌ Erro final ao atualizar status:', finalErr));
+                    });
                 setTimeout(() => BackToList(), 3000)
             })
             .catch(err => {
-                console.log(err)
+                console.error('❌ Erro ao criar campanha:', err);
+                // Se a campanha foi criada mas deu erro, tenta atualizar o status
+                if (err.response && err.response.data && err.response.data.insertId) {
+                    console.log('🔄 Atualizando status para erro devido a falha na criação...');
+                    api.put(`/whatsapp/trigger/${err.response.data.insertId}?status=erro`)
+                        .catch(updateErr => console.error('❌ Erro ao atualizar status para erro:', updateErr));
+                }
+                // Exibe mensagem de erro para o usuário
+                errorMessageDefault('Erro ao criar campanha. Tente novamente.');
             })
     }
     if (variableQty > 0 && (variables.length < variableQty)) {
@@ -790,6 +809,41 @@ function convertServerType(botServerType: string) {
                                     {selectedDispatchNumber === "" && errorMessage && errorMessage.includes("número de disparo") && 
                                         <p style={{ color: 'red', fontSize: "10px", fontWeight: "bolder", marginTop: "5px" }}>{errorMessage}</p>
                                     }
+                                    {selectedDispatchNumber !== "" && (
+                                        <div style={{ 
+                                            backgroundColor: "#fff3cd", 
+                                            border: "1px solid #ffeaa7", 
+                                            borderRadius: "8px", 
+                                            padding: "12px", 
+                                            marginTop: "10px",
+                                            fontSize: "12px",
+                                            color: "#856404"
+                                        }}>
+                                            <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+                                                <img src={info} width={16} height={16} alt="info" style={{ marginRight: "8px" }} />
+                                                <strong>⚠️ Importante: Limites de Disparo</strong>
+                                            </div>
+                                            <p style={{ margin: "0 0 8px 0", lineHeight: "1.4" }}>
+                                                Cada número WhatsApp possui um limite diário de disparos ativos. 
+                                                Campanhas extensas podem ser limitadas por essa configuração.
+                                            </p>
+                                            <button 
+                                                onClick={() => window.open("/meta-config", "_blank")} 
+                                                style={{
+                                                    backgroundColor: "#007bff",
+                                                    color: "white",
+                                                    border: "none",
+                                                    borderRadius: "4px",
+                                                    padding: "6px 12px",
+                                                    fontSize: "11px",
+                                                    cursor: "pointer",
+                                                    textDecoration: "none"
+                                                }}
+                                            >
+                                                📊 Ver Limites na Aba META
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

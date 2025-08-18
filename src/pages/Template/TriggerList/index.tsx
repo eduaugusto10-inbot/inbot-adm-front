@@ -296,6 +296,7 @@ export function TriggerList() {
         return sortTrigger[id].status;
     }
     function statusName(status: string) {
+        console.log('🔍 Status recebido:', status);
         switch (status) {
             case "enviado":
                 return "Enviado"
@@ -306,12 +307,16 @@ export function TriggerList() {
             case "erro":
                 return "Erro"
             case "criando":
-                return "Criando"
-            default:
+                return "Processando"
+            case "cancelado":
                 return "Cancelado"
+            default:
+                console.log('⚠️ Status não reconhecido, tratando como erro:', status);
+                return "Erro"
         }
     }
     function statusColor(status: string) {
+        console.log('🎨 Definindo cor para status:', status);
         switch (status) {
             case "enviado":
                 return "blue"
@@ -323,7 +328,10 @@ export function TriggerList() {
                 return "gray"
             case "criando":
                 return "purple"
+            case "erro":
+                return "red"
             default:
+                console.log('⚠️ Status não reconhecido para cor, usando vermelho:', status);
                 return "red"
         }
     }
