@@ -21,6 +21,7 @@ import  {validatedUser, getAdminName}  from "../../../utils/validateUser";
 import { DraggableComponent } from "../../../Components/Draggable";
 import { errorMessage } from "../../../Components/Toastify";
 import { toast } from 'react-toastify';
+import { WhatsAppLimitWarning } from "../../../Components/WhatsAppLimitWarning";
 
 export function Accordion() {
 
@@ -290,21 +291,61 @@ export function Accordion() {
     };
 
     const handleSubmitListDataFile = async (dataTemplate: any, campaignId: string) => {
-        for (const customer of dataTemplate) {
-            if (customer.length > 0) { // count > 0 && 
+        try {
+            const promises = [];
+            for (const customer of dataTemplate) {
+                if (customer.length > 0) { // count > 0 && 
+                    const params = {
+                        campaignId: `${campaignId}`,
+                        phone: `${customer[0].replace(/\D/g, '')}`,
+                        status: "aguardando",
+                        variable_1: customer[1],
+                        variable_2: customer[2],
+                        variable_3: customer[3],
+                        variable_4: customer[4],
+                        variable_5: customer[5],
+                        variable_6: customer[6],
+                        variable_7: customer[7],
+                        variable_8: customer[8],
+                        variable_9: customer[9],
+                        media_url: urlMidia,
+                        type_media: headerConfig,
+                        payload_1: payload1,
+                        payload_2: payload2,
+                        payload_3: payload3,
+                        title_button_1: titleButton1,
+                        title_button_2: titleButton2,
+                        title_button_3: titleButton3,
+                        channel: 'whatsapp'
+                    };
+                    promises.push(api.post('/whats-customer', params));
+                }
+            }
+            await Promise.all(promises);
+            console.log("Lista de dados enviada com sucesso para a campanha:", campaignId);
+            return Promise.resolve();
+        } catch (error) {
+            console.log("Erro ao enviar lista de dados:", error);
+            return Promise.reject(error);
+        }
+    };
+    const handleSubmitManualListData = async (campaignId: string) => {
+        try {
+            const promises = [];
+            for (let i = 0; i < listVariables.length; i++) {
                 const params = {
                     campaignId: `${campaignId}`,
-                    phone: `${customer[0].replace(/\D/g, '')}`,
+                    phone: `${listVariables[i].phone}`,
                     status: "aguardando",
-                    variable_1: customer[1],
-                    variable_2: customer[2],
-                    variable_3: customer[3],
-                    variable_4: customer[4],
-                    variable_5: customer[5],
-                    variable_6: customer[6],
-                    variable_7: customer[7],
-                    variable_8: customer[8],
-                    variable_9: customer[9],
+                    variable_1: listVariables[i]?.variable_1,
+                    variable_2: listVariables[i]?.variable_2,
+                    variable_3: listVariables[i]?.variable_3,
+                    variable_4: listVariables[i]?.variable_4,
+                    variable_5: listVariables[i]?.variable_5,
+                    variable_6: listVariables[i]?.variable_6,
+                    variable_7: listVariables[i]?.variable_7,
+                    variable_8: listVariables[i]?.variable_8,
+                    variable_9: listVariables[i]?.variable_9,
                     media_url: urlMidia,
                     type_media: headerConfig,
                     payload_1: payload1,
@@ -315,39 +356,14 @@ export function Accordion() {
                     title_button_3: titleButton3,
                     channel: 'whatsapp'
                 };
-                api.post('/whats-customer', params)
-                    .catch(error => console.log(error));
+                promises.push(api.post('/whats-customer', params));
             }
-            // count++;
-        }
-    };
-    const handleSubmitManualListData = async (campaignId: string) => {
-        for (let i = 0; i < listVariables.length; i++) {
-            const params = {
-                campaignId: `${campaignId}`,
-                phone: `${listVariables[i].phone}`,
-                status: "aguardando",
-                variable_1: listVariables[i]?.variable_1,
-                variable_2: listVariables[i]?.variable_2,
-                variable_3: listVariables[i]?.variable_3,
-                variable_4: listVariables[i]?.variable_4,
-                variable_5: listVariables[i]?.variable_5,
-                variable_6: listVariables[i]?.variable_6,
-                variable_7: listVariables[i]?.variable_7,
-                variable_8: listVariables[i]?.variable_8,
-                variable_9: listVariables[i]?.variable_9,
-                media_url: urlMidia,
-                type_media: headerConfig,
-                payload_1: payload1,
-                payload_2: payload2,
-                payload_3: payload3,
-                title_button_1: titleButton1,
-                title_button_2: titleButton2,
-                title_button_3: titleButton3,
-                channel: 'whatsapp'
-            };
-            api.post('/whats-customer', params)
-                .catch(error => console.log(error));
+            await Promise.all(promises);
+            console.log("Lista manual enviada com sucesso para a campanha:", campaignId);
+            return Promise.resolve();
+        } catch (error) {
+            console.log("Erro ao enviar lista manual:", error);
+            return Promise.reject(error);
         }
     };
 
@@ -591,36 +607,30 @@ export function Accordion() {
 
         await api.post('/whatsapp/trigger', data)
             .then(resp => {
-                console.log('✅ Campanha criada com sucesso:', resp.data);
                 if (typeClient) {
                     handleSubmitListDataFile(fileData, resp.data.data.insertId)
+                        .catch(error => {
+                            console.log("Erro ao enviar lista de dados:", error);
+                            // Atualiza o status para erro quando falha no envio da lista
+                            api.put(`/whatsapp/trigger/${resp.data.data.insertId}?status=erro`);
+                            errorMessageDefault("Erro ao processar a campanha. Verifique os dados e tente novamente.");
+                        });
                 } else {
                     handleSubmitManualListData(resp.data.data.insertId)
+                        .catch(error => {
+                            console.log("Erro ao enviar lista manual:", error);
+                            // Atualiza o status para erro quando falha no envio da lista manual
+                            api.put(`/whatsapp/trigger/${resp.data.data.insertId}?status=erro`);
+                            errorMessageDefault("Erro ao processar a campanha. Verifique os dados e tente novamente.");
+                        });
                 }
                 successCreateTrigger()
-                console.log('🔄 Atualizando status para aguardando...');
                 api.put(`/whatsapp/trigger/${resp.data.data.insertId}?status=aguardando`)
-                    .then(() => {
-                        console.log('✅ Status atualizado para aguardando');
-                    })
-                    .catch(updateErr => {
-                        console.error('❌ Erro ao atualizar status:', updateErr);
-                        // Se falhar ao atualizar para aguardando, marca como erro
-                        api.put(`/whatsapp/trigger/${resp.data.data.insertId}?status=erro`)
-                            .catch(finalErr => console.error('❌ Erro final ao atualizar status:', finalErr));
-                    });
                 setTimeout(() => BackToList(), 3000)
             })
             .catch(err => {
-                console.error('❌ Erro ao criar campanha:', err);
-                // Se a campanha foi criada mas deu erro, tenta atualizar o status
-                if (err.response && err.response.data && err.response.data.insertId) {
-                    console.log('🔄 Atualizando status para erro devido a falha na criação...');
-                    api.put(`/whatsapp/trigger/${err.response.data.insertId}?status=erro`)
-                        .catch(updateErr => console.error('❌ Erro ao atualizar status para erro:', updateErr));
-                }
-                // Exibe mensagem de erro para o usuário
-                errorMessageDefault('Erro ao criar campanha. Tente novamente.');
+                console.log("Erro ao criar campanha:", err);
+                errorMessageDefault("Erro ao criar campanha. Por favor, tente novamente.");
             })
     }
     if (variableQty > 0 && (variables.length < variableQty)) {
@@ -810,39 +820,9 @@ function convertServerType(botServerType: string) {
                                         <p style={{ color: 'red', fontSize: "10px", fontWeight: "bolder", marginTop: "5px" }}>{errorMessage}</p>
                                     }
                                     {selectedDispatchNumber !== "" && (
-                                        <div style={{ 
-                                            backgroundColor: "#fff3cd", 
-                                            border: "1px solid #ffeaa7", 
-                                            borderRadius: "8px", 
-                                            padding: "12px", 
-                                            marginTop: "10px",
-                                            fontSize: "12px",
-                                            color: "#856404"
-                                        }}>
-                                            <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
-                                                <img src={info} width={16} height={16} alt="info" style={{ marginRight: "8px" }} />
-                                                <strong>⚠️ Importante: Limites de Disparo</strong>
-                                            </div>
-                                            <p style={{ margin: "0 0 8px 0", lineHeight: "1.4" }}>
-                                                Cada número WhatsApp possui um limite diário de disparos ativos. 
-                                                Campanhas extensas podem ser limitadas por essa configuração.
-                                            </p>
-                                            <button 
-                                                onClick={() => window.open("/meta-config", "_blank")} 
-                                                style={{
-                                                    backgroundColor: "#007bff",
-                                                    color: "white",
-                                                    border: "none",
-                                                    borderRadius: "4px",
-                                                    padding: "6px 12px",
-                                                    fontSize: "11px",
-                                                    cursor: "pointer",
-                                                    textDecoration: "none"
-                                                }}
-                                            >
-                                                📊 Ver Limites na Aba META
-                                            </button>
-                                        </div>
+                                        <WhatsAppLimitWarning 
+                                            metaUrl="https://business.facebook.com/business/loginpage/?next=%2Flatest%2Fwhatsapp_manager%2Fphone_numbers%2F%3Fasset_id%3D321277311061053%26business_id%3D484683378535543%26nav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs" 
+                                        />
                                     )}
                                 </div>
                             </div>
