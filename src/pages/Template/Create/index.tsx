@@ -777,6 +777,16 @@ export function CreateTemplateAccordion() {
                                     </div>
                                 </div>
                                     <span style={{ margin: "10px", fontSize: "11px" }}>{selectTemplate(templateType)}</span>
+                                    {templateType && (
+                                        <div style={{ margin: "10px", padding: "15px", backgroundColor: "#fff3cd", border: "1px solid #ffeaa7", borderRadius: "8px", fontSize: "12px", lineHeight: "1.4" }}>
+                                            <div style={{ fontWeight: "bold", color: "#856404", marginBottom: "8px" }}>⚠️ Atenção:</div>
+                                            <div style={{ color: "#856404", marginBottom: "5px" }}>• A Meta (WhatsApp) pode reclassificar a categoria do template antes de aprovar.</div>
+                                            <div style={{ color: "#856404", marginBottom: "5px" }}>• Templates também podem ser reprovados se não seguirem as políticas da plataforma.</div>
+                                            <div style={{ color: "#856404", marginBottom: "5px" }}>• Após a aprovação, confirme a categoria final na tela de Gestão de Templates, pois ela pode ser diferente da que você escolheu.</div>
+                                            <div style={{ color: "#856404", marginBottom: "5px" }}>• Os custos da campanha são calculados com base na categoria aprovada, e não na categoria selecionada inicialmente.</div>
+                                            <div style={{ color: "#856404" }}>• Para dicas de como criar os melhores templates, fale com o nosso agente Templatão da Meta.</div>
+                                        </div>
+                                    )}
                             </div>
                             </div>
                             <div style={{width:"100%", textAlign:"right", marginTop:"20px"}}> 
