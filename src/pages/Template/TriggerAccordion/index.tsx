@@ -804,6 +804,12 @@ function convertServerType(botServerType: string) {
                                     </select>
                                 </div>
                             </div>
+                            {templateName && categoryTemplate && (
+                                <div style={{ margin: "10px 0px", padding: "12px", backgroundColor: "#d4edda", border: "1px solid #c3e6cb", borderRadius: "8px", fontSize: "13px" }}>
+                                    <div style={{ fontWeight: "bold", color: "#155724", marginBottom: "5px" }}>🟢 Aviso: Este template foi aprovado na categoria {categoryTemplate === "MARKETING" ? "MARKETING" : categoryTemplate === "UTILITY" ? "UTILIDADE" : categoryTemplate === "AUTHENTICATION" ? "AUTENTICAÇÃO" : categoryTemplate}.</div>
+                                    <div style={{ color: "#155724" }}>Após o envio da campanha, não é possível cancelar o disparo nem os custos associados.</div>
+                                </div>
+                            )}
                         </div>
                         <div style={{ width: "100%", marginBottom: "15px" }}>
                             <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
