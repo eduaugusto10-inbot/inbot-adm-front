@@ -33,10 +33,16 @@ fi
 echo ==================
 echo Building Docker image
 rm -rf node_modules
+
+# Extrair a variável REACT_APP_BASE_URL do arquivo .env
 if [ -f .env ]; then
+  REACT_APP_BASE_URL=$(grep REACT_APP_BASE_URL .env | cut -d '=' -f2)
   mv .env .env-tmp
 fi
-docker build . -t $REPO:$VERSION -t $REPO:latest || exit 1
+
+# Passar a variável como argumento para o build do Docker
+docker build . --build-arg REACT_APP_BASE_URL="$REACT_APP_BASE_URL" -t $REPO:$VERSION -t $REPO:latest || exit 1
+
 if [ -f .env-tmp ]; then
   mv .env-tmp .env
 fi
