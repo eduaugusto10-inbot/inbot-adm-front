@@ -978,33 +978,36 @@ export function Accordion() {
                   flexDirection: "column",
                   alignItems: "flex-start",
                   backgroundColor: "#FFF",
-                  padding: "15px",
+                  padding: "20px",
+                  gap: "20px",
                 }}
               >
-                <div style={{ width: "100%", marginBottom: "15px" }}>
+                <div style={{ width: "100%" }}>
                   <div
                     style={{
                       display: "flex",
                       flexDirection: "row",
-                      alignItems: "center",
+                      alignItems: "flex-start",
+                      gap: "15px",
                     }}
                   >
                     <span
                       className="span-title"
                       style={{
-                        width: "25%",
-                        textAlign: "right",
-                        justifyContent: "left",
+                        minWidth: "180px",
+                        textAlign: "left",
+                        paddingTop: "5px",
                       }}
                     >
                       Nome da campanha
                     </span>
-                    <div>
+                    <div style={{ flex: 1 }}>
                       <input
                         className="input-values"
                         type="text"
                         value={campaignName}
                         onChange={(e) => handleCampaignName(e.target.value)}
+                        style={{ width: "100%", maxWidth: "400px" }}
                       />
                       {errorMessage && errorMessage.includes("campanha") && (
                         <p
@@ -1013,6 +1016,7 @@ export function Accordion() {
                             fontSize: "10px",
                             fontWeight: "bolder",
                             marginTop: "5px",
+                            margin: "5px 0 0 0",
                           }}
                         >
                           {errorMessage}
@@ -1021,29 +1025,32 @@ export function Accordion() {
                     </div>
                   </div>
                 </div>
-                <div style={{ width: "100%", marginBottom: "15px" }}>
+
+                <div style={{ width: "100%" }}>
                   <div
                     style={{
                       display: "flex",
                       flexDirection: "row",
-                      alignItems: "center",
+                      alignItems: "flex-start",
+                      gap: "15px",
                     }}
                   >
                     <span
                       className="span-title"
                       style={{
-                        width: "25%",
-                        textAlign: "right",
-                        justifyContent: "left",
+                        minWidth: "180px",
+                        textAlign: "left",
+                        paddingTop: "5px",
                       }}
                     >
                       Selecionar template
                     </span>
-                    <div>
+                    <div style={{ flex: 1 }}>
                       <select
                         value={templateName}
                         className="input-values"
                         onChange={(e) => openModal(e.target.value)}
+                        style={{ width: "100%", maxWidth: "400px" }}
                       >
                         <option value="">{templateName ?? "--"}</option>
                         {templates.map((template, key) => (
@@ -1052,66 +1059,50 @@ export function Accordion() {
                           </option>
                         ))}
                       </select>
+                      {templateName && categoryTemplate && (
+                        <div style={{ marginTop: "10px" }}>
+                          <Alert
+                            message={`<strong>🟢 Aviso:</strong> Este template foi aprovado na categoria <strong>${
+                              categoryTemplate === "MARKETING"
+                                ? "MARKETING"
+                                : categoryTemplate === "UTILITY"
+                                ? "UTILIDADE"
+                                : categoryTemplate === "AUTHENTICATION"
+                                ? "AUTENTICAÇÃO"
+                                : categoryTemplate
+                            }</strong>.<br/>Após o envio da campanha, não é possível cancelar o disparo nem os custos associados.`}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
-                  {templateName && categoryTemplate && (
-                    <div
-                      style={{
-                        margin: "10px 0px",
-                        padding: "12px",
-                        backgroundColor: "#d4edda",
-                        border: "1px solid #c3e6cb",
-                        borderRadius: "8px",
-                        fontSize: "13px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontWeight: "bold",
-                          color: "#155724",
-                          marginBottom: "5px",
-                        }}
-                      >
-                        🟢 Aviso: Este template foi aprovado na categoria{" "}
-                        {categoryTemplate === "MARKETING"
-                          ? "MARKETING"
-                          : categoryTemplate === "UTILITY"
-                          ? "UTILIDADE"
-                          : categoryTemplate === "AUTHENTICATION"
-                          ? "AUTENTICAÇÃO"
-                          : categoryTemplate}
-                        .
-                      </div>
-                      <div style={{ color: "#155724" }}>
-                        Após o envio da campanha, não é possível cancelar o
-                        disparo nem os custos associados.
-                      </div>
-                    </div>
-                  )}
                 </div>
-                <div style={{ width: "100%", marginBottom: "15px" }}>
+
+                <div style={{ width: "100%" }}>
                   <div
                     style={{
                       display: "flex",
                       flexDirection: "row",
-                      alignItems: "center",
+                      alignItems: "flex-start",
+                      gap: "15px",
                     }}
                   >
                     <span
                       className="span-title"
                       style={{
-                        width: "25%",
-                        textAlign: "right",
-                        justifyContent: "left",
+                        minWidth: "180px",
+                        textAlign: "left",
+                        paddingTop: "5px",
                       }}
                     >
                       Número de disparo
                     </span>
-                    <div>
+                    <div style={{ flex: 1 }}>
                       <select
                         value={selectedDispatchNumber}
                         className="input-values"
                         onChange={handleDispatchNumberChange}
+                        style={{ width: "100%", maxWidth: "400px" }}
                       >
                         <option value="">Selecione um número</option>
                         {dispatchNumbers.map((number, key) => (
@@ -1130,24 +1121,27 @@ export function Accordion() {
                               color: "red",
                               fontSize: "10px",
                               fontWeight: "bolder",
-                              marginTop: "5px",
+                              margin: "5px 0 0 0",
                             }}
                           >
                             {errorMessage}
                           </p>
                         )}
+                      {selectedDispatchNumber !== "" && (
+                        <div style={{ marginTop: "10px" }}>
+                          <WhatsAppLimitWarning metaUrl="https://business.facebook.com/business/loginpage/?next=%2Flatest%2Fwhatsapp_manager%2Fphone_numbers%2F%3Fasset_id%3D321277311061053%26business_id%3D484683378535543%26nav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs" />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-                {selectedDispatchNumber !== "" && (
-                  <WhatsAppLimitWarning metaUrl="https://business.facebook.com/business/loginpage/?next=%2Flatest%2Fwhatsapp_manager%2Fphone_numbers%2F%3Fasset_id%3D321277311061053%26business_id%3D484683378535543%26nav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs" />
-                )}
+
                 <div
                   style={{
                     width: "100%",
                     display: "flex",
                     justifyContent: "flex-end",
-                    marginTop: "15px",
+                    paddingTop: "10px",
                   }}
                 >
                   <button

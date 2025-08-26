@@ -896,10 +896,26 @@ export function CreateTemplateAccordion() {
                   textAlign: "left",
                   backgroundColor: "#FFF",
                   width: "100%",
+                  paddingTop: "0px",
+                  marginTop: "0px",
+                  display: "flex",
+                  alignItems: "flex-start",
                 }}
               >
-                <div className="input" style={{ justifyContent: "center" }}>
-                  <div className="row-align" style={{ margin: "10px" }}>
+                <div
+                  className="input"
+                  style={{
+                    justifyContent: "center",
+                    paddingTop: "0px",
+                    marginTop: "0px",
+                    flex: "0 0 auto",
+                    width: "450px",
+                  }}
+                >
+                  <div
+                    className="row-align"
+                    style={{ margin: "0px 10px 10px 10px" }}
+                  >
                     <span
                       className="span-title"
                       style={{ justifyContent: "flex-start" }}
@@ -992,26 +1008,32 @@ export function CreateTemplateAccordion() {
                   className="card_2024 column-align"
                   style={{
                     width: "340px",
+                    maxWidth: "340px",
                     textAlign: "left",
-                    marginLeft: "20px",
+                    marginLeft: "3px",
+                    flex: "0 0 auto",
+                    alignSelf: "flex-start",
+                    overflow: "hidden",
+                    boxSizing: "border-box",
                   }}
                 >
                   <div
                     className="row-align"
-                    style={{ width: "100%", height: "50px" }}
+                    style={{ width: "100%", height: "50px", padding: "0 10px" }}
                   >
-                    <div style={{ margin: "10px" }}>
+                    <div style={{ margin: "10px 10px 10px 0" }}>
                       <img src={alert} width={20} alt="alerta" />
                     </div>
                     <div
                       style={{
                         display: "flex",
                         flexDirection: "column",
-                        minHeight: "200px",
+                        flex: "1",
+                        overflow: "hidden",
                       }}
                     >
                       <span
-                        style={{ padding: "12px", fontSize: "16px" }}
+                        style={{ padding: "12px 0", fontSize: "16px" }}
                         className="title-blue bolder"
                       >
                         {templateType === "AUTHENTICATION"
@@ -1024,19 +1046,32 @@ export function CreateTemplateAccordion() {
                       </span>
                     </div>
                   </div>
-                  <span style={{ margin: "10px", fontSize: "11px" }}>
+                  <span
+                    style={{
+                      margin: "0 10px 10px 10px",
+                      fontSize: "11px",
+                      wordWrap: "break-word",
+                      overflowWrap: "break-word",
+                      maxWidth: "100%",
+                    }}
+                  >
                     {selectTemplate(templateType)}
                   </span>
                   {templateType && (
                     <div
                       style={{
-                        margin: "10px",
+                        margin: "0 10px 10px 10px",
                         padding: "15px",
                         backgroundColor: "#fff3cd",
                         border: "1px solid #ffeaa7",
                         borderRadius: "8px",
                         fontSize: "12px",
                         lineHeight: "1.4",
+                        wordWrap: "break-word",
+                        overflowWrap: "break-word",
+                        overflow: "hidden",
+                        maxWidth: "100%",
+                        boxSizing: "border-box",
                       }}
                     >
                       <div
@@ -1048,25 +1083,59 @@ export function CreateTemplateAccordion() {
                       >
                         ⚠️ Atenção:
                       </div>
-                      <div style={{ color: "#856404", marginBottom: "5px" }}>
+                      <div
+                        style={{
+                          color: "#856404",
+                          marginBottom: "5px",
+                          wordWrap: "break-word",
+                          overflowWrap: "break-word",
+                        }}
+                      >
                         • A Meta (WhatsApp) pode reclassificar a categoria do
                         template antes de aprovar.
                       </div>
-                      <div style={{ color: "#856404", marginBottom: "5px" }}>
+                      <div
+                        style={{
+                          color: "#856404",
+                          marginBottom: "5px",
+                          wordWrap: "break-word",
+                          overflowWrap: "break-word",
+                        }}
+                      >
                         • Templates também podem ser reprovados se não seguirem
                         as políticas da plataforma.
                       </div>
-                      <div style={{ color: "#856404", marginBottom: "5px" }}>
+                      <div
+                        style={{
+                          color: "#856404",
+                          marginBottom: "5px",
+                          wordWrap: "break-word",
+                          overflowWrap: "break-word",
+                        }}
+                      >
                         • Após a aprovação, confirme a categoria final na tela
                         de Gestão de Templates, pois ela pode ser diferente da
                         que você escolheu.
                       </div>
-                      <div style={{ color: "#856404", marginBottom: "5px" }}>
+                      <div
+                        style={{
+                          color: "#856404",
+                          marginBottom: "5px",
+                          wordWrap: "break-word",
+                          overflowWrap: "break-word",
+                        }}
+                      >
                         • Os custos da campanha são calculados com base na
                         categoria aprovada, e não na categoria selecionada
                         inicialmente.
                       </div>
-                      <div style={{ color: "#856404" }}>
+                      <div
+                        style={{
+                          color: "#856404",
+                          wordWrap: "break-word",
+                          overflowWrap: "break-word",
+                        }}
+                      >
                         • Para dicas de como criar os melhores templates, fale
                         com o nosso agente Templatão da Meta.
                       </div>
