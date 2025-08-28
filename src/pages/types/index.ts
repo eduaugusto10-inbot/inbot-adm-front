@@ -227,6 +227,7 @@ export interface ITriggerList {
 
 export interface AccordionState {
   channelTrigger: boolean;
+  selectNumber: boolean;
   config: boolean;
   recebidores: boolean;
   disparo: boolean;

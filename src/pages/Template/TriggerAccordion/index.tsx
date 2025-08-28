@@ -104,6 +104,7 @@ export function Accordion() {
 
     const [accordionState, setAccordionState] = useState<AccordionState>({
         channelTrigger: true,
+        selectNumber: false,
         config: false,
         recebidores: false,
         disparo: false,
@@ -161,6 +162,7 @@ export function Accordion() {
     const toggleAccordion = (key: keyof AccordionState) => {
         setAccordionState({
             channelTrigger: false,
+            selectNumber: false,
             config: false,
             recebidores: false,
             disparo: false,
@@ -741,13 +743,44 @@ function convertServerType(botServerType: string) {
                         </div>
                     </div>
                     <div style={{width:"100%", textAlign:"right"}}>
-                        <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('config')}>Próximo</button>
+                        <button style={{width:"80px", margin:"0px 30px 15px 0px"}} className="button-next" onClick={() => toggleAccordion('selectNumber')}>Próximo</button>
                     </div>
                 </div>
                 </div>}
             </div>
             <div>
-                <div className={`accordion_head ${accordionState.config ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>2. Configuração
+                <div className={`accordion_head ${accordionState.selectNumber ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('selectNumber')}>2. Selecionar Número
+                    <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.selectNumber ?"-90deg" : "90deg"}} /></div>
+                </div>
+                {accordionState.selectNumber &&
+                <div className="body-no-background" style={{width:"100%"}}>
+                <div className="accordeon-new" style={{width:"90%", textAlign:"right"}}>
+                    <div className="body line" style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", backgroundColor: "#FFF", padding: "15px" }}>
+                        <div style={{ width: "100%", marginBottom: "15px" }}>
+                            <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                                <span className="span-title" style={{width:"25%", textAlign:"right", justifyContent: "left"}}>Número de disparo</span>
+                                <div>
+                                    <select value={selectedDispatchNumber} className="input-values" onChange={handleDispatchNumberChange}>
+                                        <option value="">Selecione um número</option>
+                                        {dispatchNumbers.map((number, key) => (
+                                            <option key={key} value={number.number}>{mask(number.number)+" - "+convertServerType(number.botServerType)}</option>
+                                        ))}
+                                    </select>
+                                    {selectedDispatchNumber === "" && errorMessage && errorMessage.includes("número de disparo") && 
+                                        <p style={{ color: 'red', fontSize: "10px", fontWeight: "bolder", marginTop: "5px" }}>{errorMessage}</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div style={{ width: "100%", display: "flex", justifyContent: "flex-end", marginTop: "15px" }}>
+                            <button style={{width:"80px"}} className="button-next" onClick={() => toggleAccordion('config')}>Próximo</button>
+                        </div>
+                    </div>
+                </div>
+                </div>}
+            </div>
+            <div>
+                <div className={`accordion_head ${accordionState.config ? "accordion_head_opened" : ""}`} style={{ borderRadius: "20px" }} onClick={() => toggleAccordion('config')}>3. Configuração
                     <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.config ?"-90deg" : "90deg"}} /></div>
                 </div>
                 {accordionState.config &&
@@ -776,23 +809,6 @@ function convertServerType(botServerType: string) {
                                 </div>
                             </div>
                         </div>
-                        <div style={{ width: "100%", marginBottom: "15px" }}>
-                            <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-                                <span className="span-title" style={{width:"25%", textAlign:"right", justifyContent: "left"}}>Número de disparo</span>
-                                <div>
-                                    <select value={selectedDispatchNumber} className="input-values" onChange={handleDispatchNumberChange}>
-                                        <option value="">Selecione um número</option>
-                                        {dispatchNumbers.map((number, key) => (
-                                            <option key={key} value={number.number}>{mask(number.number)+" - "+convertServerType(number.botServerType)}</option>
-
-                                        ))}
-                                    </select>
-                                    {selectedDispatchNumber === "" && errorMessage && errorMessage.includes("número de disparo") && 
-                                        <p style={{ color: 'red', fontSize: "10px", fontWeight: "bolder", marginTop: "5px" }}>{errorMessage}</p>
-                                    }
-                                </div>
-                            </div>
-                        </div>
                         <div style={{ width: "100%", display: "flex", justifyContent: "flex-end", marginTop: "15px" }}>
                             <button style={{width:"80px"}} className="button-next" onClick={() => toggleAccordion('recebidores')}>Próximo</button>
                         </div>
@@ -801,7 +817,7 @@ function convertServerType(botServerType: string) {
                 </div>}
             </div>
             <div className="config-recebidores" style={{ maxHeight: "1080px", maxWidth:'900px' }}>
-                <div className={`accordion_head ${accordionState.recebidores ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('recebidores')}>3. Cadastro dos Contatos da Campanha 
+                <div className={`accordion_head ${accordionState.recebidores ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('recebidores')}>4. Cadastro dos Contatos da Campanha
                     <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.recebidores ?"-90deg" : "90deg"}} /></div></div>
                 {accordionState.recebidores && 
                 <div className="body-no-background" style={{width:"100%"}}>
@@ -1104,7 +1120,7 @@ function convertServerType(botServerType: string) {
                 </div>}
             </div>
             <div className="modo-disparo">
-                <div className={`accordion_head ${accordionState.disparo ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('disparo')}>4. Modo de Disparo
+                <div className={`accordion_head ${accordionState.disparo ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('disparo')}>5. Modo de Disparo
                 <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.disparo ?"-90deg" : "90deg"}} /></div>
                 </div>
                 {accordionState.disparo && 
@@ -1146,7 +1162,7 @@ function convertServerType(botServerType: string) {
                 </div>}
             </div>
             <div className="revisar">
-                <div className={`accordion_head ${accordionState.revisar ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('revisar')}>5. Resumo e salvar
+                <div className={`accordion_head ${accordionState.revisar ? "accordion_head_opened" : ""}`} onClick={() => toggleAccordion('revisar')}>6. Resumo e salvar
                 <div className="accordion_chevron"><img src={chevron} alt="" style={{rotate: accordionState.revisar ?"-90deg" : "90deg"}} /></div>
                 </div>
                     {accordionState.revisar && 

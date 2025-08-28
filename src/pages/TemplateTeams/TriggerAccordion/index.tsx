@@ -38,6 +38,7 @@ export function Accordion() {
 
     const [accordionState, setAccordionState] = useState<AccordionState>({
         channelTrigger: true,
+        selectNumber: false,
         config: false,
         recebidores: false,
         disparo: false,
@@ -119,6 +120,7 @@ export function Accordion() {
     const toggleAccordion = (key: keyof AccordionState) => {
         setAccordionState({
             channelTrigger: false,
+            selectNumber: false,
             config: false,
             recebidores: false,
             disparo: false,
