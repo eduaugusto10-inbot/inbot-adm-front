@@ -36,7 +36,7 @@ rm -rf node_modules
 if [ -f .env ]; then
   mv .env .env-tmp
 fi
-docker build . -t $REPO:$VERSION -t $REPO:latest || exit 1
+docker build . --build-arg REACT_APP_BASE_URL="$REACT_APP_BASE_URL" --build-arg REACT_APP_BASE_URL_V2="$REACT_APP_BASE_URL_V2" -t $REPO:$VERSION -t $REPO:latest || exit 1
 if [ -f .env-tmp ]; then
   mv .env-tmp .env
 fi
