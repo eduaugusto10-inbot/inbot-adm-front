@@ -1061,21 +1061,7 @@ export function Accordion() {
                           </option>
                         ))}
                       </select>
-                      {templateName && categoryTemplate && (
-                        <div style={{ marginTop: "10px" }}>
-                          <Alert
-                            message={`<strong>🟢 Aviso:</strong> Este template foi aprovado na categoria <strong>${
-                              categoryTemplate === "MARKETING"
-                                ? "MARKETING"
-                                : categoryTemplate === "UTILITY"
-                                ? "UTILIDADE"
-                                : categoryTemplate === "AUTHENTICATION"
-                                ? "AUTENTICAÇÃO"
-                                : categoryTemplate
-                            }</strong>.<br/>Após o envio da campanha, não é possível cancelar o disparo nem os custos associados.`}
-                          />
-                        </div>
-                      )}
+
                     </div>
                   </div>
                 </div>
@@ -1129,14 +1115,46 @@ export function Accordion() {
                             {errorMessage}
                           </p>
                         )}
-                      {selectedDispatchNumber !== "" && (
-                        <div style={{ marginTop: "10px" }}>
-                          <WhatsAppLimitWarning metaUrl="https://business.facebook.com/business/loginpage/?next=%2Flatest%2Fwhatsapp_manager%2Fphone_numbers%2F%3Fasset_id%3D321277311061053%26business_id%3D484683378535543%26nav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs" />
-                        </div>
-                      )}
+
                     </div>
                   </div>
                 </div>
+
+                {/* Card unificado com os avisos */}
+                {(templateName && categoryTemplate) || selectedDispatchNumber !== "" ? (
+                  <div
+                    style={{
+                      width: "100%",
+                      backgroundColor: "#f8f9fa",
+                      border: "1px solid #dee2e6",
+                      borderRadius: "8px",
+                      padding: "15px",
+                      marginTop: "20px",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    {templateName && categoryTemplate && (
+                      <div style={{ marginBottom: selectedDispatchNumber !== "" ? "15px" : "0" }}>
+                        <Alert
+                          message={`<strong>🟢 Aviso:</strong> Este template foi aprovado na categoria <strong>${
+                            categoryTemplate === "MARKETING"
+                              ? "MARKETING"
+                              : categoryTemplate === "UTILITY"
+                              ? "UTILIDADE"
+                              : categoryTemplate === "AUTHENTICATION"
+                              ? "AUTENTICAÇÃO"
+                              : categoryTemplate
+                          }</strong>.<br/>Após o envio da campanha, não é possível cancelar o disparo nem os custos associados.`}
+                        />
+                      </div>
+                    )}
+                    {selectedDispatchNumber !== "" && (
+                      <div>
+                        <WhatsAppLimitWarning metaUrl="https://business.facebook.com/business/loginpage/?next=%2Flatest%2Fwhatsapp_manager%2Fphone_numbers%2F%3Fasset_id%3D321277311061053%26business_id%3D484683378535543%26nav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs" />
+                      </div>
+                    )}
+                  </div>
+                ) : null}
 
                 <div
                   style={{
