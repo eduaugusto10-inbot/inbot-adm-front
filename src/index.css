@@ -1,7 +1,7 @@
 @import url(https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap);
 body {
   margin: 0;
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(to bottom, #ffffff, #e0e0e0);
@@ -9,7 +9,7 @@ body {
 }
 
 code {
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
 }
 
 .row-align {
@@ -44,7 +44,7 @@ select {
 
 textarea {
   height: 103px;
-  resize: 'none';
+  resize: "none";
 }
 
 .table {
@@ -97,7 +97,7 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type='number'] {
+input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
@@ -192,7 +192,7 @@ table th:nth-child(even) {
 }
 
 .border_gradient::after {
-  content: '';
+  content: "";
   position: absolute;
   top: -5px;
   left: -5px;
@@ -213,7 +213,7 @@ table th:nth-child(even) {
   opacity: 0.5;
 }
 .border_gradient-gray::after {
-  content: '';
+  content: "";
   position: absolute;
   border-radius: 15px;
   border: 1px solid #f0f0f0;
