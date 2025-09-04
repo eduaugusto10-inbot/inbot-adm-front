@@ -588,9 +588,13 @@ export function Accordion() {
   };
 
   const handleCampaignName = (e: string) => {
-    if (triggerNames !== undefined) {
+    if (
+      triggerNames !== undefined &&
+      triggerNames.data &&
+      Array.isArray(triggerNames.data)
+    ) {
       setErrorMessage("");
-      for (let i = 0; i < triggerNames?.data.length; i++) {
+      for (let i = 0; i < triggerNames.data.length; i++) {
         if (triggerNames.data[i].campaign_name === e) {
           setErrorMessage("O nome da campanha já existe!");
         }
@@ -967,10 +971,7 @@ export function Accordion() {
         </div>
         {accordionState.config && (
           <div className="body-no-background" style={{ width: "100%" }}>
-            <div
-              className="accordeon-new"
-              style={{ width: "90%", textAlign: "right" }}
-            >
+            <div className="accordeon-new">
               <div
                 className="body line"
                 style={{
@@ -1059,7 +1060,6 @@ export function Accordion() {
                           </option>
                         ))}
                       </select>
-
                     </div>
                   </div>
                 </div>
@@ -1113,13 +1113,13 @@ export function Accordion() {
                             {errorMessage}
                           </p>
                         )}
-
                     </div>
                   </div>
                 </div>
 
                 {/* Card unificado com os avisos */}
-                {(templateName && categoryTemplate) || selectedDispatchNumber !== "" ? (
+                {(templateName && categoryTemplate) ||
+                selectedDispatchNumber !== "" ? (
                   <div
                     style={{
                       width: "100%",
@@ -1132,7 +1132,12 @@ export function Accordion() {
                     }}
                   >
                     {templateName && categoryTemplate && (
-                      <div style={{ marginBottom: selectedDispatchNumber !== "" ? "15px" : "0" }}>
+                      <div
+                        style={{
+                          marginBottom:
+                            selectedDispatchNumber !== "" ? "15px" : "0",
+                        }}
+                      >
                         <Alert
                           message={`<strong>🟢 Aviso:</strong> Este template foi aprovado na categoria <strong>${
                             categoryTemplate === "MARKETING"
