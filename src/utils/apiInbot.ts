@@ -16,7 +16,8 @@ interface TokenResponse {
  * Utilitário simples para fazer chamadas à API da Inbot com autenticação automática
  */
 const inbotApi = {
-  baseUrl: process.env.REACT_APP_BASE_URL_V2,
+  baseUrl: "https://api-stg.inbot.com.br/v2/api",
+
   token: null as string | null,
   tokenExpiration: null as Date | null,
   botId: null as number | null,

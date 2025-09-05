@@ -36,7 +36,6 @@ import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip } from "react-tooltip";
 import { validatedUser, getAdminName } from "../../../utils/validateUser";
 import { DraggableComponent } from "../../../Components/Draggable";
-import { errorMessage } from "../../../Components/Toastify";
 import { toast } from "react-toastify";
 import { WhatsAppLimitWarning } from "../../../Components/WhatsAppLimitWarning";
 
@@ -668,7 +667,6 @@ export function Accordion() {
       templateName: templateName,
       typeTrigger: triggerMode,
       timeTrigger: triggerMode === "agendado" ? `${dates} ${hours}` : null,
-      // "status": "aguardando",
       channel: "whatsapp",
       status: "criando",
       category: categoryTemplate,
