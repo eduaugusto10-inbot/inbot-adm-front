@@ -13,7 +13,7 @@ export function WhatsAppLimitWarning({ metaUrl }: WhatsAppLimitWarningProps) {
         <img src={alert} alt="alerta" width={20} style={{ margin: "10px" }} />
       </div>
       <div className="div-text">
-        <span className="span-12">
+        <span className="span-12 texto-alinhado">
           <strong>Atenção ao limite de disparos</strong>
           <br />
           Antes de criar sua campanha, verifique o limite de disparos disponível
@@ -27,7 +27,9 @@ export function WhatsAppLimitWarning({ metaUrl }: WhatsAppLimitWarningProps) {
             rel="noopener noreferrer"
             className="button-next"
             style={{
-              display: "inline-block",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
               backgroundColor: "#0d5388",
               color: "white",
               padding: "8px 15px",
@@ -37,6 +39,7 @@ export function WhatsAppLimitWarning({ metaUrl }: WhatsAppLimitWarningProps) {
               fontWeight: "bold",
               border: "none",
               textAlign: "center",
+              lineHeight: "1.2",
             }}
           >
             Verificar limite na Meta
