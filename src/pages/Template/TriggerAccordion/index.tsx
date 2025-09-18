@@ -36,8 +36,8 @@ import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip } from "react-tooltip";
 import { validatedUser, getAdminName } from "../../../utils/validateUser";
 import { DraggableComponent } from "../../../Components/Draggable";
-import { errorMessage } from "../../../Components/Toastify";
 import { toast } from "react-toastify";
+import { WhatsAppLimitWarning } from "../../../Components/WhatsAppLimitWarning";
 
 export function Accordion() {
   const location = useLocation();
@@ -54,7 +54,6 @@ export function Accordion() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      // const logged = { logged: true, channel: "all" };
       const logged: any =
         (await validatedUser(
           searchParams.get("bot_id"),
@@ -92,7 +91,7 @@ export function Accordion() {
             window.location.href = "https://in.bot/inbot-admin";
           }
           api
-            .get(`/whatsapp/trigger-bot/${botId}`) //http://localhost:19000/whatsapp/trigger-bot/403?number=5511953188171
+            .get(`/whatsapp/trigger-bot/${botId}`)
             .then((resp) => setTriggerNames(resp.data))
             .catch((error) => console.log(error));
           const token = resp.data.bot[0].accessToken;
@@ -570,9 +569,13 @@ export function Accordion() {
   };
 
   const handleCampaignName = (e: string) => {
-    if (triggerNames !== undefined) {
+    if (
+      triggerNames !== undefined &&
+      triggerNames.data &&
+      Array.isArray(triggerNames.data)
+    ) {
       setErrorMessage("");
-      for (let i = 0; i < triggerNames?.data.length; i++) {
+      for (let i = 0; i < triggerNames.data.length; i++) {
         if (triggerNames.data[i].campaign_name === e) {
           setErrorMessage("O nome da campanha já existe!");
         }
@@ -659,9 +662,27 @@ export function Accordion() {
       .post("/whatsapp/trigger", data)
       .then((resp) => {
         if (typeClient) {
-          handleSubmitListDataFile(fileData, resp.data.data.insertId);
+          handleSubmitListDataFile(fileData, resp.data.data.insertId).catch(
+            (error) => {
+              console.log("Erro ao enviar lista de dados:", error);
+              // Atualiza o status para erro quando falha no envio da lista
+              api.put(
+                `/whatsapp/trigger/${resp.data.data.insertId}?status=erro`
+              );
+              errorMessageDefault(
+                "Erro ao processar a campanha. Verifique os dados e tente novamente."
+              );
+            }
+          );
         } else {
-          handleSubmitManualListData(resp.data.data.insertId);
+          handleSubmitManualListData(resp.data.data.insertId).catch((error) => {
+            console.log("Erro ao enviar lista manual:", error);
+            // Atualiza o status para erro quando falha no envio da lista manual
+            api.put(`/whatsapp/trigger/${resp.data.data.insertId}?status=erro`);
+            errorMessageDefault(
+              "Erro ao processar a campanha. Verifique os dados e tente novamente."
+            );
+          });
         }
         successCreateTrigger();
         api.put(
@@ -1062,7 +1083,8 @@ export function Accordion() {
                     style={{
                       display: "flex",
                       flexDirection: "row",
-                      alignItems: "center",
+                      alignItems: "flex-start",
+                      gap: "15px",
                     }}
                   >
                     <span
@@ -1102,35 +1124,96 @@ export function Accordion() {
                     style={{
                       display: "flex",
                       flexDirection: "row",
-                      alignItems: "center",
+                      alignItems: "flex-start",
+                      gap: "15px",
                     }}
                   >
                     <span
                       className="span-title"
                       style={{
-                        width: "25%",
-                        textAlign: "right",
-                        justifyContent: "left",
+                        minWidth: "180px",
+                        textAlign: "left",
+                        paddingTop: "5px",
                       }}
                     >
-                      Selecionar template
+                      Número de disparo
                     </span>
-                    <div>
+                    <div style={{ flex: 1 }}>
                       <select
-                        value={templateName}
+                        value={selectedDispatchNumber}
                         className="input-values"
-                        onChange={(e) => openModal(e.target.value)}
+                        onChange={handleDispatchNumberChange}
+                        style={{ width: "100%", maxWidth: "400px" }}
                       >
-                        <option value="">{templateName ?? "--"}</option>
-                        {templates.map((template, key) => (
-                          <option key={key} value={template.ID}>
-                            {template.name}
+                        <option value="">Selecione um número</option>
+                        {dispatchNumbers.map((number, key) => (
+                          <option key={key} value={number.number}>
+                            {mask(number.number) +
+                              " - " +
+                              convertServerType(number.botServerType)}
                           </option>
                         ))}
                       </select>
+                      {selectedDispatchNumber === "" &&
+                        errorMessage &&
+                        errorMessage.includes("número de disparo") && (
+                          <p
+                            style={{
+                              color: "red",
+                              fontSize: "10px",
+                              fontWeight: "bolder",
+                              margin: "5px 0 0 0",
+                            }}
+                          >
+                            {errorMessage}
+                          </p>
+                        )}
                     </div>
                   </div>
                 </div>
+
+                {/* Card unificado com os avisos */}
+                {(templateName && categoryTemplate) ||
+                selectedDispatchNumber !== "" ? (
+                  <div
+                    style={{
+                      width: "100%",
+                      backgroundColor: "#f8f9fa",
+                      border: "1px solid #dee2e6",
+                      borderRadius: "8px",
+                      padding: "15px",
+                      marginTop: "20px",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    {templateName && categoryTemplate && (
+                      <div
+                        style={{
+                          marginBottom:
+                            selectedDispatchNumber !== "" ? "15px" : "0",
+                        }}
+                      >
+                        <Alert
+                          message={`<strong>🟢 Aviso:</strong> Este template foi aprovado na categoria <strong>${
+                            categoryTemplate === "MARKETING"
+                              ? "MARKETING"
+                              : categoryTemplate === "UTILITY"
+                              ? "UTILIDADE"
+                              : categoryTemplate === "AUTHENTICATION"
+                              ? "AUTENTICAÇÃO"
+                              : categoryTemplate
+                          }</strong>.<br/>Após o envio da campanha, não é possível cancelar o disparo nem os custos associados.`}
+                        />
+                      </div>
+                    )}
+                    {selectedDispatchNumber !== "" && (
+                      <div>
+                        <WhatsAppLimitWarning metaUrl="https://business.facebook.com/business/loginpage/?next=%2Flatest%2Fwhatsapp_manager%2Fphone_numbers%2F%3Fasset_id%3D321277311061053%26business_id%3D484683378535543%26nav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs" />
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+
                 <div
                   style={{
                     width: "100%",

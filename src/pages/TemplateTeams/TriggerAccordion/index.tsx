@@ -392,9 +392,9 @@ export function Accordion() {
     }
 
     const handleCampaignName = (e: string) => {
-        if (triggerNames !== undefined) {
+        if (triggerNames !== undefined && triggerNames.data && Array.isArray(triggerNames.data)) {
             setErrorMessage("");
-            for (let i = 0; i < triggerNames?.data.length; i++) {
+            for (let i = 0; i < triggerNames.data.length; i++) {
                 if (triggerNames.data[i].campaign_name === e) {
                     setErrorMessage("O nome da campanha já existe!");
                 }
