@@ -73,6 +73,13 @@ export const errorDeleted = (text: string) => toast.error(text, {
 export const waitingMessage = () => toast.info("Aguarde ...", {
     theme: "colored"
 })
+
+export const creatingCampaignMessage = () => toast.info("Aguarde enquanto a campanha está sendo criada...", {
+    theme: "colored",
+    autoClose: false,
+    closeOnClick: false
+})
+
 export const successCreateTrigger = () => toast.success("Criado com sucesso", {
     theme: "colored"
 });
