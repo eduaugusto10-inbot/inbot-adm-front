@@ -1,9 +1,9 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { read, utils } from "xlsx";
-import { errorCampaingEmpty, errorEmptyVariable, errorTriggerMode, successCreateTrigger, waitingMessage, errorNoRecipient, errorMidiaEmpty, errorMessagePayload, errorMessageDefault } from "../../../Components/Toastify";
+import { errorCampaingEmpty, errorEmptyVariable, errorTriggerMode, successCreateTrigger, waitingMessage, creatingCampaignMessage, errorNoRecipient, errorMidiaEmpty, errorMessagePayload, errorMessageDefault } from "../../../Components/Toastify";
 import api from "../../../utils/api";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import './index.css'
 import Alert from "../../../Components/Alert";
 import { AccordionState, IListVariables, ITemplateListTeams, IVariables } from "../../types";
@@ -420,7 +420,14 @@ export function Accordion() {
             errorTriggerMode()
             return;
         }
-        waitingMessage();
+        
+        // Iniciar com a mensagem inicial
+        const toastId = toast.info("Aguarde, iniciando processamento da campanha...", {
+          theme: "colored",
+          autoClose: false,
+          closeOnClick: false
+        });
+        
         const data = {
             "campaignName": campaignName,
             "templateName": templateName,
@@ -435,21 +442,173 @@ export function Accordion() {
             "category": null,
             "createdBy": getAdminName(),
         }
-
+    
         api.post('/whatsapp/trigger', data)
             .then(resp => {
                 if (typeClient) {
-                    handleSubmitListDataFile(fileData, resp.data.data.insertId)
+                    // Calcular o total de contatos
+                    const totalContacts = fileData.filter(customer => customer?.[0]).length;
+                    let processedContacts = 0;
+                    
+                    // Modificar a função handleSubmitListDataFile para atualizar o progresso
+                    const handleSubmitListDataFileWithProgress = async (
+                      dataTemplate: string[][],
+                      campaignId: string
+                    ) => {
+                      try {
+                        const customerList = dataTemplate
+                          .filter((customer) => customer?.[0])
+                          .map((customer) => ({
+                            campaignId: `${campaignId}`,
+                            email: `${customer[0]}`,
+                            status: "aguardando",
+                            variable_1: customer[1],
+                            variable_2: customer[2],
+                            variable_3: customer[3],
+                            variable_4: customer[4],
+                            variable_5: customer[5],
+                            variable_6: customer[6],
+                            variable_7: customer[7],
+                            variable_8: customer[8],
+                            variable_9: customer[9],
+                            media_url: urlMidia,
+                            type_media: headerConfig,
+                            payload_1: payload1,
+                            payload_2: payload2,
+                            payload_3: payload3,
+                            title_button_1: titleButton1,
+                            title_button_2: titleButton2,
+                            title_button_3: titleButton3,
+                            channel: "teams",
+                          }));
+
+                        // Quebrar a lista em lotes de 100 objetos
+                        const batchSize = 100;
+                        const batches = [];
+                        
+                        for (let i = 0; i < customerList.length; i += batchSize) {
+                          batches.push(customerList.slice(i, i + batchSize));
+                        }
+                        
+                        // Enviar cada lote separadamente e atualizar o progresso
+                        for (const batch of batches) {
+                          await api.post("/whats-customer", batch);
+                          processedContacts += batch.length;
+                          
+                          // Atualizar a mensagem de progresso
+                          const percentComplete = Math.round((processedContacts / totalContacts) * 100);
+                          toast.update(toastId, { 
+                            render: `Aguarde, estamos processando ${processedContacts} de ${totalContacts} contatos (${percentComplete}% concluído)`
+                          });
+                          
+                          console.log(`Lote de ${batch.length} contatos enviado com sucesso`);
+                        }
+
+                        console.log(
+                          "Lista de dados enviada com sucesso para a campanha:",
+                          campaignId
+                        );
+                        return Promise.resolve();
+                      } catch (error) {
+                        console.error("Erro ao enviar lista de dados:", error);
+                        throw error;
+                      }
+                    };
+                    
+                    handleSubmitListDataFileWithProgress(fileData, resp.data.data.insertId)
+                        .catch(error => {
+                            console.log("Erro ao enviar lista de dados:", error);
+                            toast.dismiss(toastId);
+                            errorMessageDefault("Erro ao processar a campanha. Verifique os dados e tente novamente.");
+                        })
+                        .finally(() => {
+                            toast.dismiss(toastId);
+                            successCreateTrigger();
+                            setTimeout(() => BackToList(), 3000);
+                        });
                 } else {
-                    handleSubmitManualListData(resp.data.data.insertId)
+                    // Calcular o total de contatos
+                    const totalContacts = listVariables.length;
+                    let processedContacts = 0;
+                    
+                    // Modificar a função handleSubmitManualListData para atualizar o progresso
+                    const handleSubmitManualListDataWithProgress = async (campaignId: string) => {
+                      try {
+                        const customerList = listVariables.map((item) => ({
+                          campaignId: `${campaignId}`,
+                          email: `${item.email}`,
+                          status: "aguardando",
+                          variable_1: item?.variable_1,
+                          variable_2: item?.variable_2,
+                          variable_3: item?.variable_3,
+                          variable_4: item?.variable_4,
+                          variable_5: item?.variable_5,
+                          variable_6: item?.variable_6,
+                          variable_7: item?.variable_7,
+                          variable_8: item?.variable_8,
+                          variable_9: item?.variable_9,
+                          media_url: urlMidia,
+                          type_media: headerConfig,
+                          payload_1: payload1,
+                          payload_2: payload2,
+                          payload_3: payload3,
+                          title_button_1: titleButton1,
+                          title_button_2: titleButton2,
+                          title_button_3: titleButton3,
+                          channel: "teams",
+                        }));
+
+                        // Quebrar a lista em lotes de 100 objetos
+                        const batchSize = 100;
+                        const batches = [];
+                        
+                        for (let i = 0; i < customerList.length; i += batchSize) {
+                          batches.push(customerList.slice(i, i + batchSize));
+                        }
+                        
+                        // Enviar cada lote separadamente e atualizar o progresso
+                        for (const batch of batches) {
+                          await api.post("/whats-customer", batch);
+                          processedContacts += batch.length;
+                          
+                          // Atualizar a mensagem de progresso
+                          const percentComplete = Math.round((processedContacts / totalContacts) * 100);
+                          toast.update(toastId, { 
+                            render: `Aguarde, estamos processando ${processedContacts} de ${totalContacts} contatos (${percentComplete}% concluído)`
+                          });
+                          
+                          console.log(`Lote de ${batch.length} contatos enviado com sucesso`);
+                        }
+
+                        console.log(
+                          "Lista de dados enviada com sucesso para a campanha:",
+                          campaignId
+                        );
+                        return Promise.resolve();
+                      } catch (error) {
+                        console.error("Erro ao enviar lista de dados:", error);
+                        throw error;
+                      }
+                    };
+                    
+                    handleSubmitManualListDataWithProgress(resp.data.data.insertId)
+                        .catch(error => {
+                            console.log("Erro ao enviar lista manual:", error);
+                            toast.dismiss(toastId);
+                            errorMessageDefault("Erro ao processar a campanha. Verifique os dados e tente novamente.");
+                        })
+                        .finally(() => {
+                            toast.dismiss(toastId);
+                            successCreateTrigger();
+                            setTimeout(() => BackToList(), 3000);
+                        });
                 }
-                successCreateTrigger()
-                // api.put(`/whatsapp/trigger-status/${resp.data.data.insertId}?status=aguardando`)
-                setTimeout(() => BackToList(), 3000)
             })
             .catch(err => {
-                console.log(err)
-            })
+                console.log(err);
+                toast.dismiss(toastId);
+                errorMessageDefault("Erro ao criar campanha. Tente novamente.");
+            });
     }
     if (variableQty > 0 && (variables.length < variableQty)) {
         for (let i = 0; i < variableQty; i++) {

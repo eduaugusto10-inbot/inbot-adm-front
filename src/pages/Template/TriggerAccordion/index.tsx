@@ -9,6 +9,7 @@ import {
   errorTriggerMode,
   successCreateTrigger,
   waitingMessage,
+  creatingCampaignMessage,
   errorNoRecipient,
   errorMidiaEmpty,
   errorMessagePayload,
@@ -16,7 +17,7 @@ import {
 } from "../../../Components/Toastify";
 import api from "../../../utils/api";
 import attached from "../../../img/attachment.png";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "./index.css";
 import Alert from "../../../Components/Alert";
 import {
@@ -36,7 +37,6 @@ import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip } from "react-tooltip";
 import { validatedUser, getAdminName } from "../../../utils/validateUser";
 import { DraggableComponent } from "../../../Components/Draggable";
-import { toast } from "react-toastify";
 import { WhatsAppLimitWarning } from "../../../Components/WhatsAppLimitWarning";
 
 export function Accordion() {
@@ -310,11 +310,12 @@ export function Accordion() {
       const wsname = wb.SheetNames[0];
       const ws = wb.Sheets[wsname];
 
+      // Primeiro lemos os dados com raw: true para permitir números na primeira coluna
       const data = utils.sheet_to_json(ws, {
         header: 1,
-        raw: false,
-        rawNumbers: false,
+        raw: true,
       }) as any[][];
+      
       const dataFile: any = [];
       const dataHeader: any = [];
       data.slice(0).forEach((values: any, index: number) => {
@@ -322,23 +323,30 @@ export function Accordion() {
           dataHeader.push(values);
         }
       });
+      
       data.slice(1).forEach((values, linha) => {
         const wrongFormatRegex = /^\d{1,2}\/\d{1,2}\/\d{2}$/;
         if (values.length > 0) {
           values.forEach((cell, coluna) => {
-            if (cell.length > 0) {
-              if (coluna === 0) {
-                values[coluna] = cell.replace(/\D/g, "");
-              } else if (wrongFormatRegex.test(cell)) {
-                values[coluna] = formatDateComplete(cell);
+            // Tratamento específico para cada coluna
+            if (coluna === 0) {
+              // Para a coluna de telefone, garantir que seja tratado como número
+              // e remover caracteres não numéricos
+              values[coluna] = cell ? cell.toString().replace(/\D/g, "") : "";
+            } else {
+              // Para as outras colunas, garantir que sejam tratadas como texto
+              const cellValue = cell ? cell.toString() : "";
+              if (wrongFormatRegex.test(cellValue)) {
+                values[coluna] = formatDateComplete(cellValue);
               } else {
-                values[coluna] = cell.toString().trim();
+                values[coluna] = cellValue.trim();
               }
             }
           });
           dataFile.push(values);
         }
       });
+      
       setHeaderTable(dataHeader);
       setFileData(dataFile);
     };
@@ -346,92 +354,8 @@ export function Accordion() {
     reader.readAsBinaryString(file);
   };
 
-  const handleSubmitListDataFile = async (
-    dataTemplate: any,
-    campaignId: string
-  ) => {
-    try {
-      const promises = [];
-      for (const customer of dataTemplate) {
-        if (customer.length > 0) {
-          // count > 0 &&
-          const params = {
-            campaignId: `${campaignId}`,
-            phone: `${customer[0].replace(/\D/g, "")}`,
-            status: "aguardando",
-            variable_1: customer[1],
-            variable_2: customer[2],
-            variable_3: customer[3],
-            variable_4: customer[4],
-            variable_5: customer[5],
-            variable_6: customer[6],
-            variable_7: customer[7],
-            variable_8: customer[8],
-            variable_9: customer[9],
-            media_url: urlMidia,
-            type_media: headerConfig,
-            payload_1: payload1,
-            payload_2: payload2,
-            payload_3: payload3,
-            title_button_1: titleButton1,
-            title_button_2: titleButton2,
-            title_button_3: titleButton3,
-            channel: "whatsapp",
-          };
-          promises.push(api.post("/whats-customer", params));
-        }
-      }
-      await Promise.all(promises);
-      console.log(
-        "Lista de dados enviada com sucesso para a campanha:",
-        campaignId
-      );
-      return Promise.resolve();
-    } catch (error) {
-      console.log("Erro ao enviar lista de dados:", error);
-      return Promise.reject(error);
-    }
-  };
-  const handleSubmitManualListData = async (campaignId: string) => {
-    try {
-      const promises = [];
-      for (let i = 0; i < listVariables.length; i++) {
-        const params = {
-          campaignId: `${campaignId}`,
-          phone: `${listVariables[i].phone}`,
-          status: "aguardando",
-          variable_1: listVariables[i]?.variable_1,
-          variable_2: listVariables[i]?.variable_2,
-          variable_3: listVariables[i]?.variable_3,
-          variable_4: listVariables[i]?.variable_4,
-          variable_5: listVariables[i]?.variable_5,
-          variable_6: listVariables[i]?.variable_6,
-          variable_7: listVariables[i]?.variable_7,
-          variable_8: listVariables[i]?.variable_8,
-          variable_9: listVariables[i]?.variable_9,
-          media_url: urlMidia,
-          type_media: headerConfig,
-          payload_1: payload1,
-          payload_2: payload2,
-          payload_3: payload3,
-          title_button_1: titleButton1,
-          title_button_2: titleButton2,
-          title_button_3: titleButton3,
-          channel: "whatsapp",
-        };
-        promises.push(api.post("/whats-customer", params));
-      }
-      await Promise.all(promises);
-      console.log(
-        "Lista manual enviada com sucesso para a campanha:",
-        campaignId
-      );
-      return Promise.resolve();
-    } catch (error) {
-      console.log("Erro ao enviar lista manual:", error);
-      return Promise.reject(error);
-    }
-  };
+// Estas funções foram substituídas por versões com progresso dentro do createTrigger
+
 
   const signInClients = (e: any) => {
     setTypeClients(e);
@@ -661,7 +585,14 @@ export function Accordion() {
       errorMessagePayload();
       return;
     }
-    waitingMessage();
+    
+    // Iniciar com a mensagem inicial
+    const toastId = toast.info("Aguarde, iniciando processamento da campanha...", {
+      theme: "colored",
+      autoClose: false,
+      closeOnClick: false
+    });
+    
     const data = {
       campaignName: campaignName,
       templateName: templateName,
@@ -680,36 +611,183 @@ export function Accordion() {
       .post("/whatsapp/trigger", data)
       .then((resp) => {
         if (typeClient) {
-          handleSubmitListDataFile(fileData, resp.data.data.insertId).catch(
-            (error) => {
+          // Calcular o total de contatos
+          const totalContacts = fileData.filter(customer => customer?.[0]).length;
+          let processedContacts = 0;
+          
+          // Função modificada para atualizar o progresso
+          const handleSubmitListDataFileWithProgress = async (
+            dataTemplate: string[][],
+            campaignId: string
+          ) => {
+            try {
+              const customerList = dataTemplate
+                .filter((customer) => customer?.[0])
+                .map((customer) => ({
+                  campaignId: `${campaignId}`,
+                  phone: `${customer[0].replace(/\D/g, "")}`,
+                  status: "aguardando",
+                  variable_1: customer[1],
+                  variable_2: customer[2],
+                  variable_3: customer[3],
+                  variable_4: customer[4],
+                  variable_5: customer[5],
+                  variable_6: customer[6],
+                  variable_7: customer[7],
+                  variable_8: customer[8],
+                  variable_9: customer[9],
+                  media_url: urlMidia,
+                  type_media: headerConfig,
+                  payload_1: payload1,
+                  payload_2: payload2,
+                  payload_3: payload3,
+                  title_button_1: titleButton1,
+                  title_button_2: titleButton2,
+                  title_button_3: titleButton3,
+                  channel: "whatsapp",
+                }));
+
+              // Quebrar a lista em lotes de 100 objetos
+              const batchSize = 100;
+              const batches = [];
+              
+              for (let i = 0; i < customerList.length; i += batchSize) {
+                batches.push(customerList.slice(i, i + batchSize));
+              }
+              
+              // Enviar cada lote separadamente e atualizar o progresso
+              for (const batch of batches) {
+                await api.post("/whats-customer", batch);
+                processedContacts += batch.length;
+                
+                // Atualizar a mensagem de progresso
+                const percentComplete = Math.round((processedContacts / totalContacts) * 100);
+                toast.update(toastId, { 
+                  render: `Aguarde, estamos processando ${processedContacts} de ${totalContacts} contatos (${percentComplete}% concluído)`
+                });
+                
+                console.log(`Lote de ${batch.length} contatos enviado com sucesso`);
+              }
+
+              console.log(
+                "Lista de dados enviada com sucesso para a campanha:",
+                campaignId
+              );
+              return Promise.resolve();
+            } catch (error) {
+              console.error("Erro ao enviar lista de dados:", error);
+              throw error;
+            }
+          };
+          
+          handleSubmitListDataFileWithProgress(fileData, resp.data.data.insertId)
+            .catch((error) => {
               console.log("Erro ao enviar lista de dados:", error);
               // Atualiza o status para erro quando falha no envio da lista
               api.put(
                 `/whatsapp/trigger/${resp.data.data.insertId}?status=erro`
               );
+              toast.dismiss(toastId); // Fechar o toast de aguarde
               errorMessageDefault(
                 "Erro ao processar a campanha. Verifique os dados e tente novamente."
               );
-            }
-          );
+            })
+            .finally(() => {
+              toast.dismiss(toastId); // Fechar o toast de aguarde quando terminar
+              successCreateTrigger();
+              api.put(
+                `/whatsapp/trigger/${resp.data.data.insertId}?status=aguardando`
+              );
+              setTimeout(() => BackToList(), 3000);
+            });
         } else {
-          handleSubmitManualListData(resp.data.data.insertId).catch((error) => {
-            console.log("Erro ao enviar lista manual:", error);
-            // Atualiza o status para erro quando falha no envio da lista manual
-            api.put(`/whatsapp/trigger/${resp.data.data.insertId}?status=erro`);
-            errorMessageDefault(
-              "Erro ao processar a campanha. Verifique os dados e tente novamente."
-            );
-          });
+          // Calcular o total de contatos
+          const totalContacts = listVariables.length;
+          let processedContacts = 0;
+          
+          // Função modificada para atualizar o progresso
+          const handleSubmitManualListDataWithProgress = async (campaignId: string) => {
+            try {
+              const customerList = listVariables.map((item) => ({
+                campaignId: `${campaignId}`,
+                phone: `${item.phone}`,
+                status: "aguardando",
+                variable_1: item?.variable_1,
+                variable_2: item?.variable_2,
+                variable_3: item?.variable_3,
+                variable_4: item?.variable_4,
+                variable_5: item?.variable_5,
+                variable_6: item?.variable_6,
+                variable_7: item?.variable_7,
+                variable_8: item?.variable_8,
+                variable_9: item?.variable_9,
+                media_url: urlMidia,
+                type_media: headerConfig,
+                payload_1: payload1,
+                payload_2: payload2,
+                payload_3: payload3,
+                title_button_1: titleButton1,
+                title_button_2: titleButton2,
+                title_button_3: titleButton3,
+                channel: "whatsapp",
+              }));
+
+              // Quebrar a lista em lotes de 100 objetos
+              const batchSize = 100;
+              const batches = [];
+              
+              for (let i = 0; i < customerList.length; i += batchSize) {
+                batches.push(customerList.slice(i, i + batchSize));
+              }
+              
+              // Enviar cada lote separadamente e atualizar o progresso
+              for (const batch of batches) {
+                await api.post("/whats-customer", batch);
+                processedContacts += batch.length;
+                
+                // Atualizar a mensagem de progresso
+                const percentComplete = Math.round((processedContacts / totalContacts) * 100);
+                toast.update(toastId, { 
+                  render: `Aguarde, estamos processando ${processedContacts} de ${totalContacts} contatos (${percentComplete}% concluído)`
+                });
+                
+                console.log(`Lote de ${batch.length} contatos enviado com sucesso`);
+              }
+
+              console.log(
+                "Lista manual enviada com sucesso para a campanha:",
+                campaignId
+              );
+              return Promise.resolve();
+            } catch (error) {
+              console.error("Erro ao enviar lista manual:", error);
+              throw error;
+            }
+          };
+          
+          handleSubmitManualListDataWithProgress(resp.data.data.insertId)
+            .catch((error) => {
+              console.log("Erro ao enviar lista manual:", error);
+              // Atualiza o status para erro quando falha no envio da lista manual
+              api.put(`/whatsapp/trigger/${resp.data.data.insertId}?status=erro`);
+              toast.dismiss(toastId); // Fechar o toast de aguarde
+              errorMessageDefault(
+                "Erro ao processar a campanha. Verifique os dados e tente novamente."
+              );
+            })
+            .finally(() => {
+              toast.dismiss(toastId); // Fechar o toast de aguarde quando terminar
+              successCreateTrigger();
+              api.put(
+                `/whatsapp/trigger/${resp.data.data.insertId}?status=aguardando`
+              );
+              setTimeout(() => BackToList(), 3000);
+            });
         }
-        successCreateTrigger();
-        api.put(
-          `/whatsapp/trigger/${resp.data.data.insertId}?status=aguardando`
-        );
-        setTimeout(() => BackToList(), 3000);
       })
       .catch((err) => {
         console.log("Erro ao criar campanha:", err);
+        toast.dismiss(toastId); // Fechar o toast de aguarde em caso de erro
         errorMessageDefault(
           "Erro ao criar campanha. Por favor, tente novamente."
         );
