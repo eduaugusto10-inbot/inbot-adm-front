@@ -310,10 +310,10 @@ export function Accordion() {
       const wsname = wb.SheetNames[0];
       const ws = wb.Sheets[wsname];
 
-      // Primeiro lemos os dados com raw: true para permitir números na primeira coluna
+      // Voltamos para raw: false para evitar problemas com datas
       const data = utils.sheet_to_json(ws, {
         header: 1,
-        raw: true,
+        raw: false,
       }) as any[][];
       
       const dataFile: any = [];
@@ -330,16 +330,30 @@ export function Accordion() {
           values.forEach((cell, coluna) => {
             // Tratamento específico para cada coluna
             if (coluna === 0) {
-              // Para a coluna de telefone, garantir que seja tratado como número
+              // Para a coluna de telefone (coluna A), garantir que seja tratado como número
               // e remover caracteres não numéricos
-              values[coluna] = cell ? cell.toString().replace(/\D/g, "") : "";
+              // Se o valor for científico (como 5.5e+11), convertemos para número primeiro
+              let phoneValue = cell ? cell.toString() : "";
+              
+              // Verificar se é notação científica
+              if (phoneValue.includes('e+') || phoneValue.includes('E+')) {
+                try {
+                  // Converter para número e depois para string para eliminar notação científica
+                  phoneValue = Number(phoneValue).toString();
+                } catch (e) {
+                  console.log("Erro ao converter telefone:", e);
+                }
+              }
+              
+              // Remover caracteres não numéricos
+              values[coluna] = phoneValue.replace(/\D/g, "");
             } else {
-              // Para as outras colunas, garantir que sejam tratadas como texto
+              // Para as outras colunas, manter como estão (já que raw: false)
               const cellValue = cell ? cell.toString() : "";
               if (wrongFormatRegex.test(cellValue)) {
                 values[coluna] = formatDateComplete(cellValue);
               } else {
-                values[coluna] = cellValue.trim();
+                values[coluna] = cellValue;
               }
             }
           });
