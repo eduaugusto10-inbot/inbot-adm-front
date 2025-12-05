@@ -67,6 +67,7 @@ export function CreateTemplateAccordion() {
     const [hasHeader, setHasHeader] = useState<boolean>(false)
     const [hasButtons, setHasButtons] = useState<boolean>(false)
     const [fieldErrors, setFieldErrors] = useState<{[key: string]: boolean}>({});
+    const [imageSize, setImageSize] = useState<string>('medium')
     
     useEffect(() => {
         if(location?.state?.duplicated) {
@@ -364,7 +365,8 @@ export function CreateTemplateAccordion() {
             hasVariable: variables.length,
             language: templateLanguage,
             status: 'APPROVED',
-            buttons: []
+            buttons: [],
+            imageSize: hasHeader ? imageSize : undefined
         }
         if(buttons.length > 0){
             buttons.forEach(element => {
@@ -543,6 +545,14 @@ export function CreateTemplateAccordion() {
                                     <input type="text" value={fileName} style={{width:"100%", borderRadius:"7px", border:"1px solid #d8d8d8"}} disabled/>
                                     <button type="button" onClick={() => fileInputRef.current?.click()} className="button-blue" style={{marginLeft:"10px"}}>Anexar</button>
                                 </div>
+                                <div className="row-align" style={{ margin: "10px" }}>
+                                    <span className="span-title" style={{ justifyContent:"flex-start" }}>Tamanho da imagem</span>
+                                    <select className="input-values" style={{width:"350px"}} value={imageSize} onChange={e => setImageSize(e.target.value)}>
+                                        <option value="small">Pequena</option>
+                                        <option value="medium">Média</option>
+                                        <option value="large">Grande</option>
+                                    </select>
+                                </div>
                                 <Alert message={"Você vai inserir a url da imagem no momento em que for disparar a mensagem."} />
                             </div>
 
@@ -653,7 +663,9 @@ export function CreateTemplateAccordion() {
             <div onClick={()=> setShowTempalte(!showTemplate)} className="image-container rigth fixed" style={{ position: "fixed", color: "#000", alignContent: "end", textAlign: "end", right: "120px", bottom: "0px", width:"400px", height:"400px", backgroundColor:"#d5d5d5" }}>
                 <div className="overlay-text column-align" style={{left:"50%", backgroundColor:"#fafafa", width:"90%", height:"90%"}}>
                     <div className="texts">
-                        {hasHeader && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', display:"flex", flexDirection:"column" }}><img src={midia} style={{ maxWidth: '100%', maxHeight: '200px' }} alt="" /></label>}
+                        {hasHeader && <label className="header" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', display:"flex", flexDirection:"column" }}>
+                            <img src={midia} style={{ maxWidth: '100%', maxHeight: imageSize === 'small' ? '100px' : imageSize === 'large' ? '280px' : '180px' }} alt="" />
+                        </label>}
                         {<label style={{ whiteSpace: 'pre-line', wordWrap: 'break-word' }}> {handleChangeText(template.body).length > 256 ? handleChangeText(template.body).slice(0,256)+"...veja mais" : handleChangeText(template.body)}</label>}
                         {hasButtons && <div className="quickReply-texts">
                             {buttons.length > 0 && (<div className="quick-reply-teams"><label >{buttons[0].text}</label></div>)}

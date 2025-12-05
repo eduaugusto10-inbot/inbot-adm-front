@@ -37,6 +37,7 @@ export interface ITemplate {
 export interface ITemplateTeams {
   body: string;
   header: string;
+  imageSize?: string;
 }
 
 export interface IButtonTeams {
@@ -52,6 +53,7 @@ export interface PayloadTeams {
   language: string;
   status: string;
   buttons: IButtonTeams[];
+  imageSize?: string;
 }
 
 export interface IQuickReply {
@@ -110,6 +112,7 @@ export interface ITemplateListTeams {
   language: string;
   status: string;
   buttons: IButtonTeams[];
+  imageSize?: string;
 }
 
 export interface IPayload {
