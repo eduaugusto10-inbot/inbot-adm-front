@@ -147,7 +147,8 @@ export function CreateTemplateAccordion() {
         setPhone(resp.data.number);
       })
       .catch((error) => console.log(error));
-    if (location?.state?.duplicated) {
+      if (location?.state?.duplicated) {
+      console.log(location)
       setTypeOfHeader(location?.state?.headerConfig);
       setRodape(location?.state?.rodapeConfig === "rodape" ? false : true);
       setRodapeType(location?.state?.rodapeConfig);

@@ -156,7 +156,7 @@ export function ListAll() {
     const hasMedia = (headerElement: any) => {
         let headerType = null;
         headerElement.forEach((element: any) => {
-            if (element.type === "header") {
+            if (element.type === "HEADER") {
                 switch (element.parameters[0].type) {
                     case "video":
                         headerType = "video";
@@ -237,7 +237,7 @@ export function ListAll() {
     const hasManyButtons = (headerElement: any) => {
         let buttons = 0;
         headerElement.forEach((element: any) => {
-            if (element.type === "button") {
+            if (element.type === "BUTTONS") {
                 setButtonsDuplicated(element.parameters)
                 if (element.parameters[0].type === "quickReply") {
                     buttons = element.parameters.length;
@@ -305,17 +305,18 @@ export function ListAll() {
     const duplicaTemplate = (id: number) => {
         const sortTemplates = handleSort(dadosFiltrados);
         if (!sortTemplates || sortTemplates.length === 0 || !sortTemplates[id]) return;
+        console.log(sortTemplates[id].components)
         
         setMenuOpen(false);
         let variableQuantity = 0;
         let bodyText = "";
         sortTemplates[id].components.forEach((element: any) => {
-            if (element.type === "body"){
+            if (element.type === "BODY"){
                 variableQuantity = encontrarMaiorNumero(element.parameters[0].text);
                 bodyText = element.parameters[0].text;
             }
         });
-        const buttonsTexts = findButton(sortTemplates[id].components, "button") || []
+        const buttonsTexts = findButton(sortTemplates[id].components, "BUTTONS") || []
         history(`/template-create?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get('url_base_api')}`, { 
             state: { 
                 duplicated: true,
