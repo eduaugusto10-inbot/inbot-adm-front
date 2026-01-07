@@ -147,7 +147,8 @@ export function CreateTemplateAccordion() {
         setPhone(resp.data.number);
       })
       .catch((error) => console.log(error));
-    if (location?.state?.duplicated) {
+      if (location?.state?.duplicated) {
+      console.log(location)
       setTypeOfHeader(location?.state?.headerConfig);
       setRodape(location?.state?.rodapeConfig === "rodape" ? false : true);
       setRodapeType(location?.state?.rodapeConfig);
@@ -170,11 +171,11 @@ export function CreateTemplateAccordion() {
           setVariables((prevVariables) => [...prevVariables, newVariables]);
         }
       }
-      const buttonsContent = location.state.buttonsContent;
+      const buttonsContent = location.state.buttonsContent || [];
       let countButtons = 0;
       let buttonsData: any = [];
       let typeBtn = "";
-      location.state.buttonsContent.map((element: any) => {
+      buttonsContent.map((element: any) => {
         if (element.type === "quickReply") {
           if (buttonsContent.length < 3) {
             const newButtons: IButton = {
