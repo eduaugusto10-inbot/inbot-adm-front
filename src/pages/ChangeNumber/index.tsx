@@ -17,6 +17,7 @@ export function ChangeDeleteNumber() {
     const [loading, setLoading] = useState<boolean>(false);
     const [fieldErrors, setFieldErrors] = useState<{[key: string]: boolean}>({});
     const [accordionState, setAccordionState] = useState<AccordionStateWhats>({
+        integration: false,
         inbot: true,
         smarters: false,
         finish: false
@@ -69,6 +70,7 @@ export function ChangeDeleteNumber() {
     }
     const toggleAccordion = (key: keyof AccordionStateWhats) => {
         setAccordionState({
+            integration: false,
             inbot: false,
             smarters: false,
             finish: false
@@ -178,12 +180,14 @@ export function ChangeDeleteNumber() {
                 // Abrir o accordion correspondente ao campo com erro
                 if (field === 'description' || field === 'accessToken') {
                     setAccordionState({
+                        integration: false,
                         inbot: false,
                         smarters: true,
                         finish: false
                     });
                 } else {
                     setAccordionState({
+                        integration: false,
                         inbot: true,
                         smarters: false,
                         finish: false

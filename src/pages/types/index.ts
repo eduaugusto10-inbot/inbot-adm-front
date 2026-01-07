@@ -27,6 +27,7 @@ export interface ICustomerData {
   activated: number;
   origin: string;
   about: string;
+  mmlite?: string | number | boolean;
 }
 
 export interface ITemplate {
@@ -90,6 +91,7 @@ export const defaultCustomerData: ICustomerData = {
   activated: 0,
   origin: "",
   about: "",
+  mmlite: "",
 };
 
 export interface ITemplateList {
@@ -282,6 +284,7 @@ export interface AccordionStateCreateTeams {
   botao: boolean;
 }
 export interface AccordionStateWhats {
+  integration: boolean;
   inbot: boolean;
   smarters: boolean;
   finish: boolean;
@@ -338,4 +341,16 @@ export interface IFilterBtn {
     ativos: boolean;
     inativos: boolean;
   };
+}
+export interface ITemplateNew {
+  templateName: string;
+  body: Array<{ type: string; text: string; numVariables: number }>;
+  header: Array<{ type: string; text: string; numVariables: number }>;
+  footer: Array<{ type: string; text: string; numVariables: number }>;
+  button: Array<{ type: string; text: string }>;
+  hasButton: boolean;
+  hasBody: boolean;
+  hasFooter: boolean;
+  hasHeader: boolean;
+  category?: string;
 }

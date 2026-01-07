@@ -8,8 +8,6 @@ import {
   errorPhoneEmpty,
   errorTriggerMode,
   successCreateTrigger,
-  waitingMessage,
-  creatingCampaignMessage,
   errorNoRecipient,
   errorMidiaEmpty,
   errorMessagePayload,
@@ -25,6 +23,7 @@ import {
   IListVariables,
   ITemplateList,
   IVariables,
+  ITemplateNew,
 } from "../../types";
 import { mask } from "../../../utils/utils";
 import Modal from "../../../Components/Modal";
@@ -38,6 +37,8 @@ import { Tooltip } from "react-tooltip";
 import { validatedUser, getAdminName } from "../../../utils/validateUser";
 import { DraggableComponent } from "../../../Components/Draggable";
 import { WhatsAppLimitWarning } from "../../../Components/WhatsAppLimitWarning";
+import { estimulos } from "../../../utils/estimulo";
+import axios from "axios";
 
 export function Accordion() {
   const location = useLocation();
@@ -74,12 +75,12 @@ export function Accordion() {
           )}&url_base_api=${searchParams.get("url_base_api")}`
         );
       }
-      api
-        .get(`/whats-botid-all/${botId}`)
+      axios
+        .get(`http://localhost:19000/api/botId/${botId}/smarters/phoneNumber/list?activated=true`)
         .then(async (resp) => {
           // Extrair todos os números de disparo da resposta da API
-          const botNumbers = resp.data.bot.map((bot: any) => ({
-            number: bot.number,
+          const botNumbers = resp.data.map((bot: any) => ({
+            number: bot.phoneNumber,
             botServerType: bot.botServerType,
           }));
 
@@ -96,40 +97,6 @@ export function Accordion() {
             .catch((error) => console.log(error));
           const token = resp.data.bot[0].accessToken;
           setPhone(resp.data.bot[0].number);
-          try {
-            const templatesResp = await api.get(
-              `/token-templates?token=${token}`
-            );
-            if (
-              templatesResp.data &&
-              templatesResp.data.data &&
-              templatesResp.data.data.length > 0
-            ) {
-              setTemplates(templatesResp.data.data);
-              setCreateTriggerMenu(true);
-            } else {
-              setTemplates([]);
-              setCreateTriggerMenu(false);
-              errorMessageDefault(
-                "Por favor, criar um template antes de criar a campanha"
-              );
-              setTimeout(() => {
-                toast.warn("Redirecionando...", {
-                  theme: "colored",
-                });
-                setTimeout(() => {
-                  history(
-                    `/template-create?bot_id=${botId}&token=${searchParams.get(
-                      "token"
-                    )}&url_base_api=${searchParams.get("url_base_api")}`
-                  );
-                }, 2000);
-              }, 2000);
-            }
-          } catch (error) {
-            console.log(error);
-            errorMessageDefault("Erro ao carregar templates");
-          }
         })
         .catch((error) => console.log(error)); //history(`/template-warning-no-whats?bot_id=${botId}`))
     };
@@ -182,7 +149,7 @@ export function Accordion() {
   const [payload3, setPayload3] = useState<string>();
   const [templateNameSelect, setTemplateNameSelect] = useState<string>("Edta");
   const [urlMidia, setURLMidia] = useState<string>("");
-  const [templates, setTemplates] = useState<ITemplateList[]>([]);
+  const [templates, setTemplates] = useState<ITemplateNew[]>([]);
   const [qtButtons, setQtButtons] = useState<number>(0);
   const [titleButton1, setTitleButton1] = useState<string>("");
   const [bodyText, setBodyText] = useState<string>("");
@@ -207,10 +174,111 @@ export function Accordion() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
   const [createTriggerMenu, setCreateTriggerMenu] = useState(false);
+  
+  const [estimulosList, setEstimulosList] = useState<string[]>([]);
+  const [isLoadingEstimulos, setIsLoadingEstimulos] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [filterText, setFilterText] = useState("");
+  const [customPayload, setCustomPayload] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadNewTemplate(location?.state?.templateID);
   }, [createTriggerMenu]);
+  
+  useEffect(() => {
+    const loadEstimulos = async () => {
+      setIsLoadingEstimulos(true);
+      try {
+        const data = await estimulos(botId);
+        if (Array.isArray(data)) {
+          setEstimulosList(data);
+        } else {
+          setEstimulosList([]);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar estímulos:", error);
+        setEstimulosList([]);
+      } finally {
+        setIsLoadingEstimulos(false);
+      }
+    };
+
+    if (botId) {
+      loadEstimulos();
+    }
+  }, [botId]);
+// useEffect para carregar templates com base no telefone
+useEffect(() => {
+  let isCancelled = false;
+
+  const fetchTemplates = async () => {
+    const effectivePhone = (selectedDispatchNumber || phone || "").toString();
+    const sanitizedPhone = effectivePhone.replace(/\D/g, "");
+    if (!botId || sanitizedPhone.length < 10) {
+      setTemplates([]);
+      setCreateTriggerMenu(false);
+      setTemplateName("");
+      return;
+    }
+
+    try {
+      const resp = await axios.get(
+        `http://localhost:19000/api/botId/${botId}/template/phoneNumber/${sanitizedPhone}`
+      );
+
+      if (isCancelled) return;
+
+      const apiData = resp?.data;
+      const list: ITemplateNew[] = Array.isArray(apiData?.data)
+        ? apiData.data
+        : Array.isArray(apiData)
+        ? apiData
+        : [];
+
+      if (list.length > 0) {
+        setTemplates(list);
+        setCreateTriggerMenu(true);
+        setTemplateName("");
+      } else {
+        setTemplates([]);
+        setCreateTriggerMenu(false);
+        setTemplateName("");
+        errorMessageDefault("Por favor, criar um template antes de criar a campanha");
+        setTimeout(() => {
+          toast.warn("Redirecionando...", { theme: "colored" });
+          setTimeout(() => {
+            history(
+              `/template-create?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get("url_base_api")}`
+            );
+          }, 2000);
+        }, 2000);
+      }
+    } catch (error) {
+      if (isCancelled) return;
+      console.log(error);
+      errorMessageDefault("Erro ao carregar templates");
+    }
+  };
+
+  fetchTemplates();
+
+  return () => {
+    isCancelled = true;
+  };
+}, [phone, selectedDispatchNumber, botId]);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const toggleAccordion = (key: keyof AccordionState) => {
     setAccordionState({
@@ -421,11 +489,25 @@ export function Accordion() {
       return 0;
     }
   };
-  const hasMedia = (headerElement: any) => {
-    let headerType = null;
-    headerElement.forEach((element: any) => {
-      if (element.type === "HEADER") {
-        switch (element.parameters[0].type) {
+  const hasMedia = (templateOrComponents: any) => {
+    // Suporta formato antigo (components: array) e novo (header: array)
+    // Retorna: "video" | "text" | "image" | "document" | null
+
+    // Formato novo: objeto com header: []
+    if (templateOrComponents && Array.isArray(templateOrComponents.header)) {
+      const firstHeader = templateOrComponents.header[0];
+      return firstHeader?.type ?? null;
+    }
+
+    // Formato antigo: array de components
+    if (!Array.isArray(templateOrComponents)) return null;
+
+    let headerType: "video" | "text" | "image" | "document" | null = null;
+
+    templateOrComponents.forEach((element: any) => {
+      if (element?.type === "HEADER") {
+        const firstParam = element?.parameters?.[0];
+        switch (firstParam?.type) {
           case "video":
             headerType = "video";
             break;
@@ -443,30 +525,60 @@ export function Accordion() {
         }
       }
     });
+
     return headerType;
   };
-  const hasManyButtons = (headerElement: any) => {
+  const hasManyButtons = (templateOrComponents: any) => {
+    // Suporta formato novo (button: []) e antigo (components tipo BUTTONS/quickReply)
+    // Define títulos dos botões e retorna a quantidade
+
+    // Formato novo: objeto com button: []
+    if (templateOrComponents && Array.isArray(templateOrComponents.button)) {
+      const params = templateOrComponents.button;
+      const buttons = params.length;
+
+      if (buttons > 0) setTitleButton1(params[0]?.text ?? "");
+      if (buttons > 1) setTitleButton2(params[1]?.text ?? "");
+      if (buttons > 2) setTitleButton3(params[2]?.text ?? "");
+
+      return buttons;
+    }
+
+    // Formato antigo: array de components
+    if (!Array.isArray(templateOrComponents)) return 0;
+
     let buttons = 0;
-    headerElement.forEach((element: any) => {
-      if (element.type === "BUTTONS") {
-        if (element.parameters[0].type === "quickReply") {
-          buttons = element.parameters.length;
-          if (buttons > 0) setTitleButton1(element.parameters[0].text);
-          if (buttons > 1) setTitleButton2(element.parameters[1].text);
-          if (buttons > 2) setTitleButton3(element.parameters[2].text);
+
+    templateOrComponents.forEach((element: any) => {
+      if (element?.type === "BUTTONS") {
+        const params = Array.isArray(element?.parameters) ? element.parameters : [];
+        const firstParamType = params?.[0]?.type;
+        if (firstParamType === "quickReply") {
+          buttons = params.length;
+          if (buttons > 0) setTitleButton1(params[0]?.text ?? "");
+          if (buttons > 1) setTitleButton2(params[1]?.text ?? "");
+          if (buttons > 2) setTitleButton3(params[2]?.text ?? "");
         }
       }
-      if (element.type === "BODY") {
-        setBodyText(element.parameters[0].text);
+
+      if (element?.type === "BODY") {
+        const text = element?.parameters?.[0]?.text ?? "";
+        setBodyText(text);
       }
-      if (element.type === "HEADER") {
-        setHeaderText(element.parameters[0]?.text);
-        setTypeOfHeader(element.parameters[0].type);
+
+      if (element?.type === "HEADER") {
+        const headerTextLocal = element?.parameters?.[0]?.text ?? "";
+        const headerTypeLocal = element?.parameters?.[0]?.type ?? "";
+        setHeaderText(headerTextLocal);
+        setTypeOfHeader(headerTypeLocal);
       }
-      if (element.type === "FOOTER") {
-        setFooterText(element.parameters[0].text);
+
+      if (element?.type === "FOOTER") {
+        const footerTextLocal = element?.parameters?.[0]?.text ?? "";
+        setFooterText(footerTextLocal);
       }
     });
+
     return buttons;
   };
 
@@ -508,18 +620,61 @@ export function Accordion() {
     setFileData([]);
     setListVariables([]);
     setFileName("");
-    templates.forEach((template: ITemplateList) => {
-      if (template.ID === e) {
-        setTemplateName(template.name);
-        template.components.forEach((element: any) => {
-          console.log(element);
-          if (element.type === "BODY") {
-            setVariableQty(encontrarMaiorNumero(element.parameters[0].text));
-          }
-        });
-        setQtButtons(hasManyButtons(template.components));
-        setHeaderConfig(hasMedia(template.components));
-        setCategoryTemplate(template.category);
+
+    const list = Array.isArray(templates) ? templates : [];
+
+    list.forEach((template: ITemplateNew) => {
+      if (template.templateName === e) {
+        // Nome do template
+        setTemplateName(template.templateName);
+
+        // BODY
+        if (template.hasBody && Array.isArray(template.body) && template.body[0]) {
+          const bodyItem = template.body[0];
+          setBodyText(bodyItem.text ?? "");
+          const numVars =
+            typeof bodyItem.numVariables === "number"
+              ? bodyItem.numVariables
+              : encontrarMaiorNumero(bodyItem.text ?? "");
+          setVariableQty(numVars);
+        } else {
+          setBodyText("");
+          setVariableQty(0);
+        }
+
+        // HEADER
+        if (template.hasHeader && Array.isArray(template.header) && template.header[0]) {
+          const headerItem = template.header[0];
+          setHeaderText(headerItem.text ?? "");
+          setTypeOfHeader(headerItem.type ?? "");
+          // tipo de mídia/texto do header
+          setHeaderConfig(headerItem.type ?? null);
+        } else {
+          setHeaderText("");
+          setTypeOfHeader("");
+          setHeaderConfig(null);
+        }
+
+        // FOOTER
+        if (template.hasFooter && Array.isArray(template.footer) && template.footer[0]) {
+          const footerItem = template.footer[0];
+          setFooterText(footerItem.text ?? "");
+        } else {
+          setFooterText("");
+        }
+
+        // BUTTONS
+        const buttonsCount =
+          template.hasButton && Array.isArray(template.button)
+            ? template.button.length
+            : 0;
+        setQtButtons(buttonsCount);
+        if (buttonsCount > 0) setTitleButton1(template.button[0]?.text ?? "");
+        if (buttonsCount > 1) setTitleButton2(template.button[1]?.text ?? "");
+        if (buttonsCount > 2) setTitleButton3(template.button[2]?.text ?? "");
+
+        // Categoria (se vier)
+        setCategoryTemplate(template.category ?? "");
         return;
       }
     });
@@ -1118,45 +1273,7 @@ export function Accordion() {
                     </div>
                   </div>
                 </div>
-
-                <div style={{ width: "100%" }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "flex-start",
-                      gap: "15px",
-                    }}
-                  >
-                    <span
-                      className="span-title"
-                      style={{
-                        minWidth: "180px",
-                        textAlign: "left",
-                        paddingTop: "5px",
-                      }}
-                    >
-                      Selecionar template
-                    </span>
-                    <div style={{ flex: 1 }}>
-                      <select
-                        value={templateName}
-                        className="input-values"
-                        onChange={(e) => openModal(e.target.value)}
-                        style={{ width: "100%", maxWidth: "400px" }}
-                      >
-                        <option value="">{templateName ?? "--"}</option>
-                        {templates.map((template, key) => (
-                          <option key={key} value={template.ID}>
-                            {template.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ width: "100%" }}>
+<div style={{ width: "100%" }}>
                   <div
                     style={{
                       display: "flex",
@@ -1208,6 +1325,43 @@ export function Accordion() {
                     </div>
                   </div>
                 </div>
+                <div style={{ width: "100%" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "flex-start",
+                      gap: "15px",
+                    }}
+                  >
+                    <span
+                      className="span-title"
+                      style={{
+                        minWidth: "180px",
+                        textAlign: "left",
+                        paddingTop: "5px",
+                      }}
+                    >
+                      Selecionar template
+                    </span>
+                    <div style={{ flex: 1 }}>
+                      <select
+                        value={templateName}
+                        className="input-values"
+                        onChange={(e) => openModal(e.target.value)}
+                        style={{ width: "100%", maxWidth: "400px" }}
+                      >
+                        <option value="">{templateName ?? "--"}</option>
+                        {templates.map((template, key) => (
+                          <option key={key} value={template.templateName}>
+                            {template.templateName}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>             
+
 
                 {/* Card unificado com os avisos */}
                 {(templateName && categoryTemplate) ||
@@ -1503,13 +1657,122 @@ export function Accordion() {
                                   }}
                                 >
                                   <span className="span-title">Payload 1</span>
-                                  <input
+                                   <input
                                     className="input-values"
                                     value={payload1}
                                     onChange={(e) =>
                                       setPayload1(e.target.value)
                                     }
                                   />
+                                  {/* <div className="dropdown-container" style={{ position: "relative", width: "100%" }} ref={dropdownRef}>
+                                    {!customPayload ? (
+                                      <div>
+                                        <input
+                                          className="input-values"
+                                          value={filterText}
+                                          onChange={(e) => {
+                                            setFilterText(e.target.value);
+                                            setShowDropdown(true);
+                                          }}
+                                          onClick={() => setShowDropdown(true)}
+                                          placeholder="Digite para filtrar estímulos..."
+                                        />
+                                        {showDropdown && (
+                                          <div 
+                                            className="dropdown-list" 
+                                            style={{
+                                              position: "absolute",
+                                              top: "100%",
+                                              left: 0,
+                                              width: "100%",
+                                              maxHeight: "200px",
+                                              overflowY: "auto",
+                                              backgroundColor: "white",
+                                              border: "1px solid #ccc",
+                                              borderRadius: "4px",
+                                              zIndex: 1000,
+                                              boxShadow: "0 2px 5px rgba(0,0,0,0.2)"
+                                            }}
+                                          >
+                                            {isLoadingEstimulos ? (
+                                              <div style={{ padding: "10px", textAlign: "center" }}>Carregando...</div>
+                                            ) : (
+                                              <>
+                                                {estimulosList
+                                                  .filter(item => item.toLowerCase().includes(filterText.toLowerCase()))
+                                                  .map((item, index) => (
+                                                    <div
+                                                      key={index}
+                                                      style={{
+                                                        padding: "8px 12px",
+                                                        cursor: "pointer",
+                                                        borderBottom: "1px solid #eee",
+                                                        backgroundColor: payload1 === item ? "#f0f0f0" : "transparent"
+                                                      }}
+                                                      onClick={() => {
+                                                        setPayload1(item);
+                                                        setFilterText(item);
+                                                        setShowDropdown(false);
+                                                      }}
+                                                      onMouseOver={(e) => {
+                                                        e.currentTarget.style.backgroundColor = "#f5f5f5";
+                                                      }}
+                                                      onMouseOut={(e) => {
+                                                        e.currentTarget.style.backgroundColor = payload1 === item ? "#f0f0f0" : "transparent";
+                                                      }}
+                                                    >
+                                                      {item}
+                                                    </div>
+                                                  ))}
+                                                <div
+                                                  style={{
+                                                    padding: "8px 12px",
+                                                    cursor: "pointer",
+                                                    backgroundColor: "#f8f8f8",
+                                                    fontWeight: "bold",
+                                                    color: "#0066cc"
+                                                  }}
+                                                  onClick={() => {
+                                                    setCustomPayload(true);
+                                                    setShowDropdown(false);
+                                                  }}
+                                                >
+                                                  Outro...
+                                                </div>
+                                              </>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <div style={{ display: "flex", width: "100%" }}>
+                                        <input
+                                          className="input-values"
+                                          value={payload1}
+                                          onChange={(e) => setPayload1(e.target.value)}
+                                          placeholder="Digite um payload personalizado"
+                                          style={{ flex: 1 }}
+                                        />
+                                        <button
+                                          onClick={() => {
+                                            setCustomPayload(false);
+                                            setFilterText("");
+                                            setPayload1("");
+                                          }}
+                                          style={{
+                                            marginLeft: "5px",
+                                            padding: "0 10px",
+                                            backgroundColor: "#f0f0f0",
+                                            border: "1px solid #ccc",
+                                            borderRadius: "4px",
+                                            cursor: "pointer"
+                                          }}
+                                        >
+                                          Voltar
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div> */}
                                   <a
                                     style={{ alignContent: "center" }}
                                     data-tooltip-id="no-emoji"
@@ -2078,11 +2341,115 @@ export function Accordion() {
                             }}
                           >
                             <span className="span-title">Payload 1</span>
-                            <input
-                              className="input-values"
-                              value={payload1}
-                              onChange={(e) => setPayload1(e.target.value)}
-                            />
+                            <div className="dropdown-container" style={{ position: "relative", width: "100%" }} ref={dropdownRef}>
+                              {!customPayload ? (
+                                <div>
+                                  <input
+                                    className="input-values"
+                                    value={filterText}
+                                    onChange={(e) => {
+                                      setFilterText(e.target.value);
+                                      setShowDropdown(true);
+                                    }}
+                                    onClick={() => setShowDropdown(true)}
+                                    placeholder="Digite para filtrar estímulos..."
+                                  />
+                                  {showDropdown && (
+                                    <div 
+                                      className="dropdown-list" 
+                                      style={{
+                                        position: "absolute",
+                                        top: "100%",
+                                        left: 0,
+                                        width: "100%",
+                                        maxHeight: "200px",
+                                        overflowY: "auto",
+                                        backgroundColor: "white",
+                                        border: "1px solid #ccc",
+                                        borderRadius: "4px",
+                                        zIndex: 1000,
+                                        boxShadow: "0 2px 5px rgba(0,0,0,0.2)"
+                                      }}
+                                    >
+                                      {isLoadingEstimulos ? (
+                                        <div style={{ padding: "10px", textAlign: "center" }}>Carregando...</div>
+                                      ) : (
+                                        <>
+                                          {estimulosList
+                                            .filter(item => item.toLowerCase().includes(filterText.toLowerCase()))
+                                            .map((item, index) => (
+                                              <div
+                                                key={index}
+                                                style={{
+                                                  padding: "8px 12px",
+                                                  cursor: "pointer",
+                                                  borderBottom: "1px solid #eee",
+                                                  backgroundColor: payload1 === item ? "#f0f0f0" : "transparent"
+                                                }}
+                                                onClick={() => {
+                                                  setPayload1(item);
+                                                  setFilterText(item);
+                                                  setShowDropdown(false);
+                                                }}
+                                                onMouseOver={(e) => {
+                                                  e.currentTarget.style.backgroundColor = "#f5f5f5";
+                                                }}
+                                                onMouseOut={(e) => {
+                                                  e.currentTarget.style.backgroundColor = payload1 === item ? "#f0f0f0" : "transparent";
+                                                }}
+                                              >
+                                                {item}
+                                              </div>
+                                            ))}
+                                          <div
+                                            style={{
+                                              padding: "8px 12px",
+                                              cursor: "pointer",
+                                              backgroundColor: "#f8f8f8",
+                                              fontWeight: "bold",
+                                              color: "#0066cc"
+                                            }}
+                                            onClick={() => {
+                                              setCustomPayload(true);
+                                              setShowDropdown(false);
+                                            }}
+                                          >
+                                            Outro...
+                                          </div>
+                                        </>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <div style={{ display: "flex", width: "100%" }}>
+                                  <input
+                                    className="input-values"
+                                    value={payload1}
+                                    onChange={(e) => setPayload1(e.target.value)}
+                                    placeholder="Digite um payload personalizado"
+                                    style={{ flex: 1 }}
+                                  />
+                                  <button
+                                    onClick={() => {
+                                      setCustomPayload(false);
+                                      setFilterText("");
+                                      setPayload1("");
+                                    }}
+                                    style={{
+                                      marginLeft: "5px",
+                                      padding: "0 10px",
+                                      backgroundColor: "#f0f0f0",
+                                      border: "1px solid #ccc",
+                                      borderRadius: "4px",
+                                      cursor: "pointer"
+                                    }}
+                                  >
+                                    Voltar
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                             <a
                               style={{ alignContent: "center" }}
                               data-tooltip-id="no-emoji"

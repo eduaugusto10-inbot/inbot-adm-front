@@ -1,6 +1,6 @@
 import { ChangeEvent,  useEffect, useState } from 'react';
 import api from '../utils/api';
-import { ICustomerData } from './types';
+import { ICustomerData, defaultCustomerData } from './types';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
@@ -13,6 +13,7 @@ export function AllPhones() {
     
     const history = useNavigate();
     const [customerData, setCustomerData] = useState<ICustomerData[]>([])
+    const [integrationType, setIntegrationType] = useState<'smarters' | 'outros'>('smarters');
     const [checkActivated, setCheckActivated] = useState<boolean>(true)
     const [checkDesactivated, setCheckDesactivated] = useState<boolean>(false)
     const [filtro, setFiltro] = useState<string>('')
@@ -32,12 +33,27 @@ export function AllPhones() {
     }
 
     useEffect(() => {
-        api.get('/whats')
-            .then(res => {
-                setCustomerData(res.data)
-            })
-            .catch(error => console.log(error))
-    }, [])
+        if (integrationType === 'smarters') {
+            api.get('http://localhost:19000/api/smarters/getAll')
+                .then(res => {
+                    setCustomerData(res.data)
+                })
+                .catch(error => console.log(error))
+        } else {
+            api.get('http://localhost:19000/api/whatsapp-gateway-bot-config', { headers: { accept: '*/*' } })
+                .then(res => {
+                    const mapped: ICustomerData[] = (res.data || []).map((item: any) => ({
+                        ...defaultCustomerData,
+                        number: item.botPhone ?? '',
+                        client: item.name ?? '',
+                        botId: item.botId ? Number(item.botId) : 0,
+                        botServerType: item.botServerType ?? '',
+                    }));
+                    setCustomerData(mapped);
+                })
+                .catch(error => console.log(error))
+        }
+    }, [integrationType])
 
     // Função para ordenar os dados
     const handleSort = (column: string) => {
@@ -74,8 +90,9 @@ export function AllPhones() {
 
     const filteredCustomers = customerData.filter(customer => {
         const isActiveFilterValid = 
-            (checkActivated && customer.activated) || 
-            (checkDesactivated && !customer.activated);
+            integrationType === 'outros'
+                ? true
+                : ((checkActivated && !!customer.activated) || (checkDesactivated && !customer.activated));
     
         const isEnvironmentFilterValid = 
             (checkDesenvolvimento && customer.botServerType === 'dev') ||
@@ -200,10 +217,22 @@ export function AllPhones() {
                 <button onClick={AddNewPhone} className='button-blue' style={{margin:"20px 0px"}}>Adicionar</button>
             </div>
             
-            <div style={{ width: "90%", textAlign: "left", margin: "10px 0" }}>
+            <div style={{ width: "90%", textAlign: "left", margin: "10px 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ color: "#004488", fontWeight: "bold" }}>
                     {sortedCustomers.length} resultado{sortedCustomers.length !== 1 ? 's' : ''} encontrado{sortedCustomers.length !== 1 ? 's' : ''}
                 </span>
+                <div style={{ display: "inline-flex", gap: 8 }}>
+                    <button
+                        className='button-blue'
+                        style={{ backgroundColor: integrationType === 'smarters' ? '#004488' : '#7a7a7a' }}
+                        onClick={() => setIntegrationType('smarters')}
+                    >Smarters</button>
+                    <button
+                        className='button-blue'
+                        style={{ backgroundColor: integrationType === 'outros' ? '#004488' : '#7a7a7a' }}
+                        onClick={() => setIntegrationType('outros')}
+                    >Outros</button>
+                </div>
             </div>
             
             <table className="table-2024 fixed-header-table" style={{textAlign:"left", width:"90%"}}>
@@ -233,30 +262,40 @@ export function AllPhones() {
                                 <SortArrows column="botServerType" />
                             </div>
                         </th>
-                        <th>
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                                <span>Servidor</span>
-                                <SortArrows column="server" />
-                            </div>
-                        </th>
-                        <th>
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                                <span>Observação</span>
-                                <SortArrows column="observation" />
-                            </div>
-                        </th>
-                        <th>
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                                <span>Origem</span>
-                                <SortArrows column="origin" />
-                            </div>
-                        </th>
-                        <th>
-                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-                                <span>Status</span>
-                                <SortArrows column="activated" />
-                            </div>
-                        </th>
+                        {integrationType === 'smarters' && (
+                            <>
+                                <th>
+                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                                        <span>Servidor</span>
+                                        <SortArrows column="server" />
+                                    </div>
+                                </th>
+                                <th>
+                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                                        <span>Observação</span>
+                                        <SortArrows column="observation" />
+                                    </div>
+                                </th>
+                                <th>
+                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                                        <span>Origem</span>
+                                        <SortArrows column="origin" />
+                                    </div>
+                                </th>
+                                <th>
+                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                                        <span>MMLite</span>
+                                        <SortArrows column="mmlite" />
+                                    </div>
+                                </th>
+                                <th>
+                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                                        <span>Status</span>
+                                        <SortArrows column="activated" />
+                                    </div>
+                                </th>
+                            </>
+                        )}
                         <th>Gerenciar</th>
                     </tr>
                 </thead>
@@ -272,10 +311,25 @@ export function AllPhones() {
                             <td>{data.client}</td>
                             <td>{data.botId}</td>
                             <td>{data.botServerType}</td>
-                            <td>{data.server}</td>
-                            <td>{data.observation}</td>
-                            <td>{data.origin}</td>
-                            <td><span style={{fontWeight: "bolder", color: data.activated ? "green" : "red"}}>{data.activated ? "Ativo" : "Inativo"}</span></td>
+                            {integrationType === 'smarters' && (
+                                <>
+                                    <td>{data.server}</td>
+                                    <td>{data.observation}</td>
+                                    <td>{data.origin}</td>
+                                    <td>{
+                                        data.mmlite === undefined || data.mmlite === null || data.mmlite === ''
+                                            ? '--'
+                                            : (
+                                                (typeof data.mmlite === 'boolean' && data.mmlite === true) ||
+                                                (typeof data.mmlite === 'number' && data.mmlite === 1) ||
+                                                (typeof data.mmlite === 'string' && ['true', '1'].includes(data.mmlite.toLowerCase().trim()))
+                                            )
+                                                ? 'Habilitado'
+                                                : 'Não habilitado'
+                                    }</td>
+                                    <td><span style={{fontWeight: "bolder", color: data.activated ? "green" : "red"}}>{data.activated ? "Ativo" : "Inativo"}</span></td>
+                                </>
+                            )}
                             <td><button onClick={() => Change(data.number)} className='button-blue'>Alterar</button></td>
                         </tr>
                     ))}
