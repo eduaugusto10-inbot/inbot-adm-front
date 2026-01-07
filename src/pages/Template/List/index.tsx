@@ -315,7 +315,7 @@ export function ListAll() {
                 bodyText = element.parameters[0].text;
             }
         });
-        const buttonsTexts = findButton(sortTemplates[id].components, "button")
+        const buttonsTexts = findButton(sortTemplates[id].components, "button") || []
         history(`/template-create?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get('url_base_api')}`, { 
             state: { 
                 duplicated: true,
