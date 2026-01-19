@@ -734,14 +734,17 @@ export function CreateTemplateAccordion() {
     setButtonB("NaoExibir");
     setTextToModal("Detalhes do Erro");
     setText("");
-    const message = err?.error?.message || err?.message || "";
-    const cause = err?.error?.cause || err?.cause || "";
+    
+    // Busca message/cause na estrutura mais profunda primeiro (err.error.error)
+    const message = err?.error?.error?.message || err?.error?.message || err?.message || "";
+    const cause = err?.error?.error?.cause || err?.error?.cause || err?.cause || "";
+    
     const parts: string[] = [];
     if (message) {
-      parts.push(`message: ${message}`);
+      parts.push(`${message}`);
     }
     if (cause) {
-      parts.push(`cause: ${cause}`);
+      parts.push(`motivo: ${cause}`);
     }
     const formatted = parts.join(" | ") || "Erro desconhecido";
     setErrorContent(formatted);
