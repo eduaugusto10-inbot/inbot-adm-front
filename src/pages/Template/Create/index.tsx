@@ -8,7 +8,6 @@ import {
   errorMessageHeader,
   errorMessageFooter,
   errorMessageBody,
-  waitingMessage,
   successCreateTemplate,
   errorMessage,
   errorMessageConfig,
@@ -569,7 +568,11 @@ export function CreateTemplateAccordion() {
       errorMessageBody();
       return;
     }
-    waitingMessage();
+    const toastId = toast.info("Aguarde ...", {
+      theme: "colored",
+      autoClose: false,
+      closeOnClick: false,
+    });
     let footer: IFooter;
     let body: IObject;
     let header: IHeader;
@@ -687,12 +690,35 @@ export function CreateTemplateAccordion() {
     api
       .post(`/whats/template/${botId}`, data)
       .then(() => {
+        toast.dismiss(toastId);
         successCreateTemplate();
         setTimeout(() => BackToList(), 3000);
       })
       .catch((err) => {
         console.log("$s ERROR create template: %O", new Date(), err);
-        errorMessage();
+        toast.dismiss(toastId);
+        
+        const errorData = err.response?.data || err;
+        toast.error(
+          <div>
+            Tente mais tarde.
+            <span
+              style={{
+                textDecoration: "underline",
+                cursor: "pointer",
+                marginLeft: "5px",
+                fontWeight: "bold",
+              }}
+              onClick={() => handleShowErrorDetails(errorData)}
+            >
+              Ver detalhes
+            </span>
+          </div>,
+          {
+            theme: "colored",
+            autoClose: false,
+          }
+        );
       });
   };
   const modalRef = useRef<HTMLDivElement>(null);
@@ -701,7 +727,29 @@ export function CreateTemplateAccordion() {
   const [buttonB, setButtonB] = useState<string>("");
   const [textToModal, setTextToModal] = useState<string>("");
   const [midia, setMidia] = useState<string>();
+  const [errorContent, setErrorContent] = useState<any>(null);
+
+  const handleShowErrorDetails = (err: any) => {
+    setButtonA("Fechar");
+    setButtonB("NaoExibir");
+    setTextToModal("Detalhes do Erro");
+    setText("");
+    const message = err?.error?.message || err?.message || "";
+    const cause = err?.error?.cause || err?.cause || "";
+    const parts: string[] = [];
+    if (message) {
+      parts.push(`message: ${message}`);
+    }
+    if (cause) {
+      parts.push(`cause: ${cause}`);
+    }
+    const formatted = parts.join(" | ") || "Erro desconhecido";
+    setErrorContent(formatted);
+    toggle();
+  };
+
   const handleButtonName = (wichButton: string) => {
+    setErrorContent(null);
     if (wichButton === "Salvar") {
       setButtonA("Fechar");
       setButtonB("Salvar");
@@ -791,7 +839,32 @@ export function CreateTemplateAccordion() {
           toggle={toggle}
           question={textToModal}
           onButtonClick={handleButtonClick}
-        ></Modal>
+        >
+          {errorContent && (
+            <div
+              style={{
+                maxHeight: "300px",
+                overflow: "auto",
+                textAlign: "left",
+                background: "#f5f5f5",
+                padding: "10px",
+                borderRadius: "5px",
+                marginTop: "10px",
+              }}
+            >
+              <pre
+                style={{
+                  margin: 0,
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                  fontSize: "12px",
+                }}
+              >
+                {errorContent}
+              </pre>
+            </div>
+          )}
+        </Modal>
         <ToastContainer />
         {hiddenVideo && (
           <DraggableComponent
