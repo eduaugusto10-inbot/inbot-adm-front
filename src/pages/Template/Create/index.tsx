@@ -4,6 +4,7 @@ import alert from "../../../img/help_blue.png";
 import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip } from "react-tooltip";
 import Select from "react-select";
+import axios from "axios";
 import {
   erroMessageQuickReply,
   errorMessageHeader,
@@ -131,6 +132,8 @@ export function CreateTemplateAccordion() {
   const [showOtherCardOutside, setShowOtherCardOutside] = useState(false);
   const [otherCardInsideText, setOtherCardInsideText] = useState("");
   const [otherCardOutsideText, setOtherCardOutsideText] = useState("");
+  const [fichasOptions, setFichasOptions] = useState<{ value: string; label: string }[]>([]);
+  const [loadingFichas, setLoadingFichas] = useState(false);
 
   const mockCards = [
     { value: "ficha1", label: "Ficha de Atendimento" },
@@ -142,6 +145,34 @@ export function CreateTemplateAccordion() {
 
   const cardOptions = mockCards.map(card => ({ value: card.value, label: card.label }));
   cardOptions.push({ value: "Outros", label: "Outros" });
+
+  useEffect(() => {
+    const fetchFichas = async () => {
+      setLoadingFichas(true);
+      try {
+        const response = await axios.get(`https://in.bot/inbot-admin?action=api_lista_estimulos&bot_id=${botId}&all=1`, {
+          headers: {
+            "X-InAuth-Token": "api_edu"
+          }
+        });
+        const fichas = response.data;
+        const filteredFichas = fichas.filter((ficha: any) => ficha.ficha_id_title && ficha.ficha_id_title.trim() !== "");
+        const options = filteredFichas.map((ficha: any) => ({
+          value: String(ficha.ficha_id),
+          label: ficha.ficha_id_title
+        }));
+        setFichasOptions(options);
+      } catch (error) {
+        console.error("Erro ao carregar fichas:", error);
+      } finally {
+        setLoadingFichas(false);
+      }
+    };
+
+    if (botId && botId !== "0") {
+      fetchFichas();
+    }
+  }, [botId]);
 
   const formatExpirationTimeRaw = (raw: string): string => {
     if (!raw) return "";
@@ -1491,20 +1522,20 @@ export function CreateTemplateAccordion() {
                               </div>
                             </div>
                             <Select
-                              options={cardOptions}
-                              value={cardInsideTime ? cardOptions.find(opt => opt.value === cardInsideTime) || (showOtherCardInside ? { value: "Outros", label: "Outros" } : null) : null}
+                              options={fichasOptions}
+                              value={cardInsideTime ? fichasOptions.find(opt => opt.value === cardInsideTime) : null}
                               onChange={(option) => {
-                                if (option && option.value === "Outros") {
-                                  setShowOtherCardInside(true);
-                                  setCardInsideTime("");
-                                } else if (option) {
+                                if (option) {
                                   setShowOtherCardInside(false);
                                   setCardInsideTime(option.value);
                                   setOtherCardInsideText("");
+                                } else {
+                                  setCardInsideTime("");
                                 }
                               }}
-                              placeholder="Buscar ficha..."
+                              placeholder={loadingFichas ? "Carregando..." : "Buscar ficha..."}
                               isClearable
+                              isDisabled={loadingFichas}
                               styles={{
                                 control: (base) => ({
                                   ...base,
@@ -1544,20 +1575,20 @@ export function CreateTemplateAccordion() {
                               </div>
                             </div>
                             <Select
-                              options={cardOptions}
-                              value={cardOutsideTime ? cardOptions.find(opt => opt.value === cardOutsideTime) || (showOtherCardOutside ? { value: "Outros", label: "Outros" } : null) : null}
+                              options={fichasOptions}
+                              value={cardOutsideTime ? fichasOptions.find(opt => opt.value === cardOutsideTime) : null}
                               onChange={(option) => {
-                                if (option && option.value === "Outros") {
-                                  setShowOtherCardOutside(true);
-                                  setCardOutsideTime("");
-                                } else if (option) {
+                                if (option) {
                                   setShowOtherCardOutside(false);
                                   setCardOutsideTime(option.value);
                                   setOtherCardOutsideText("");
+                                } else {
+                                  setCardOutsideTime("");
                                 }
                               }}
-                              placeholder="Buscar ficha..."
+                              placeholder={loadingFichas ? "Carregando..." : "Buscar ficha..."}
                               isClearable
+                              isDisabled={loadingFichas}
                               styles={{
                                 control: (base) => ({
                                   ...base,
