@@ -269,6 +269,7 @@ export interface AccordionTable {
 export interface AccordionStateCreate {
   channelTrigger: boolean;
   config: boolean;
+  expiration: boolean;
   header: boolean;
   body: boolean;
   footer: boolean;

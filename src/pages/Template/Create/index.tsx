@@ -99,6 +99,7 @@ export function CreateTemplateAccordion() {
   const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
     channelTrigger: true,
     config: false,
+    expiration: false,
     header: false,
     body: false,
     footer: false,
@@ -296,6 +297,7 @@ export function CreateTemplateAccordion() {
     setAccordionState({
       channelTrigger: false,
       config: false,
+      expiration: false,
       header: false,
       body: false,
       footer: false,
@@ -563,6 +565,7 @@ export function CreateTemplateAccordion() {
         setAccordionState({
           channelTrigger: false,
           config: true,
+          expiration: false,
           header: false,
           body: false,
           footer: false,
@@ -572,6 +575,7 @@ export function CreateTemplateAccordion() {
         setAccordionState({
           channelTrigger: false,
           config: false,
+          expiration: false,
           header: true,
           body: false,
           footer: false,
@@ -581,6 +585,7 @@ export function CreateTemplateAccordion() {
         setAccordionState({
           channelTrigger: false,
           config: false,
+          expiration: false,
           header: false,
           body: true,
           footer: false,
@@ -590,6 +595,7 @@ export function CreateTemplateAccordion() {
         setAccordionState({
           channelTrigger: false,
           config: false,
+          expiration: false,
           header: false,
           body: false,
           footer: true,
@@ -602,6 +608,7 @@ export function CreateTemplateAccordion() {
         setAccordionState({
           channelTrigger: false,
           config: false,
+          expiration: false,
           header: false,
           body: false,
           footer: false,
@@ -1164,194 +1171,6 @@ export function CreateTemplateAccordion() {
                       style={{ width: "350px" }}
                     />
                   </div>
-                  <div className="row-align" style={{ margin: "10px", alignItems: "center" }}>
-                    <span
-                      className="span-title"
-                      style={{
-                        textAlign: "left",
-                        justifyContent: "flex-start",
-                      }}
-                    >
-                      Mensagem possui tempo de validade?
-                    </span>
-                    <div className="row-align" style={{ marginLeft: "10px" }}>
-                      <label className="row-align" style={{ cursor: "pointer", marginRight: "15px" }}>
-                        <input
-                          type="radio"
-                          name="hasExpirationTime"
-                          checked={hasExpirationTime === true}
-                          onChange={() => setHasExpirationTime(true)}
-                          style={{ marginRight: "5px" }}
-                        />
-                        <span>Sim</span>
-                      </label>
-                      <label className="row-align" style={{ cursor: "pointer" }}>
-                        <input
-                          type="radio"
-                          name="hasExpirationTime"
-                          checked={hasExpirationTime === false}
-                          onChange={() => {
-                            setHasExpirationTime(false);
-                            setExpirationTimeRaw("");
-                            setCardInsideTime("");
-                            setCardOutsideTime("");
-                            setOtherCardInsideText("");
-                            setOtherCardOutsideText("");
-                          }}
-                          style={{ marginRight: "5px" }}
-                        />
-                        <span>Não</span>
-                      </label>
-                    </div>
-                  </div>
-                  {hasExpirationTime && (
-                    <>
-                      <div className="row-align" style={{ margin: "10px" }}>
-                        <span
-                          className="span-title"
-                          style={{
-                            textAlign: "left",
-                            justifyContent: "flex-start",
-                          }}
-                        >
-                          Tempo de validade
-                        </span>
-                        <input
-                          type="text"
-                          className="input-values"
-                          value={isExpirationTimeFocused ? expirationTimeDisplay : expirationTimeDisplay}
-                          onChange={handleExpirationTimeChange}
-                          onKeyDown={(e) => {
-                            if (e.key === "Backspace") {
-                              e.preventDefault();
-                              if (expirationTimeRaw.length > 0) {
-                                const newRaw = expirationTimeRaw.slice(0, -1);
-                                setExpirationTimeRaw(newRaw);
-                                setExpirationTimeDisplay(formatExpirationTimeRaw(newRaw));
-                              }
-                            }
-                          }}
-                          onFocus={handleExpirationTimeFocus}
-                          onBlur={handleExpirationTimeBlur}
-                          placeholder="Digite os minutos e horas"
-                          maxLength={10}
-                          style={{ width: "220px" }}
-                        />
-                      </div>
-                      <div className="row-align" style={{ margin: "10px" }}>
-                        <span
-                          className="span-title"
-                          style={{
-                            textAlign: "left",
-                            justifyContent: "flex-start",
-                          }}
-                        >
-                          Ficha para resposta dentro do prazo
-                        </span>
-                        <div style={{ width: "350px" }}>
-                          <Select
-                            options={cardOptions}
-                            value={cardInsideTime ? cardOptions.find(opt => opt.value === cardInsideTime) || (showOtherCardInside ? { value: "Outros", label: "Outros" } : null) : null}
-                            onChange={(option) => {
-                              if (option && option.value === "Outros") {
-                                setShowOtherCardInside(true);
-                                setCardInsideTime("");
-                              } else if (option) {
-                                setShowOtherCardInside(false);
-                                setCardInsideTime(option.value);
-                                setOtherCardInsideText("");
-                              }
-                            }}
-                            placeholder="Buscar ficha..."
-                            isClearable
-                            styles={{
-                              control: (base) => ({
-                                ...base,
-                                minHeight: "38px",
-                              }),
-                            }}
-                          />
-                        </div>
-                      </div>
-                      {showOtherCardInside && (
-                        <div className="row-align" style={{ margin: "10px" }}>
-                          <span
-                            className="span-title"
-                            style={{
-                              textAlign: "left",
-                              justifyContent: "flex-start",
-                            }}
-                          >
-                            Digite a ficha (Dentro do prazo)
-                          </span>
-                          <input
-                            type="text"
-                            className="input-values"
-                            value={otherCardInsideText}
-                            onChange={(e) => setOtherCardInsideText(e.target.value)}
-                            style={{ width: "350px" }}
-                            placeholder="Nome da ficha"
-                          />
-                        </div>
-                      )}
-                      <div className="row-align" style={{ margin: "10px" }}>
-                        <span
-                          className="span-title"
-                          style={{
-                            textAlign: "left",
-                            justifyContent: "flex-start",
-                          }}
-                        >
-                          Ficha para resposta fora do prazo
-                        </span>
-                        <div style={{ width: "350px" }}>
-                          <Select
-                            options={cardOptions}
-                            value={cardOutsideTime ? cardOptions.find(opt => opt.value === cardOutsideTime) || (showOtherCardOutside ? { value: "Outros", label: "Outros" } : null) : null}
-                            onChange={(option) => {
-                              if (option && option.value === "Outros") {
-                                setShowOtherCardOutside(true);
-                                setCardOutsideTime("");
-                              } else if (option) {
-                                setShowOtherCardOutside(false);
-                                setCardOutsideTime(option.value);
-                                setOtherCardOutsideText("");
-                              }
-                            }}
-                            placeholder="Buscar ficha..."
-                            isClearable
-                            styles={{
-                              control: (base) => ({
-                                ...base,
-                                minHeight: "38px",
-                              }),
-                            }}
-                          />
-                        </div>
-                      </div>
-                      {showOtherCardOutside && (
-                        <div className="row-align" style={{ margin: "10px" }}>
-                          <span
-                            className="span-title"
-                            style={{
-                              textAlign: "left",
-                              justifyContent: "flex-start",
-                            }}
-                          >
-                            Digite a ficha (Fora do prazo)
-                          </span>
-                          <input
-                            type="text"
-                            className="input-values"
-                            value={otherCardOutsideText}
-                            onChange={(e) => setOtherCardOutsideText(e.target.value)}
-                            style={{ width: "350px" }}
-                            placeholder="Nome da ficha"
-                          />
-                        </div>
-                      )}
-                    </>
-                  )}
                 </div>
                 <div
                   className="card_2024 column-align"
@@ -1498,6 +1317,277 @@ export function CreateTemplateAccordion() {
                 <button
                   style={{ width: "80px", margin: "0px 30px 15px 0px" }}
                   className="button-next"
+                  onClick={() => toggleAccordion("expiration")}
+                >
+                  Próximo
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+        <div
+          className="config-recebidores"
+          style={{
+            maxHeight: "95%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <div
+            className={`accordion_head ${
+              accordionState.expiration ? "accordion_head_opened" : ""
+            }`}
+            style={{ borderRadius: "20px" }}
+            onClick={() => toggleAccordion("expiration")}
+          >
+            3. Prazo de Validade
+            <div className="accordion_chevron">
+              <img
+                src={chevron}
+                alt=""
+                style={{ rotate: accordionState.expiration ? "-90deg" : "90deg" }}
+              />
+            </div>
+          </div>
+          {accordionState.expiration && (
+            <div className="column accordeon-new" style={{ width: "800px" }}>
+              <div
+                className="row-align"
+                style={{
+                  textAlign: "left",
+                  backgroundColor: "#FFF",
+                  width: "100%",
+                  paddingTop: "0px",
+                  marginTop: "0px",
+                  display: "flex",
+                  alignItems: "flex-start",
+                }}
+              >
+                <div
+                  className="input"
+                  style={{
+                    justifyContent: "center",
+                    paddingTop: "0px",
+                    marginTop: "0px",
+                    flex: "0 0 auto",
+                    width: "100%",
+                  }}
+                >
+                  <div
+                    style={{
+                      border: "2px dashed #004488",
+                      borderRadius: "8px",
+                      padding: "15px",
+                      margin: "10px",
+                      backgroundColor: hasExpirationTime ? "#f0f7ff" : "#fff",
+                    }}
+                  >
+                    <div
+                      className="row-align"
+                      style={{ alignItems: "center", justifyContent: "space-between", marginBottom: hasExpirationTime ? "15px" : "0" }}
+                    >
+                      <span style={{ fontWeight: "bold", color: "#004488" }}>
+                        Mensagem possui tempo de validade?
+                      </span>
+                      <label style={{ position: "relative", display: "inline-block", width: "50px", height: "26px", cursor: "pointer" }}>
+                        <input
+                          type="checkbox"
+                          checked={hasExpirationTime}
+                          onChange={() => {
+                            if (hasExpirationTime) {
+                              setHasExpirationTime(false);
+                              setExpirationTimeRaw("");
+                              setCardInsideTime("");
+                              setCardOutsideTime("");
+                              setOtherCardInsideText("");
+                              setOtherCardOutsideText("");
+                            } else {
+                              setHasExpirationTime(true);
+                            }
+                          }}
+                          style={{ opacity: 0, width: 0, height: 0 }}
+                        />
+                        <span
+                          style={{
+                            position: "absolute",
+                            cursor: "pointer",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: hasExpirationTime ? "#004488" : "#ccc",
+                            borderRadius: "34px",
+                            transition: "0.4s",
+                          }}
+                        >
+                          <span
+                            style={{
+                              position: "absolute",
+                              content: "",
+                              height: "20px",
+                              width: "20px",
+                              left: hasExpirationTime ? "26px" : "3px",
+                              bottom: "3px",
+                              backgroundColor: "white",
+                              borderRadius: "50%",
+                              transition: "0.4s",
+                            }}
+                          />
+                        </span>
+                      </label>
+                    </div>
+                    {hasExpirationTime && (
+                      <>
+                        <div className="row-align" style={{ margin: "10px 0" }}>
+                          <span
+                            className="span-title"
+                            style={{
+                              textAlign: "left",
+                              justifyContent: "flex-start",
+                            }}
+                          >
+                            Tempo de validade
+                          </span>
+                          <input
+                            type="text"
+                            className="input-values"
+                            value={isExpirationTimeFocused ? expirationTimeDisplay : expirationTimeDisplay}
+                            onChange={handleExpirationTimeChange}
+                            onKeyDown={(e) => {
+                              if (e.key === "Backspace") {
+                                e.preventDefault();
+                                if (expirationTimeRaw.length > 0) {
+                                  const newRaw = expirationTimeRaw.slice(0, -1);
+                                  setExpirationTimeRaw(newRaw);
+                                  setExpirationTimeDisplay(formatExpirationTimeRaw(newRaw));
+                                }
+                              }
+                            }}
+                            onFocus={handleExpirationTimeFocus}
+                            onBlur={handleExpirationTimeBlur}
+                            placeholder="Digite os minutos e horas"
+                            maxLength={10}
+                            style={{ width: "220px" }}
+                          />
+                        </div>
+                        <div style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}>
+                          <div
+                            style={{
+                              flex: 1,
+                              minWidth: "300px",
+                              backgroundColor: "#e6f2ff",
+                              border: "2px solid #004488",
+                              borderRadius: "8px",
+                              padding: "15px",
+                            }}
+                          >
+                            <div style={{ marginBottom: "10px" }}>
+                              <span style={{ fontWeight: "bold", color: "#004488", fontSize: "14px" }}>
+                                Envio Dentro do Prazo
+                              </span>
+                              <div style={{ fontSize: "11px", color: "#666", marginTop: "2px" }}>
+                                Define a ficha que será utilizada quando a resposta for enviada dentro do tempo de validade
+                              </div>
+                            </div>
+                            <Select
+                              options={cardOptions}
+                              value={cardInsideTime ? cardOptions.find(opt => opt.value === cardInsideTime) || (showOtherCardInside ? { value: "Outros", label: "Outros" } : null) : null}
+                              onChange={(option) => {
+                                if (option && option.value === "Outros") {
+                                  setShowOtherCardInside(true);
+                                  setCardInsideTime("");
+                                } else if (option) {
+                                  setShowOtherCardInside(false);
+                                  setCardInsideTime(option.value);
+                                  setOtherCardInsideText("");
+                                }
+                              }}
+                              placeholder="Buscar ficha..."
+                              isClearable
+                              styles={{
+                                control: (base) => ({
+                                  ...base,
+                                  minHeight: "38px",
+                                }),
+                              }}
+                            />
+                            {showOtherCardInside && (
+                              <div style={{ marginTop: "10px" }}>
+                                <input
+                                  type="text"
+                                  className="input-values"
+                                  value={otherCardInsideText}
+                                  onChange={(e) => setOtherCardInsideText(e.target.value)}
+                                  style={{ width: "100%" }}
+                                  placeholder="Digite o nome da ficha"
+                                />
+                              </div>
+                            )}
+                          </div>
+                          <div
+                            style={{
+                              flex: 1,
+                              minWidth: "300px",
+                              backgroundColor: "#fff5e6",
+                              border: "2px solid #e67e22",
+                              borderRadius: "8px",
+                              padding: "15px",
+                            }}
+                          >
+                            <div style={{ marginBottom: "10px" }}>
+                              <span style={{ fontWeight: "bold", color: "#e67e22", fontSize: "14px" }}>
+                                Envio Fora do Prazo
+                              </span>
+                              <div style={{ fontSize: "11px", color: "#666", marginTop: "2px" }}>
+                                Define a ficha que será utilizada quando a resposta for enviada após o tempo de validade
+                              </div>
+                            </div>
+                            <Select
+                              options={cardOptions}
+                              value={cardOutsideTime ? cardOptions.find(opt => opt.value === cardOutsideTime) || (showOtherCardOutside ? { value: "Outros", label: "Outros" } : null) : null}
+                              onChange={(option) => {
+                                if (option && option.value === "Outros") {
+                                  setShowOtherCardOutside(true);
+                                  setCardOutsideTime("");
+                                } else if (option) {
+                                  setShowOtherCardOutside(false);
+                                  setCardOutsideTime(option.value);
+                                  setOtherCardOutsideText("");
+                                }
+                              }}
+                              placeholder="Buscar ficha..."
+                              isClearable
+                              styles={{
+                                control: (base) => ({
+                                  ...base,
+                                  minHeight: "38px",
+                                }),
+                              }}
+                            />
+                            {showOtherCardOutside && (
+                              <div style={{ marginTop: "10px" }}>
+                                <input
+                                  type="text"
+                                  className="input-values"
+                                  value={otherCardOutsideText}
+                                  onChange={(e) => setOtherCardOutsideText(e.target.value)}
+                                  style={{ width: "100%" }}
+                                  placeholder="Digite o nome da ficha"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div style={{ width: "100%", textAlign: "right", marginTop: "20px" }}>
+                <button
+                  style={{ width: "80px", margin: "0px 30px 15px 0px" }}
+                  className="button-next"
                   onClick={() => toggleAccordion("header")}
                 >
                   Próximo
@@ -1519,9 +1609,10 @@ export function CreateTemplateAccordion() {
             className={`accordion_head ${
               accordionState.header ? "accordion_head_opened" : ""
             }`}
+            style={{ borderRadius: "20px" }}
             onClick={() => toggleAccordion("header")}
           >
-            3. Cabeçalho
+            4. Cabeçalho
             <div className="accordion_chevron">
               <img
                 src={chevron}
