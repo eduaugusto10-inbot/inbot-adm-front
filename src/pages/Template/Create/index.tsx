@@ -134,6 +134,7 @@ export function CreateTemplateAccordion() {
   const [otherCardOutsideText, setOtherCardOutsideText] = useState("");
   const [fichasOptions, setFichasOptions] = useState<{ value: string; label: string }[]>([]);
   const [loadingFichas, setLoadingFichas] = useState(false);
+  const fichasLoadedRef = useRef(false);
 
   const mockCards = [
     { value: "ficha1", label: "Ficha de Atendimento" },
@@ -148,9 +149,11 @@ export function CreateTemplateAccordion() {
 
   useEffect(() => {
     const fetchFichas = async () => {
+      if (fichasLoadedRef.current) return; // Evita requisições duplicadas
+      
       setLoadingFichas(true);
       try {
-        const response = await axios.get(`https://in.bot/inbot-admin?action=api_lista_estimulos&bot_id=${botId}&all=1`, {
+        const response = await axios.get(`https://in.bot/inbot-admin?action=api_lista_estimulos&bot_id=${botId}&all=1&is_ajax=1`, {
           headers: {
             "X-InAuth-Token": "api_edu"
           }
@@ -162,6 +165,7 @@ export function CreateTemplateAccordion() {
           label: ficha.ficha_id_title
         }));
         setFichasOptions(options);
+        fichasLoadedRef.current = true; // Marca como carregado
       } catch (error) {
         console.error("Erro ao carregar fichas:", error);
       } finally {
