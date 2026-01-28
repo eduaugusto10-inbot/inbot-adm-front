@@ -99,6 +99,7 @@ export interface ITemplateList {
   language: string;
   status: string;
   components: any;
+  templateName?: string;
 }
 export interface ITemplateListTeams {
   id: string;

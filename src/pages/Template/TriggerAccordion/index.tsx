@@ -16,6 +16,13 @@ import {
   errorMessageDefault,
 } from "../../../Components/Toastify";
 import api from "../../../utils/api";
+import axios from "axios";
+
+const baseURL = process.env.NODE_ENV === 'development' 
+  ? "https://api-stg.inbot.com.br/v2/" 
+  : "https://api.inbot.com.br/v2/";
+
+const templateApi = axios.create({ baseURL });
 import attached from "../../../img/attachment.png";
 import { ToastContainer, toast } from "react-toastify";
 import "./index.css";
@@ -38,6 +45,7 @@ import { Tooltip } from "react-tooltip";
 import { validatedUser, getAdminName } from "../../../utils/validateUser";
 import { DraggableComponent } from "../../../Components/Draggable";
 import { WhatsAppLimitWarning } from "../../../Components/WhatsAppLimitWarning";
+import Select from "react-select";
 
 export function Accordion() {
   const location = useLocation();
@@ -96,40 +104,6 @@ export function Accordion() {
             .catch((error) => console.log(error));
           const token = resp.data.bot[0].accessToken;
           setPhone(resp.data.bot[0].number);
-          try {
-            const templatesResp = await api.get(
-              `/token-templates?token=${token}`
-            );
-            if (
-              templatesResp.data &&
-              templatesResp.data.data &&
-              templatesResp.data.data.length > 0
-            ) {
-              setTemplates(templatesResp.data.data);
-              setCreateTriggerMenu(true);
-            } else {
-              setTemplates([]);
-              setCreateTriggerMenu(false);
-              errorMessageDefault(
-                "Por favor, criar um template antes de criar a campanha"
-              );
-              setTimeout(() => {
-                toast.warn("Redirecionando...", {
-                  theme: "colored",
-                });
-                setTimeout(() => {
-                  history(
-                    `/template-create?bot_id=${botId}&token=${searchParams.get(
-                      "token"
-                    )}&url_base_api=${searchParams.get("url_base_api")}`
-                  );
-                }, 2000);
-              }, 2000);
-            }
-          } catch (error) {
-            console.log(error);
-            errorMessageDefault("Erro ao carregar templates");
-          }
         })
         .catch((error) => console.log(error)); //history(`/template-warning-no-whats?bot_id=${botId}`))
     };
@@ -211,6 +185,30 @@ export function Accordion() {
   useEffect(() => {
     loadNewTemplate(location?.state?.templateID);
   }, [createTriggerMenu]);
+
+  const loadTemplates = async (phoneNumber: string) => {
+    try {
+      const templatesResp = await templateApi.get(
+        `/api/botId/${botId}/template/phoneNumber/${phoneNumber}`
+      );
+      if (
+        templatesResp.data &&
+        templatesResp.data.length > 0
+      ) {
+        setTemplates(templatesResp.data);
+        setCreateTriggerMenu(true);
+      } else {
+        setTemplates([]);
+        setCreateTriggerMenu(false);
+        errorMessageDefault(
+          "Por favor, criar um template antes de criar a campanha"
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      errorMessageDefault("Erro ao carregar templates");
+    }
+  };
 
   const toggleAccordion = (key: keyof AccordionState) => {
     setAccordionState({
@@ -508,18 +506,21 @@ export function Accordion() {
     setFileData([]);
     setListVariables([]);
     setFileName("");
-    templates.forEach((template: ITemplateList) => {
-      if (template.ID === e) {
-        setTemplateName(template.name);
-        template.components.forEach((element: any) => {
-          console.log(element);
-          if (element.type === "BODY") {
-            setVariableQty(encontrarMaiorNumero(element.parameters[0].text));
-          }
-        });
-        setQtButtons(hasManyButtons(template.components));
-        setHeaderConfig(hasMedia(template.components));
+    templates.forEach((template: any) => {
+      if (template.templateName === e) {
+        setTemplateName(template.templateName);
         setCategoryTemplate(template.category);
+        if (template.body && template.body.length > 0) {
+          template.body.forEach((element: any) => {
+            if (element.type === "text") {
+              setVariableQty(element.numVariables || encontrarMaiorNumero(element.text));
+            }
+          });
+        }
+        if (template.header && template.header.length > 0) {
+          setHeaderConfig(template.header[0].type);
+        }
+        setQtButtons(template.button ? template.button.length : 0);
         return;
       }
     });
@@ -916,16 +917,22 @@ export function Accordion() {
     setBlockAddNumber(phone.toString().length >= 5);
   }
 
-  const handleDispatchNumberChange = (
+  const handleDispatchNumberChange = async (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    setSelectedDispatchNumber(e.target.value);
+    const selectedNumber = e.target.value;
+    setSelectedDispatchNumber(selectedNumber);
+    
     if (
-      e.target.value !== "" &&
+      selectedNumber !== "" &&
       errorMessage &&
       errorMessage.includes("número de disparo")
     ) {
       setErrorMessage("");
+    }
+
+    if (selectedNumber !== "") {
+      await loadTemplates(selectedNumber);
     }
   };
 
@@ -1136,43 +1143,6 @@ export function Accordion() {
                         paddingTop: "5px",
                       }}
                     >
-                      Selecionar template
-                    </span>
-                    <div style={{ flex: 1 }}>
-                      <select
-                        value={templateName}
-                        className="input-values"
-                        onChange={(e) => openModal(e.target.value)}
-                        style={{ width: "100%", maxWidth: "400px" }}
-                      >
-                        <option value="">{templateName ?? "--"}</option>
-                        {templates.map((template, key) => (
-                          <option key={key} value={template.ID}>
-                            {template.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ width: "100%" }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "flex-start",
-                      gap: "15px",
-                    }}
-                  >
-                    <span
-                      className="span-title"
-                      style={{
-                        minWidth: "180px",
-                        textAlign: "left",
-                        paddingTop: "5px",
-                      }}
-                    >
                       Número de disparo
                     </span>
                     <div style={{ flex: 1 }}>
@@ -1205,6 +1175,69 @@ export function Accordion() {
                             {errorMessage}
                           </p>
                         )}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ width: "100%" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "flex-start",
+                      gap: "15px",
+                    }}
+                  >
+                    <span
+                      className="span-title"
+                      style={{
+                        minWidth: "180px",
+                        textAlign: "left",
+                        paddingTop: "5px",
+                      }}
+                    >
+                      Selecionar template
+                    </span>
+                    <div style={{ flex: 1, textAlign: "center" }}>
+                      <div 
+                        className="input-values" style={{ 
+                          width: "100%", 
+                          maxWidth: "400px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          paddingLeft: "0",
+                        }}>
+                        <Select
+                        value={templateName && templates.find(t => t.templateName === templateName) ? { value: templateName, label: templateName } : null}
+                        onChange={(option: any) => {
+                          if (option) {
+                            setTemplateName(option.value);
+                            openModal(option.value);
+                          }
+                        }}
+                        options={templates.filter(t => t.templateName).map(t => ({ value: t.templateName!, label: t.templateName! }))}
+                        placeholder="Buscar template..."
+                        isClearable
+                        isDisabled={selectedDispatchNumber === ""}
+                        styles={{
+                          container: (base) => ({
+                            ...base,
+                            width: "100%",
+                          }),
+                          control: (base) => ({
+                            ...base,
+                            width: "100%",
+                            height: "30px",
+                            minHeight: "30px",
+                            fontSize: "14px",
+                            border: "1px solid #a8a8a8",
+                            borderRadius: "8px",
+                            paddingLeft: "7px",
+                          }),
+                        }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
