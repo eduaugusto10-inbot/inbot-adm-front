@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import alert from "../../../img/help_blue.png";
 import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip } from "react-tooltip";
+import Select from "react-select";
 import {
   erroMessageQuickReply,
   errorMessageHeader,
@@ -118,6 +119,89 @@ export function CreateTemplateAccordion() {
   const [phone, setPhone] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
+
+  const [hasExpirationTime, setHasExpirationTime] = useState(false);
+  const [expirationTimeRaw, setExpirationTimeRaw] = useState<string>("");
+  const [expirationTimeDisplay, setExpirationTimeDisplay] = useState<string>("");
+  const [isExpirationTimeFocused, setIsExpirationTimeFocused] = useState(false);
+  const [cardInsideTime, setCardInsideTime] = useState<string>("");
+  const [cardOutsideTime, setCardOutsideTime] = useState<string>("");
+  const [showOtherCardInside, setShowOtherCardInside] = useState(false);
+  const [showOtherCardOutside, setShowOtherCardOutside] = useState(false);
+  const [otherCardInsideText, setOtherCardInsideText] = useState("");
+  const [otherCardOutsideText, setOtherCardOutsideText] = useState("");
+
+  const mockCards = [
+    { value: "ficha1", label: "Ficha de Atendimento" },
+    { value: "ficha2", label: "Ficha de Vendas" },
+    { value: "ficha3", label: "Ficha de Suporte" },
+    { value: "ficha4", label: "Ficha de Financeiro" },
+    { value: "ficha5", label: "Ficha de RH" },
+  ];
+
+  const cardOptions = mockCards.map(card => ({ value: card.value, label: card.label }));
+  cardOptions.push({ value: "Outros", label: "Outros" });
+
+  const formatExpirationTimeRaw = (raw: string): string => {
+    if (!raw) return "";
+    const digits = raw.replace(/\D/g, "");
+    if (digits.length === 0) return "";
+
+    let minutes = parseInt(digits.slice(-2)) || 0;
+    let hours = parseInt(digits.slice(0, -2)) || 0;
+
+    return `${hours}h${minutes.toString().padStart(2, "0")}min`;
+  };
+
+  const formatExpirationTimeNormalized = (raw: string): { display: string, rawNormalized: string } => {
+    if (!raw) return { display: "", rawNormalized: "" };
+    const digits = raw.replace(/\D/g, "");
+    if (digits.length === 0) return { display: "", rawNormalized: "" };
+
+    let minutes = parseInt(digits.slice(-2)) || 0;
+    let hours = parseInt(digits.slice(0, -2)) || 0;
+
+    if (minutes > 59) {
+      minutes = 59;
+    }
+
+    const display = `${hours}h${minutes.toString().padStart(2, "0")}min`;
+    const rawNormalized = `${hours}${minutes.toString().padStart(2, "0")}`;
+
+    return { display, rawNormalized };
+  };
+
+  const handleExpirationTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    const inputDigits = inputValue.replace(/\D/g, "");
+    const prevDigits = expirationTimeRaw;
+
+    if (inputDigits.length < prevDigits.length) {
+      const newRaw = prevDigits.slice(0, -1);
+      setExpirationTimeRaw(newRaw);
+      setExpirationTimeDisplay(formatExpirationTimeRaw(newRaw));
+    } else if (inputDigits.length > prevDigits.length) {
+      const newDigit = inputDigits.slice(-1);
+      const newRaw = prevDigits + newDigit;
+      setExpirationTimeRaw(newRaw);
+      setExpirationTimeDisplay(formatExpirationTimeRaw(newRaw));
+    } else if (inputDigits.length === 0) {
+      setExpirationTimeRaw("");
+      setExpirationTimeDisplay("");
+    }
+  };
+
+  const handleExpirationTimeBlur = () => {
+    const normalized = formatExpirationTimeNormalized(expirationTimeRaw);
+    setIsExpirationTimeFocused(false);
+    setExpirationTimeRaw(normalized.rawNormalized);
+    setExpirationTimeDisplay(normalized.display);
+  };
+
+  const handleExpirationTimeFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setIsExpirationTimeFocused(true);
+    e.target.select();
+  };
 
   const selectTemplate = (e: string) => {
     switch (e) {
@@ -1080,6 +1164,194 @@ export function CreateTemplateAccordion() {
                       style={{ width: "350px" }}
                     />
                   </div>
+                  <div className="row-align" style={{ margin: "10px", alignItems: "center" }}>
+                    <span
+                      className="span-title"
+                      style={{
+                        textAlign: "left",
+                        justifyContent: "flex-start",
+                      }}
+                    >
+                      Mensagem possui tempo de validade?
+                    </span>
+                    <div className="row-align" style={{ marginLeft: "10px" }}>
+                      <label className="row-align" style={{ cursor: "pointer", marginRight: "15px" }}>
+                        <input
+                          type="radio"
+                          name="hasExpirationTime"
+                          checked={hasExpirationTime === true}
+                          onChange={() => setHasExpirationTime(true)}
+                          style={{ marginRight: "5px" }}
+                        />
+                        <span>Sim</span>
+                      </label>
+                      <label className="row-align" style={{ cursor: "pointer" }}>
+                        <input
+                          type="radio"
+                          name="hasExpirationTime"
+                          checked={hasExpirationTime === false}
+                          onChange={() => {
+                            setHasExpirationTime(false);
+                            setExpirationTimeRaw("");
+                            setCardInsideTime("");
+                            setCardOutsideTime("");
+                            setOtherCardInsideText("");
+                            setOtherCardOutsideText("");
+                          }}
+                          style={{ marginRight: "5px" }}
+                        />
+                        <span>Não</span>
+                      </label>
+                    </div>
+                  </div>
+                  {hasExpirationTime && (
+                    <>
+                      <div className="row-align" style={{ margin: "10px" }}>
+                        <span
+                          className="span-title"
+                          style={{
+                            textAlign: "left",
+                            justifyContent: "flex-start",
+                          }}
+                        >
+                          Tempo de validade
+                        </span>
+                        <input
+                          type="text"
+                          className="input-values"
+                          value={isExpirationTimeFocused ? expirationTimeDisplay : expirationTimeDisplay}
+                          onChange={handleExpirationTimeChange}
+                          onKeyDown={(e) => {
+                            if (e.key === "Backspace") {
+                              e.preventDefault();
+                              if (expirationTimeRaw.length > 0) {
+                                const newRaw = expirationTimeRaw.slice(0, -1);
+                                setExpirationTimeRaw(newRaw);
+                                setExpirationTimeDisplay(formatExpirationTimeRaw(newRaw));
+                              }
+                            }
+                          }}
+                          onFocus={handleExpirationTimeFocus}
+                          onBlur={handleExpirationTimeBlur}
+                          placeholder="Digite os minutos e horas"
+                          maxLength={10}
+                          style={{ width: "220px" }}
+                        />
+                      </div>
+                      <div className="row-align" style={{ margin: "10px" }}>
+                        <span
+                          className="span-title"
+                          style={{
+                            textAlign: "left",
+                            justifyContent: "flex-start",
+                          }}
+                        >
+                          Ficha para resposta dentro do prazo
+                        </span>
+                        <div style={{ width: "350px" }}>
+                          <Select
+                            options={cardOptions}
+                            value={cardInsideTime ? cardOptions.find(opt => opt.value === cardInsideTime) || (showOtherCardInside ? { value: "Outros", label: "Outros" } : null) : null}
+                            onChange={(option) => {
+                              if (option && option.value === "Outros") {
+                                setShowOtherCardInside(true);
+                                setCardInsideTime("");
+                              } else if (option) {
+                                setShowOtherCardInside(false);
+                                setCardInsideTime(option.value);
+                                setOtherCardInsideText("");
+                              }
+                            }}
+                            placeholder="Buscar ficha..."
+                            isClearable
+                            styles={{
+                              control: (base) => ({
+                                ...base,
+                                minHeight: "38px",
+                              }),
+                            }}
+                          />
+                        </div>
+                      </div>
+                      {showOtherCardInside && (
+                        <div className="row-align" style={{ margin: "10px" }}>
+                          <span
+                            className="span-title"
+                            style={{
+                              textAlign: "left",
+                              justifyContent: "flex-start",
+                            }}
+                          >
+                            Digite a ficha (Dentro do prazo)
+                          </span>
+                          <input
+                            type="text"
+                            className="input-values"
+                            value={otherCardInsideText}
+                            onChange={(e) => setOtherCardInsideText(e.target.value)}
+                            style={{ width: "350px" }}
+                            placeholder="Nome da ficha"
+                          />
+                        </div>
+                      )}
+                      <div className="row-align" style={{ margin: "10px" }}>
+                        <span
+                          className="span-title"
+                          style={{
+                            textAlign: "left",
+                            justifyContent: "flex-start",
+                          }}
+                        >
+                          Ficha para resposta fora do prazo
+                        </span>
+                        <div style={{ width: "350px" }}>
+                          <Select
+                            options={cardOptions}
+                            value={cardOutsideTime ? cardOptions.find(opt => opt.value === cardOutsideTime) || (showOtherCardOutside ? { value: "Outros", label: "Outros" } : null) : null}
+                            onChange={(option) => {
+                              if (option && option.value === "Outros") {
+                                setShowOtherCardOutside(true);
+                                setCardOutsideTime("");
+                              } else if (option) {
+                                setShowOtherCardOutside(false);
+                                setCardOutsideTime(option.value);
+                                setOtherCardOutsideText("");
+                              }
+                            }}
+                            placeholder="Buscar ficha..."
+                            isClearable
+                            styles={{
+                              control: (base) => ({
+                                ...base,
+                                minHeight: "38px",
+                              }),
+                            }}
+                          />
+                        </div>
+                      </div>
+                      {showOtherCardOutside && (
+                        <div className="row-align" style={{ margin: "10px" }}>
+                          <span
+                            className="span-title"
+                            style={{
+                              textAlign: "left",
+                              justifyContent: "flex-start",
+                            }}
+                          >
+                            Digite a ficha (Fora do prazo)
+                          </span>
+                          <input
+                            type="text"
+                            className="input-values"
+                            value={otherCardOutsideText}
+                            onChange={(e) => setOtherCardOutsideText(e.target.value)}
+                            style={{ width: "350px" }}
+                            placeholder="Nome da ficha"
+                          />
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
                 <div
                   className="card_2024 column-align"
