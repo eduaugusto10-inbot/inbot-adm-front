@@ -45,7 +45,7 @@ export function Accordion() {
   const [loading, setLoading] = useState<boolean>(true);
   const [isWhatsAppEnabled, setIsWhatsAppEnabled] = useState(true);
   const [isTeamsEnabled, setIsTeamsEnabled] = useState(true);
-  if (searchParams.get("bot_id") === null) {
+  if (process.env.NODE_ENV !== 'development' && searchParams.get("bot_id") === null) {
     window.location.href = "https://in.bot/inbot-admin";
   }
   var botId = searchParams.get("bot_id") ?? "0";
@@ -134,7 +134,7 @@ export function Accordion() {
         .catch((error) => console.log(error)); //history(`/template-warning-no-whats?bot_id=${botId}`))
     };
 
-    if (searchParams.get("bot_id") === null) {
+    if (process.env.NODE_ENV !== 'development' && searchParams.get("bot_id") === null) {
       window.location.href = "https://in.bot/inbot-admin";
     } else {
       fetchData();
