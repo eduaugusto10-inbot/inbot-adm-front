@@ -836,8 +836,6 @@ export function CreateTemplateAccordion() {
       return ficha ? ficha.label : "";
     };
 
-    const expirationMinutes = hasExpirationTime ? parseExpirationToMinutes(expirationTimeDisplay) : 0;
-
     const data = {
       templateName: templateName,
       botId: Number(botId),
@@ -845,13 +843,15 @@ export function CreateTemplateAccordion() {
       language: "pt_BR",
       phoneNumber: Number(phone),
       components: components,
-      configurations: {
-        expirationInMinutes: expirationMinutes,
-        createdBy: "Sistema",
-        phoneNumber: Number(phone),
-        payloadAfterExpirationTime: getFichaTitle(cardOutsideTime),
-        payloadBeforeExpirationTime: getFichaTitle(cardInsideTime)
-      }
+      ...(hasExpirationTime && {
+        configurations: {
+          expirationInMinutes: parseExpirationToMinutes(expirationTimeDisplay),
+          createdBy: "Sistema",
+          phoneNumber: Number(phone),
+          payloadAfterExpirationTime: getFichaTitle(cardOutsideTime),
+          payloadBeforeExpirationTime: getFichaTitle(cardInsideTime)
+        }
+      })
     };
 
     templateApi
