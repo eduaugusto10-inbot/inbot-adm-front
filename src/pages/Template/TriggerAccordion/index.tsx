@@ -179,6 +179,10 @@ export function Accordion() {
   const [selectedDispatchNumber, setSelectedDispatchNumber] =
     useState<string>("");
   const [templateConfigurations, setTemplateConfigurations] = useState<any>(null);
+  const [hasButton, setHasButton] = useState<boolean>(false);
+  const [hasHeader, setHasHeader] = useState<boolean>(false);
+  const [hasBody, setHasBody] = useState<boolean>(false);
+  const [hasFooter, setHasFooter] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
   const [createTriggerMenu, setCreateTriggerMenu] = useState(false);
@@ -536,6 +540,10 @@ export function Accordion() {
             if (index === 2) setTitleButton3(btn.text || "");
           });
         }
+        setHasButton(template.hasButton || false);
+        setHasHeader(template.hasHeader || false);
+        setHasBody(template.hasBody || false);
+        setHasFooter(template.hasFooter || false);
         return;
       }
     });
@@ -1523,7 +1531,7 @@ export function Accordion() {
                                   />
                                 </div>
                               )}
-                            {qtButtons > 0 && (
+                            {hasButton && (
                               <div
                                 style={{
                                   display: "flex",
@@ -1856,7 +1864,7 @@ export function Accordion() {
                                 className="texts"
                                 style={{ fontSize: "10px" }}
                               >
-                                {typeOfHeader === "text" && (
+                                {hasHeader && typeOfHeader === "text" && (
                                   <label
                                     className="header"
                                     style={{
@@ -1867,7 +1875,7 @@ export function Accordion() {
                                     {headerText}
                                   </label>
                                 )}
-                                {typeOfHeader === "image" && (
+                                {hasHeader && typeOfHeader === "image" && (
                                   <label
                                     className="header"
                                     style={{
@@ -1885,7 +1893,7 @@ export function Accordion() {
                                     />
                                   </label>
                                 )}
-                                {typeOfHeader === "document" && (
+                                {hasHeader && typeOfHeader === "document" && (
                                   <div
                                     className="column-align"
                                     style={{ padding: "10px" }}
@@ -1910,7 +1918,7 @@ export function Accordion() {
                                     </label>
                                   </div>
                                 )}
-                                {typeOfHeader === "video" && (
+                                {hasHeader && typeOfHeader === "video" && (
                                   <label
                                     className="header"
                                     style={{
@@ -1924,32 +1932,36 @@ export function Accordion() {
                                   </label>
                                 )}
                                 {
-                                  <label
-                                    style={{
-                                      whiteSpace: "pre-line",
-                                      wordWrap: "break-word",
-                                    }}
-                                  >
-                                    {" "}
-                                    {bodyText.length > 256
-                                      ? bodyText.slice(0, 256) + "...veja mais"
-                                      : bodyText}
-                                  </label>
+                                  hasBody && (
+                                    <label
+                                      style={{
+                                        whiteSpace: "pre-line",
+                                        wordWrap: "break-word",
+                                      }}
+                                    >
+                                      {" "}
+                                      {bodyText.length > 256
+                                        ? bodyText.slice(0, 256) + "...veja mais"
+                                        : bodyText}
+                                    </label>
+                                  )
                                 }
                                 {
-                                  <label
-                                    className="footer font-size-12"
-                                    style={{
-                                      whiteSpace: "pre-line",
-                                      wordWrap: "break-word",
-                                    }}
-                                  >
-                                    {footerText}
-                                  </label>
+                                  hasFooter && (
+                                    <label
+                                      className="footer font-size-12"
+                                      style={{
+                                        whiteSpace: "pre-line",
+                                        wordWrap: "break-word",
+                                      }}
+                                    >
+                                      {footerText}
+                                    </label>
+                                  )
                                 }
-                                {qtButtons > 0 && (
+                                {hasButton && (
                                   <div className="quickReply-texts">
-                                    {qtButtons > 0 && (
+                                    {hasButton && (
                                       <div className="quick-reply">
                                         <label>{titleButton1}</label>
                                       </div>
@@ -2233,7 +2245,7 @@ export function Accordion() {
                           />
                         </div>
                       )}
-                      {qtButtons > 0 && (
+                      {hasButton && (
                         <div
                           style={{
                             display: "flex",
@@ -2535,7 +2547,7 @@ export function Accordion() {
                           }}
                         >
                           <div className="texts" style={{ fontSize: "10px" }}>
-                            {typeOfHeader === "text" && (
+                            {hasHeader && typeOfHeader === "text" && (
                               <label
                                 className="header"
                                 style={{
@@ -2546,7 +2558,7 @@ export function Accordion() {
                                 {headerText}
                               </label>
                             )}
-                            {typeOfHeader === "image" && (
+                            {hasHeader && typeOfHeader === "image" && (
                               <label
                                 className="header"
                                 style={{
@@ -2564,7 +2576,7 @@ export function Accordion() {
                                 />
                               </label>
                             )}
-                            {typeOfHeader === "document" && (
+                            {hasHeader && typeOfHeader === "document" && (
                               <div
                                 className="column-align"
                                 style={{ padding: "10px" }}
@@ -2589,7 +2601,7 @@ export function Accordion() {
                                 </label>
                               </div>
                             )}
-                            {typeOfHeader === "video" && (
+                            {hasHeader && typeOfHeader === "video" && (
                               <label
                                 className="header"
                                 style={{
@@ -2603,32 +2615,36 @@ export function Accordion() {
                               </label>
                             )}
                             {
-                              <label
-                                style={{
-                                  whiteSpace: "pre-line",
-                                  wordWrap: "break-word",
-                                }}
-                              >
-                                {" "}
-                                {bodyText.length > 256
-                                  ? bodyText.slice(0, 256) + "...veja mais"
-                                  : bodyText}
-                              </label>
+                              hasBody && (
+                                <label
+                                  style={{
+                                    whiteSpace: "pre-line",
+                                    wordWrap: "break-word",
+                                  }}
+                                >
+                                  {" "}
+                                  {bodyText.length > 256
+                                    ? bodyText.slice(0, 256) + "...veja mais"
+                                    : bodyText}
+                                </label>
+                              )
                             }
                             {
-                              <label
-                                className="footer font-size-12"
-                                style={{
-                                  whiteSpace: "pre-line",
-                                  wordWrap: "break-word",
-                                }}
-                              >
-                                {footerText}
-                              </label>
+                              hasFooter && (
+                                <label
+                                  className="footer font-size-12"
+                                  style={{
+                                    whiteSpace: "pre-line",
+                                    wordWrap: "break-word",
+                                  }}
+                                >
+                                  {footerText}
+                                </label>
+                              )
                             }
-                            {qtButtons > 0 && (
+                            {hasButton && (
                               <div className="quickReply-texts">
-                                {qtButtons > 0 && (
+                                {hasButton && (
                                   <div className="quick-reply">
                                     <label>{titleButton1}</label>
                                   </div>
