@@ -127,10 +127,12 @@
   font-size: 16px;
   font-weight: bolder;
   border-radius: 7px;
-  width: 100px;
+  width: 100%;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  padding-right: 10px;
+  box-sizing: border-box;
 }
 .span-title-variables {
   color: #0d5388;

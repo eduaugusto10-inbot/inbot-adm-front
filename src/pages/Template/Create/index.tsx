@@ -3,12 +3,13 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import alert from "../../../img/help_blue.png";
 import "react-tooltip/dist/react-tooltip.css";
 import { Tooltip } from "react-tooltip";
+import Select from "react-select";
+import axios from "axios";
 import {
   erroMessageQuickReply,
   errorMessageHeader,
   errorMessageFooter,
   errorMessageBody,
-  waitingMessage,
   successCreateTemplate,
   errorMessage,
   errorMessageConfig,
@@ -17,6 +18,12 @@ import {
 import strings from "../strings.json";
 import api from "../../../utils/api";
 import { ToastContainer, toast } from "react-toastify";
+
+const baseURL = process.env.NODE_ENV === 'development' 
+  ? "https://api-stg.inbot.com.br/v2/" 
+  : "https://api.inbot.com.br/v2/";
+
+const templateApi = axios.create({ baseURL });
 import whatsappBackground from "../../../img/background_1.png";
 import "./index.css";
 import attached from "../../../img/attachment.png";
@@ -53,7 +60,7 @@ export function CreateTemplateAccordion() {
   const [isTeamsEnabled, setIsTeamsEnabled] = useState(true);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  if (searchParams.get("bot_id") === null) {
+  if (process.env.NODE_ENV !== 'development' && searchParams.get("bot_id") === null) {
     window.location.href = "https://in.bot/inbot-admin";
   }
   var botId = searchParams.get("bot_id") ?? "0";
@@ -99,6 +106,7 @@ export function CreateTemplateAccordion() {
   const [accordionState, setAccordionState] = useState<AccordionStateCreate>({
     channelTrigger: true,
     config: false,
+    expiration: false,
     header: false,
     body: false,
     footer: false,
@@ -119,6 +127,123 @@ export function CreateTemplateAccordion() {
   const [phone, setPhone] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
+
+  const [hasExpirationTime, setHasExpirationTime] = useState(false);
+  const [expirationTimeRaw, setExpirationTimeRaw] = useState<string>("");
+  const [expirationTimeDisplay, setExpirationTimeDisplay] = useState<string>("");
+  const [isExpirationTimeFocused, setIsExpirationTimeFocused] = useState(false);
+  const [cardInsideTime, setCardInsideTime] = useState<string>("");
+  const [cardOutsideTime, setCardOutsideTime] = useState<string>("");
+  const [showOtherCardInside, setShowOtherCardInside] = useState(false);
+  const [showOtherCardOutside, setShowOtherCardOutside] = useState(false);
+  const [otherCardInsideText, setOtherCardInsideText] = useState("");
+  const [otherCardOutsideText, setOtherCardOutsideText] = useState("");
+  const [fichasOptions, setFichasOptions] = useState<{ value: string; label: string }[]>([]);
+  const [loadingFichas, setLoadingFichas] = useState(false);
+  const fichasLoadedRef = useRef(false);
+
+  const mockCards = [
+    { value: "ficha1", label: "Ficha de Atendimento" },
+    { value: "ficha2", label: "Ficha de Vendas" },
+    { value: "ficha3", label: "Ficha de Suporte" },
+    { value: "ficha4", label: "Ficha de Financeiro" },
+    { value: "ficha5", label: "Ficha de RH" },
+  ];
+
+  const cardOptions = mockCards.map(card => ({ value: card.value, label: card.label }));
+  cardOptions.push({ value: "Outros", label: "Outros" });
+
+  useEffect(() => {
+    const fetchFichas = async () => {
+      if (fichasLoadedRef.current) return; // Evita requisições duplicadas
+      
+      setLoadingFichas(true);
+      try {
+        const response = await axios.get(`https://in.bot/inbot-admin?action=api_lista_estimulos&bot_id=${botId}&all=1&is_ajax=1`, {
+          headers: {
+            "X-InAuth-Token": "api_edu"
+          }
+        });
+        const fichas = response.data;
+        const filteredFichas = fichas.filter((ficha: any) => ficha.ficha_id_title && ficha.ficha_id_title.trim() !== "");
+        const options = filteredFichas.map((ficha: any) => ({
+          value: String(ficha.ficha_id),
+          label: ficha.ficha_id_title
+        }));
+        setFichasOptions(options);
+        fichasLoadedRef.current = true; // Marca como carregado
+      } catch (error) {
+        console.error("Erro ao carregar fichas:", error);
+      } finally {
+        setLoadingFichas(false);
+      }
+    };
+
+    if (botId && botId !== "0") {
+      fetchFichas();
+    }
+  }, [botId]);
+
+  const formatExpirationTimeRaw = (raw: string): string => {
+    if (!raw) return "";
+    const digits = raw.replace(/\D/g, "");
+    if (digits.length === 0) return "";
+
+    let minutes = parseInt(digits.slice(-2)) || 0;
+    let hours = parseInt(digits.slice(0, -2)) || 0;
+
+    return `${hours}h${minutes.toString().padStart(2, "0")}min`;
+  };
+
+  const formatExpirationTimeNormalized = (raw: string): { display: string, rawNormalized: string } => {
+    if (!raw) return { display: "", rawNormalized: "" };
+    const digits = raw.replace(/\D/g, "");
+    if (digits.length === 0) return { display: "", rawNormalized: "" };
+
+    let minutes = parseInt(digits.slice(-2)) || 0;
+    let hours = parseInt(digits.slice(0, -2)) || 0;
+
+    if (minutes > 59) {
+      minutes = 59;
+    }
+
+    const display = `${hours}h${minutes.toString().padStart(2, "0")}min`;
+    const rawNormalized = `${hours}${minutes.toString().padStart(2, "0")}`;
+
+    return { display, rawNormalized };
+  };
+
+  const handleExpirationTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    const inputDigits = inputValue.replace(/\D/g, "");
+    const prevDigits = expirationTimeRaw;
+
+    if (inputDigits.length < prevDigits.length) {
+      const newRaw = prevDigits.slice(0, -1);
+      setExpirationTimeRaw(newRaw);
+      setExpirationTimeDisplay(formatExpirationTimeRaw(newRaw));
+    } else if (inputDigits.length > prevDigits.length) {
+      const newDigit = inputDigits.slice(-1);
+      const newRaw = prevDigits + newDigit;
+      setExpirationTimeRaw(newRaw);
+      setExpirationTimeDisplay(formatExpirationTimeRaw(newRaw));
+    } else if (inputDigits.length === 0) {
+      setExpirationTimeRaw("");
+      setExpirationTimeDisplay("");
+    }
+  };
+
+  const handleExpirationTimeBlur = () => {
+    const normalized = formatExpirationTimeNormalized(expirationTimeRaw);
+    setIsExpirationTimeFocused(false);
+    setExpirationTimeRaw(normalized.rawNormalized);
+    setExpirationTimeDisplay(normalized.display);
+  };
+
+  const handleExpirationTimeFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setIsExpirationTimeFocused(true);
+    e.target.select();
+  };
 
   const selectTemplate = (e: string) => {
     switch (e) {
@@ -147,7 +272,8 @@ export function CreateTemplateAccordion() {
         setPhone(resp.data.number);
       })
       .catch((error) => console.log(error));
-    if (location?.state?.duplicated) {
+      if (location?.state?.duplicated) {
+      console.log(location)
       setTypeOfHeader(location?.state?.headerConfig);
       setRodape(location?.state?.rodapeConfig === "rodape" ? false : true);
       setRodapeType(location?.state?.rodapeConfig);
@@ -170,11 +296,11 @@ export function CreateTemplateAccordion() {
           setVariables((prevVariables) => [...prevVariables, newVariables]);
         }
       }
-      const buttonsContent = location.state.buttonsContent;
+      const buttonsContent = location.state.buttonsContent || [];
       let countButtons = 0;
       let buttonsData: any = [];
       let typeBtn = "";
-      location.state.buttonsContent.map((element: any) => {
+      buttonsContent.map((element: any) => {
         if (element.type === "quickReply") {
           if (buttonsContent.length < 3) {
             const newButtons: IButton = {
@@ -212,6 +338,7 @@ export function CreateTemplateAccordion() {
     setAccordionState({
       channelTrigger: false,
       config: false,
+      expiration: false,
       header: false,
       body: false,
       footer: false,
@@ -479,6 +606,7 @@ export function CreateTemplateAccordion() {
         setAccordionState({
           channelTrigger: false,
           config: true,
+          expiration: false,
           header: false,
           body: false,
           footer: false,
@@ -488,6 +616,7 @@ export function CreateTemplateAccordion() {
         setAccordionState({
           channelTrigger: false,
           config: false,
+          expiration: false,
           header: true,
           body: false,
           footer: false,
@@ -497,6 +626,7 @@ export function CreateTemplateAccordion() {
         setAccordionState({
           channelTrigger: false,
           config: false,
+          expiration: false,
           header: false,
           body: true,
           footer: false,
@@ -506,6 +636,7 @@ export function CreateTemplateAccordion() {
         setAccordionState({
           channelTrigger: false,
           config: false,
+          expiration: false,
           header: false,
           body: false,
           footer: true,
@@ -518,6 +649,7 @@ export function CreateTemplateAccordion() {
         setAccordionState({
           channelTrigger: false,
           config: false,
+          expiration: false,
           header: false,
           body: false,
           footer: false,
@@ -568,7 +700,11 @@ export function CreateTemplateAccordion() {
       errorMessageBody();
       return;
     }
-    waitingMessage();
+    const toastId = toast.info("Aguarde ...", {
+      theme: "colored",
+      autoClose: false,
+      closeOnClick: false,
+    });
     let footer: IFooter;
     let body: IObject;
     let header: IHeader;
@@ -682,16 +818,74 @@ export function CreateTemplateAccordion() {
     payload["category"] = templateType;
     payload["name"] = templateName;
     payload["language"] = "pt_BR"; //configTemplate.language;
-    const data: { payload: any } = { payload };
-    api
-      .post(`/whats/template/${botId}`, data)
+
+    // Converter expirationTimeRaw para minutos (ex: "2h30min" → 150)
+    const parseExpirationToMinutes = (raw: string): number => {
+      if (!raw) return 0;
+      const hoursMatch = raw.match(/(\d+)h/);
+      const minutesMatch = raw.match(/(\d+)min/);
+      const hours = hoursMatch ? parseInt(hoursMatch[1]) : 0;
+      const minutes = minutesMatch ? parseInt(minutesMatch[1]) : 0;
+      return (hours * 60) + minutes;
+    };
+
+    // Obter ficha_id_title a partir do cardInsideTime/cardOutsideTime
+    const getFichaTitle = (cardId: string): string => {
+      if (!cardId) return "";
+      const ficha = fichasOptions.find(opt => opt.value === cardId);
+      return ficha ? ficha.label : "";
+    };
+
+    const data = {
+      templateName: templateName,
+      botId: Number(botId),
+      category: templateType,
+      language: "pt_BR",
+      phoneNumber: Number(phone),
+      components: components,
+      ...(hasExpirationTime && {
+        configurations: {
+          expirationInMinutes: parseExpirationToMinutes(expirationTimeDisplay),
+          createdBy: "Sistema",
+          phoneNumber: Number(phone),
+          payloadAfterExpirationTime: getFichaTitle(cardOutsideTime),
+          payloadBeforeExpirationTime: getFichaTitle(cardInsideTime)
+        }
+      })
+    };
+
+    templateApi
+      .post(`/api/template-whatsapp`, data)
       .then(() => {
+        toast.dismiss(toastId);
         successCreateTemplate();
         setTimeout(() => BackToList(), 3000);
       })
       .catch((err) => {
         console.log("$s ERROR create template: %O", new Date(), err);
-        errorMessage();
+        toast.dismiss(toastId);
+        
+        const errorData = err.response?.data || err;
+        toast.error(
+          <div>
+            Tente mais tarde.
+            <span
+              style={{
+                textDecoration: "underline",
+                cursor: "pointer",
+                marginLeft: "5px",
+                fontWeight: "bold",
+              }}
+              onClick={() => handleShowErrorDetails(errorData)}
+            >
+              Ver detalhes
+            </span>
+          </div>,
+          {
+            theme: "colored",
+            autoClose: false,
+          }
+        );
       });
   };
   const modalRef = useRef<HTMLDivElement>(null);
@@ -700,7 +894,32 @@ export function CreateTemplateAccordion() {
   const [buttonB, setButtonB] = useState<string>("");
   const [textToModal, setTextToModal] = useState<string>("");
   const [midia, setMidia] = useState<string>();
+  const [errorContent, setErrorContent] = useState<any>(null);
+
+  const handleShowErrorDetails = (err: any) => {
+    setButtonA("Fechar");
+    setButtonB("NaoExibir");
+    setTextToModal("Detalhes do Erro");
+    setText("");
+    
+    // Busca message/cause na estrutura mais profunda primeiro (err.error.error)
+    const message = err?.error?.error?.message || err?.error?.message || err?.message || "";
+    const cause = err?.error?.error?.cause || err?.error?.cause || err?.cause || "";
+    
+    const parts: string[] = [];
+    if (message) {
+      parts.push(`${message}`);
+    }
+    if (cause) {
+      parts.push(`motivo: ${cause}`);
+    }
+    const formatted = parts.join(" | ") || "Erro desconhecido";
+    setErrorContent(formatted);
+    toggle();
+  };
+
   const handleButtonName = (wichButton: string) => {
+    setErrorContent(null);
     if (wichButton === "Salvar") {
       setButtonA("Fechar");
       setButtonB("Salvar");
@@ -790,7 +1009,32 @@ export function CreateTemplateAccordion() {
           toggle={toggle}
           question={textToModal}
           onButtonClick={handleButtonClick}
-        ></Modal>
+        >
+          {errorContent && (
+            <div
+              style={{
+                maxHeight: "300px",
+                overflow: "auto",
+                textAlign: "left",
+                background: "#f5f5f5",
+                padding: "10px",
+                borderRadius: "5px",
+                marginTop: "10px",
+              }}
+            >
+              <pre
+                style={{
+                  margin: 0,
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                  fontSize: "12px",
+                }}
+              >
+                {errorContent}
+              </pre>
+            </div>
+          )}
+        </Modal>
         <ToastContainer />
         {hiddenVideo && (
           <DraggableComponent
@@ -1149,6 +1393,277 @@ export function CreateTemplateAccordion() {
                 <button
                   style={{ width: "80px", margin: "0px 30px 15px 0px" }}
                   className="button-next"
+                  onClick={() => toggleAccordion("expiration")}
+                >
+                  Próximo
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+        <div
+          className="config-recebidores"
+          style={{
+            maxHeight: "95%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <div
+            className={`accordion_head ${
+              accordionState.expiration ? "accordion_head_opened" : ""
+            }`}
+            style={{ borderRadius: "20px" }}
+            onClick={() => toggleAccordion("expiration")}
+          >
+            3. Prazo de Validade
+            <div className="accordion_chevron">
+              <img
+                src={chevron}
+                alt=""
+                style={{ rotate: accordionState.expiration ? "-90deg" : "90deg" }}
+              />
+            </div>
+          </div>
+          {accordionState.expiration && (
+            <div className="column accordeon-new" style={{ width: "800px" }}>
+              <div
+                className="row-align"
+                style={{
+                  textAlign: "left",
+                  backgroundColor: "#FFF",
+                  width: "100%",
+                  paddingTop: "0px",
+                  marginTop: "0px",
+                  display: "flex",
+                  alignItems: "flex-start",
+                }}
+              >
+                <div
+                  className="input"
+                  style={{
+                    justifyContent: "center",
+                    paddingTop: "0px",
+                    marginTop: "0px",
+                    flex: "0 0 auto",
+                    width: "100%",
+                  }}
+                >
+                  <div
+                    style={{
+                      border: "2px dashed #004488",
+                      borderRadius: "8px",
+                      padding: "15px",
+                      margin: "10px",
+                      backgroundColor: hasExpirationTime ? "#f0f7ff" : "#fff",
+                    }}
+                  >
+                    <div
+                      className="row-align"
+                      style={{ alignItems: "center", justifyContent: "space-between", marginBottom: hasExpirationTime ? "15px" : "0" }}
+                    >
+                      <span style={{ fontWeight: "bold", color: "#004488" }}>
+                        Mensagem possui tempo de validade?
+                      </span>
+                      <label style={{ position: "relative", display: "inline-block", width: "50px", height: "26px", cursor: "pointer" }}>
+                        <input
+                          type="checkbox"
+                          checked={hasExpirationTime}
+                          onChange={() => {
+                            if (hasExpirationTime) {
+                              setHasExpirationTime(false);
+                              setExpirationTimeRaw("");
+                              setCardInsideTime("");
+                              setCardOutsideTime("");
+                              setOtherCardInsideText("");
+                              setOtherCardOutsideText("");
+                            } else {
+                              setHasExpirationTime(true);
+                            }
+                          }}
+                          style={{ opacity: 0, width: 0, height: 0 }}
+                        />
+                        <span
+                          style={{
+                            position: "absolute",
+                            cursor: "pointer",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: hasExpirationTime ? "#004488" : "#ccc",
+                            borderRadius: "34px",
+                            transition: "0.4s",
+                          }}
+                        >
+                          <span
+                            style={{
+                              position: "absolute",
+                              content: "",
+                              height: "20px",
+                              width: "20px",
+                              left: hasExpirationTime ? "26px" : "3px",
+                              bottom: "3px",
+                              backgroundColor: "white",
+                              borderRadius: "50%",
+                              transition: "0.4s",
+                            }}
+                          />
+                        </span>
+                      </label>
+                    </div>
+                    {hasExpirationTime && (
+                      <>
+                        <div className="row-align" style={{ margin: "10px 0" }}>
+                          <span
+                            className="span-title"
+                            style={{
+                              textAlign: "left",
+                              justifyContent: "flex-start",
+                            }}
+                          >
+                            Tempo de validade
+                          </span>
+                          <input
+                            type="text"
+                            className="input-values"
+                            value={isExpirationTimeFocused ? expirationTimeDisplay : expirationTimeDisplay}
+                            onChange={handleExpirationTimeChange}
+                            onKeyDown={(e) => {
+                              if (e.key === "Backspace") {
+                                e.preventDefault();
+                                if (expirationTimeRaw.length > 0) {
+                                  const newRaw = expirationTimeRaw.slice(0, -1);
+                                  setExpirationTimeRaw(newRaw);
+                                  setExpirationTimeDisplay(formatExpirationTimeRaw(newRaw));
+                                }
+                              }
+                            }}
+                            onFocus={handleExpirationTimeFocus}
+                            onBlur={handleExpirationTimeBlur}
+                            placeholder="Digite os minutos e horas"
+                            maxLength={10}
+                            style={{ width: "220px" }}
+                          />
+                        </div>
+                        <div style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}>
+                          <div
+                            style={{
+                              flex: 1,
+                              minWidth: "300px",
+                              backgroundColor: "#e6f2ff",
+                              border: "2px solid #004488",
+                              borderRadius: "8px",
+                              padding: "15px",
+                            }}
+                          >
+                            <div style={{ marginBottom: "10px" }}>
+                              <span style={{ fontWeight: "bold", color: "#004488", fontSize: "14px" }}>
+                                Envio Dentro do Prazo
+                              </span>
+                              <div style={{ fontSize: "11px", color: "#666", marginTop: "2px" }}>
+                                Define a ficha que será utilizada quando a resposta for enviada dentro do tempo de validade
+                              </div>
+                            </div>
+                            <Select
+                              options={fichasOptions}
+                              value={cardInsideTime ? fichasOptions.find(opt => opt.value === cardInsideTime) : null}
+                              onChange={(option) => {
+                                if (option) {
+                                  setShowOtherCardInside(false);
+                                  setCardInsideTime(option.value);
+                                  setOtherCardInsideText("");
+                                } else {
+                                  setCardInsideTime("");
+                                }
+                              }}
+                              placeholder={loadingFichas ? "Carregando..." : "Buscar ficha..."}
+                              isClearable
+                              isDisabled={loadingFichas}
+                              styles={{
+                                control: (base) => ({
+                                  ...base,
+                                  minHeight: "38px",
+                                }),
+                              }}
+                            />
+                            {showOtherCardInside && (
+                              <div style={{ marginTop: "10px" }}>
+                                <input
+                                  type="text"
+                                  className="input-values"
+                                  value={otherCardInsideText}
+                                  onChange={(e) => setOtherCardInsideText(e.target.value)}
+                                  style={{ width: "100%" }}
+                                  placeholder="Digite o nome da ficha"
+                                />
+                              </div>
+                            )}
+                          </div>
+                          <div
+                            style={{
+                              flex: 1,
+                              minWidth: "300px",
+                              backgroundColor: "#fff5e6",
+                              border: "2px solid #e67e22",
+                              borderRadius: "8px",
+                              padding: "15px",
+                            }}
+                          >
+                            <div style={{ marginBottom: "10px" }}>
+                              <span style={{ fontWeight: "bold", color: "#e67e22", fontSize: "14px" }}>
+                                Envio Fora do Prazo
+                              </span>
+                              <div style={{ fontSize: "11px", color: "#666", marginTop: "2px" }}>
+                                Define a ficha que será utilizada quando a resposta for enviada após o tempo de validade
+                              </div>
+                            </div>
+                            <Select
+                              options={fichasOptions}
+                              value={cardOutsideTime ? fichasOptions.find(opt => opt.value === cardOutsideTime) : null}
+                              onChange={(option) => {
+                                if (option) {
+                                  setShowOtherCardOutside(false);
+                                  setCardOutsideTime(option.value);
+                                  setOtherCardOutsideText("");
+                                } else {
+                                  setCardOutsideTime("");
+                                }
+                              }}
+                              placeholder={loadingFichas ? "Carregando..." : "Buscar ficha..."}
+                              isClearable
+                              isDisabled={loadingFichas}
+                              styles={{
+                                control: (base) => ({
+                                  ...base,
+                                  minHeight: "38px",
+                                }),
+                              }}
+                            />
+                            {showOtherCardOutside && (
+                              <div style={{ marginTop: "10px" }}>
+                                <input
+                                  type="text"
+                                  className="input-values"
+                                  value={otherCardOutsideText}
+                                  onChange={(e) => setOtherCardOutsideText(e.target.value)}
+                                  style={{ width: "100%" }}
+                                  placeholder="Digite o nome da ficha"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div style={{ width: "100%", textAlign: "right", marginTop: "20px" }}>
+                <button
+                  style={{ width: "80px", margin: "0px 30px 15px 0px" }}
+                  className="button-next"
                   onClick={() => toggleAccordion("header")}
                 >
                   Próximo
@@ -1170,9 +1685,10 @@ export function CreateTemplateAccordion() {
             className={`accordion_head ${
               accordionState.header ? "accordion_head_opened" : ""
             }`}
+            style={{ borderRadius: "20px" }}
             onClick={() => toggleAccordion("header")}
           >
-            3. Cabeçalho
+            4. Cabeçalho
             <div className="accordion_chevron">
               <img
                 src={chevron}
@@ -1345,7 +1861,7 @@ export function CreateTemplateAccordion() {
             }`}
             onClick={() => toggleAccordion("body")}
           >
-            4. Corpo da Mensagem
+            5. Corpo da Mensagem
             <div className="accordion_chevron">
               <img
                 src={chevron}
@@ -1460,7 +1976,7 @@ export function CreateTemplateAccordion() {
             }`}
             onClick={() => toggleAccordion("footer")}
           >
-            5. Rodapé
+            6. Rodapé
             <div className="accordion_chevron">
               <img
                 src={chevron}
@@ -1548,7 +2064,7 @@ export function CreateTemplateAccordion() {
             }`}
             onClick={() => toggleAccordion("botao")}
           >
-            6. Botões
+            7. Botões
             <div className="accordion_chevron">
               <img
                 src={chevron}

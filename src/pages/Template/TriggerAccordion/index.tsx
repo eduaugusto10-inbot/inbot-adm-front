@@ -16,6 +16,13 @@ import {
   errorMessageDefault,
 } from "../../../Components/Toastify";
 import api from "../../../utils/api";
+import axios from "axios";
+
+const baseURL = process.env.NODE_ENV === 'development' 
+  ? "https://api-stg.inbot.com.br/v2/" 
+  : "https://api.inbot.com.br/v2/";
+
+const templateApi = axios.create({ baseURL });
 import attached from "../../../img/attachment.png";
 import { ToastContainer, toast } from "react-toastify";
 import "./index.css";
@@ -38,6 +45,7 @@ import { Tooltip } from "react-tooltip";
 import { validatedUser, getAdminName } from "../../../utils/validateUser";
 import { DraggableComponent } from "../../../Components/Draggable";
 import { WhatsAppLimitWarning } from "../../../Components/WhatsAppLimitWarning";
+import Select from "react-select";
 
 export function Accordion() {
   const location = useLocation();
@@ -45,7 +53,7 @@ export function Accordion() {
   const [loading, setLoading] = useState<boolean>(true);
   const [isWhatsAppEnabled, setIsWhatsAppEnabled] = useState(true);
   const [isTeamsEnabled, setIsTeamsEnabled] = useState(true);
-  if (searchParams.get("bot_id") === null) {
+  if (process.env.NODE_ENV !== 'development' && searchParams.get("bot_id") === null) {
     window.location.href = "https://in.bot/inbot-admin";
   }
   var botId = searchParams.get("bot_id") ?? "0";
@@ -96,45 +104,11 @@ export function Accordion() {
             .catch((error) => console.log(error));
           const token = resp.data.bot[0].accessToken;
           setPhone(resp.data.bot[0].number);
-          try {
-            const templatesResp = await api.get(
-              `/token-templates?token=${token}`
-            );
-            if (
-              templatesResp.data &&
-              templatesResp.data.data &&
-              templatesResp.data.data.length > 0
-            ) {
-              setTemplates(templatesResp.data.data);
-              setCreateTriggerMenu(true);
-            } else {
-              setTemplates([]);
-              setCreateTriggerMenu(false);
-              errorMessageDefault(
-                "Por favor, criar um template antes de criar a campanha"
-              );
-              setTimeout(() => {
-                toast.warn("Redirecionando...", {
-                  theme: "colored",
-                });
-                setTimeout(() => {
-                  history(
-                    `/template-create?bot_id=${botId}&token=${searchParams.get(
-                      "token"
-                    )}&url_base_api=${searchParams.get("url_base_api")}`
-                  );
-                }, 2000);
-              }, 2000);
-            }
-          } catch (error) {
-            console.log(error);
-            errorMessageDefault("Erro ao carregar templates");
-          }
         })
         .catch((error) => console.log(error)); //history(`/template-warning-no-whats?bot_id=${botId}`))
     };
 
-    if (searchParams.get("bot_id") === null) {
+    if (process.env.NODE_ENV !== 'development' && searchParams.get("bot_id") === null) {
       window.location.href = "https://in.bot/inbot-admin";
     } else {
       fetchData();
@@ -204,6 +178,7 @@ export function Accordion() {
 
   const [selectedDispatchNumber, setSelectedDispatchNumber] =
     useState<string>("");
+  const [templateConfigurations, setTemplateConfigurations] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
   const [createTriggerMenu, setCreateTriggerMenu] = useState(false);
@@ -211,6 +186,30 @@ export function Accordion() {
   useEffect(() => {
     loadNewTemplate(location?.state?.templateID);
   }, [createTriggerMenu]);
+
+  const loadTemplates = async (phoneNumber: string) => {
+    try {
+      const templatesResp = await templateApi.get(
+        `/api/botId/${botId}/template/phoneNumber/${phoneNumber}`
+      );
+      if (
+        templatesResp.data &&
+        templatesResp.data.length > 0
+      ) {
+        setTemplates(templatesResp.data);
+        setCreateTriggerMenu(true);
+      } else {
+        setTemplates([]);
+        setCreateTriggerMenu(false);
+        errorMessageDefault(
+          "Por favor, criar um template antes de criar a campanha"
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      errorMessageDefault("Erro ao carregar templates");
+    }
+  };
 
   const toggleAccordion = (key: keyof AccordionState) => {
     setAccordionState({
@@ -310,10 +309,10 @@ export function Accordion() {
       const wsname = wb.SheetNames[0];
       const ws = wb.Sheets[wsname];
 
-      // Primeiro lemos os dados com raw: true para permitir números na primeira coluna
+      // Voltamos para raw: false para evitar problemas com datas
       const data = utils.sheet_to_json(ws, {
         header: 1,
-        raw: true,
+        raw: false,
       }) as any[][];
       
       const dataFile: any = [];
@@ -330,16 +329,30 @@ export function Accordion() {
           values.forEach((cell, coluna) => {
             // Tratamento específico para cada coluna
             if (coluna === 0) {
-              // Para a coluna de telefone, garantir que seja tratado como número
+              // Para a coluna de telefone (coluna A), garantir que seja tratado como número
               // e remover caracteres não numéricos
-              values[coluna] = cell ? cell.toString().replace(/\D/g, "") : "";
+              // Se o valor for científico (como 5.5e+11), convertemos para número primeiro
+              let phoneValue = cell ? cell.toString() : "";
+              
+              // Verificar se é notação científica
+              if (phoneValue.includes('e+') || phoneValue.includes('E+')) {
+                try {
+                  // Converter para número e depois para string para eliminar notação científica
+                  phoneValue = Number(phoneValue).toString();
+                } catch (e) {
+                  console.log("Erro ao converter telefone:", e);
+                }
+              }
+              
+              // Remover caracteres não numéricos
+              values[coluna] = phoneValue.replace(/\D/g, "");
             } else {
-              // Para as outras colunas, garantir que sejam tratadas como texto
+              // Para as outras colunas, manter como estão (já que raw: false)
               const cellValue = cell ? cell.toString() : "";
               if (wrongFormatRegex.test(cellValue)) {
                 values[coluna] = formatDateComplete(cellValue);
               } else {
-                values[coluna] = cellValue.trim();
+                values[coluna] = cellValue;
               }
             }
           });
@@ -494,18 +507,22 @@ export function Accordion() {
     setFileData([]);
     setListVariables([]);
     setFileName("");
-    templates.forEach((template: ITemplateList) => {
-      if (template.ID === e) {
-        setTemplateName(template.name);
-        template.components.forEach((element: any) => {
-          console.log(element);
-          if (element.type === "BODY") {
-            setVariableQty(encontrarMaiorNumero(element.parameters[0].text));
-          }
-        });
-        setQtButtons(hasManyButtons(template.components));
-        setHeaderConfig(hasMedia(template.components));
+    templates.forEach((template: any) => {
+      if (template.templateName === e) {
+        setTemplateName(template.templateName);
         setCategoryTemplate(template.category);
+        setTemplateConfigurations(template.configurations || null);
+        if (template.body && template.body.length > 0) {
+          template.body.forEach((element: any) => {
+            if (element.type === "text") {
+              setVariableQty(element.numVariables || encontrarMaiorNumero(element.text));
+            }
+          });
+        }
+        if (template.header && template.header.length > 0) {
+          setHeaderConfig(template.header[0].type);
+        }
+        setQtButtons(template.button ? template.button.length : 0);
         return;
       }
     });
@@ -902,16 +919,22 @@ export function Accordion() {
     setBlockAddNumber(phone.toString().length >= 5);
   }
 
-  const handleDispatchNumberChange = (
+  const handleDispatchNumberChange = async (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    setSelectedDispatchNumber(e.target.value);
+    const selectedNumber = e.target.value;
+    setSelectedDispatchNumber(selectedNumber);
+    
     if (
-      e.target.value !== "" &&
+      selectedNumber !== "" &&
       errorMessage &&
       errorMessage.includes("número de disparo")
     ) {
       setErrorMessage("");
+    }
+
+    if (selectedNumber !== "") {
+      await loadTemplates(selectedNumber);
     }
   };
 
@@ -1122,43 +1145,6 @@ export function Accordion() {
                         paddingTop: "5px",
                       }}
                     >
-                      Selecionar template
-                    </span>
-                    <div style={{ flex: 1 }}>
-                      <select
-                        value={templateName}
-                        className="input-values"
-                        onChange={(e) => openModal(e.target.value)}
-                        style={{ width: "100%", maxWidth: "400px" }}
-                      >
-                        <option value="">{templateName ?? "--"}</option>
-                        {templates.map((template, key) => (
-                          <option key={key} value={template.ID}>
-                            {template.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ width: "100%" }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "flex-start",
-                      gap: "15px",
-                    }}
-                  >
-                    <span
-                      className="span-title"
-                      style={{
-                        minWidth: "180px",
-                        textAlign: "left",
-                        paddingTop: "5px",
-                      }}
-                    >
                       Número de disparo
                     </span>
                     <div style={{ flex: 1 }}>
@@ -1191,6 +1177,69 @@ export function Accordion() {
                             {errorMessage}
                           </p>
                         )}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ width: "100%" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "flex-start",
+                      gap: "15px",
+                    }}
+                  >
+                    <span
+                      className="span-title"
+                      style={{
+                        minWidth: "180px",
+                        textAlign: "left",
+                        paddingTop: "5px",
+                      }}
+                    >
+                      Selecionar template
+                    </span>
+                    <div style={{ flex: 1, textAlign: "center" }}>
+                      <div 
+                        className="input-values" style={{ 
+                          width: "100%", 
+                          maxWidth: "400px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          paddingLeft: "0",
+                        }}>
+                        <Select
+                        value={templateName && templates.find(t => t.templateName === templateName) ? { value: templateName, label: templateName } : null}
+                        onChange={(option: any) => {
+                          if (option) {
+                            setTemplateName(option.value);
+                            openModal(option.value);
+                          }
+                        }}
+                        options={templates.filter(t => t.templateName).map(t => ({ value: t.templateName!, label: t.templateName! }))}
+                        placeholder="Buscar template..."
+                        isClearable
+                        isDisabled={selectedDispatchNumber === ""}
+                        styles={{
+                          container: (base) => ({
+                            ...base,
+                            width: "100%",
+                          }),
+                          control: (base) => ({
+                            ...base,
+                            width: "100%",
+                            height: "30px",
+                            minHeight: "30px",
+                            fontSize: "14px",
+                            border: "1px solid #a8a8a8",
+                            borderRadius: "8px",
+                            paddingLeft: "7px",
+                          }),
+                        }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1476,40 +1525,85 @@ export function Accordion() {
                                     width: "auto",
                                     marginLeft: "10px",
                                     justifyContent: "flex-start",
+                                    marginBottom: "15px",
                                   }}
                                 >
                                   Título botão: {titleButton1}
                                 </span>
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    flexDirection: "row",
-                                    justifyContent: "left",
-                                    marginLeft: "-4px",
-                                  }}
-                                >
-                                  <span className="span-title">Payload 1</span>
-                                  <input
-                                    className="input-values"
-                                    value={payload1}
-                                    onChange={(e) =>
-                                      setPayload1(e.target.value)
-                                    }
-                                  />
-                                  <a
-                                    style={{ alignContent: "center" }}
-                                    data-tooltip-id="no-emoji"
-                                    data-tooltip-html="Payload não podem ser iguais!"
+                                {templateConfigurations ? (
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      justifyContent: "left",
+                                      marginLeft: "10px",
+                                      gap: "15px",
+                                      padding: "10px",
+                                      backgroundColor: "#f8f9fa",
+                                      borderRadius: "8px",
+                                      border: "1px solid #e9ecef",
+                                    }}
                                   >
-                                    <img
-                                      src={info}
-                                      width={15}
-                                      height={15}
-                                      alt="alerta"
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
+                                      <span style={{ color: "#666", fontStyle: "italic", fontSize: "13px", width: "100%" }}>
+                                        Payload 1 (antes da expiração):
+                                      </span>
+                                      <input
+                                        className="input-values"
+                                        value={templateConfigurations.payloadBeforeExpirationTime || ""}
+                                        disabled
+                                        style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px", boxSizing: "border-box" }}
+                                      />
+                                    </div>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
+                                      <span style={{ color: "#666", fontStyle: "italic", fontSize: "13px", width: "100%" }}>
+                                        Payload 2 (após a expiração):
+                                      </span>
+                                      <input
+                                        className="input-values"
+                                        value={templateConfigurations.payloadAfterExpirationTime || ""}
+                                        disabled
+                                        style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px", boxSizing: "border-box" }}
+                                      />
+                                    </div>
+                                    <div style={{ marginTop: "5px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
+                                      <span style={{ fontSize: "12px", color: "#6c757d", fontStyle: "italic" }}>
+                                        💡 Estes payloads foram configurados diretamente no template
+                                      </span>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "row",
+                                      justifyContent: "left",
+                                      marginLeft: "-4px",
+                                    }}
+                                  >
+                                    <span className="span-title">Payload 1</span>
+                                    <input
+                                      className="input-values"
+                                      value={payload1}
+                                      onChange={(e) =>
+                                        setPayload1(e.target.value)
+                                      }
                                     />
-                                  </a>
-                                  <Tooltip id="no-emoji" />
-                                </div>
+                                    <a
+                                      style={{ alignContent: "center" }}
+                                      data-tooltip-id="no-emoji"
+                                      data-tooltip-html="Payload não podem ser iguais!"
+                                    >
+                                      <img
+                                        src={info}
+                                        width={15}
+                                        height={15}
+                                        alt="alerta"
+                                      />
+                                    </a>
+                                    <Tooltip id="no-emoji" />
+                                  </div>
+                                )}
                               </div>
                             )}
                             {qtButtons > 1 && (
@@ -1527,40 +1621,85 @@ export function Accordion() {
                                     width: "auto",
                                     marginLeft: "10px",
                                     justifyContent: "flex-start",
+                                    marginBottom: "15px",
                                   }}
                                 >
-                                  Título botão: {titleButton2}{" "}
+                                  Título botão: {titleButton1}{" "}
                                 </span>
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    flexDirection: "row",
-                                    justifyContent: "left",
-                                    marginLeft: "-4px",
-                                  }}
-                                >
-                                  <span className="span-title">Payload 2</span>
-                                  <input
-                                    className="input-values"
-                                    value={payload2}
-                                    onChange={(e) =>
-                                      setPayload2(e.target.value)
-                                    }
-                                  />
-                                  <a
-                                    style={{ alignContent: "center" }}
-                                    data-tooltip-id="no-emoji"
-                                    data-tooltip-html="Payload não podem ser iguais!"
+                                {templateConfigurations ? (
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      justifyContent: "left",
+                                      marginLeft: "10px",
+                                      gap: "15px",
+                                      padding: "10px",
+                                      backgroundColor: "#f8f9fa",
+                                      borderRadius: "8px",
+                                      border: "1px solid #e9ecef",
+                                    }}
                                   >
-                                    <img
-                                      src={info}
-                                      width={15}
-                                      height={15}
-                                      alt="alerta"
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                      <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                                        Payload 1 (antes da expiração):
+                                      </span>
+                                      <input
+                                        className="input-values"
+                                        value={templateConfigurations.payloadBeforeExpirationTime || ""}
+                                        disabled
+                                        style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                      />
+                                    </div>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                      <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                                        Payload 2 (após a expiração):
+                                      </span>
+                                      <input
+                                        className="input-values"
+                                        value={templateConfigurations.payloadAfterExpirationTime || ""}
+                                        disabled
+                                        style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                      />
+                                    </div>
+                                    <div style={{ marginTop: "5px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
+                                      <span style={{ fontSize: "12px", color: "#6c757d", fontStyle: "italic" }}>
+                                        💡 Estes payloads foram configurados diretamente no template
+                                      </span>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "row",
+                                      justifyContent: "left",
+                                      marginLeft: "-4px",
+                                    }}
+                                  >
+                                    <span className="span-title">Payload 2</span>
+                                    <input
+                                      className="input-values"
+                                      value={payload2}
+                                      onChange={(e) =>
+                                        setPayload2(e.target.value)
+                                      }
                                     />
-                                  </a>
-                                  <Tooltip id="no-emoji" />
-                                </div>
+                                    <a
+                                      style={{ alignContent: "center" }}
+                                      data-tooltip-id="no-emoji"
+                                      data-tooltip-html="Payload não podem ser iguais!"
+                                    >
+                                      <img
+                                        src={info}
+                                        width={15}
+                                        height={15}
+                                        alt="alerta"
+                                      />
+                                    </a>
+                                    <Tooltip id="no-emoji" />
+                                  </div>
+                                )}
                               </div>
                             )}
                             {qtButtons > 2 && (
@@ -1578,40 +1717,85 @@ export function Accordion() {
                                     width: "auto",
                                     marginLeft: "10px",
                                     justifyContent: "flex-start",
+                                    marginBottom: "15px",
                                   }}
                                 >
-                                  Título botão: {titleButton3}{" "}
+                                  Título botão: {titleButton2}{" "}
                                 </span>
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    flexDirection: "row",
-                                    justifyContent: "left",
-                                    marginLeft: "-4px",
-                                  }}
-                                >
-                                  <span className="span-title">Payload</span>
-                                  <input
-                                    className="input-values"
-                                    value={payload3}
-                                    onChange={(e) =>
-                                      setPayload3(e.target.value)
-                                    }
-                                  />
-                                  <a
-                                    style={{ alignContent: "center" }}
-                                    data-tooltip-id="no-emoji"
-                                    data-tooltip-html="Payload não podem ser iguais!"
+                                {templateConfigurations ? (
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      justifyContent: "left",
+                                      marginLeft: "10px",
+                                      gap: "15px",
+                                      padding: "10px",
+                                      backgroundColor: "#f8f9fa",
+                                      borderRadius: "8px",
+                                      border: "1px solid #e9ecef",
+                                    }}
                                   >
-                                    <img
-                                      src={info}
-                                      width={15}
-                                      height={15}
-                                      alt="alerta"
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                      <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                                        Payload 1 (antes da expiração):
+                                      </span>
+                                      <input
+                                        className="input-values"
+                                        value={templateConfigurations.payloadBeforeExpirationTime || ""}
+                                        disabled
+                                        style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                      />
+                                    </div>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                      <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                                        Payload 2 (após a expiração):
+                                      </span>
+                                      <input
+                                        className="input-values"
+                                        value={templateConfigurations.payloadAfterExpirationTime || ""}
+                                        disabled
+                                        style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                      />
+                                    </div>
+                                    <div style={{ marginTop: "5px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
+                                      <span style={{ fontSize: "12px", color: "#6c757d", fontStyle: "italic" }}>
+                                        💡 Estes payloads foram configurados diretamente no template
+                                      </span>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "row",
+                                      justifyContent: "left",
+                                      marginLeft: "-4px",
+                                    }}
+                                  >
+                                    <span className="span-title">Payload</span>
+                                    <input
+                                      className="input-values"
+                                      value={payload3}
+                                      onChange={(e) =>
+                                        setPayload3(e.target.value)
+                                      }
                                     />
-                                  </a>
-                                  <Tooltip id="no-emoji" />
-                                </div>
+                                    <a
+                                      style={{ alignContent: "center" }}
+                                      data-tooltip-id="no-emoji"
+                                      data-tooltip-html="Payload não podem ser iguais!"
+                                    >
+                                      <img
+                                        src={info}
+                                        width={15}
+                                        height={15}
+                                        alt="alerta"
+                                      />
+                                    </a>
+                                    <Tooltip id="no-emoji" />
+                                  </div>
+                                )}
                               </div>
                             )}
                             <div
@@ -2051,38 +2235,83 @@ export function Accordion() {
                               width: "auto",
                               marginLeft: "10px",
                               justifyContent: "flex-start",
+                              marginBottom: "15px",
                             }}
                           >
                             Título botão: {titleButton1}{" "}
                           </span>
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "row",
-                              justifyContent: "left",
-                              marginLeft: "-4px",
-                            }}
-                          >
-                            <span className="span-title">Payload 1</span>
-                            <input
-                              className="input-values"
-                              value={payload1}
-                              onChange={(e) => setPayload1(e.target.value)}
-                            />
-                            <a
-                              style={{ alignContent: "center" }}
-                              data-tooltip-id="no-emoji"
-                              data-tooltip-html="Payload não podem ser iguais!"
+                          {templateConfigurations ? (
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "left",
+                                marginLeft: "10px",
+                                gap: "15px",
+                                padding: "10px",
+                                backgroundColor: "#f8f9fa",
+                                borderRadius: "8px",
+                                border: "1px solid #e9ecef",
+                              }}
                             >
-                              <img
-                                src={info}
-                                width={15}
-                                height={15}
-                                alt="alerta"
+                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                                  Payload 1 (antes da expiração):
+                                </span>
+                                <input
+                                  className="input-values"
+                                  value={templateConfigurations.payloadBeforeExpirationTime || ""}
+                                  disabled
+                                  style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                />
+                              </div>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                                  Payload 2 (após a expiração):
+                                </span>
+                                <input
+                                  className="input-values"
+                                  value={templateConfigurations.payloadAfterExpirationTime || ""}
+                                  disabled
+                                  style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                />
+                              </div>
+                              <div style={{ marginTop: "5px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
+                                <span style={{ fontSize: "12px", color: "#6c757d", fontStyle: "italic" }}>
+                                  💡 Estes payloads foram configurados diretamente no template
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                justifyContent: "left",
+                                marginLeft: "-4px",
+                              }}
+                            >
+                              <span className="span-title">Payload 1</span>
+                              <input
+                                className="input-values"
+                                value={payload1}
+                                onChange={(e) => setPayload1(e.target.value)}
                               />
-                            </a>
-                            <Tooltip id="no-emoji" />
-                          </div>
+                              <a
+                                style={{ alignContent: "center" }}
+                                data-tooltip-id="no-emoji"
+                                data-tooltip-html="Payload não podem ser iguais!"
+                              >
+                                <img
+                                  src={info}
+                                  width={15}
+                                  height={15}
+                                  alt="alerta"
+                                />
+                              </a>
+                              <Tooltip id="no-emoji" />
+                            </div>
+                          )}
                         </div>
                       )}
                       {qtButtons > 1 && (
@@ -2100,38 +2329,83 @@ export function Accordion() {
                               width: "auto",
                               marginLeft: "10px",
                               justifyContent: "flex-start",
+                              marginBottom: "15px",
                             }}
                           >
                             Título botão: {titleButton2}{" "}
                           </span>
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "row",
-                              justifyContent: "left",
-                              marginLeft: "-4px",
-                            }}
-                          >
-                            <span className="span-title">Payload 2</span>
-                            <input
-                              className="input-values"
-                              value={payload2}
-                              onChange={(e) => setPayload2(e.target.value)}
-                            />
-                            <a
-                              style={{ alignContent: "center" }}
-                              data-tooltip-id="no-emoji"
-                              data-tooltip-html="Payload não podem ser iguais!"
+                          {templateConfigurations ? (
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "left",
+                                marginLeft: "10px",
+                                gap: "15px",
+                                padding: "10px",
+                                backgroundColor: "#f8f9fa",
+                                borderRadius: "8px",
+                                border: "1px solid #e9ecef",
+                              }}
                             >
-                              <img
-                                src={info}
-                                width={15}
-                                height={15}
-                                alt="alerta"
+                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                                  Payload 1 (antes da expiração):
+                                </span>
+                                <input
+                                  className="input-values"
+                                  value={templateConfigurations.payloadBeforeExpirationTime || ""}
+                                  disabled
+                                  style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                />
+                              </div>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                                  Payload 2 (após a expiração):
+                                </span>
+                                <input
+                                  className="input-values"
+                                  value={templateConfigurations.payloadAfterExpirationTime || ""}
+                                  disabled
+                                  style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                />
+                              </div>
+                              <div style={{ marginTop: "5px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
+                                <span style={{ fontSize: "12px", color: "#6c757d", fontStyle: "italic" }}>
+                                  💡 Estes payloads foram configurados diretamente no template
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                justifyContent: "left",
+                                marginLeft: "-4px",
+                              }}
+                            >
+                              <span className="span-title">Payload 2</span>
+                              <input
+                                className="input-values"
+                                value={payload2}
+                                onChange={(e) => setPayload2(e.target.value)}
                               />
-                            </a>
-                            <Tooltip id="no-emoji" />
-                          </div>
+                              <a
+                                style={{ alignContent: "center" }}
+                                data-tooltip-id="no-emoji"
+                                data-tooltip-html="Payload não podem ser iguais!"
+                              >
+                                <img
+                                  src={info}
+                                  width={15}
+                                  height={15}
+                                  alt="alerta"
+                                />
+                              </a>
+                              <Tooltip id="no-emoji" />
+                            </div>
+                          )}
                         </div>
                       )}
                       {qtButtons > 2 && (
@@ -2149,38 +2423,83 @@ export function Accordion() {
                               width: "auto",
                               marginLeft: "10px",
                               justifyContent: "flex-start",
+                              marginBottom: "15px",
                             }}
                           >
                             Título botão: {titleButton3}{" "}
                           </span>
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "row",
-                              justifyContent: "left",
-                              marginLeft: "-4px",
-                            }}
-                          >
-                            <span className="span-title">Payload</span>
-                            <input
-                              className="input-values"
-                              value={payload3}
-                              onChange={(e) => setPayload3(e.target.value)}
-                            />
-                            <a
-                              style={{ alignContent: "center" }}
-                              data-tooltip-id="no-emoji"
-                              data-tooltip-html="Payload não podem ser iguais!"
+                          {templateConfigurations ? (
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "left",
+                                marginLeft: "10px",
+                                gap: "15px",
+                                padding: "10px",
+                                backgroundColor: "#f8f9fa",
+                                borderRadius: "8px",
+                                border: "1px solid #e9ecef",
+                              }}
                             >
-                              <img
-                                src={info}
-                                width={15}
-                                height={15}
-                                alt="alerta"
+                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                                  Payload 1 (antes da expiração):
+                                </span>
+                                <input
+                                  className="input-values"
+                                  value={templateConfigurations.payloadBeforeExpirationTime || ""}
+                                  disabled
+                                  style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                />
+                              </div>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                                  Payload 2 (após a expiração):
+                                </span>
+                                <input
+                                  className="input-values"
+                                  value={templateConfigurations.payloadAfterExpirationTime || ""}
+                                  disabled
+                                  style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                />
+                              </div>
+                              <div style={{ marginTop: "5px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
+                                <span style={{ fontSize: "12px", color: "#6c757d", fontStyle: "italic" }}>
+                                  💡 Estes payloads foram configurados diretamente no template
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                justifyContent: "left",
+                                marginLeft: "-4px",
+                              }}
+                            >
+                              <span className="span-title">Payload</span>
+                              <input
+                                className="input-values"
+                                value={payload3}
+                                onChange={(e) => setPayload3(e.target.value)}
                               />
-                            </a>
-                            <Tooltip id="no-emoji" />
-                          </div>
+                              <a
+                                style={{ alignContent: "center" }}
+                                data-tooltip-id="no-emoji"
+                                data-tooltip-html="Payload não podem ser iguais!"
+                              >
+                                <img
+                                  src={info}
+                                  width={15}
+                                  height={15}
+                                  alt="alerta"
+                                />
+                              </a>
+                              <Tooltip id="no-emoji" />
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>

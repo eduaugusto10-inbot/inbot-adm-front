@@ -16,7 +16,7 @@ import { DownloadTableExcel } from "react-export-table-to-excel";
 export function TriggerDetails() {
 
     const [searchParams, setSearchParams] = useSearchParams();
-    if (searchParams.get('bot_id') === null) {
+    if (process.env.NODE_ENV !== 'development' && searchParams.get('bot_id') === null) {
         window.location.href = "https://in.bot/inbot-admin";
     }
     var botId = searchParams.get('bot_id') ?? "0";
