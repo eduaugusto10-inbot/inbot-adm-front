@@ -19,9 +19,7 @@ import strings from "../strings.json";
 import api from "../../../utils/api";
 import { ToastContainer, toast } from "react-toastify";
 
-const baseURL = process.env.NODE_ENV === 'development' 
-  ? "https://api-stg.inbot.com.br/v2/" 
-  : "https://api.inbot.com.br/v2/";
+const baseURL = "https://api-stg.inbot.com.br/v2/";
 
 const templateApi = axios.create({ baseURL });
 import whatsappBackground from "../../../img/background_1.png";
@@ -60,7 +58,7 @@ export function CreateTemplateAccordion() {
   const [isTeamsEnabled, setIsTeamsEnabled] = useState(true);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  if (process.env.NODE_ENV !== 'development' && searchParams.get("bot_id") === null) {
+  if (searchParams.get("bot_id") === null) {
     window.location.href = "https://in.bot/inbot-admin";
   }
   var botId = searchParams.get("bot_id") ?? "0";
