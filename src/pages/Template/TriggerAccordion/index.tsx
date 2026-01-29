@@ -45,7 +45,6 @@ import { Tooltip } from "react-tooltip";
 import { validatedUser, getAdminName } from "../../../utils/validateUser";
 import { DraggableComponent } from "../../../Components/Draggable";
 import { WhatsAppLimitWarning } from "../../../Components/WhatsAppLimitWarning";
-import Select from "react-select";
 
 export function Accordion() {
   const location = useLocation();
@@ -1233,46 +1232,29 @@ export function Accordion() {
                     >
                       Selecionar template
                     </span>
-                    <div style={{ flex: 1, textAlign: "center" }}>
-                      <div 
-                        className="input-values" style={{ 
-                          width: "100%", 
-                          maxWidth: "400px",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          paddingLeft: "0",
-                        }}>
-                        <Select
-                        value={templateName && templates.find(t => t.templateName === templateName) ? { value: templateName, label: templateName } : null}
-                        onChange={(option: any) => {
-                          if (option) {
-                            setTemplateName(option.value);
-                            openModal(option.value);
+                    <div style={{ flex: 1 }}>
+                      <select
+                        value={templateName}
+                        className="input-values"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setTemplateName(value);
+                          if (value) {
+                            openModal(value);
                           }
                         }}
-                        options={templates.filter(t => t.templateName).map(t => ({ value: t.templateName!, label: t.templateName! }))}
-                        placeholder="Buscar template..."
-                        isClearable
-                        isDisabled={selectedDispatchNumber === ""}
-                        styles={{
-                          container: (base) => ({
-                            ...base,
-                            width: "100%",
-                          }),
-                          control: (base) => ({
-                            ...base,
-                            width: "100%",
-                            height: "30px",
-                            minHeight: "30px",
-                            fontSize: "14px",
-                            border: "1px solid #a8a8a8",
-                            borderRadius: "8px",
-                            paddingLeft: "7px",
-                          }),
-                        }}
-                        />
-                      </div>
+                        disabled={selectedDispatchNumber === ""}
+                        style={{ width: "100%", maxWidth: "400px" }}
+                      >
+                        <option value="">Selecione um template</option>
+                        {templates
+                          .filter((t) => t.templateName)
+                          .map((t, key) => (
+                            <option key={key} value={t.templateName!}>
+                              {t.templateName}
+                            </option>
+                          ))}
+                      </select>
                     </div>
                   </div>
                 </div>
