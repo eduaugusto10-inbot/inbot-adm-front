@@ -1601,9 +1601,15 @@ export function Accordion() {
                                     style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px", boxSizing: "border-box" }}
                                   />
                                 </div>
-                                <div style={{ marginTop: "5px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
-                                  <span style={{ fontSize: "12px", color: "#6c757d", fontStyle: "italic" }}>
-                                    💡 Estes payloads foram configurados diretamente no template
+                                <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%", marginTop: "10px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
+                                  <span style={{ color: "#666", fontSize: "12px" }}>
+                                    <strong>Última atualização:</strong> {new Date(templateConfigurations.updatedAt).toLocaleString("pt-BR")}
+                                  </span>
+                                  <span style={{ color: "#666", fontSize: "12px" }}>
+                                    <strong>Tempo de expiração:</strong> {templateConfigurations.expirationInMinutes} minutos
+                                  </span>
+                                  <span style={{ color: "#666", fontSize: "12px" }}>
+                                    <strong>Ir expirar em:</strong> {new Date(new Date(templateConfigurations.updatedAt).getTime() + templateConfigurations.expirationInMinutes * 60000).toLocaleString("pt-BR")}
                                   </span>
                                 </div>
                               </div>
@@ -2315,9 +2321,15 @@ export function Accordion() {
                               style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
                             />
                           </div>
-                          <div style={{ marginTop: "5px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
-                            <span style={{ fontSize: "12px", color: "#6c757d", fontStyle: "italic" }}>
-                              💡 Estes payloads foram configurados diretamente no template
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%", marginTop: "10px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
+                            <span style={{ color: "#666", fontSize: "12px" }}>
+                              <strong>Última atualização:</strong> {new Date(templateConfigurations.updatedAt).toLocaleString("pt-BR")}
+                            </span>
+                            <span style={{ color: "#666", fontSize: "12px" }}>
+                              <strong>Tempo de expiração:</strong> {templateConfigurations.expirationInMinutes} minutos
+                            </span>
+                            <span style={{ color: "#666", fontSize: "12px" }}>
+                              <strong>Ir expirar em:</strong> {new Date(new Date(templateConfigurations.updatedAt).getTime() + templateConfigurations.expirationInMinutes * 60000).toLocaleString("pt-BR")}
                             </span>
                           </div>
                         </div>
