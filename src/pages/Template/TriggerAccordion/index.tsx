@@ -515,14 +515,27 @@ export function Accordion() {
         if (template.body && template.body.length > 0) {
           template.body.forEach((element: any) => {
             if (element.type === "text") {
-              setVariableQty(element.numVariables || encontrarMaiorNumero(element.text));
+              setBodyText(element.text || "");
+              setVariableQty(element.numVariables || encontrarMaiorNumero(element.text || ""));
             }
           });
         }
         if (template.header && template.header.length > 0) {
           setHeaderConfig(template.header[0].type);
+          setTypeOfHeader(template.header[0].type);
+          setHeaderText(template.header[0].text || "");
         }
-        setQtButtons(template.button ? template.button.length : 0);
+        if (template.footer && template.footer.length > 0) {
+          setFooterText(template.footer[0].text || "");
+        }
+        if (template.button && template.button.length > 0) {
+          setQtButtons(template.button.length);
+          template.button.forEach((btn: any, index: number) => {
+            if (index === 0) setTitleButton1(btn.text || "");
+            if (index === 1) setTitleButton2(btn.text || "");
+            if (index === 2) setTitleButton3(btn.text || "");
+          });
+        }
         return;
       }
     });
