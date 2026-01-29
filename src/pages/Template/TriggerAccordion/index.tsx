@@ -683,6 +683,9 @@ export function Accordion() {
                   title_button_2: titleButton2,
                   title_button_3: titleButton3,
                   channel: "whatsapp",
+                  expirationInMinutes: templateConfigurations?.expirationInMinutes || null,
+                  payloadAfterExpirationTime: templateConfigurations?.payloadAfterExpirationTime || null,
+                  payloadBeforeExpirationTime: templateConfigurations?.payloadBeforeExpirationTime || null,
                 }));
 
               // Quebrar a lista em lotes de 100 objetos
@@ -768,6 +771,9 @@ export function Accordion() {
                 title_button_2: titleButton2,
                 title_button_3: titleButton3,
                 channel: "whatsapp",
+                expirationInMinutes: templateConfigurations?.expirationInMinutes || null,
+                payloadAfterExpirationTime: templateConfigurations?.payloadAfterExpirationTime || null,
+                payloadBeforeExpirationTime: templateConfigurations?.payloadBeforeExpirationTime || null,
               }));
 
               // Quebrar a lista em lotes de 100 objetos
