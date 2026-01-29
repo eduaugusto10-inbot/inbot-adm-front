@@ -18,6 +18,12 @@ import {
 import strings from "../strings.json";
 import api from "../../../utils/api";
 import { ToastContainer, toast } from "react-toastify";
+
+const baseURL = process.env.NODE_ENV === 'development' 
+  ? "https://api-stg.inbot.com.br/v2/" 
+  : "https://api.inbot.com.br/v2/";
+
+const templateApi = axios.create({ baseURL });
 import whatsappBackground from "../../../img/background_1.png";
 import "./index.css";
 import attached from "../../../img/attachment.png";
@@ -812,9 +818,44 @@ export function CreateTemplateAccordion() {
     payload["category"] = templateType;
     payload["name"] = templateName;
     payload["language"] = "pt_BR"; //configTemplate.language;
-    const data: { payload: any } = { payload };
-    api
-      .post(`/whats/template/${botId}`, data)
+
+    // Converter expirationTimeRaw para minutos (ex: "2h30min" → 150)
+    const parseExpirationToMinutes = (raw: string): number => {
+      if (!raw) return 0;
+      const hoursMatch = raw.match(/(\d+)h/);
+      const minutesMatch = raw.match(/(\d+)min/);
+      const hours = hoursMatch ? parseInt(hoursMatch[1]) : 0;
+      const minutes = minutesMatch ? parseInt(minutesMatch[1]) : 0;
+      return (hours * 60) + minutes;
+    };
+
+    // Obter ficha_id_title a partir do cardInsideTime/cardOutsideTime
+    const getFichaTitle = (cardId: string): string => {
+      if (!cardId) return "";
+      const ficha = fichasOptions.find(opt => opt.value === cardId);
+      return ficha ? ficha.label : "";
+    };
+
+    const expirationMinutes = hasExpirationTime ? parseExpirationToMinutes(expirationTimeDisplay) : 0;
+
+    const data = {
+      templateName: templateName,
+      botId: Number(botId),
+      category: templateType,
+      language: "pt_BR",
+      phoneNumber: Number(phone),
+      components: components,
+      configurations: {
+        expirationInMinutes: expirationMinutes,
+        createdBy: "Sistema",
+        phoneNumber: Number(phone),
+        payloadAfterExpirationTime: getFichaTitle(cardOutsideTime),
+        payloadBeforeExpirationTime: getFichaTitle(cardInsideTime)
+      }
+    };
+
+    templateApi
+      .post(`/api/template-whatsapp`, data)
       .then(() => {
         toast.dismiss(toastId);
         successCreateTemplate();
