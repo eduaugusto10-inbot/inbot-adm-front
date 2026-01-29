@@ -428,7 +428,8 @@ export function Accordion() {
     let headerType = null;
     headerElement.forEach((element: any) => {
       if (element.type === "HEADER") {
-        switch (element.parameters[0].type) {
+        const paramType = element.parameters[0]?.type?.toLowerCase();
+        switch (paramType) {
           case "video":
             headerType = "video";
             break;
@@ -464,7 +465,7 @@ export function Accordion() {
       }
       if (element.type === "HEADER") {
         setHeaderText(element.parameters[0]?.text);
-        setTypeOfHeader(element.parameters[0].type);
+        setTypeOfHeader(element.parameters[0]?.type?.toLowerCase() || "");
       }
       if (element.type === "FOOTER") {
         setFooterText(element.parameters[0].text);
@@ -525,9 +526,14 @@ export function Accordion() {
           });
         }
         if (template.header && template.header.length > 0) {
-          setHeaderConfig(template.header[0].type);
-          setTypeOfHeader(template.header[0].type);
+          const headerType = template.header[0].type?.toLowerCase();
+          setHeaderConfig(headerType);
+          setTypeOfHeader(headerType);
           setHeaderText(template.header[0].text || "");
+        } else {
+          setHeaderConfig(null);
+          setTypeOfHeader("");
+          setHeaderText("");
         }
         if (template.footer && template.footer.length > 0) {
           setFooterText(template.footer[0].text || "");
@@ -572,7 +578,7 @@ export function Accordion() {
   }, [fileName]);
 
   const validatedPayload = (): boolean => {
-    if (typeOfHeader === "TEXT" && headerText === "") {
+    if (typeOfHeader === "text" && headerText === "") {
       return false;
     }
     if (bodyText === "") {
@@ -607,15 +613,15 @@ export function Accordion() {
       errorNoRecipient();
       return;
     }
-    if (typeOfHeader === "IMAGE" && urlMidia === "") {
+    if (typeOfHeader === "image" && urlMidia === "") {
       errorMidiaEmpty();
       return;
     }
-    if (typeOfHeader === "VIDEO" && urlMidia === "") {
+    if (typeOfHeader === "video" && urlMidia === "") {
       errorMidiaEmpty();
       return;
     }
-    if (typeOfHeader === "DOCUMENT" && urlMidia === "") {
+    if (typeOfHeader === "document" && urlMidia === "") {
       errorMidiaEmpty();
       return;
     }
