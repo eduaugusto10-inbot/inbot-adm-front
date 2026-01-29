@@ -1861,7 +1861,7 @@ export function CreateTemplateAccordion() {
             }`}
             onClick={() => toggleAccordion("body")}
           >
-            4. Corpo da Mensagem
+            5. Corpo da Mensagem
             <div className="accordion_chevron">
               <img
                 src={chevron}
@@ -1976,7 +1976,7 @@ export function CreateTemplateAccordion() {
             }`}
             onClick={() => toggleAccordion("footer")}
           >
-            5. Rodapé
+            6. Rodapé
             <div className="accordion_chevron">
               <img
                 src={chevron}
@@ -2064,7 +2064,7 @@ export function CreateTemplateAccordion() {
             }`}
             onClick={() => toggleAccordion("botao")}
           >
-            6. Botões
+            7. Botões
             <div className="accordion_chevron">
               <img
                 src={chevron}
