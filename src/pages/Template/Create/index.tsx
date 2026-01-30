@@ -280,12 +280,12 @@ export function CreateTemplateAccordion() {
       location.state.duplicated = false;
       setTemplate((prevState) => ({
         ...prevState,
-        body: location?.state?.bodyText,
-        header: location?.state?.headerText,
-        footer: location?.state?.footerText,
+        body: location?.state?.bodyText || "",
+        header: location?.state?.headerText || "",
+        footer: location?.state?.footerText || "",
       }));
-      const totalVariable = location.state.variableQuantity;
-      setTemplateType(location?.state?.category);
+      const totalVariable = location.state.variableQuantity || 0;
+      setTemplateType(location?.state?.category || "");
       for (let i = 0; i < totalVariable; i++) {
         if (variables.length < 8) {
           const newVariables: IVariables = {
@@ -306,7 +306,7 @@ export function CreateTemplateAccordion() {
             const newButtons: IButton = {
               id: Date.now() + countButtons,
               value: `Button ${countButtons + 1}`,
-              text: element.text,
+              text: element.text || "",
             };
             setTypeOfButtons("quickReply");
             typeBtn = "quickReply";
@@ -318,9 +318,9 @@ export function CreateTemplateAccordion() {
             const newButtons: IButton = {
               id: Date.now() + countButtons,
               value: `Button ${countButtons + 1}`,
-              text: element.text,
+              text: element.text || "",
               type: element.type,
-              url_phone: element.url,
+              url_phone: element.url || "",
             };
             setTypeOfButtons("cta");
             typeBtn = "cta";
@@ -1238,7 +1238,6 @@ export function CreateTemplateAccordion() {
                       onChange={(e) => setTemplateType(e.target.value)}
                     >
                       <option value="">---</option>
-                      <option value={"AUTHENTICATION"}>Autenticação</option>
                       <option value={"UTILITY"}>Utilidade</option>
                       <option value={"MARKETING"}>Marketing</option>
                     </select>
@@ -1568,7 +1567,7 @@ export function CreateTemplateAccordion() {
                             onKeyDown={(e) => {
                               if (e.key === "Backspace") {
                                 e.preventDefault();
-                                if (expirationTimeRaw.length > 0) {
+                                if (expirationTimeRaw && expirationTimeRaw.length > 0) {
                                   const newRaw = expirationTimeRaw.slice(0, -1);
                                   setExpirationTimeRaw(newRaw);
                                   setExpirationTimeDisplay(formatExpirationTimeRaw(newRaw));
@@ -1806,7 +1805,7 @@ export function CreateTemplateAccordion() {
                       style={{ width: "90%" }}
                     />
                     <div style={{ width: "92%", textAlign: "end" }}>
-                      <span>{template.header.length}/60</span>
+                      <span>{(template.header || "").length}/60</span>
                     </div>
                   </div>
                 </div>
@@ -1943,7 +1942,7 @@ export function CreateTemplateAccordion() {
                 />
 
                 <div style={{ width: "87%", textAlign: "end" }}>
-                  <span>{template.body.length}/1024</span>
+                  <span>{(template.body || "").length}/1024</span>
                 </div>
                 <span style={{ fontWeight: "bolder" }}>Variáveis</span>
                 <div>
@@ -2067,7 +2066,7 @@ export function CreateTemplateAccordion() {
                       className="input-values"
                     />
                     <div style={{ width: "87%", textAlign: "end" }}>
-                      <span>{template.footer.length}/60</span>
+                      <span>{(template.footer || "").length}/60</span>
                     </div>
                   </div>
                 )}
@@ -2328,7 +2327,7 @@ export function CreateTemplateAccordion() {
                               />
                               {button.type === "staticURL" && (
                                 <span style={{ marginRight: "15px" }}>
-                                  {button.text.length}/23
+                                  {button.text && button.text.length}/23
                                 </span>
                               )}
                             </div>
