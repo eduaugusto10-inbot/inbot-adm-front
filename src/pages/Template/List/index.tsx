@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import './style.css'
-import api from "../../../utils/api";
+import api, { apiTemplateWhatsapp } from "../../../utils/api";
 import { ITemplateList } from "../../types";
 import dots from "../../../img/dots.png"
 import { useNavigate } from "react-router-dom";
@@ -52,9 +52,34 @@ export function ListAll() {
                 setToken(resp.data.accessToken);
     
                 const token = resp.data.accessToken;
-                const templatesResp = await api.get(`/token-templates?token=${token}`);
-                if (templatesResp.data && templatesResp.data.data) {
-                    setTemplates(templatesResp.data.data);
+                const templatesResp = await apiTemplateWhatsapp.get(`/template-whatsapp?botId=${botId}`);
+                if (templatesResp.data) {
+                    const mappedTemplates = templatesResp.data.map((item: any) => ({
+                        ID: item.templateName,
+                        name: item.templateName,
+                        category: item.category,
+                        status: "APPROVED",
+                        language: "pt_BR",
+                        components: [
+                            ...(item.body || []).map((b: any) => ({
+                                type: "body",
+                                parameters: [{ type: "text", text: b.text }]
+                            })),
+                            ...(item.header || []).map((h: any) => ({
+                                type: "header",
+                                parameters: [{ type: h.type, text: h.text }]
+                            })),
+                            ...(item.footer || []).map((f: any) => ({
+                                type: "footer",
+                                parameters: [{ type: "text", text: f.text }]
+                            })),
+                            ...(item.button || []).map((btn: any) => ({
+                                type: "button",
+                                parameters: [btn]
+                            }))
+                        ]
+                    }));
+                    setTemplates(mappedTemplates);
                 } else {
                     setTemplates([]);
                 }
@@ -71,9 +96,34 @@ export function ListAll() {
     useEffect(() => {
         const updateTemplates = async () => {
             try {
-                const templatesResp = await api.get(`/token-templates?token=${token}`);
-                if (templatesResp.data && templatesResp.data.data) {
-                    setTemplates(templatesResp.data.data);
+                const templatesResp = await apiTemplateWhatsapp.get(`/template-whatsapp?botId=${botId}`);
+                if (templatesResp.data) {
+                    const mappedTemplates = templatesResp.data.map((item: any) => ({
+                        ID: item.templateName,
+                        name: item.templateName,
+                        category: item.category,
+                        status: "APPROVED",
+                        language: "pt_BR",
+                        components: [
+                            ...(item.body || []).map((b: any) => ({
+                                type: "body",
+                                parameters: [{ type: "text", text: b.text }]
+                            })),
+                            ...(item.header || []).map((h: any) => ({
+                                type: "header",
+                                parameters: [{ type: h.type, text: h.text }]
+                            })),
+                            ...(item.footer || []).map((f: any) => ({
+                                type: "footer",
+                                parameters: [{ type: "text", text: f.text }]
+                            })),
+                            ...(item.button || []).map((btn: any) => ({
+                                type: "button",
+                                parameters: [btn]
+                            }))
+                        ]
+                    }));
+                    setTemplates(mappedTemplates);
                 }
             } catch (error) {
                 console.log(error);
@@ -83,7 +133,7 @@ export function ListAll() {
         const interval = setInterval(updateTemplates, 60000);
 
         return () => clearInterval(interval);
-    }, [token]);
+    }, [botId]);
     
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
