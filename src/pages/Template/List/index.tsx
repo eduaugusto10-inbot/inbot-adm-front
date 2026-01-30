@@ -14,7 +14,7 @@ import { DraggableComponent } from "../../../Components/Draggable";
 
 export function ListAll() {
     const [searchParams, setSearchParams] = useSearchParams();
-    if (process.env.NODE_ENV !== 'development' && searchParams.get('bot_id') === null) {
+    if (searchParams.get('bot_id') === null) {
         window.location.href = "https://in.bot/inbot-admin";
     }
     var botId = searchParams.get('bot_id') ?? "0";

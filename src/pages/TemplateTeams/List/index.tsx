@@ -13,13 +13,13 @@ import loupe from '../../../img/loupe.png'
 
 export function ListAll() {
     const [searchParams, setSearchParams] = useSearchParams();
-    if (process.env.NODE_ENV !== 'development' && searchParams.get('bot_id') === null) {
+    if (searchParams.get('bot_id') === null) {
         window.location.href = "https://in.bot/inbot-admin";
     }
     var botId = searchParams.get('bot_id') ?? "0";
     const history = useNavigate();
     useEffect(() => {
-        if (process.env.NODE_ENV !== 'development' && searchParams.get('bot_id') === null) {
+        if (searchParams.get('bot_id') === null) {
             window.location.href = "https://in.bot/inbot-admin";
         }
         api.get(`/whats-botid/${botId}`)

@@ -45,19 +45,7 @@ export const validatedUser = async (
   baseUrl: string | null
 ) => {
   // Skip token validation in development mode
-  if (process.env.NODE_ENV === 'development') {
-    if (botId === null) {
-      return false;
-    }
 
-    // Mock user data for development
-    localStorage.setItem("admin_name", "Dev User");
-    localStorage.setItem("admin_type", "admin");
-    localStorage.setItem("admin_email", "dev@localhost");
-    localStorage.setItem("admin_id", "0");
-
-    return { logged: true, channel: "all" };
-  }
 
   if (botId === null || token === null) {
     return false;
