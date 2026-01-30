@@ -82,7 +82,6 @@ export function Accordion() {
       api
         .get(`/whats-botid-all/${botId}`)
         .then(async (resp) => {
-          // Extrair todos os números de disparo da resposta da API
           const botNumbers = resp.data.bot.map((bot: any) => ({
             number: bot.number,
             botServerType: bot.botServerType,
@@ -91,7 +90,9 @@ export function Accordion() {
           setDispatchNumbers(botNumbers);
           setSelectedDispatchNumber("");
 
-          setPhone(resp.data.bot[0].number);
+          const defaultPhone = resp.data.bot[0].number;
+          setPhone(defaultPhone);
+
           if (searchParams.get("bot_id") === null) {
             window.location.href = "https://in.bot/inbot-admin";
           }
@@ -100,9 +101,27 @@ export function Accordion() {
             .then((resp) => setTriggerNames(resp.data))
             .catch((error) => console.log(error));
           const token = resp.data.bot[0].accessToken;
-          setPhone(resp.data.bot[0].number);
+          setPhone(defaultPhone);
+
+          if (location?.state?.phone) {
+            setPhone(location.state.phone);
+            setSelectedDispatchNumber(location.state.phone);
+          }
+
+          if (location?.state?.templateName) {
+            const templatesResp = await templateApi.get(
+              `/api/botId/${botId}/template/phoneNumber/${location?.state?.phone || defaultPhone}`
+            );
+            if (templatesResp.data && templatesResp.data.length > 0) {
+              setTemplates(templatesResp.data);
+              setCreateTriggerMenu(true);
+              setTimeout(() => {
+                loadNewTemplate(location.state.templateName);
+              }, 100);
+            }
+          }
         })
-        .catch((error) => console.log(error)); //history(`/template-warning-no-whats?bot_id=${botId}`))
+        .catch((error) => console.log(error));
     };
 
     if (searchParams.get("bot_id") === null) {
@@ -185,8 +204,10 @@ export function Accordion() {
   const [createTriggerMenu, setCreateTriggerMenu] = useState(false);
 
   useEffect(() => {
-    loadNewTemplate(location?.state?.templateID);
-  }, [createTriggerMenu]);
+    if (createTriggerMenu && templates.length > 0 && location?.state?.templateName) {
+      loadNewTemplate(location.state.templateName);
+    }
+  }, [createTriggerMenu, templates.length]);
 
   const loadTemplates = async (phoneNumber: string) => {
     try {
@@ -512,6 +533,7 @@ export function Accordion() {
     templates.forEach((template: any) => {
       if (template.templateName === e) {
         setTemplateName(template.templateName);
+        setTemplateNameSelect(template.templateName);
         setCategoryTemplate(template.category);
         setTemplateConfigurations(template.configurations || null);
         if (template.body && template.body.length > 0) {
