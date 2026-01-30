@@ -18,9 +18,7 @@ import {
 import api from "../../../utils/api";
 import axios from "axios";
 
-const baseURL = process.env.NODE_ENV === 'development' 
-  ? "https://api-stg.inbot.com.br/v2/" 
-  : "https://api.inbot.com.br/v2/";
+const baseURL = "https://api-stg.inbot.com.br/v2/";
 
 const templateApi = axios.create({ baseURL });
 import attached from "../../../img/attachment.png";
@@ -52,7 +50,7 @@ export function Accordion() {
   const [loading, setLoading] = useState<boolean>(true);
   const [isWhatsAppEnabled, setIsWhatsAppEnabled] = useState(true);
   const [isTeamsEnabled, setIsTeamsEnabled] = useState(true);
-  if (process.env.NODE_ENV !== 'development' && searchParams.get("bot_id") === null) {
+  if (searchParams.get("bot_id") === null) {
     window.location.href = "https://in.bot/inbot-admin";
   }
   var botId = searchParams.get("bot_id") ?? "0";
@@ -107,7 +105,7 @@ export function Accordion() {
         .catch((error) => console.log(error)); //history(`/template-warning-no-whats?bot_id=${botId}`))
     };
 
-    if (process.env.NODE_ENV !== 'development' && searchParams.get("bot_id") === null) {
+    if (searchParams.get("bot_id") === null) {
       window.location.href = "https://in.bot/inbot-admin";
     } else {
       fetchData();

@@ -15,7 +15,7 @@ export function Configuration(){
     const [customFields, setCustomFields] = useState([])
     const [buttonSaveStatus, setButtonSaveStatus] = useState<boolean>(false)
     const [searchParams, setSearchParams] = useSearchParams();
-    if (process.env.NODE_ENV !== 'development' && searchParams.get('bot_id') === null) {
+    if (searchParams.get('bot_id') === null) {
         window.location.href = "https://in.bot/inbot-admin";
     }
     var botId = searchParams.get('bot_id') ?? "0";

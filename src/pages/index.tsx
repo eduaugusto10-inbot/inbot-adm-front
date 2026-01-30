@@ -7,7 +7,7 @@ import 'react-international-phone/style.css';
 export function AllPhones() {
 
     const [searchParams, setSearchParams] = useSearchParams();
-    if (process.env.NODE_ENV !== 'development' && searchParams.get('token') === null) {
+    if (searchParams.get('token') === null) {
         window.location.href = "https://in.bot/inbot-admin";
     }
     

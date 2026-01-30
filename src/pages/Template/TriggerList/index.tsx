@@ -75,7 +75,7 @@ export function TriggerList() {
     const [selectedChannel, setSelectedChannel] = useState<string>('todos');
     
     useEffect(() => {
-        if (process.env.NODE_ENV !== 'development' && searchParams.get('bot_id') === null) {
+        if (searchParams.get('bot_id') === null) {
             window.location.href = "https://in.bot/inbot-admin";
         }
     }, []);
