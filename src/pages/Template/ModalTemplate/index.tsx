@@ -4,12 +4,27 @@ import './style.css';
 export function ModalTemplate(props: any) {
 
     const findText = (obj: any, type: string) => {
-        return obj.find((comp: any) => comp.type === type)?.parameters[0]?.text || "";
+        if (!obj || !Array.isArray(obj)) {
+            console.log(`[DEBUG] findText: obj não é array para type=${type}`, obj);
+            return "";
+        }
+        const found = obj.find((comp: any) => comp.type?.toUpperCase() === type.toUpperCase());
+        console.log(`[DEBUG] findText type=${type}:`, found);
+        return found?.parameters?.[0]?.text || "";
     }
 
-    const findButton = (obj: any, type: string) => {
-        return obj.find((comp: any) => comp.type === "BUTTONS")?.parameters || [];
+    const findButton = (obj: any) => {
+        if (!obj || !Array.isArray(obj)) {
+            console.log(`[DEBUG] findButton: obj não é array`, obj);
+            return [];
+        }
+        const buttons = obj.filter((comp: any) => comp.type === "button")?.flatMap((comp: any) => comp.parameters) || [];
+        console.log(`[DEBUG] findButton result:`, buttons);
+        return buttons;
     }
+
+    console.log(`[DEBUG] ModalTemplate props.modalTemplate:`, props.modalTemplate);
+    console.log(`[DEBUG] ModalTemplate components:`, props.modalTemplate?.components);
 
     return (
         <div>
@@ -24,10 +39,10 @@ export function ModalTemplate(props: any) {
                             {findText(props.modalTemplate.components, "BODY")}
                         </label>
                         <label className="footer" style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', fontSize: "12px" }}>
-                            {findText(props.modalTemplate.components, "footer")}
+                            {findText(props.modalTemplate.components, "FOOTER")}
                         </label>
-                        {findButton(props.modalTemplate.components, "BUTTONS") !== undefined && findButton(props.modalTemplate.components, "BUTTONS").map((button: { text: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; }) => (
-                            <div className="quickReply-texts">
+                        {findButton(props.modalTemplate.components).map((button: any, index: number) => (
+                            <div key={index} className="quickReply-texts">
                                 <div className="quick-reply"><label>{button.text}</label></div>
                             </div>
                         ))}
