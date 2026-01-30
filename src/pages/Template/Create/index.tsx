@@ -193,6 +193,14 @@ export function CreateTemplateAccordion() {
     return `${hours}h${minutes.toString().padStart(2, "0")}min`;
   };
 
+  const getSelectOption = (value: string, label: string) => {
+    if (!value) return null;
+    const option = fichasOptions.find(opt => opt.value === value);
+    if (option) return option;
+    if (value) return { value, label: value };
+    return null;
+  };
+
   const formatExpirationTimeNormalized = (raw: string): { display: string, rawNormalized: string } => {
     if (!raw) return { display: "", rawNormalized: "" };
     const digits = raw.replace(/\D/g, "");
@@ -278,12 +286,12 @@ export function CreateTemplateAccordion() {
       location.state.duplicated = false;
       setTemplate((prevState) => ({
         ...prevState,
-        body: location?.state?.bodyText,
-        header: location?.state?.headerText,
-        footer: location?.state?.footerText,
+        body: location?.state?.bodyText || "",
+        header: location?.state?.headerText || "",
+        footer: location?.state?.footerText || "",
       }));
-      const totalVariable = location.state.variableQuantity;
-      setTemplateType(location?.state?.category);
+      const totalVariable = location.state.variableQuantity || 0;
+      setTemplateType(location?.state?.category || "");
       for (let i = 0; i < totalVariable; i++) {
         if (variables.length < 8) {
           const newVariables: IVariables = {
@@ -304,7 +312,7 @@ export function CreateTemplateAccordion() {
             const newButtons: IButton = {
               id: Date.now() + countButtons,
               value: `Button ${countButtons + 1}`,
-              text: element.text,
+              text: element.text || "",
             };
             setTypeOfButtons("quickReply");
             typeBtn = "quickReply";
@@ -316,9 +324,9 @@ export function CreateTemplateAccordion() {
             const newButtons: IButton = {
               id: Date.now() + countButtons,
               value: `Button ${countButtons + 1}`,
-              text: element.text,
+              text: element.text || "",
               type: element.type,
-              url_phone: element.url,
+              url_phone: element.url || "",
             };
             setTypeOfButtons("cta");
             typeBtn = "cta";
@@ -329,6 +337,20 @@ export function CreateTemplateAccordion() {
       });
 
       typeBtn === "cta" ? setButtonsCTA(buttonsData) : setButtons(buttonsData);
+
+      console.log("=== CREATE TEMPLATE DEBUG ===");
+      console.log("location.state:", location.state);
+      
+      if (location.state?.hasExpirationTime) {
+        console.log("Tem expiration time!");
+        console.log("cardInsideTime:", location.state.cardInsideTime);
+        console.log("cardOutsideTime:", location.state.cardOutsideTime);
+        setHasExpirationTime(true);
+        setExpirationTimeDisplay(location.state.expirationTimeDisplay || "");
+        setExpirationTimeRaw(location.state.expirationTimeRaw || "");
+        setCardInsideTime(location.state.cardInsideTime || "");
+        setCardOutsideTime(location.state.cardOutsideTime || "");
+      }
     }
   }, []);
 
@@ -866,7 +888,8 @@ export function CreateTemplateAccordion() {
     const getFichaTitle = (cardId: string): string => {
       if (!cardId) return "";
       const ficha = fichasOptions.find(opt => opt.value === cardId);
-      return ficha ? ficha.label : "";
+      if (ficha) return ficha.label;
+      return cardId;
     };
 
     const data = {
@@ -1236,7 +1259,6 @@ export function CreateTemplateAccordion() {
                       onChange={(e) => setTemplateType(e.target.value)}
                     >
                       <option value="">---</option>
-                      <option value={"AUTHENTICATION"}>Autenticação</option>
                       <option value={"UTILITY"}>Utilidade</option>
                       <option value={"MARKETING"}>Marketing</option>
                     </select>
@@ -1566,7 +1588,7 @@ export function CreateTemplateAccordion() {
                             onKeyDown={(e) => {
                               if (e.key === "Backspace") {
                                 e.preventDefault();
-                                if (expirationTimeRaw.length > 0) {
+                                if (expirationTimeRaw && expirationTimeRaw.length > 0) {
                                   const newRaw = expirationTimeRaw.slice(0, -1);
                                   setExpirationTimeRaw(newRaw);
                                   setExpirationTimeDisplay(formatExpirationTimeRaw(newRaw));
@@ -1601,7 +1623,7 @@ export function CreateTemplateAccordion() {
                             </div>
                             <Select
                               options={fichasOptions}
-                              value={cardInsideTime ? fichasOptions.find(opt => opt.value === cardInsideTime) : null}
+                              value={getSelectOption(cardInsideTime, "")}
                               onChange={(option) => {
                                 if (option) {
                                   setShowOtherCardInside(false);
@@ -1654,7 +1676,7 @@ export function CreateTemplateAccordion() {
                             </div>
                             <Select
                               options={fichasOptions}
-                              value={cardOutsideTime ? fichasOptions.find(opt => opt.value === cardOutsideTime) : null}
+                              value={getSelectOption(cardOutsideTime, "")}
                               onChange={(option) => {
                                 if (option) {
                                   setShowOtherCardOutside(false);
@@ -1804,7 +1826,7 @@ export function CreateTemplateAccordion() {
                       style={{ width: "90%" }}
                     />
                     <div style={{ width: "92%", textAlign: "end" }}>
-                      <span>{template.header.length}/60</span>
+                      <span>{(template.header || "").length}/60</span>
                     </div>
                   </div>
                 </div>
@@ -1941,7 +1963,7 @@ export function CreateTemplateAccordion() {
                 />
 
                 <div style={{ width: "87%", textAlign: "end" }}>
-                  <span>{template.body.length}/1024</span>
+                  <span>{(template.body || "").length}/1024</span>
                 </div>
                 <span style={{ fontWeight: "bolder" }}>Variáveis</span>
                 <div>
@@ -2065,7 +2087,7 @@ export function CreateTemplateAccordion() {
                       className="input-values"
                     />
                     <div style={{ width: "87%", textAlign: "end" }}>
-                      <span>{template.footer.length}/60</span>
+                      <span>{(template.footer || "").length}/60</span>
                     </div>
                   </div>
                 )}
@@ -2326,7 +2348,7 @@ export function CreateTemplateAccordion() {
                               />
                               {button.type === "staticURL" && (
                                 <span style={{ marginRight: "15px" }}>
-                                  {button.text.length}/23
+                                  {button.text && button.text.length}/23
                                 </span>
                               )}
                             </div>
