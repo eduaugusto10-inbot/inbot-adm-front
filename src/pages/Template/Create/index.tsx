@@ -136,7 +136,7 @@ export function CreateTemplateAccordion() {
   const [showOtherCardOutside, setShowOtherCardOutside] = useState(false);
   const [otherCardInsideText, setOtherCardInsideText] = useState("");
   const [otherCardOutsideText, setOtherCardOutsideText] = useState("");
-  const [fichasOptions, setFichasOptions] = useState<{ value: string; label: string }[]>([]);
+  const [fichasOptions, setFichasOptions] = useState<{ value: string; label: string; estimulo: string }[]>([]);
   const [loadingFichas, setLoadingFichas] = useState(false);
   const fichasLoadedRef = useRef(false);
 
@@ -162,11 +162,14 @@ export function CreateTemplateAccordion() {
             "X-InAuth-Token": "api_edu"
           }
         });
+        console.log("API response:", response.data);
         const fichas = response.data;
+        console.log("First ficha sample:", fichas[0] ? JSON.stringify(fichas[0]) : "empty");
         const filteredFichas = fichas.filter((ficha: any) => ficha.ficha_id_title && ficha.ficha_id_title.trim() !== "");
         const options = filteredFichas.map((ficha: any) => ({
           value: String(ficha.ficha_id),
-          label: ficha.ficha_id_title
+          label: ficha.ficha_id_title,
+          estimulo: ficha.estimulo || ficha.ficha_id_title
         }));
         setFichasOptions(options);
         fichasLoadedRef.current = true; // Marca como carregado
@@ -885,10 +888,13 @@ export function CreateTemplateAccordion() {
     };
 
     // Obter ficha_id_title a partir do cardInsideTime/cardOutsideTime
-    const getFichaTitle = (cardId: string): string => {
+    const getEstimulo = (cardId: string): string => {
+      console.log("getEstimulo called with cardId:", cardId);
+      console.log("fichasOptions:", fichasOptions);
       if (!cardId) return "";
       const ficha = fichasOptions.find(opt => opt.value === cardId);
-      if (ficha) return ficha.label;
+      console.log("ficha found:", ficha);
+      if (ficha) return ficha.estimulo;
       return cardId;
     };
 
@@ -904,11 +910,12 @@ export function CreateTemplateAccordion() {
           expirationInMinutes: parseExpirationToMinutes(expirationTimeDisplay),
           createdBy: "Sistema",
           phoneNumber: Number(phone),
-          payloadAfterExpirationTime: getFichaTitle(cardOutsideTime),
-          payloadBeforeExpirationTime: getFichaTitle(cardInsideTime)
+          payloadAfterExpirationTime: getEstimulo(cardOutsideTime),
+          payloadBeforeExpirationTime: getEstimulo(cardInsideTime)
         }
       })
     };
+    console.log("Payload being sent:", JSON.stringify(data, null, 2));
 
     templateApi
       .post(`/api/template-whatsapp`, data)
