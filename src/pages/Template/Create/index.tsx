@@ -195,6 +195,14 @@ export function CreateTemplateAccordion() {
     return `${hours}h${minutes.toString().padStart(2, "0")}min`;
   };
 
+  const getSelectOption = (value: string, label: string) => {
+    if (!value) return null;
+    const option = fichasOptions.find(opt => opt.value === value);
+    if (option) return option;
+    if (value) return { value, label: value };
+    return null;
+  };
+
   const formatExpirationTimeNormalized = (raw: string): { display: string, rawNormalized: string } => {
     if (!raw) return { display: "", rawNormalized: "" };
     const digits = raw.replace(/\D/g, "");
@@ -331,6 +339,20 @@ export function CreateTemplateAccordion() {
       });
 
       typeBtn === "cta" ? setButtonsCTA(buttonsData) : setButtons(buttonsData);
+
+      console.log("=== CREATE TEMPLATE DEBUG ===");
+      console.log("location.state:", location.state);
+      
+      if (location.state?.hasExpirationTime) {
+        console.log("Tem expiration time!");
+        console.log("cardInsideTime:", location.state.cardInsideTime);
+        console.log("cardOutsideTime:", location.state.cardOutsideTime);
+        setHasExpirationTime(true);
+        setExpirationTimeDisplay(location.state.expirationTimeDisplay || "");
+        setExpirationTimeRaw(location.state.expirationTimeRaw || "");
+        setCardInsideTime(location.state.cardInsideTime || "");
+        setCardOutsideTime(location.state.cardOutsideTime || "");
+      }
     }
   }, []);
 
@@ -868,7 +890,8 @@ export function CreateTemplateAccordion() {
     const getFichaTitle = (cardId: string): string => {
       if (!cardId) return "";
       const ficha = fichasOptions.find(opt => opt.value === cardId);
-      return ficha ? ficha.label : "";
+      if (ficha) return ficha.label;
+      return cardId;
     };
 
     const data = {
@@ -1602,7 +1625,7 @@ export function CreateTemplateAccordion() {
                             </div>
                             <Select
                               options={fichasOptions}
-                              value={cardInsideTime ? fichasOptions.find(opt => opt.value === cardInsideTime) : null}
+                              value={getSelectOption(cardInsideTime, "")}
                               onChange={(option) => {
                                 if (option) {
                                   setShowOtherCardInside(false);
@@ -1655,7 +1678,7 @@ export function CreateTemplateAccordion() {
                             </div>
                             <Select
                               options={fichasOptions}
-                              value={cardOutsideTime ? fichasOptions.find(opt => opt.value === cardOutsideTime) : null}
+                              value={getSelectOption(cardOutsideTime, "")}
                               onChange={(option) => {
                                 if (option) {
                                   setShowOtherCardOutside(false);
