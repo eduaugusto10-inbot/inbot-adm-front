@@ -5,26 +5,18 @@ export function ModalTemplate(props: any) {
 
     const findText = (obj: any, type: string) => {
         if (!obj || !Array.isArray(obj)) {
-            console.log(`[DEBUG] findText: obj não é array para type=${type}`, obj);
             return "";
         }
         const found = obj.find((comp: any) => comp.type?.toUpperCase() === type.toUpperCase());
-        console.log(`[DEBUG] findText type=${type}:`, found);
         return found?.parameters?.[0]?.text || "";
     }
 
     const findButton = (obj: any) => {
         if (!obj || !Array.isArray(obj)) {
-            console.log(`[DEBUG] findButton: obj não é array`, obj);
             return [];
         }
-        const buttons = obj.filter((comp: any) => comp.type === "button")?.flatMap((comp: any) => comp.parameters) || [];
-        console.log(`[DEBUG] findButton result:`, buttons);
-        return buttons;
+        return obj.filter((comp: any) => comp.type === "button")?.flatMap((comp: any) => comp.parameters) || [];
     }
-
-    console.log(`[DEBUG] ModalTemplate props.modalTemplate:`, props.modalTemplate);
-    console.log(`[DEBUG] ModalTemplate components:`, props.modalTemplate?.components);
 
     return (
         <div>
