@@ -594,6 +594,31 @@ export function CreateTemplateAccordion() {
       }
     }
 
+    // Verificar prazo de validade
+    if (hasExpirationTime) {
+      if (!expirationTimeDisplay || expirationTimeDisplay === "") {
+        hasError = true;
+        missingFields.push("Tempo de validade");
+        if (!firstErrorField) {
+          firstErrorField = "expiration";
+        }
+      }
+      if (!cardInsideTime) {
+        hasError = true;
+        missingFields.push("Payload Envio Dentro do Prazo");
+        if (!firstErrorField) {
+          firstErrorField = "expiration";
+        }
+      }
+      if (!cardOutsideTime) {
+        hasError = true;
+        missingFields.push("Payload Envio Fora do Prazo");
+        if (!firstErrorField) {
+          firstErrorField = "expiration";
+        }
+      }
+    }
+
     // Se houver erro, não continua com o envio do formulário
     if (hasError) {
       // Abrir o accordion correspondente ao primeiro campo com erro
@@ -605,6 +630,16 @@ export function CreateTemplateAccordion() {
           channelTrigger: false,
           config: true,
           expiration: false,
+          header: false,
+          body: false,
+          footer: false,
+          botao: false,
+        });
+      } else if (firstErrorField === "expiration") {
+        setAccordionState({
+          channelTrigger: false,
+          config: false,
+          expiration: true,
           header: false,
           body: false,
           footer: false,
@@ -2103,8 +2138,9 @@ export function CreateTemplateAccordion() {
                         value="quickReply"
                         name="quickReply"
                         checked={typeOfButtons === "quickReply"}
+                        disabled={hasExpirationTime}
                       />
-                      <span className="padding-5">Resposta rápida</span>
+                      <span className="padding-5" style={hasExpirationTime ? { color: "#999" } : {}}>Resposta rápida</span>
                     </div>
                     <div className="row-align" onChange={quickReplyRadio}>
                       <input
@@ -2112,8 +2148,9 @@ export function CreateTemplateAccordion() {
                         value="cta"
                         name="quickReply"
                         checked={typeOfButtons === "cta"}
+                        disabled={hasExpirationTime}
                       />
-                      <span className="padding-5">Call To Action (CTA)</span>
+                      <span className="padding-5" style={hasExpirationTime ? { color: "#999" } : {}}>Call To Action (CTA)</span>
                     </div>
                     <div className="row-align" onChange={quickReplyRadio}>
                       <input
@@ -2125,6 +2162,20 @@ export function CreateTemplateAccordion() {
                       <span className="padding-5">Nenhum</span>
                     </div>
                   </div>
+                  {hasExpirationTime && typeOfButtons !== "without" && (
+                    <div style={{ 
+                      marginTop: "10px", 
+                      padding: "10px", 
+                      backgroundColor: "#fff3cd", 
+                      border: "1px solid #ffc107", 
+                      borderRadius: "5px",
+                      fontSize: "12px"
+                    }}>
+                      <span style={{ color: "#856404" }}>
+                        ⚠️ Quando o prazo de validade está ativo, os botões são automaticamente definidos como "Nenhum".
+                      </span>
+                    </div>
+                  )}
                 </div>
                 {typeOfButtons === "quickReply" && (
                   <div>
