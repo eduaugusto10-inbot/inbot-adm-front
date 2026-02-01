@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import './style.css'
-import api from "../../../utils/api";
+import api, { apiTemplateWhatsapp } from "../../../utils/api";
 import { ITemplateList } from "../../types";
 import dots from "../../../img/dots.png"
 import { useNavigate } from "react-router-dom";
@@ -38,6 +38,18 @@ export function ListAll() {
     const [hiddenVideo, setHiddenVideo] = useState<boolean>(false)
     const [headerText, setHeaderText] = useState("")
 
+    const formatMinutesToDisplay = (minutes: number): string => {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return `${hours}h${mins.toString().padStart(2, '0')}min`;
+    };
+
+    const formatMinutesToRaw = (minutes: number): string => {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return `${hours}${mins.toString().padStart(2, '0')}`;
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
@@ -52,9 +64,43 @@ export function ListAll() {
                 setToken(resp.data.accessToken);
     
                 const token = resp.data.accessToken;
-                const templatesResp = await api.get(`/token-templates?token=${token}`);
-                if (templatesResp.data && templatesResp.data.data) {
-                    setTemplates(templatesResp.data.data);
+                const templatesResp = await apiTemplateWhatsapp.get(`/template-whatsapp?botId=${botId}`);
+                if (templatesResp.data) {
+                    const mappedTemplates = templatesResp.data.map((item: any) => ({
+                        ID: item.templateName,
+                        name: item.templateName,
+                        category: item.category,
+                        status: "APPROVED",
+                        language: "pt_BR",
+                        hasExpirationTime: !!item.configurations,
+                        expirationTimeDisplay: item.configurations?.expirationInMinutes 
+                            ? formatMinutesToDisplay(item.configurations.expirationInMinutes) 
+                            : "",
+                        expirationTimeRaw: item.configurations?.expirationInMinutes 
+                            ? formatMinutesToRaw(item.configurations.expirationInMinutes) 
+                            : "",
+                        cardInsideTime: item.configurations?.payloadBeforeExpirationTime || "",
+                        cardOutsideTime: item.configurations?.payloadAfterExpirationTime || "",
+                        components: [
+                            ...(item.body || []).map((b: any) => ({
+                                type: "body",
+                                parameters: [{ type: "text", text: b.text }]
+                            })),
+                            ...(item.header || []).map((h: any) => ({
+                                type: "header",
+                                parameters: [{ type: h.type, text: h.text }]
+                            })),
+                            ...(item.footer || []).map((f: any) => ({
+                                type: "footer",
+                                parameters: [{ type: "text", text: f.text }]
+                            })),
+                            ...(item.button || []).map((btn: any) => ({
+                                type: "button",
+                                parameters: [btn]
+                            }))
+                        ]
+                    }));
+                    setTemplates(mappedTemplates);
                 } else {
                     setTemplates([]);
                 }
@@ -71,9 +117,43 @@ export function ListAll() {
     useEffect(() => {
         const updateTemplates = async () => {
             try {
-                const templatesResp = await api.get(`/token-templates?token=${token}`);
-                if (templatesResp.data && templatesResp.data.data) {
-                    setTemplates(templatesResp.data.data);
+                const templatesResp = await apiTemplateWhatsapp.get(`/template-whatsapp?botId=${botId}`);
+                if (templatesResp.data) {
+                    const mappedTemplates = templatesResp.data.map((item: any) => ({
+                        ID: item.templateName,
+                        name: item.templateName,
+                        category: item.category,
+                        status: "APPROVED",
+                        language: "pt_BR",
+                        hasExpirationTime: !!item.configurations,
+                        expirationTimeDisplay: item.configurations?.expirationInMinutes 
+                            ? formatMinutesToDisplay(item.configurations.expirationInMinutes) 
+                            : "",
+                        expirationTimeRaw: item.configurations?.expirationInMinutes 
+                            ? formatMinutesToRaw(item.configurations.expirationInMinutes) 
+                            : "",
+                        cardInsideTime: item.configurations?.payloadBeforeExpirationTime || "",
+                        cardOutsideTime: item.configurations?.payloadAfterExpirationTime || "",
+                        components: [
+                            ...(item.body || []).map((b: any) => ({
+                                type: "body",
+                                parameters: [{ type: "text", text: b.text }]
+                            })),
+                            ...(item.header || []).map((h: any) => ({
+                                type: "header",
+                                parameters: [{ type: h.type, text: h.text }]
+                            })),
+                            ...(item.footer || []).map((f: any) => ({
+                                type: "footer",
+                                parameters: [{ type: "text", text: f.text }]
+                            })),
+                            ...(item.button || []).map((btn: any) => ({
+                                type: "button",
+                                parameters: [btn]
+                            }))
+                        ]
+                    }));
+                    setTemplates(mappedTemplates);
                 }
             } catch (error) {
                 console.log(error);
@@ -83,7 +163,7 @@ export function ListAll() {
         const interval = setInterval(updateTemplates, 60000);
 
         return () => clearInterval(interval);
-    }, [token]);
+    }, [botId]);
     
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -305,34 +385,91 @@ export function ListAll() {
     const duplicaTemplate = (id: number) => {
         const sortTemplates = handleSort(dadosFiltrados);
         if (!sortTemplates || sortTemplates.length === 0 || !sortTemplates[id]) return;
-        console.log(sortTemplates[id].components)
         
         setMenuOpen(false);
+        
+        console.log("=== DUPLICATE TEMPLATE DEBUG ===");
+        console.log("Template original:", sortTemplates[id]);
+        console.log("hasExpirationTime:", sortTemplates[id].hasExpirationTime);
+        console.log("cardInsideTime:", sortTemplates[id].cardInsideTime);
+        console.log("cardOutsideTime:", sortTemplates[id].cardOutsideTime);
+        
         let variableQuantity = 0;
         let bodyText = "";
+        let headerConfig = null;
+        let headerText = null;
+        let footerText = null;
+        let rodapeConfig = "srodape";
+        let qtButtons = 0;
+        let buttonsTexts: any[] = [];
+        let buttonsDuplicatedData: any[] = [];
+        
         sortTemplates[id].components.forEach((element: any) => {
-            if (element.type === "BODY"){
+            if (element.type === "body"){
                 variableQuantity = encontrarMaiorNumero(element.parameters[0].text);
                 bodyText = element.parameters[0].text;
             }
+            if (element.type === "header") {
+                if (element.parameters[0].type === "text") {
+                    headerText = element.parameters[0].text;
+                }
+                switch (element.parameters[0].type) {
+                    case "video":
+                        headerConfig = "video";
+                        break;
+                    case "text":
+                        headerConfig = "text";
+                        break;
+                    case "image":
+                        headerConfig = "image";
+                        break;
+                    case "document":
+                        headerConfig = "document";
+                        break;
+                }
+            }
+            if (element.type === "footer") {
+                if (element.parameters[0].type === "text") {
+                    footerText = element.parameters[0].text;
+                    rodapeConfig = "rodape";
+                }
+            }
+            if (element.type === "button") {
+                buttonsDuplicatedData = element.parameters || [];
+                buttonsDuplicatedData.forEach((btn: any) => {
+                    if (btn.type === "quickReply") {
+                        qtButtons++;
+                    }
+                    buttonsTexts.push(btn);
+                });
+            }
         });
-        const buttonsTexts = findButton(sortTemplates[id].components, "BUTTONS") || []
+        
+        const stateToSend = { 
+            duplicated: true,
+            variableQuantity: variableQuantity, 
+            urlLogo: "", 
+            phone: phone, 
+            category: sortTemplates[id].category,
+            headerConfig: headerConfig, 
+            qtButtons: qtButtons,
+            buttons: buttonsDuplicatedData,
+            bodyText: bodyText,
+            buttonsContent: buttonsTexts,
+            headerText: headerText,
+            footerText: footerText,
+            rodapeConfig: rodapeConfig,
+            hasExpirationTime: sortTemplates[id].hasExpirationTime,
+            expirationTimeDisplay: sortTemplates[id].expirationTimeDisplay || "",
+            expirationTimeRaw: sortTemplates[id].expirationTimeRaw || "",
+            cardInsideTime: sortTemplates[id].cardInsideTime || "",
+            cardOutsideTime: sortTemplates[id].cardOutsideTime || ""
+        };
+        
+        console.log("State a ser enviado:", stateToSend);
+        
         history(`/template-create?bot_id=${botId}&token=${searchParams.get("token")}&url_base_api=${searchParams.get('url_base_api')}`, { 
-            state: { 
-                duplicated: true,
-                variableQuantity: variableQuantity, 
-                urlLogo: "", 
-                phone: phone, 
-                category:sortTemplates[id].category,
-                headerConfig: hasMedia(sortTemplates[id].components), 
-                qtButtons: hasManyButtons(sortTemplates[id].components),
-                buttons: buttonsDuplicated,
-                bodyText: bodyText,
-                buttonsContent: buttonsTexts,
-                headerText: hasHeaderText(sortTemplates[id].components),
-                footerText: hasFooterText(sortTemplates[id].components),
-                rodapeConfig: hasFooter(sortTemplates[id].components)
-            } 
+            state: stateToSend
         });
     }
 

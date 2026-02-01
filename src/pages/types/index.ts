@@ -99,6 +99,7 @@ export interface ITemplateList {
   language: string;
   status: string;
   components: any;
+  templateName?: string;
 }
 export interface ITemplateListTeams {
   id: string;
@@ -269,6 +270,7 @@ export interface AccordionTable {
 export interface AccordionStateCreate {
   channelTrigger: boolean;
   config: boolean;
+  expiration: boolean;
   header: boolean;
   body: boolean;
   footer: boolean;

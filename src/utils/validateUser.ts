@@ -44,6 +44,9 @@ export const validatedUser = async (
   token: string | null,
   baseUrl: string | null
 ) => {
+  // Skip token validation in development mode
+
+
   if (botId === null || token === null) {
     return false;
   }

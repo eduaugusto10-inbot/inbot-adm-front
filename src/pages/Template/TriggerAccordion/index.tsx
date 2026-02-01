@@ -16,6 +16,11 @@ import {
   errorMessageDefault,
 } from "../../../Components/Toastify";
 import api from "../../../utils/api";
+import axios from "axios";
+
+const baseURL = "https://api-stg.inbot.com.br/v2/";
+
+const templateApi = axios.create({ baseURL });
 import attached from "../../../img/attachment.png";
 import { ToastContainer, toast } from "react-toastify";
 import "./index.css";
@@ -77,7 +82,6 @@ export function Accordion() {
       api
         .get(`/whats-botid-all/${botId}`)
         .then(async (resp) => {
-          // Extrair todos os números de disparo da resposta da API
           const botNumbers = resp.data.bot.map((bot: any) => ({
             number: bot.number,
             botServerType: bot.botServerType,
@@ -86,7 +90,9 @@ export function Accordion() {
           setDispatchNumbers(botNumbers);
           setSelectedDispatchNumber("");
 
-          setPhone(resp.data.bot[0].number);
+          const defaultPhone = resp.data.bot[0].number;
+          setPhone(defaultPhone);
+
           if (searchParams.get("bot_id") === null) {
             window.location.href = "https://in.bot/inbot-admin";
           }
@@ -95,43 +101,27 @@ export function Accordion() {
             .then((resp) => setTriggerNames(resp.data))
             .catch((error) => console.log(error));
           const token = resp.data.bot[0].accessToken;
-          setPhone(resp.data.bot[0].number);
-          try {
-            const templatesResp = await api.get(
-              `/token-templates?token=${token}`
+          setPhone(defaultPhone);
+
+          if (location?.state?.phone) {
+            setPhone(location.state.phone);
+            setSelectedDispatchNumber(location.state.phone);
+          }
+
+          if (location?.state?.templateName) {
+            const templatesResp = await templateApi.get(
+              `/api/botId/${botId}/template/phoneNumber/${location?.state?.phone || defaultPhone}`
             );
-            if (
-              templatesResp.data &&
-              templatesResp.data.data &&
-              templatesResp.data.data.length > 0
-            ) {
-              setTemplates(templatesResp.data.data);
+            if (templatesResp.data && templatesResp.data.length > 0) {
+              setTemplates(templatesResp.data);
               setCreateTriggerMenu(true);
-            } else {
-              setTemplates([]);
-              setCreateTriggerMenu(false);
-              errorMessageDefault(
-                "Por favor, criar um template antes de criar a campanha"
-              );
               setTimeout(() => {
-                toast.warn("Redirecionando...", {
-                  theme: "colored",
-                });
-                setTimeout(() => {
-                  history(
-                    `/template-create?bot_id=${botId}&token=${searchParams.get(
-                      "token"
-                    )}&url_base_api=${searchParams.get("url_base_api")}`
-                  );
-                }, 2000);
-              }, 2000);
+                loadNewTemplate(location.state.templateName);
+              }, 100);
             }
-          } catch (error) {
-            console.log(error);
-            errorMessageDefault("Erro ao carregar templates");
           }
         })
-        .catch((error) => console.log(error)); //history(`/template-warning-no-whats?bot_id=${botId}`))
+        .catch((error) => console.log(error));
     };
 
     if (searchParams.get("bot_id") === null) {
@@ -204,13 +194,44 @@ export function Accordion() {
 
   const [selectedDispatchNumber, setSelectedDispatchNumber] =
     useState<string>("");
+  const [templateConfigurations, setTemplateConfigurations] = useState<any>(null);
+  const [hasButton, setHasButton] = useState<boolean>(false);
+  const [hasHeader, setHasHeader] = useState<boolean>(false);
+  const [hasBody, setHasBody] = useState<boolean>(false);
+  const [hasFooter, setHasFooter] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
   const [createTriggerMenu, setCreateTriggerMenu] = useState(false);
 
   useEffect(() => {
-    loadNewTemplate(location?.state?.templateID);
-  }, [createTriggerMenu]);
+    if (createTriggerMenu && templates.length > 0 && location?.state?.templateName) {
+      loadNewTemplate(location.state.templateName);
+    }
+  }, [createTriggerMenu, templates.length]);
+
+  const loadTemplates = async (phoneNumber: string) => {
+    try {
+      const templatesResp = await templateApi.get(
+        `/api/botId/${botId}/template/phoneNumber/${phoneNumber}`
+      );
+      if (
+        templatesResp.data &&
+        templatesResp.data.length > 0
+      ) {
+        setTemplates(templatesResp.data);
+        setCreateTriggerMenu(true);
+      } else {
+        setTemplates([]);
+        setCreateTriggerMenu(false);
+        errorMessageDefault(
+          "Por favor, criar um template antes de criar a campanha"
+        );
+      }
+    } catch (error) {
+      console.log(error);
+      errorMessageDefault("Erro ao carregar templates");
+    }
+  };
 
   const toggleAccordion = (key: keyof AccordionState) => {
     setAccordionState({
@@ -425,7 +446,8 @@ export function Accordion() {
     let headerType = null;
     headerElement.forEach((element: any) => {
       if (element.type === "HEADER") {
-        switch (element.parameters[0].type) {
+        const paramType = element.parameters[0]?.type?.toLowerCase();
+        switch (paramType) {
           case "video":
             headerType = "video";
             break;
@@ -461,7 +483,7 @@ export function Accordion() {
       }
       if (element.type === "HEADER") {
         setHeaderText(element.parameters[0]?.text);
-        setTypeOfHeader(element.parameters[0].type);
+        setTypeOfHeader(element.parameters[0]?.type?.toLowerCase() || "");
       }
       if (element.type === "FOOTER") {
         setFooterText(element.parameters[0].text);
@@ -508,18 +530,45 @@ export function Accordion() {
     setFileData([]);
     setListVariables([]);
     setFileName("");
-    templates.forEach((template: ITemplateList) => {
-      if (template.ID === e) {
-        setTemplateName(template.name);
-        template.components.forEach((element: any) => {
-          console.log(element);
-          if (element.type === "BODY") {
-            setVariableQty(encontrarMaiorNumero(element.parameters[0].text));
-          }
-        });
-        setQtButtons(hasManyButtons(template.components));
-        setHeaderConfig(hasMedia(template.components));
+    templates.forEach((template: any) => {
+      if (template.templateName === e) {
+        setTemplateName(template.templateName);
+        setTemplateNameSelect(template.templateName);
         setCategoryTemplate(template.category);
+        setTemplateConfigurations(template.configurations || null);
+        if (template.body && template.body.length > 0) {
+          template.body.forEach((element: any) => {
+            if (element.type === "text") {
+              setBodyText(element.text || "");
+              setVariableQty(element.numVariables || encontrarMaiorNumero(element.text || ""));
+            }
+          });
+        }
+        if (template.header && template.header.length > 0) {
+          const headerType = template.header[0].type?.toLowerCase();
+          setHeaderConfig(headerType);
+          setTypeOfHeader(headerType);
+          setHeaderText(template.header[0].text || "");
+        } else {
+          setHeaderConfig(null);
+          setTypeOfHeader("");
+          setHeaderText("");
+        }
+        if (template.footer && template.footer.length > 0) {
+          setFooterText(template.footer[0].text || "");
+        }
+        if (template.button && template.button.length > 0) {
+          setQtButtons(template.button.length);
+          template.button.forEach((btn: any, index: number) => {
+            if (index === 0) setTitleButton1(btn.text || "");
+            if (index === 1) setTitleButton2(btn.text || "");
+            if (index === 2) setTitleButton3(btn.text || "");
+          });
+        }
+        setHasButton(template.hasButton || false);
+        setHasHeader(template.hasHeader || false);
+        setHasBody(template.hasBody || false);
+        setHasFooter(template.hasFooter || false);
         return;
       }
     });
@@ -548,7 +597,7 @@ export function Accordion() {
   }, [fileName]);
 
   const validatedPayload = (): boolean => {
-    if (typeOfHeader === "TEXT" && headerText === "") {
+    if (typeOfHeader === "text" && headerText === "") {
       return false;
     }
     if (bodyText === "") {
@@ -583,15 +632,15 @@ export function Accordion() {
       errorNoRecipient();
       return;
     }
-    if (typeOfHeader === "IMAGE" && urlMidia === "") {
+    if (typeOfHeader === "image" && urlMidia === "") {
       errorMidiaEmpty();
       return;
     }
-    if (typeOfHeader === "VIDEO" && urlMidia === "") {
+    if (typeOfHeader === "video" && urlMidia === "") {
       errorMidiaEmpty();
       return;
     }
-    if (typeOfHeader === "DOCUMENT" && urlMidia === "") {
+    if (typeOfHeader === "document" && urlMidia === "") {
       errorMidiaEmpty();
       return;
     }
@@ -659,6 +708,9 @@ export function Accordion() {
                   title_button_2: titleButton2,
                   title_button_3: titleButton3,
                   channel: "whatsapp",
+                  expirationInMinutes: templateConfigurations?.expirationInMinutes || null,
+                  payloadAfterExpirationTime: templateConfigurations?.payloadAfterExpirationTime || null,
+                  payloadBeforeExpirationTime: templateConfigurations?.payloadBeforeExpirationTime || null,
                 }));
 
               // Quebrar a lista em lotes de 100 objetos
@@ -744,6 +796,9 @@ export function Accordion() {
                 title_button_2: titleButton2,
                 title_button_3: titleButton3,
                 channel: "whatsapp",
+                expirationInMinutes: templateConfigurations?.expirationInMinutes || null,
+                payloadAfterExpirationTime: templateConfigurations?.payloadAfterExpirationTime || null,
+                payloadBeforeExpirationTime: templateConfigurations?.payloadBeforeExpirationTime || null,
               }));
 
               // Quebrar a lista em lotes de 100 objetos
@@ -916,16 +971,22 @@ export function Accordion() {
     setBlockAddNumber(phone.toString().length >= 5);
   }
 
-  const handleDispatchNumberChange = (
+  const handleDispatchNumberChange = async (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    setSelectedDispatchNumber(e.target.value);
+    const selectedNumber = e.target.value;
+    setSelectedDispatchNumber(selectedNumber);
+    
     if (
-      e.target.value !== "" &&
+      selectedNumber !== "" &&
       errorMessage &&
       errorMessage.includes("número de disparo")
     ) {
       setErrorMessage("");
+    }
+
+    if (selectedNumber !== "") {
+      await loadTemplates(selectedNumber);
     }
   };
 
@@ -1136,43 +1197,6 @@ export function Accordion() {
                         paddingTop: "5px",
                       }}
                     >
-                      Selecionar template
-                    </span>
-                    <div style={{ flex: 1 }}>
-                      <select
-                        value={templateName}
-                        className="input-values"
-                        onChange={(e) => openModal(e.target.value)}
-                        style={{ width: "100%", maxWidth: "400px" }}
-                      >
-                        <option value="">{templateName ?? "--"}</option>
-                        {templates.map((template, key) => (
-                          <option key={key} value={template.ID}>
-                            {template.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ width: "100%" }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "flex-start",
-                      gap: "15px",
-                    }}
-                  >
-                    <span
-                      className="span-title"
-                      style={{
-                        minWidth: "180px",
-                        textAlign: "left",
-                        paddingTop: "5px",
-                      }}
-                    >
                       Número de disparo
                     </span>
                     <div style={{ flex: 1 }}>
@@ -1205,6 +1229,52 @@ export function Accordion() {
                             {errorMessage}
                           </p>
                         )}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ width: "100%" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "flex-start",
+                      gap: "15px",
+                    }}
+                  >
+                    <span
+                      className="span-title"
+                      style={{
+                        minWidth: "180px",
+                        textAlign: "left",
+                        paddingTop: "5px",
+                      }}
+                    >
+                      Selecionar template
+                    </span>
+                    <div style={{ flex: 1 }}>
+                      <select
+                        value={templateName}
+                        className="input-values"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setTemplateName(value);
+                          if (value) {
+                            openModal(value);
+                          }
+                        }}
+                        disabled={selectedDispatchNumber === ""}
+                        style={{ width: "100%", maxWidth: "400px" }}
+                      >
+                        <option value="">Selecione um template</option>
+                        {templates
+                          .filter((t) => t.templateName)
+                          .map((t, key) => (
+                            <option key={key} value={t.templateName!}>
+                              {t.templateName}
+                            </option>
+                          ))}
+                      </select>
                     </div>
                   </div>
                 </div>
@@ -1475,7 +1545,7 @@ export function Accordion() {
                                   />
                                 </div>
                               )}
-                            {qtButtons > 0 && (
+                            {hasButton && (
                               <div
                                 style={{
                                   display: "flex",
@@ -1490,43 +1560,106 @@ export function Accordion() {
                                     width: "auto",
                                     marginLeft: "10px",
                                     justifyContent: "flex-start",
+                                    marginBottom: "15px",
                                   }}
                                 >
                                   Título botão: {titleButton1}
                                 </span>
+                              </div>
+                            )}
+                            {templateConfigurations ? (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  justifyContent: "left",
+                                  marginLeft: "10px",
+                                  gap: "15px",
+                                  padding: "10px",
+                                  backgroundColor: "#f8f9fa",
+                                  borderRadius: "8px",
+                                  border: "1px solid #e9ecef",
+                                }}
+                              >
+                                <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
+                                  <span style={{ color: "#666", fontStyle: "italic", fontSize: "13px", width: "100%" }}>
+                                    Payload 1 (antes da expiração):
+                                  </span>
+                                  <input
+                                    className="input-values"
+                                    value={templateConfigurations.payloadBeforeExpirationTime || ""}
+                                    disabled
+                                    style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px", boxSizing: "border-box" }}
+                                  />
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
+                                  <span style={{ color: "#666", fontStyle: "italic", fontSize: "13px", width: "100%" }}>
+                                    Payload 2 (após a expiração):
+                                  </span>
+                                  <input
+                                    className="input-values"
+                                    value={templateConfigurations.payloadAfterExpirationTime || ""}
+                                    disabled
+                                    style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px", boxSizing: "border-box" }}
+                                  />
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%", marginTop: "10px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
+                                  <span style={{ color: "#666", fontSize: "12px" }}>
+                                    <strong>Última atualização:</strong> {new Date(templateConfigurations.updatedAt).toLocaleString("pt-BR")}
+                                  </span>
+                                  <span style={{ color: "#666", fontSize: "12px" }}>
+                                    <strong>Tempo de expiração:</strong> {templateConfigurations.expirationInMinutes} minutos
+                                  </span>
+                                  <span style={{ color: "#666", fontSize: "12px" }}>
+                                    <strong>Ir expirar em:</strong> {new Date(new Date(templateConfigurations.updatedAt).getTime() + templateConfigurations.expirationInMinutes * 60000).toLocaleString("pt-BR")}
+                                  </span>
+                                </div>
+                              </div>
+                            ) : (
+                              hasButton && qtButtons > 0 && (
                                 <div
                                   style={{
                                     display: "flex",
-                                    flexDirection: "row",
+                                    flexDirection: "column",
                                     justifyContent: "left",
-                                    marginLeft: "-4px",
+                                    marginLeft: "10px",
+                                    gap: "10px",
                                   }}
                                 >
-                                  <span className="span-title">Payload 1</span>
-                                  <input
-                                    className="input-values"
-                                    value={payload1}
-                                    onChange={(e) =>
-                                      setPayload1(e.target.value)
-                                    }
-                                  />
-                                  <a
-                                    style={{ alignContent: "center" }}
-                                    data-tooltip-id="no-emoji"
-                                    data-tooltip-html="Payload não podem ser iguais!"
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "row",
+                                      justifyContent: "left",
+                                      marginLeft: "-4px",
+                                    }}
                                   >
-                                    <img
-                                      src={info}
-                                      width={15}
-                                      height={15}
-                                      alt="alerta"
+                                    <span className="span-title">Payload 1</span>
+                                    <input
+                                      className="input-values"
+                                      value={payload1}
+                                      onChange={(e) =>
+                                        setPayload1(e.target.value)
+                                      }
                                     />
-                                  </a>
-                                  <Tooltip id="no-emoji" />
+                                    <a
+                                      style={{ alignContent: "center" }}
+                                      data-tooltip-id="no-emoji"
+                                      data-tooltip-html="Payload não podem ser iguais!"
+                                    >
+                                      <img
+                                        src={info}
+                                        width={15}
+                                        height={15}
+                                        alt="alerta"
+                                      />
+                                    </a>
+                                    <Tooltip id="no-emoji" />
+                                  </div>
                                 </div>
-                              </div>
+                              )
                             )}
-                            {qtButtons > 1 && (
+                            {hasButton && qtButtons > 1 && (
                               <div
                                 style={{
                                   display: "flex",
@@ -1541,9 +1674,10 @@ export function Accordion() {
                                     width: "auto",
                                     marginLeft: "10px",
                                     justifyContent: "flex-start",
+                                    marginBottom: "15px",
                                   }}
                                 >
-                                  Título botão: {titleButton2}{" "}
+                                  Título botão: {titleButton1}{" "}
                                 </span>
                                 <div
                                   style={{
@@ -1577,7 +1711,7 @@ export function Accordion() {
                                 </div>
                               </div>
                             )}
-                            {qtButtons > 2 && (
+                            {hasButton && qtButtons > 2 && (
                               <div
                                 style={{
                                   display: "flex",
@@ -1592,9 +1726,10 @@ export function Accordion() {
                                     width: "auto",
                                     marginLeft: "10px",
                                     justifyContent: "flex-start",
+                                    marginBottom: "15px",
                                   }}
                                 >
-                                  Título botão: {titleButton3}{" "}
+                                  Título botão: {titleButton2}{" "}
                                 </span>
                                 <div
                                   style={{
@@ -1673,7 +1808,7 @@ export function Accordion() {
                                 className="texts"
                                 style={{ fontSize: "10px" }}
                               >
-                                {typeOfHeader === "text" && (
+                                {hasHeader && typeOfHeader === "text" && (
                                   <label
                                     className="header"
                                     style={{
@@ -1684,7 +1819,7 @@ export function Accordion() {
                                     {headerText}
                                   </label>
                                 )}
-                                {typeOfHeader === "image" && (
+                                {hasHeader && typeOfHeader === "image" && (
                                   <label
                                     className="header"
                                     style={{
@@ -1702,7 +1837,7 @@ export function Accordion() {
                                     />
                                   </label>
                                 )}
-                                {typeOfHeader === "document" && (
+                                {hasHeader && typeOfHeader === "document" && (
                                   <div
                                     className="column-align"
                                     style={{ padding: "10px" }}
@@ -1727,7 +1862,7 @@ export function Accordion() {
                                     </label>
                                   </div>
                                 )}
-                                {typeOfHeader === "video" && (
+                                {hasHeader && typeOfHeader === "video" && (
                                   <label
                                     className="header"
                                     style={{
@@ -1741,32 +1876,36 @@ export function Accordion() {
                                   </label>
                                 )}
                                 {
-                                  <label
-                                    style={{
-                                      whiteSpace: "pre-line",
-                                      wordWrap: "break-word",
-                                    }}
-                                  >
-                                    {" "}
-                                    {bodyText.length > 256
-                                      ? bodyText.slice(0, 256) + "...veja mais"
-                                      : bodyText}
-                                  </label>
+                                  hasBody && (
+                                    <label
+                                      style={{
+                                        whiteSpace: "pre-line",
+                                        wordWrap: "break-word",
+                                      }}
+                                    >
+                                      {" "}
+                                      {bodyText.length > 256
+                                        ? bodyText.slice(0, 256) + "...veja mais"
+                                        : bodyText}
+                                    </label>
+                                  )
                                 }
                                 {
-                                  <label
-                                    className="footer font-size-12"
-                                    style={{
-                                      whiteSpace: "pre-line",
-                                      wordWrap: "break-word",
-                                    }}
-                                  >
-                                    {footerText}
-                                  </label>
+                                  hasFooter && (
+                                    <label
+                                      className="footer font-size-12"
+                                      style={{
+                                        whiteSpace: "pre-line",
+                                        wordWrap: "break-word",
+                                      }}
+                                    >
+                                      {footerText}
+                                    </label>
+                                  )
                                 }
-                                {qtButtons > 0 && (
+                                {hasButton && (
                                   <div className="quickReply-texts">
-                                    {qtButtons > 0 && (
+                                    {hasButton && (
                                       <div className="quick-reply">
                                         <label>{titleButton1}</label>
                                       </div>
@@ -2050,7 +2189,7 @@ export function Accordion() {
                           />
                         </div>
                       )}
-                      {qtButtons > 0 && (
+                      {hasButton && (
                         <div
                           style={{
                             display: "flex",
@@ -2065,38 +2204,89 @@ export function Accordion() {
                               width: "auto",
                               marginLeft: "10px",
                               justifyContent: "flex-start",
+                              marginBottom: "15px",
                             }}
                           >
                             Título botão: {titleButton1}{" "}
                           </span>
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "row",
-                              justifyContent: "left",
-                              marginLeft: "-4px",
-                            }}
-                          >
-                            <span className="span-title">Payload 1</span>
+                        </div>
+                      )}
+                      {templateConfigurations ? (
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "left",
+                            marginLeft: "10px",
+                            gap: "15px",
+                            padding: "10px",
+                            backgroundColor: "#f8f9fa",
+                            borderRadius: "8px",
+                            border: "1px solid #e9ecef",
+                          }}
+                        >
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                              Payload 1 (antes da expiração):
+                            </span>
                             <input
                               className="input-values"
-                              value={payload1}
-                              onChange={(e) => setPayload1(e.target.value)}
+                              value={templateConfigurations.payloadBeforeExpirationTime || ""}
+                              disabled
+                              style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
                             />
-                            <a
-                              style={{ alignContent: "center" }}
-                              data-tooltip-id="no-emoji"
-                              data-tooltip-html="Payload não podem ser iguais!"
-                            >
-                              <img
-                                src={info}
-                                width={15}
-                                height={15}
-                                alt="alerta"
-                              />
-                            </a>
-                            <Tooltip id="no-emoji" />
                           </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                            <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                              Payload 2 (após a expiração):
+                            </span>
+                            <input
+                              className="input-values"
+                              value={templateConfigurations.payloadAfterExpirationTime || ""}
+                              disabled
+                              style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                            />
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%", marginTop: "10px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
+                            <span style={{ color: "#666", fontSize: "12px" }}>
+                              <strong>Última atualização:</strong> {new Date(templateConfigurations.updatedAt).toLocaleString("pt-BR")}
+                            </span>
+                            <span style={{ color: "#666", fontSize: "12px" }}>
+                              <strong>Tempo de expiração:</strong> {templateConfigurations.expirationInMinutes} minutos
+                            </span>
+                            <span style={{ color: "#666", fontSize: "12px" }}>
+                              <strong>Ir expirar em:</strong> {new Date(new Date(templateConfigurations.updatedAt).getTime() + templateConfigurations.expirationInMinutes * 60000).toLocaleString("pt-BR")}
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "left",
+                            marginLeft: "-4px",
+                          }}
+                        >
+                          <span className="span-title">Payload 1</span>
+                          <input
+                            className="input-values"
+                            value={payload1}
+                            onChange={(e) => setPayload1(e.target.value)}
+                          />
+                          <a
+                            style={{ alignContent: "center" }}
+                            data-tooltip-id="no-emoji"
+                            data-tooltip-html="Payload não podem ser iguais!"
+                          >
+                            <img
+                              src={info}
+                              width={15}
+                              height={15}
+                              alt="alerta"
+                            />
+                          </a>
+                          <Tooltip id="no-emoji" />
                         </div>
                       )}
                       {qtButtons > 1 && (
@@ -2114,38 +2304,83 @@ export function Accordion() {
                               width: "auto",
                               marginLeft: "10px",
                               justifyContent: "flex-start",
+                              marginBottom: "15px",
                             }}
                           >
                             Título botão: {titleButton2}{" "}
                           </span>
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "row",
-                              justifyContent: "left",
-                              marginLeft: "-4px",
-                            }}
-                          >
-                            <span className="span-title">Payload 2</span>
-                            <input
-                              className="input-values"
-                              value={payload2}
-                              onChange={(e) => setPayload2(e.target.value)}
-                            />
-                            <a
-                              style={{ alignContent: "center" }}
-                              data-tooltip-id="no-emoji"
-                              data-tooltip-html="Payload não podem ser iguais!"
+                          {templateConfigurations ? (
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "left",
+                                marginLeft: "10px",
+                                gap: "15px",
+                                padding: "10px",
+                                backgroundColor: "#f8f9fa",
+                                borderRadius: "8px",
+                                border: "1px solid #e9ecef",
+                              }}
                             >
-                              <img
-                                src={info}
-                                width={15}
-                                height={15}
-                                alt="alerta"
+                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                                  Payload 1 (antes da expiração):
+                                </span>
+                                <input
+                                  className="input-values"
+                                  value={templateConfigurations.payloadBeforeExpirationTime || ""}
+                                  disabled
+                                  style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                />
+                              </div>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                                  Payload 2 (após a expiração):
+                                </span>
+                                <input
+                                  className="input-values"
+                                  value={templateConfigurations.payloadAfterExpirationTime || ""}
+                                  disabled
+                                  style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                />
+                              </div>
+                              <div style={{ marginTop: "5px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
+                                <span style={{ fontSize: "12px", color: "#6c757d", fontStyle: "italic" }}>
+                                  💡 Estes payloads foram configurados diretamente no template
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                justifyContent: "left",
+                                marginLeft: "-4px",
+                              }}
+                            >
+                              <span className="span-title">Payload 2</span>
+                              <input
+                                className="input-values"
+                                value={payload2}
+                                onChange={(e) => setPayload2(e.target.value)}
                               />
-                            </a>
-                            <Tooltip id="no-emoji" />
-                          </div>
+                              <a
+                                style={{ alignContent: "center" }}
+                                data-tooltip-id="no-emoji"
+                                data-tooltip-html="Payload não podem ser iguais!"
+                              >
+                                <img
+                                  src={info}
+                                  width={15}
+                                  height={15}
+                                  alt="alerta"
+                                />
+                              </a>
+                              <Tooltip id="no-emoji" />
+                            </div>
+                          )}
                         </div>
                       )}
                       {qtButtons > 2 && (
@@ -2163,38 +2398,83 @@ export function Accordion() {
                               width: "auto",
                               marginLeft: "10px",
                               justifyContent: "flex-start",
+                              marginBottom: "15px",
                             }}
                           >
                             Título botão: {titleButton3}{" "}
                           </span>
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "row",
-                              justifyContent: "left",
-                              marginLeft: "-4px",
-                            }}
-                          >
-                            <span className="span-title">Payload</span>
-                            <input
-                              className="input-values"
-                              value={payload3}
-                              onChange={(e) => setPayload3(e.target.value)}
-                            />
-                            <a
-                              style={{ alignContent: "center" }}
-                              data-tooltip-id="no-emoji"
-                              data-tooltip-html="Payload não podem ser iguais!"
+                          {templateConfigurations ? (
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "left",
+                                marginLeft: "10px",
+                                gap: "15px",
+                                padding: "10px",
+                                backgroundColor: "#f8f9fa",
+                                borderRadius: "8px",
+                                border: "1px solid #e9ecef",
+                              }}
                             >
-                              <img
-                                src={info}
-                                width={15}
-                                height={15}
-                                alt="alerta"
+                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                                  Payload 1 (antes da expiração):
+                                </span>
+                                <input
+                                  className="input-values"
+                                  value={templateConfigurations.payloadBeforeExpirationTime || ""}
+                                  disabled
+                                  style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                />
+                              </div>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                                  Payload 2 (após a expiração):
+                                </span>
+                                <input
+                                  className="input-values"
+                                  value={templateConfigurations.payloadAfterExpirationTime || ""}
+                                  disabled
+                                  style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                />
+                              </div>
+                              <div style={{ marginTop: "5px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
+                                <span style={{ fontSize: "12px", color: "#6c757d", fontStyle: "italic" }}>
+                                  💡 Estes payloads foram configurados diretamente no template
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                justifyContent: "left",
+                                marginLeft: "-4px",
+                              }}
+                            >
+                              <span className="span-title">Payload</span>
+                              <input
+                                className="input-values"
+                                value={payload3}
+                                onChange={(e) => setPayload3(e.target.value)}
                               />
-                            </a>
-                            <Tooltip id="no-emoji" />
-                          </div>
+                              <a
+                                style={{ alignContent: "center" }}
+                                data-tooltip-id="no-emoji"
+                                data-tooltip-html="Payload não podem ser iguais!"
+                              >
+                                <img
+                                  src={info}
+                                  width={15}
+                                  height={15}
+                                  alt="alerta"
+                                />
+                              </a>
+                              <Tooltip id="no-emoji" />
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -2217,7 +2497,7 @@ export function Accordion() {
                           }}
                         >
                           <div className="texts" style={{ fontSize: "10px" }}>
-                            {typeOfHeader === "text" && (
+                            {hasHeader && typeOfHeader === "text" && (
                               <label
                                 className="header"
                                 style={{
@@ -2228,7 +2508,7 @@ export function Accordion() {
                                 {headerText}
                               </label>
                             )}
-                            {typeOfHeader === "image" && (
+                            {hasHeader && typeOfHeader === "image" && (
                               <label
                                 className="header"
                                 style={{
@@ -2246,7 +2526,7 @@ export function Accordion() {
                                 />
                               </label>
                             )}
-                            {typeOfHeader === "document" && (
+                            {hasHeader && typeOfHeader === "document" && (
                               <div
                                 className="column-align"
                                 style={{ padding: "10px" }}
@@ -2271,7 +2551,7 @@ export function Accordion() {
                                 </label>
                               </div>
                             )}
-                            {typeOfHeader === "video" && (
+                            {hasHeader && typeOfHeader === "video" && (
                               <label
                                 className="header"
                                 style={{
@@ -2285,32 +2565,36 @@ export function Accordion() {
                               </label>
                             )}
                             {
-                              <label
-                                style={{
-                                  whiteSpace: "pre-line",
-                                  wordWrap: "break-word",
-                                }}
-                              >
-                                {" "}
-                                {bodyText.length > 256
-                                  ? bodyText.slice(0, 256) + "...veja mais"
-                                  : bodyText}
-                              </label>
+                              hasBody && (
+                                <label
+                                  style={{
+                                    whiteSpace: "pre-line",
+                                    wordWrap: "break-word",
+                                  }}
+                                >
+                                  {" "}
+                                  {bodyText.length > 256
+                                    ? bodyText.slice(0, 256) + "...veja mais"
+                                    : bodyText}
+                                </label>
+                              )
                             }
                             {
-                              <label
-                                className="footer font-size-12"
-                                style={{
-                                  whiteSpace: "pre-line",
-                                  wordWrap: "break-word",
-                                }}
-                              >
-                                {footerText}
-                              </label>
+                              hasFooter && (
+                                <label
+                                  className="footer font-size-12"
+                                  style={{
+                                    whiteSpace: "pre-line",
+                                    wordWrap: "break-word",
+                                  }}
+                                >
+                                  {footerText}
+                                </label>
+                              )
                             }
-                            {qtButtons > 0 && (
+                            {hasButton && (
                               <div className="quickReply-texts">
-                                {qtButtons > 0 && (
+                                {hasButton && (
                                   <div className="quick-reply">
                                     <label>{titleButton1}</label>
                                   </div>
