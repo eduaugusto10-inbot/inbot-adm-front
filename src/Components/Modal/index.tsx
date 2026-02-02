@@ -12,6 +12,7 @@ interface ModalType {
     buttonB: string;
     warning: boolean;
     text: string;
+    isSaveButtonDisabled?: boolean;
 }
 
 export default function Modal(props: ModalType) {
@@ -70,7 +71,23 @@ export default function Modal(props: ModalType) {
                             {props.children}
                             <div style={{ marginTop: props.buttonB === "OK" ? "15px":"30px", display: "flex", justifyContent: "center" }}>
                                 {props.buttonA!=="NaoExibir" && <button onClick={() => handleButtonClickA(props.buttonA)} style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: loading ? "#c3c3c3" : "#df383b", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }}>{props.buttonA}</button>}
-                                {props.buttonB!=="NaoExibir" && <button onClick={() => handleButtonClickB(props.buttonB)} style={{ margin: "5px", width: "80px", height: "30px", borderRadius: "10px", backgroundColor: loading ? "#c3c3c3" : "#5ed12c", color: "#FFF", border: "1px solid #a8a8a8", fontSize: "14px", fontWeight: "bolder" }}>{props.buttonB}</button>}
+                                {props.buttonB!=="NaoExibir" && <button 
+                                    onClick={() => handleButtonClickB(props.buttonB)} 
+                                    disabled={props.buttonB === "Salvar" && props.isSaveButtonDisabled}
+                                    style={{ 
+                                        margin: "5px", 
+                                        width: "80px", 
+                                        height: "30px", 
+                                        borderRadius: "10px", 
+                                        backgroundColor: (loading || (props.buttonB === "Salvar" && props.isSaveButtonDisabled)) ? "#c3c3c3" : "#5ed12c", 
+                                        color: "#FFF", 
+                                        border: "1px solid #a8a8a8", 
+                                        fontSize: "14px", 
+                                        fontWeight: "bolder",
+                                        opacity: (props.buttonB === "Salvar" && props.isSaveButtonDisabled) ? 0.6 : 1,
+                                        cursor: (props.buttonB === "Salvar" && props.isSaveButtonDisabled) ? "not-allowed" : "pointer"
+                                    }}
+                                >{props.buttonB}</button>}
                             </div>
                         </div>
                     </div>
