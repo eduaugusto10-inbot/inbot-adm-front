@@ -48,9 +48,11 @@ export function Accordion() {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState<boolean>(true);
-  const [isSaveButtonDisabled, setIsSaveButtonDisabled] = useState<boolean>(false);
+  const [isSaveButtonDisabled, setIsSaveButtonDisabled] =
+    useState<boolean>(false);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState<boolean>(false);
-  const [isLoadingDispatchNumbers, setIsLoadingDispatchNumbers] = useState<boolean>(true);
+  const [isLoadingDispatchNumbers, setIsLoadingDispatchNumbers] =
+    useState<boolean>(true);
   const [isWhatsAppEnabled, setIsWhatsAppEnabled] = useState(true);
   const [isTeamsEnabled, setIsTeamsEnabled] = useState(true);
   if (searchParams.get("bot_id") === null) {
@@ -114,7 +116,9 @@ export function Accordion() {
 
           if (location?.state?.templateName) {
             const templatesResp = await templateApi.get(
-              `/api/botId/${botId}/template/phoneNumber/${location?.state?.phone || defaultPhone}`
+              `/api/botId/${botId}/template/phoneNumber/${
+                location?.state?.phone || defaultPhone
+              }`
             );
             if (templatesResp.data && templatesResp.data.length > 0) {
               setTemplates(templatesResp.data);
@@ -201,17 +205,23 @@ export function Accordion() {
 
   const [selectedDispatchNumber, setSelectedDispatchNumber] =
     useState<string>("");
-  const [templateConfigurations, setTemplateConfigurations] = useState<any>(null);
+  const [templateConfigurations, setTemplateConfigurations] =
+    useState<any>(null);
   const [hasButton, setHasButton] = useState<boolean>(false);
   const [hasHeader, setHasHeader] = useState<boolean>(false);
   const [hasBody, setHasBody] = useState<boolean>(false);
   const [hasFooter, setHasFooter] = useState<boolean>(false);
+  const [templateStatus, setTemplateStatus] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
   const [createTriggerMenu, setCreateTriggerMenu] = useState(false);
 
   useEffect(() => {
-    if (createTriggerMenu && templates.length > 0 && location?.state?.templateName) {
+    if (
+      createTriggerMenu &&
+      templates.length > 0 &&
+      location?.state?.templateName
+    ) {
       loadNewTemplate(location.state.templateName);
     }
   }, [createTriggerMenu, templates.length]);
@@ -222,10 +232,7 @@ export function Accordion() {
       const templatesResp = await templateApi.get(
         `/api/botId/${botId}/template/phoneNumber/${phoneNumber}`
       );
-      if (
-        templatesResp.data &&
-        templatesResp.data.length > 0
-      ) {
+      if (templatesResp.data && templatesResp.data.length > 0) {
         setTemplates(templatesResp.data);
         setCreateTriggerMenu(true);
       } else {
@@ -346,7 +353,7 @@ export function Accordion() {
         header: 1,
         raw: false,
       }) as any[][];
-      
+
       const dataFile: any = [];
       const dataHeader: any = [];
       data.slice(0).forEach((values: any, index: number) => {
@@ -354,7 +361,7 @@ export function Accordion() {
           dataHeader.push(values);
         }
       });
-      
+
       data.slice(1).forEach((values, linha) => {
         const wrongFormatRegex = /^\d{1,2}\/\d{1,2}\/\d{2}$/;
         if (values.length > 0) {
@@ -365,9 +372,9 @@ export function Accordion() {
               // e remover caracteres não numéricos
               // Se o valor for científico (como 5.5e+11), convertemos para número primeiro
               let phoneValue = cell ? cell.toString() : "";
-              
+
               // Verificar se é notação científica
-              if (phoneValue.includes('e+') || phoneValue.includes('E+')) {
+              if (phoneValue.includes("e+") || phoneValue.includes("E+")) {
                 try {
                   // Converter para número e depois para string para eliminar notação científica
                   phoneValue = Number(phoneValue).toString();
@@ -375,7 +382,7 @@ export function Accordion() {
                   console.log("Erro ao converter telefone:", e);
                 }
               }
-              
+
               // Remover caracteres não numéricos
               values[coluna] = phoneValue.replace(/\D/g, "");
             } else {
@@ -391,7 +398,7 @@ export function Accordion() {
           dataFile.push(values);
         }
       });
-      
+
       setHeaderTable(dataHeader);
       setFileData(dataFile);
     };
@@ -399,8 +406,7 @@ export function Accordion() {
     reader.readAsBinaryString(file);
   };
 
-// Estas funções foram substituídas por versões com progresso dentro do createTrigger
-
+  // Estas funções foram substituídas por versões com progresso dentro do createTrigger
 
   const signInClients = (e: any) => {
     setTypeClients(e);
@@ -545,12 +551,15 @@ export function Accordion() {
         setTemplateName(template.templateName);
         setTemplateNameSelect(template.templateName);
         setCategoryTemplate(template.category);
+        setTemplateStatus(template.status || "");
         setTemplateConfigurations(template.configurations || null);
         if (template.body && template.body.length > 0) {
           template.body.forEach((element: any) => {
             if (element.type === "text") {
               setBodyText(element.text || "");
-              setVariableQty(element.numVariables || encontrarMaiorNumero(element.text || ""));
+              setVariableQty(
+                element.numVariables || encontrarMaiorNumero(element.text || "")
+              );
             }
           });
         }
@@ -628,7 +637,7 @@ export function Accordion() {
   const createTrigger = async () => {
     // Desativar botão salvar imediatamente quando iniciar o processo
     setIsSaveButtonDisabled(true);
-    
+
     if (campaignName === "") {
       errorCampaingEmpty();
       setIsSaveButtonDisabled(false); // Reativar botão se houver erro
@@ -669,14 +678,24 @@ export function Accordion() {
       setIsSaveButtonDisabled(false); // Reativar botão se houver erro
       return;
     }
-    
+    if (templateStatus && templateStatus !== "APPROVED") {
+      errorMessageDefault(
+        "Este template ainda não foi aprovado pela Meta. Aguarde a aprovação para criar uma campanha."
+      );
+      setIsSaveButtonDisabled(false);
+      return;
+    }
+
     // Iniciar com a mensagem inicial
-    const toastId = toast.info("Aguarde, iniciando processamento da campanha...", {
-      theme: "colored",
-      autoClose: false,
-      closeOnClick: false
-    });
-    
+    const toastId = toast.info(
+      "Aguarde, iniciando processamento da campanha...",
+      {
+        theme: "colored",
+        autoClose: false,
+        closeOnClick: false,
+      }
+    );
+
     const data = {
       campaignName: campaignName,
       templateName: templateName,
@@ -696,9 +715,11 @@ export function Accordion() {
       .then((resp) => {
         if (typeClient) {
           // Calcular o total de contatos
-          const totalContacts = fileData.filter(customer => customer?.[0]).length;
+          const totalContacts = fileData.filter(
+            (customer) => customer?.[0]
+          ).length;
           let processedContacts = 0;
-          
+
           // Função modificada para atualizar o progresso
           const handleSubmitListDataFileWithProgress = async (
             dataTemplate: string[][],
@@ -729,31 +750,38 @@ export function Accordion() {
                   title_button_2: titleButton2,
                   title_button_3: titleButton3,
                   channel: "whatsapp",
-                  expirationInMinutes: templateConfigurations?.expirationInMinutes || null,
-                  payloadAfterExpirationTime: templateConfigurations?.payloadAfterExpirationTime || null,
-                  payloadBeforeExpirationTime: templateConfigurations?.payloadBeforeExpirationTime || null,
+                  expirationInMinutes:
+                    templateConfigurations?.expirationInMinutes || null,
+                  payloadAfterExpirationTime:
+                    templateConfigurations?.payloadAfterExpirationTime || null,
+                  payloadBeforeExpirationTime:
+                    templateConfigurations?.payloadBeforeExpirationTime || null,
                 }));
 
               // Quebrar a lista em lotes de 100 objetos
               const batchSize = 100;
               const batches = [];
-              
+
               for (let i = 0; i < customerList.length; i += batchSize) {
                 batches.push(customerList.slice(i, i + batchSize));
               }
-              
+
               // Enviar cada lote separadamente e atualizar o progresso
               for (const batch of batches) {
                 await api.post("/whats-customer", batch);
                 processedContacts += batch.length;
-                
+
                 // Atualizar a mensagem de progresso
-                const percentComplete = Math.round((processedContacts / totalContacts) * 100);
-                toast.update(toastId, { 
-                  render: `Aguarde, estamos processando ${processedContacts} de ${totalContacts} contatos (${percentComplete}% concluído)`
+                const percentComplete = Math.round(
+                  (processedContacts / totalContacts) * 100
+                );
+                toast.update(toastId, {
+                  render: `Aguarde, estamos processando ${processedContacts} de ${totalContacts} contatos (${percentComplete}% concluído)`,
                 });
-                
-                console.log(`Lote de ${batch.length} contatos enviado com sucesso`);
+
+                console.log(
+                  `Lote de ${batch.length} contatos enviado com sucesso`
+                );
               }
 
               console.log(
@@ -766,8 +794,11 @@ export function Accordion() {
               throw error;
             }
           };
-          
-          handleSubmitListDataFileWithProgress(fileData, resp.data.data.insertId)
+
+          handleSubmitListDataFileWithProgress(
+            fileData,
+            resp.data.data.insertId
+          )
             .catch((error) => {
               console.log("Erro ao enviar lista de dados:", error);
               // Atualiza o status para erro quando falha no envio da lista
@@ -791,9 +822,11 @@ export function Accordion() {
           // Calcular o total de contatos
           const totalContacts = listVariables.length;
           let processedContacts = 0;
-          
+
           // Função modificada para atualizar o progresso
-          const handleSubmitManualListDataWithProgress = async (campaignId: string) => {
+          const handleSubmitManualListDataWithProgress = async (
+            campaignId: string
+          ) => {
             try {
               const customerList = listVariables.map((item) => ({
                 campaignId: `${campaignId}`,
@@ -817,31 +850,38 @@ export function Accordion() {
                 title_button_2: titleButton2,
                 title_button_3: titleButton3,
                 channel: "whatsapp",
-                expirationInMinutes: templateConfigurations?.expirationInMinutes || null,
-                payloadAfterExpirationTime: templateConfigurations?.payloadAfterExpirationTime || null,
-                payloadBeforeExpirationTime: templateConfigurations?.payloadBeforeExpirationTime || null,
+                expirationInMinutes:
+                  templateConfigurations?.expirationInMinutes || null,
+                payloadAfterExpirationTime:
+                  templateConfigurations?.payloadAfterExpirationTime || null,
+                payloadBeforeExpirationTime:
+                  templateConfigurations?.payloadBeforeExpirationTime || null,
               }));
 
               // Quebrar a lista em lotes de 100 objetos
               const batchSize = 100;
               const batches = [];
-              
+
               for (let i = 0; i < customerList.length; i += batchSize) {
                 batches.push(customerList.slice(i, i + batchSize));
               }
-              
+
               // Enviar cada lote separadamente e atualizar o progresso
               for (const batch of batches) {
                 await api.post("/whats-customer", batch);
                 processedContacts += batch.length;
-                
+
                 // Atualizar a mensagem de progresso
-                const percentComplete = Math.round((processedContacts / totalContacts) * 100);
-                toast.update(toastId, { 
-                  render: `Aguarde, estamos processando ${processedContacts} de ${totalContacts} contatos (${percentComplete}% concluído)`
+                const percentComplete = Math.round(
+                  (processedContacts / totalContacts) * 100
+                );
+                toast.update(toastId, {
+                  render: `Aguarde, estamos processando ${processedContacts} de ${totalContacts} contatos (${percentComplete}% concluído)`,
                 });
-                
-                console.log(`Lote de ${batch.length} contatos enviado com sucesso`);
+
+                console.log(
+                  `Lote de ${batch.length} contatos enviado com sucesso`
+                );
               }
 
               console.log(
@@ -854,12 +894,14 @@ export function Accordion() {
               throw error;
             }
           };
-          
+
           handleSubmitManualListDataWithProgress(resp.data.data.insertId)
             .catch((error) => {
               console.log("Erro ao enviar lista manual:", error);
               // Atualiza o status para erro quando falha no envio da lista manual
-              api.put(`/whatsapp/trigger/${resp.data.data.insertId}?status=erro`);
+              api.put(
+                `/whatsapp/trigger/${resp.data.data.insertId}?status=erro`
+              );
               toast.dismiss(toastId); // Fechar o toast de aguarde
               errorMessageDefault(
                 "Erro ao processar a campanha. Verifique os dados e tente novamente."
@@ -998,7 +1040,7 @@ export function Accordion() {
   ) => {
     const selectedNumber = e.target.value;
     setSelectedDispatchNumber(selectedNumber);
-    
+
     if (
       selectedNumber !== "" &&
       errorMessage &&
@@ -1230,7 +1272,9 @@ export function Accordion() {
                         style={{ width: "100%", maxWidth: "400px" }}
                       >
                         <option value="">
-                          {isLoadingDispatchNumbers ? "Carregando..." : "Selecione um número"}
+                          {isLoadingDispatchNumbers
+                            ? "Carregando..."
+                            : "Selecione um número"}
                         </option>
                         {dispatchNumbers.map((number, key) => (
                           <option key={key} value={number.number}>
@@ -1241,7 +1285,13 @@ export function Accordion() {
                         ))}
                       </select>
                       {isLoadingDispatchNumbers && (
-                        <div style={{ marginTop: "5px", color: "#666", fontSize: "12px" }}>
+                        <div
+                          style={{
+                            marginTop: "5px",
+                            color: "#666",
+                            fontSize: "12px",
+                          }}
+                        >
                           Carregando números de disparo...
                         </div>
                       )}
@@ -1293,11 +1343,15 @@ export function Accordion() {
                             openModal(value);
                           }
                         }}
-                        disabled={selectedDispatchNumber === "" || isLoadingTemplates}
+                        disabled={
+                          selectedDispatchNumber === "" || isLoadingTemplates
+                        }
                         style={{ width: "100%", maxWidth: "400px" }}
                       >
                         <option value="">
-                          {isLoadingTemplates ? "Carregando..." : "Selecione um template"}
+                          {isLoadingTemplates
+                            ? "Carregando..."
+                            : "Selecione um template"}
                         </option>
                         {templates
                           .filter((t) => t.templateName)
@@ -1308,7 +1362,13 @@ export function Accordion() {
                           ))}
                       </select>
                       {isLoadingTemplates && (
-                        <div style={{ marginTop: "5px", color: "#666", fontSize: "12px" }}>
+                        <div
+                          style={{
+                            marginTop: "5px",
+                            color: "#666",
+                            fontSize: "12px",
+                          }}
+                        >
                           Carregando templates...
                         </div>
                       )}
@@ -1350,6 +1410,15 @@ export function Accordion() {
                         />
                       </div>
                     )}
+                    {templateName &&
+                      templateStatus &&
+                      templateStatus !== "APPROVED" && (
+                        <div style={{ marginBottom: "15px" }}>
+                          <Alert
+                            message={`<strong>⚠️ Aviso:</strong> Este template está com status <strong>${templateStatus}</strong> e ainda não foi aprovado pela Meta.<br/>Não será possível criar uma campanha usando este template até que ele seja aprovado.`}
+                          />
+                        </div>
+                      )}
                     {selectedDispatchNumber !== "" && (
                       <div>
                         <WhatsAppLimitWarning metaUrl="https://business.facebook.com/business/loginpage/?next=%2Flatest%2Fwhatsapp_manager%2Fphone_numbers%2F%3Fasset_id%3D321277311061053%26business_id%3D484683378535543%26nav_ref%3Dbiz_unified_f3_login_page_to_mbs&login_options%5B0%5D=FB&login_options%5B1%5D=IG&login_options%5B2%5D=SSO&config_ref=biz_login_tool_flavor_mbs" />
@@ -1370,6 +1439,7 @@ export function Accordion() {
                     style={{ width: "80px" }}
                     className="button-next"
                     onClick={() => toggleAccordion("recebidores")}
+                    disabled={templateStatus !== "APPROVED"}
                   >
                     Próximo
                   </button>
@@ -1618,42 +1688,117 @@ export function Accordion() {
                                   border: "1px solid #e9ecef",
                                 }}
                               >
-                                <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
-                                  <span style={{ color: "#666", fontStyle: "italic", fontSize: "13px", width: "100%" }}>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "8px",
+                                    width: "100%",
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      color: "#666",
+                                      fontStyle: "italic",
+                                      fontSize: "13px",
+                                      width: "100%",
+                                    }}
+                                  >
                                     Payload 1 (antes da expiração):
                                   </span>
                                   <input
                                     className="input-values"
-                                    value={templateConfigurations.payloadBeforeExpirationTime || ""}
+                                    value={
+                                      templateConfigurations.payloadBeforeExpirationTime ||
+                                      ""
+                                    }
                                     disabled
-                                    style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px", boxSizing: "border-box" }}
+                                    style={{
+                                      backgroundColor: "#ffffff",
+                                      color: "#666",
+                                      width: "100%",
+                                      padding: "8px",
+                                      boxSizing: "border-box",
+                                    }}
                                   />
                                 </div>
-                                <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
-                                  <span style={{ color: "#666", fontStyle: "italic", fontSize: "13px", width: "100%" }}>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "8px",
+                                    width: "100%",
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      color: "#666",
+                                      fontStyle: "italic",
+                                      fontSize: "13px",
+                                      width: "100%",
+                                    }}
+                                  >
                                     Payload 2 (após a expiração):
                                   </span>
                                   <input
                                     className="input-values"
-                                    value={templateConfigurations.payloadAfterExpirationTime || ""}
+                                    value={
+                                      templateConfigurations.payloadAfterExpirationTime ||
+                                      ""
+                                    }
                                     disabled
-                                    style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px", boxSizing: "border-box" }}
+                                    style={{
+                                      backgroundColor: "#ffffff",
+                                      color: "#666",
+                                      width: "100%",
+                                      padding: "8px",
+                                      boxSizing: "border-box",
+                                    }}
                                   />
                                 </div>
-                                <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%", marginTop: "10px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
-                                  <span style={{ color: "#666", fontSize: "12px" }}>
-                                    <strong>Última atualização:</strong> {new Date(templateConfigurations.updatedAt).toLocaleString("pt-BR")}
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "8px",
+                                    width: "100%",
+                                    marginTop: "10px",
+                                    paddingTop: "10px",
+                                    borderTop: "1px solid #e9ecef",
+                                  }}
+                                >
+                                  <span
+                                    style={{ color: "#666", fontSize: "12px" }}
+                                  >
+                                    <strong>Última atualização:</strong>{" "}
+                                    {new Date(
+                                      templateConfigurations.updatedAt
+                                    ).toLocaleString("pt-BR")}
                                   </span>
-                                  <span style={{ color: "#666", fontSize: "12px" }}>
-                                    <strong>Tempo de expiração:</strong> {templateConfigurations.expirationInMinutes} minutos
+                                  <span
+                                    style={{ color: "#666", fontSize: "12px" }}
+                                  >
+                                    <strong>Tempo de expiração:</strong>{" "}
+                                    {templateConfigurations.expirationInMinutes}{" "}
+                                    minutos
                                   </span>
-                                  <span style={{ color: "#666", fontSize: "12px" }}>
-                                    <strong>Ir expirar em:</strong> {new Date(new Date(templateConfigurations.updatedAt).getTime() + templateConfigurations.expirationInMinutes * 60000).toLocaleString("pt-BR")}
+                                  <span
+                                    style={{ color: "#666", fontSize: "12px" }}
+                                  >
+                                    <strong>Ir expirar em:</strong>{" "}
+                                    {new Date(
+                                      new Date(
+                                        templateConfigurations.updatedAt
+                                      ).getTime() +
+                                        templateConfigurations.expirationInMinutes *
+                                          60000
+                                    ).toLocaleString("pt-BR")}
                                   </span>
                                 </div>
                               </div>
                             ) : (
-                              hasButton && qtButtons > 0 && (
+                              hasButton &&
+                              qtButtons > 0 && (
                                 <div
                                   style={{
                                     display: "flex",
@@ -1671,7 +1816,9 @@ export function Accordion() {
                                       marginLeft: "-4px",
                                     }}
                                   >
-                                    <span className="span-title">Payload 1</span>
+                                    <span className="span-title">
+                                      Payload 1
+                                    </span>
                                     <input
                                       className="input-values"
                                       value={payload1}
@@ -1812,11 +1959,15 @@ export function Accordion() {
                                 onClick={addCustomerToSendTemplate}
                                 style={{ width: "150px", marginRight: "20px" }}
                                 className={
-                                  blockAddNumber
+                                  blockAddNumber &&
+                                  templateStatus === "APPROVED"
                                     ? "button-blue"
                                     : "button-disabled"
                                 }
-                                disabled={!blockAddNumber}
+                                disabled={
+                                  !blockAddNumber ||
+                                  templateStatus !== "APPROVED"
+                                }
                               >
                                 Adicionar contato
                               </button>
@@ -1912,34 +2063,30 @@ export function Accordion() {
                                     </video>
                                   </label>
                                 )}
-                                {
-                                  hasBody && (
-                                    <label
-                                      style={{
-                                        whiteSpace: "pre-line",
-                                        wordWrap: "break-word",
-                                      }}
-                                    >
-                                      {" "}
-                                      {bodyText.length > 256
-                                        ? bodyText.slice(0, 256) + "...veja mais"
-                                        : bodyText}
-                                    </label>
-                                  )
-                                }
-                                {
-                                  hasFooter && (
-                                    <label
-                                      className="footer font-size-12"
-                                      style={{
-                                        whiteSpace: "pre-line",
-                                        wordWrap: "break-word",
-                                      }}
-                                    >
-                                      {footerText}
-                                    </label>
-                                  )
-                                }
+                                {hasBody && (
+                                  <label
+                                    style={{
+                                      whiteSpace: "pre-line",
+                                      wordWrap: "break-word",
+                                    }}
+                                  >
+                                    {" "}
+                                    {bodyText.length > 256
+                                      ? bodyText.slice(0, 256) + "...veja mais"
+                                      : bodyText}
+                                  </label>
+                                )}
+                                {hasFooter && (
+                                  <label
+                                    className="footer font-size-12"
+                                    style={{
+                                      whiteSpace: "pre-line",
+                                      wordWrap: "break-word",
+                                    }}
+                                  >
+                                    {footerText}
+                                  </label>
+                                )}
                                 {hasButton && (
                                   <div className="quickReply-texts">
                                     {hasButton && (
@@ -2262,37 +2409,101 @@ export function Accordion() {
                             border: "1px solid #e9ecef",
                           }}
                         >
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                            <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "8px",
+                            }}
+                          >
+                            <span
+                              className="span-title"
+                              style={{
+                                color: "#666",
+                                fontStyle: "italic",
+                                fontSize: "13px",
+                              }}
+                            >
                               Payload 1 (antes da expiração):
                             </span>
                             <input
                               className="input-values"
-                              value={templateConfigurations.payloadBeforeExpirationTime || ""}
+                              value={
+                                templateConfigurations.payloadBeforeExpirationTime ||
+                                ""
+                              }
                               disabled
-                              style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                              style={{
+                                backgroundColor: "#ffffff",
+                                color: "#666",
+                                width: "100%",
+                                padding: "8px",
+                              }}
                             />
                           </div>
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                            <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "8px",
+                            }}
+                          >
+                            <span
+                              className="span-title"
+                              style={{
+                                color: "#666",
+                                fontStyle: "italic",
+                                fontSize: "13px",
+                              }}
+                            >
                               Payload 2 (após a expiração):
                             </span>
                             <input
                               className="input-values"
-                              value={templateConfigurations.payloadAfterExpirationTime || ""}
+                              value={
+                                templateConfigurations.payloadAfterExpirationTime ||
+                                ""
+                              }
                               disabled
-                              style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                              style={{
+                                backgroundColor: "#ffffff",
+                                color: "#666",
+                                width: "100%",
+                                padding: "8px",
+                              }}
                             />
                           </div>
-                          <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%", marginTop: "10px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "8px",
+                              width: "100%",
+                              marginTop: "10px",
+                              paddingTop: "10px",
+                              borderTop: "1px solid #e9ecef",
+                            }}
+                          >
                             <span style={{ color: "#666", fontSize: "12px" }}>
-                              <strong>Última atualização:</strong> {new Date(templateConfigurations.updatedAt).toLocaleString("pt-BR")}
+                              <strong>Última atualização:</strong>{" "}
+                              {new Date(
+                                templateConfigurations.updatedAt
+                              ).toLocaleString("pt-BR")}
                             </span>
                             <span style={{ color: "#666", fontSize: "12px" }}>
-                              <strong>Tempo de expiração:</strong> {templateConfigurations.expirationInMinutes} minutos
+                              <strong>Tempo de expiração:</strong>{" "}
+                              {templateConfigurations.expirationInMinutes}{" "}
+                              minutos
                             </span>
                             <span style={{ color: "#666", fontSize: "12px" }}>
-                              <strong>Ir expirar em:</strong> {new Date(new Date(templateConfigurations.updatedAt).getTime() + templateConfigurations.expirationInMinutes * 60000).toLocaleString("pt-BR")}
+                              <strong>Ir expirar em:</strong>{" "}
+                              {new Date(
+                                new Date(
+                                  templateConfigurations.updatedAt
+                                ).getTime() +
+                                  templateConfigurations.expirationInMinutes *
+                                    60000
+                              ).toLocaleString("pt-BR")}
                             </span>
                           </div>
                         </div>
@@ -2360,31 +2571,86 @@ export function Accordion() {
                                 border: "1px solid #e9ecef",
                               }}
                             >
-                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "8px",
+                                }}
+                              >
+                                <span
+                                  className="span-title"
+                                  style={{
+                                    color: "#666",
+                                    fontStyle: "italic",
+                                    fontSize: "13px",
+                                  }}
+                                >
                                   Payload 1 (antes da expiração):
                                 </span>
                                 <input
                                   className="input-values"
-                                  value={templateConfigurations.payloadBeforeExpirationTime || ""}
+                                  value={
+                                    templateConfigurations.payloadBeforeExpirationTime ||
+                                    ""
+                                  }
                                   disabled
-                                  style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                  style={{
+                                    backgroundColor: "#ffffff",
+                                    color: "#666",
+                                    width: "100%",
+                                    padding: "8px",
+                                  }}
                                 />
                               </div>
-                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "8px",
+                                }}
+                              >
+                                <span
+                                  className="span-title"
+                                  style={{
+                                    color: "#666",
+                                    fontStyle: "italic",
+                                    fontSize: "13px",
+                                  }}
+                                >
                                   Payload 2 (após a expiração):
                                 </span>
                                 <input
                                   className="input-values"
-                                  value={templateConfigurations.payloadAfterExpirationTime || ""}
+                                  value={
+                                    templateConfigurations.payloadAfterExpirationTime ||
+                                    ""
+                                  }
                                   disabled
-                                  style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                  style={{
+                                    backgroundColor: "#ffffff",
+                                    color: "#666",
+                                    width: "100%",
+                                    padding: "8px",
+                                  }}
                                 />
                               </div>
-                              <div style={{ marginTop: "5px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
-                                <span style={{ fontSize: "12px", color: "#6c757d", fontStyle: "italic" }}>
-                                  💡 Estes payloads foram configurados diretamente no template
+                              <div
+                                style={{
+                                  marginTop: "5px",
+                                  paddingTop: "10px",
+                                  borderTop: "1px solid #e9ecef",
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "#6c757d",
+                                    fontStyle: "italic",
+                                  }}
+                                >
+                                  💡 Estes payloads foram configurados
+                                  diretamente no template
                                 </span>
                               </div>
                             </div>
@@ -2454,31 +2720,86 @@ export function Accordion() {
                                 border: "1px solid #e9ecef",
                               }}
                             >
-                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "8px",
+                                }}
+                              >
+                                <span
+                                  className="span-title"
+                                  style={{
+                                    color: "#666",
+                                    fontStyle: "italic",
+                                    fontSize: "13px",
+                                  }}
+                                >
                                   Payload 1 (antes da expiração):
                                 </span>
                                 <input
                                   className="input-values"
-                                  value={templateConfigurations.payloadBeforeExpirationTime || ""}
+                                  value={
+                                    templateConfigurations.payloadBeforeExpirationTime ||
+                                    ""
+                                  }
                                   disabled
-                                  style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                  style={{
+                                    backgroundColor: "#ffffff",
+                                    color: "#666",
+                                    width: "100%",
+                                    padding: "8px",
+                                  }}
                                 />
                               </div>
-                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                <span className="span-title" style={{ color: "#666", fontStyle: "italic", fontSize: "13px" }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "8px",
+                                }}
+                              >
+                                <span
+                                  className="span-title"
+                                  style={{
+                                    color: "#666",
+                                    fontStyle: "italic",
+                                    fontSize: "13px",
+                                  }}
+                                >
                                   Payload 2 (após a expiração):
                                 </span>
                                 <input
                                   className="input-values"
-                                  value={templateConfigurations.payloadAfterExpirationTime || ""}
+                                  value={
+                                    templateConfigurations.payloadAfterExpirationTime ||
+                                    ""
+                                  }
                                   disabled
-                                  style={{ backgroundColor: "#ffffff", color: "#666", width: "100%", padding: "8px" }}
+                                  style={{
+                                    backgroundColor: "#ffffff",
+                                    color: "#666",
+                                    width: "100%",
+                                    padding: "8px",
+                                  }}
                                 />
                               </div>
-                              <div style={{ marginTop: "5px", paddingTop: "10px", borderTop: "1px solid #e9ecef" }}>
-                                <span style={{ fontSize: "12px", color: "#6c757d", fontStyle: "italic" }}>
-                                  💡 Estes payloads foram configurados diretamente no template
+                              <div
+                                style={{
+                                  marginTop: "5px",
+                                  paddingTop: "10px",
+                                  borderTop: "1px solid #e9ecef",
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "#6c757d",
+                                    fontStyle: "italic",
+                                  }}
+                                >
+                                  💡 Estes payloads foram configurados
+                                  diretamente no template
                                 </span>
                               </div>
                             </div>
@@ -2601,34 +2922,30 @@ export function Accordion() {
                                 </video>
                               </label>
                             )}
-                            {
-                              hasBody && (
-                                <label
-                                  style={{
-                                    whiteSpace: "pre-line",
-                                    wordWrap: "break-word",
-                                  }}
-                                >
-                                  {" "}
-                                  {bodyText.length > 256
-                                    ? bodyText.slice(0, 256) + "...veja mais"
-                                    : bodyText}
-                                </label>
-                              )
-                            }
-                            {
-                              hasFooter && (
-                                <label
-                                  className="footer font-size-12"
-                                  style={{
-                                    whiteSpace: "pre-line",
-                                    wordWrap: "break-word",
-                                  }}
-                                >
-                                  {footerText}
-                                </label>
-                              )
-                            }
+                            {hasBody && (
+                              <label
+                                style={{
+                                  whiteSpace: "pre-line",
+                                  wordWrap: "break-word",
+                                }}
+                              >
+                                {" "}
+                                {bodyText.length > 256
+                                  ? bodyText.slice(0, 256) + "...veja mais"
+                                  : bodyText}
+                              </label>
+                            )}
+                            {hasFooter && (
+                              <label
+                                className="footer font-size-12"
+                                style={{
+                                  whiteSpace: "pre-line",
+                                  wordWrap: "break-word",
+                                }}
+                              >
+                                {footerText}
+                              </label>
+                            )}
                             {hasButton && (
                               <div className="quickReply-texts">
                                 {hasButton && (
@@ -2925,7 +3242,9 @@ export function Accordion() {
                   <button
                     className="button-save"
                     onClick={() => handleButtonName("Salvar")}
-                    disabled={isSaveButtonDisabled}
+                    disabled={
+                      isSaveButtonDisabled || templateStatus !== "APPROVED"
+                    }
                   >
                     Salvar
                   </button>
