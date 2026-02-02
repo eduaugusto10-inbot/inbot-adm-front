@@ -48,6 +48,7 @@ export function Accordion() {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState<boolean>(true);
+  const [isSaveButtonDisabled, setIsSaveButtonDisabled] = useState<boolean>(false);
   const [isWhatsAppEnabled, setIsWhatsAppEnabled] = useState(true);
   const [isTeamsEnabled, setIsTeamsEnabled] = useState(true);
   if (searchParams.get("bot_id") === null) {
@@ -616,36 +617,47 @@ export function Accordion() {
   };
 
   const createTrigger = async () => {
+    // Desativar botão salvar imediatamente quando iniciar o processo
+    setIsSaveButtonDisabled(true);
+    
     if (campaignName === "") {
       errorCampaingEmpty();
+      setIsSaveButtonDisabled(false); // Reativar botão se houver erro
       return;
     }
     if (triggerMode === "") {
       errorTriggerMode();
+      setIsSaveButtonDisabled(false); // Reativar botão se houver erro
       return;
     }
     if (selectedDispatchNumber === "") {
       setErrorMessage("Por favor, selecione um número de disparo.");
+      setIsSaveButtonDisabled(false); // Reativar botão se houver erro
       return;
     }
     if (listVariables.length === 0 && fileData.length === 0) {
       errorNoRecipient();
+      setIsSaveButtonDisabled(false); // Reativar botão se houver erro
       return;
     }
     if (typeOfHeader === "image" && urlMidia === "") {
       errorMidiaEmpty();
+      setIsSaveButtonDisabled(false); // Reativar botão se houver erro
       return;
     }
     if (typeOfHeader === "video" && urlMidia === "") {
       errorMidiaEmpty();
+      setIsSaveButtonDisabled(false); // Reativar botão se houver erro
       return;
     }
     if (typeOfHeader === "document" && urlMidia === "") {
       errorMidiaEmpty();
+      setIsSaveButtonDisabled(false); // Reativar botão se houver erro
       return;
     }
     if (!validatedPayload()) {
       errorMessagePayload();
+      setIsSaveButtonDisabled(false); // Reativar botão se houver erro
       return;
     }
     
@@ -860,6 +872,7 @@ export function Accordion() {
         errorMessageDefault(
           "Erro ao criar campanha. Por favor, tente novamente."
         );
+        setIsSaveButtonDisabled(false); // Reativar botão em caso de erro na API
       });
   };
   if (variableQty > 0 && variables.length < variableQty) {
@@ -2888,6 +2901,7 @@ export function Accordion() {
                   <button
                     className="button-save"
                     onClick={() => handleButtonName("Salvar")}
+                    disabled={isSaveButtonDisabled}
                   >
                     Salvar
                   </button>
