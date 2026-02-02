@@ -49,6 +49,8 @@ export function Accordion() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState<boolean>(true);
   const [isSaveButtonDisabled, setIsSaveButtonDisabled] = useState<boolean>(false);
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState<boolean>(false);
+  const [isLoadingDispatchNumbers, setIsLoadingDispatchNumbers] = useState<boolean>(true);
   const [isWhatsAppEnabled, setIsWhatsAppEnabled] = useState(true);
   const [isTeamsEnabled, setIsTeamsEnabled] = useState(true);
   if (searchParams.get("bot_id") === null) {
@@ -90,6 +92,7 @@ export function Accordion() {
 
           setDispatchNumbers(botNumbers);
           setSelectedDispatchNumber("");
+          setIsLoadingDispatchNumbers(false);
 
           const defaultPhone = resp.data.bot[0].number;
           setPhone(defaultPhone);
@@ -122,7 +125,10 @@ export function Accordion() {
             }
           }
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          console.log(error);
+          setIsLoadingDispatchNumbers(false);
+        });
     };
 
     if (searchParams.get("bot_id") === null) {
@@ -211,6 +217,7 @@ export function Accordion() {
   }, [createTriggerMenu, templates.length]);
 
   const loadTemplates = async (phoneNumber: string) => {
+    setIsLoadingTemplates(true);
     try {
       const templatesResp = await templateApi.get(
         `/api/botId/${botId}/template/phoneNumber/${phoneNumber}`
@@ -231,6 +238,8 @@ export function Accordion() {
     } catch (error) {
       console.log(error);
       errorMessageDefault("Erro ao carregar templates");
+    } finally {
+      setIsLoadingTemplates(false);
     }
   };
 
@@ -1217,9 +1226,12 @@ export function Accordion() {
                         value={selectedDispatchNumber}
                         className="input-values"
                         onChange={handleDispatchNumberChange}
+                        disabled={isLoadingDispatchNumbers}
                         style={{ width: "100%", maxWidth: "400px" }}
                       >
-                        <option value="">Selecione um número</option>
+                        <option value="">
+                          {isLoadingDispatchNumbers ? "Carregando..." : "Selecione um número"}
+                        </option>
                         {dispatchNumbers.map((number, key) => (
                           <option key={key} value={number.number}>
                             {mask(number.number) +
@@ -1228,6 +1240,11 @@ export function Accordion() {
                           </option>
                         ))}
                       </select>
+                      {isLoadingDispatchNumbers && (
+                        <div style={{ marginTop: "5px", color: "#666", fontSize: "12px" }}>
+                          Carregando números de disparo...
+                        </div>
+                      )}
                       {selectedDispatchNumber === "" &&
                         errorMessage &&
                         errorMessage.includes("número de disparo") && (
@@ -1276,10 +1293,12 @@ export function Accordion() {
                             openModal(value);
                           }
                         }}
-                        disabled={selectedDispatchNumber === ""}
+                        disabled={selectedDispatchNumber === "" || isLoadingTemplates}
                         style={{ width: "100%", maxWidth: "400px" }}
                       >
-                        <option value="">Selecione um template</option>
+                        <option value="">
+                          {isLoadingTemplates ? "Carregando..." : "Selecione um template"}
+                        </option>
                         {templates
                           .filter((t) => t.templateName)
                           .map((t, key) => (
@@ -1288,6 +1307,11 @@ export function Accordion() {
                             </option>
                           ))}
                       </select>
+                      {isLoadingTemplates && (
+                        <div style={{ marginTop: "5px", color: "#666", fontSize: "12px" }}>
+                          Carregando templates...
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
