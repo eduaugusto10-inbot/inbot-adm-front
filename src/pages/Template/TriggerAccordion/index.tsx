@@ -18,7 +18,7 @@ import {
 import api from "../../../utils/api";
 import axios from "axios";
 
-const baseURL = "https://api-stg.inbot.com.br/v2/";
+const baseURL = "https://api.inbot.com.br/v2/";
 
 const templateApi = axios.create({ baseURL });
 import attached from "../../../img/attachment.png";

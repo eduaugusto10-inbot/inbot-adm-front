@@ -19,7 +19,7 @@ import strings from "../strings.json";
 import api from "../../../utils/api";
 import { ToastContainer, toast } from "react-toastify";
 
-const baseURL = "https://api-stg.inbot.com.br/v2/";
+const baseURL = "https://api.inbot.com.br/v2/";
 
 const templateApi = axios.create({ baseURL });
 import whatsappBackground from "../../../img/background_1.png";
