@@ -1069,6 +1069,7 @@ export function Accordion() {
         question={textToModal}
         warning={warningText}
         onButtonClick={handleButtonClick}
+        isSaveButtonDisabled={isSaveButtonDisabled}
       ></Modal>
       <ToastContainer />
       <h1
