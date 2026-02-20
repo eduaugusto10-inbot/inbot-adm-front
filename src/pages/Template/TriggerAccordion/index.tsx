@@ -68,7 +68,7 @@ export function Accordion() {
         (await validatedUser(
           searchParams.get("bot_id"),
           searchParams.get("token"),
-          searchParams.get("url_base_api")
+          searchParams.get("url_base_api"),
         )) ?? false;
       console.log(`Logged: ${JSON.stringify(logged)}`);
       if (!logged) {
@@ -80,8 +80,8 @@ export function Accordion() {
       if (logged.channel === "teams") {
         history(
           `/template-trigger-teams?bot_id=${botId}&token=${searchParams.get(
-            "token"
-          )}&url_base_api=${searchParams.get("url_base_api")}`
+            "token",
+          )}&url_base_api=${searchParams.get("url_base_api")}`,
         );
       }
       api
@@ -118,7 +118,7 @@ export function Accordion() {
             const templatesResp = await templateApi.get(
               `/api/botId/${botId}/template/phoneNumber/${
                 location?.state?.phone || defaultPhone
-              }`
+              }`,
             );
             if (templatesResp.data && templatesResp.data.length > 0) {
               setTemplates(templatesResp.data);
@@ -145,8 +145,8 @@ export function Accordion() {
   function BackToList() {
     history(
       `/trigger-list?bot_id=${botId}&token=${searchParams.get(
-        "token"
-      )}&url_base_api=${searchParams.get("url_base_api")}`
+        "token",
+      )}&url_base_api=${searchParams.get("url_base_api")}`,
     );
   }
 
@@ -167,10 +167,10 @@ export function Accordion() {
   const [triggerMode, setTriggerMode] = useState<string>("imediato");
   const [campaignName, setCampaignName] = useState<string>("");
   const [dates, setDate] = useState<string>(
-    new Date().toISOString().slice(0, 10)
+    new Date().toISOString().slice(0, 10),
   );
   const [hours, setHours] = useState<string>(
-    new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
   );
   const [variables, setVariables] = useState<IVariables[]>([]);
   const [listVariables, setListVariables] = useState<IListVariables[]>([]);
@@ -230,7 +230,7 @@ export function Accordion() {
     setIsLoadingTemplates(true);
     try {
       const templatesResp = await templateApi.get(
-        `/api/botId/${botId}/template/phoneNumber/${phoneNumber}`
+        `/api/botId/${botId}/template/phoneNumber/${phoneNumber}`,
       );
       if (templatesResp.data && templatesResp.data.length > 0) {
         setTemplates(templatesResp.data);
@@ -239,7 +239,7 @@ export function Accordion() {
         setTemplates([]);
         setCreateTriggerMenu(false);
         errorMessageDefault(
-          "Por favor, criar um template antes de criar a campanha"
+          "Por favor, criar um template antes de criar a campanha",
         );
       }
     } catch (error) {
@@ -558,7 +558,8 @@ export function Accordion() {
             if (element.type === "text") {
               setBodyText(element.text || "");
               setVariableQty(
-                element.numVariables || encontrarMaiorNumero(element.text || "")
+                element.numVariables ||
+                  encontrarMaiorNumero(element.text || ""),
               );
             }
           });
@@ -680,7 +681,7 @@ export function Accordion() {
     }
     if (templateStatus && templateStatus !== "APPROVED") {
       errorMessageDefault(
-        "Este template ainda não foi aprovado pela Meta. Aguarde a aprovação para criar uma campanha."
+        "Este template ainda não foi aprovado pela Meta. Aguarde a aprovação para criar uma campanha.",
       );
       setIsSaveButtonDisabled(false);
       return;
@@ -693,7 +694,7 @@ export function Accordion() {
         theme: "colored",
         autoClose: false,
         closeOnClick: false,
-      }
+      },
     );
 
     const data = {
@@ -716,14 +717,14 @@ export function Accordion() {
         if (typeClient) {
           // Calcular o total de contatos
           const totalContacts = fileData.filter(
-            (customer) => customer?.[0]
+            (customer) => customer?.[0],
           ).length;
           let processedContacts = 0;
 
           // Função modificada para atualizar o progresso
           const handleSubmitListDataFileWithProgress = async (
             dataTemplate: string[][],
-            campaignId: string
+            campaignId: string,
           ) => {
             try {
               const customerList = dataTemplate
@@ -773,20 +774,20 @@ export function Accordion() {
 
                 // Atualizar a mensagem de progresso
                 const percentComplete = Math.round(
-                  (processedContacts / totalContacts) * 100
+                  (processedContacts / totalContacts) * 100,
                 );
                 toast.update(toastId, {
                   render: `Aguarde, estamos processando ${processedContacts} de ${totalContacts} contatos (${percentComplete}% concluído)`,
                 });
 
                 console.log(
-                  `Lote de ${batch.length} contatos enviado com sucesso`
+                  `Lote de ${batch.length} contatos enviado com sucesso`,
                 );
               }
 
               console.log(
                 "Lista de dados enviada com sucesso para a campanha:",
-                campaignId
+                campaignId,
               );
               return Promise.resolve();
             } catch (error) {
@@ -797,24 +798,24 @@ export function Accordion() {
 
           handleSubmitListDataFileWithProgress(
             fileData,
-            resp.data.data.insertId
+            resp.data.data.insertId,
           )
             .catch((error) => {
               console.log("Erro ao enviar lista de dados:", error);
               // Atualiza o status para erro quando falha no envio da lista
               api.put(
-                `/whatsapp/trigger/${resp.data.data.insertId}?status=erro`
+                `/whatsapp/trigger/${resp.data.data.insertId}?status=erro`,
               );
               toast.dismiss(toastId); // Fechar o toast de aguarde
               errorMessageDefault(
-                "Erro ao processar a campanha. Verifique os dados e tente novamente."
+                "Erro ao processar a campanha. Verifique os dados e tente novamente.",
               );
             })
             .finally(() => {
               toast.dismiss(toastId); // Fechar o toast de aguarde quando terminar
               successCreateTrigger();
               api.put(
-                `/whatsapp/trigger/${resp.data.data.insertId}?status=aguardando`
+                `/whatsapp/trigger/${resp.data.data.insertId}?status=aguardando`,
               );
               setTimeout(() => BackToList(), 3000);
             });
@@ -825,7 +826,7 @@ export function Accordion() {
 
           // Função modificada para atualizar o progresso
           const handleSubmitManualListDataWithProgress = async (
-            campaignId: string
+            campaignId: string,
           ) => {
             try {
               const customerList = listVariables.map((item) => ({
@@ -873,20 +874,20 @@ export function Accordion() {
 
                 // Atualizar a mensagem de progresso
                 const percentComplete = Math.round(
-                  (processedContacts / totalContacts) * 100
+                  (processedContacts / totalContacts) * 100,
                 );
                 toast.update(toastId, {
                   render: `Aguarde, estamos processando ${processedContacts} de ${totalContacts} contatos (${percentComplete}% concluído)`,
                 });
 
                 console.log(
-                  `Lote de ${batch.length} contatos enviado com sucesso`
+                  `Lote de ${batch.length} contatos enviado com sucesso`,
                 );
               }
 
               console.log(
                 "Lista manual enviada com sucesso para a campanha:",
-                campaignId
+                campaignId,
               );
               return Promise.resolve();
             } catch (error) {
@@ -900,18 +901,18 @@ export function Accordion() {
               console.log("Erro ao enviar lista manual:", error);
               // Atualiza o status para erro quando falha no envio da lista manual
               api.put(
-                `/whatsapp/trigger/${resp.data.data.insertId}?status=erro`
+                `/whatsapp/trigger/${resp.data.data.insertId}?status=erro`,
               );
               toast.dismiss(toastId); // Fechar o toast de aguarde
               errorMessageDefault(
-                "Erro ao processar a campanha. Verifique os dados e tente novamente."
+                "Erro ao processar a campanha. Verifique os dados e tente novamente.",
               );
             })
             .finally(() => {
               toast.dismiss(toastId); // Fechar o toast de aguarde quando terminar
               successCreateTrigger();
               api.put(
-                `/whatsapp/trigger/${resp.data.data.insertId}?status=aguardando`
+                `/whatsapp/trigger/${resp.data.data.insertId}?status=aguardando`,
               );
               setTimeout(() => BackToList(), 3000);
             });
@@ -921,7 +922,7 @@ export function Accordion() {
         console.log("Erro ao criar campanha:", err);
         toast.dismiss(toastId); // Fechar o toast de aguarde em caso de erro
         errorMessageDefault(
-          "Erro ao criar campanha. Por favor, tente novamente."
+          "Erro ao criar campanha. Por favor, tente novamente.",
         );
         setIsSaveButtonDisabled(false); // Reativar botão em caso de erro na API
       });
@@ -956,7 +957,7 @@ export function Accordion() {
       setButtonA("NaoExibir");
       setWarningText(true);
       setText(
-        "Para garantir o envio corretamente, não se esqueça de verificar na sua planilha se os números de telefone estão completos seguindo o padrão: código do país (Brasil = 55), código regional (SP = 11) e número do telefone. Exemplo: 5511988880000"
+        "Para garantir o envio corretamente, não se esqueça de verificar na sua planilha se os números de telefone estão completos seguindo o padrão: código do país (Brasil = 55), código regional (SP = 11) e número do telefone. Exemplo: 5511988880000",
       );
     } else if (wichButton === "ChangeCustomersContacts") {
       setButtonA("Não");
@@ -1036,7 +1037,7 @@ export function Accordion() {
   }
 
   const handleDispatchNumberChange = async (
-    e: React.ChangeEvent<HTMLSelectElement>
+    e: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     const selectedNumber = e.target.value;
     setSelectedDispatchNumber(selectedNumber);
@@ -1147,8 +1148,8 @@ export function Accordion() {
                     onChange={() =>
                       history(
                         `/template-trigger-teams?bot_id=${botId}&token=${searchParams.get(
-                          "token"
-                        )}&url_base_api=${searchParams.get("url_base_api")}`
+                          "token",
+                        )}&url_base_api=${searchParams.get("url_base_api")}`,
                       )
                     }
                     className="input-spaces"
@@ -1403,10 +1404,10 @@ export function Accordion() {
                             categoryTemplate === "MARKETING"
                               ? "MARKETING"
                               : categoryTemplate === "UTILITY"
-                              ? "UTILIDADE"
-                              : categoryTemplate === "AUTHENTICATION"
-                              ? "AUTENTICAÇÃO"
-                              : categoryTemplate
+                                ? "UTILIDADE"
+                                : categoryTemplate === "AUTHENTICATION"
+                                  ? "AUTENTICAÇÃO"
+                                  : categoryTemplate
                           }</strong>.<br/>Após o envio da campanha, não é possível cancelar o disparo nem os custos associados.`}
                         />
                       </div>
@@ -1416,6 +1417,7 @@ export function Accordion() {
                       templateStatus !== "APPROVED" && (
                         <div style={{ marginBottom: "15px" }}>
                           <Alert
+                            variant="warning"
                             message={`<strong>⚠️ Aviso:</strong> Este template está com status <strong>${templateStatus}</strong> e ainda não foi aprovado pela Meta.<br/>Não será possível criar uma campanha usando este template até que ele seja aprovado.`}
                           />
                         </div>
@@ -1441,9 +1443,22 @@ export function Accordion() {
                     className="button-next"
                     onClick={() => toggleAccordion("recebidores")}
                     disabled={templateStatus !== "APPROVED"}
+                    data-tooltip-id={
+                      templateStatus !== "APPROVED"
+                        ? "tooltip-proximo-config"
+                        : undefined
+                    }
+                    data-tooltip-content={
+                      templateStatus !== "APPROVED"
+                        ? "O template selecionado ainda não foi aprovado pela Meta. Aguarde a aprovação para continuar."
+                        : undefined
+                    }
                   >
                     Próximo
                   </button>
+                  {templateStatus !== "APPROVED" && (
+                    <Tooltip id="tooltip-proximo-config" place="top" />
+                  )}
                 </div>
               </div>
             </div>
@@ -1552,7 +1567,7 @@ export function Accordion() {
                                 value={clientNumber.toString()}
                                 onChange={(event) => {
                                   checkNumber(
-                                    parseInt(event.replace(/\D/g, ""))
+                                    parseInt(event.replace(/\D/g, "")),
                                   );
                                 }}
                                 inputStyle={{
@@ -1639,15 +1654,15 @@ export function Accordion() {
                                     {headerConfig === "document"
                                       ? "documento"
                                       : headerConfig === "image"
-                                      ? "imagem"
-                                      : "video"}
+                                        ? "imagem"
+                                        : "video"}
                                   </span>
                                   <input
                                     className="input-values"
                                     value={urlMidia.replace(/\s+/g, "")}
                                     onChange={(e) =>
                                       setURLMidia(
-                                        e.target.value.replace(/\s+/g, "")
+                                        e.target.value.replace(/\s+/g, ""),
                                       )
                                     }
                                   />
@@ -1773,7 +1788,7 @@ export function Accordion() {
                                   >
                                     <strong>Última atualização:</strong>{" "}
                                     {new Date(
-                                      templateConfigurations.updatedAt
+                                      templateConfigurations.updatedAt,
                                     ).toLocaleString("pt-BR")}
                                   </span>
                                   <span
@@ -1789,10 +1804,10 @@ export function Accordion() {
                                     <strong>Ir expirar em:</strong>{" "}
                                     {new Date(
                                       new Date(
-                                        templateConfigurations.updatedAt
+                                        templateConfigurations.updatedAt,
                                       ).getTime() +
                                         templateConfigurations.expirationInMinutes *
-                                          60000
+                                          60000,
                                     ).toLocaleString("pt-BR")}
                                   </span>
                                 </div>
@@ -2362,8 +2377,8 @@ export function Accordion() {
                             {headerConfig === "document"
                               ? "documento"
                               : headerConfig === "image"
-                              ? "imagem"
-                              : "video"}
+                                ? "imagem"
+                                : "video"}
                           </span>
                           <input
                             className="input-values"
@@ -2488,7 +2503,7 @@ export function Accordion() {
                             <span style={{ color: "#666", fontSize: "12px" }}>
                               <strong>Última atualização:</strong>{" "}
                               {new Date(
-                                templateConfigurations.updatedAt
+                                templateConfigurations.updatedAt,
                               ).toLocaleString("pt-BR")}
                             </span>
                             <span style={{ color: "#666", fontSize: "12px" }}>
@@ -2500,10 +2515,10 @@ export function Accordion() {
                               <strong>Ir expirar em:</strong>{" "}
                               {new Date(
                                 new Date(
-                                  templateConfigurations.updatedAt
+                                  templateConfigurations.updatedAt,
                                 ).getTime() +
                                   templateConfigurations.expirationInMinutes *
-                                    60000
+                                    60000,
                               ).toLocaleString("pt-BR")}
                             </span>
                           </div>
@@ -3222,8 +3237,8 @@ export function Accordion() {
                     {typeClient === false
                       ? listVariables.length
                       : fileData.length > 0
-                      ? fileData.length
-                      : "0"}
+                        ? fileData.length
+                        : "0"}
                   </span>
                 </div>
                 <div

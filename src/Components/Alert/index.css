@@ -9,11 +9,21 @@
   align-items: flex-start;
 }
 
+.container-alert-warning {
+  background-color: #fff3cd;
+  border-color: #ffc107;
+  border-width: 2px;
+}
+
 .span-12 {
   font-size: 12px;
   color: #0d5388;
   text-align: center;
   margin-left: 30px;
+}
+
+.span-12-warning {
+  color: #856404;
 }
 .texto-alinhado {
   text-align: center;
