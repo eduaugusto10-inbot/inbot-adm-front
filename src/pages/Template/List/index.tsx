@@ -70,7 +70,7 @@ export function ListAll() {
                         ID: item.templateName,
                         name: item.templateName,
                         category: item.category,
-                        status: "APPROVED",
+                        status: item.status,
                         language: "pt_BR",
                         hasExpirationTime: !!item.configurations,
                         expirationTimeDisplay: item.configurations?.expirationInMinutes 
@@ -123,7 +123,7 @@ export function ListAll() {
                         ID: item.templateName,
                         name: item.templateName,
                         category: item.category,
-                        status: "APPROVED",
+                        status: item.status,
                         language: "pt_BR",
                         hasExpirationTime: !!item.configurations,
                         expirationTimeDisplay: item.configurations?.expirationInMinutes 
