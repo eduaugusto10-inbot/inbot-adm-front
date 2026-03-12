@@ -7,6 +7,8 @@ import { Filters, ICustomer } from "../../types";
 import { errorDeleted, successDeletedMessage, errorMessageDefault } from "../../../Components/Toastify";
 import Doughnut from '../../../Components/Chart'
 import './style.css'
+import { PhoneInput } from "react-international-phone";
+import "react-international-phone/style.css";
 import Modal from "../../../Components/Modal";
 import useModal from "../../../Components/Modal/useModal";
 import trash from '../../../img/trash-solid.svg'
@@ -443,7 +445,24 @@ export function TriggerDetails() {
                     </thead>
                     {filteredCustomers.map((customer, index) => (
                         <tr key={index} style={{backgroundColor:  index % 2 === 0 ? '#ecebeb' : 'white'}}>
-                            <td><span className="font-size-12">{customer.phone ? mask(customer.phone) : customer.email}</span></td>
+                            <td>
+                                {customer.phone ? (
+                                    <PhoneInput
+                                        value={customer.phone}
+                                        defaultCountry="br"
+                                        disabled
+                                        hideDropdown
+                                        countrySelectorStyleProps={{
+                                            flagStyle: { display: "none" },
+                                            buttonStyle: { paddingLeft: 0, paddingRight: 0 },
+                                        }}
+                                        className="phone-input-readonly"
+                                        inputClassName="phone-input-readonly__input font-size-12"
+                                    />
+                                ) : (
+                                    <span className="font-size-12">{customer.email}</span>
+                                )}
+                            </td>
                             {customer.variable_1!==null &&<td><span className="font-size-12">{customer.variable_1}</span></td>}
                             {customer.variable_2!==null &&<td><span className="font-size-12">{customer.variable_2}</span></td>}
                             {customer.variable_3!==null &&<td><span className="font-size-12">{customer.variable_3}</span></td>}

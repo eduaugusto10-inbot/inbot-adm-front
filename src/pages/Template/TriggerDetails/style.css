@@ -3,3 +3,24 @@
     margin-bottom: 5px;
     border-radius: 7px;
 }
+
+.phone-input-readonly {
+    background: transparent;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.phone-input-readonly .react-international-phone-country-selector,
+.phone-input-readonly .react-international-phone-country-selector-button,
+.phone-input-readonly .react-international-phone-input {
+    background: transparent;
+    border: none;
+}
+
+.phone-input-readonly .react-international-phone-input {
+    padding: 0;
+    height: 100%;
+    line-height: 1.2;
+}
