@@ -64,6 +64,21 @@ export function CreateTemplateAccordion() {
   var botId = searchParams.get("bot_id") ?? "0";
 
   const location = useLocation();
+  const [serverBaseURL, setServerBaseURL] = useState<string>("https://in.bot");
+
+  const getServerBaseURL = (serverType: string): string => {
+    switch (serverType) {
+      case "Tecban":
+        return "https://tecban-chat.in.bot";
+      case "OEC":
+        return "https://oec.in.bot";
+      case "FS":
+        return "https://fs.in.bot";
+      default:
+        return "https://in.bot";
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const logged: any =
@@ -90,6 +105,9 @@ export function CreateTemplateAccordion() {
         .get(`/whats-botid/${botId}`)
         .then((resp) => {
           setPhone(resp.data.number);
+          const serverType = resp.data.server;
+          const baseURL = getServerBaseURL(serverType);
+          setServerBaseURL(baseURL);
         })
         .catch((error) =>
           history(`/template-warning-no-whats?bot_id=${botId}`)
@@ -128,7 +146,8 @@ export function CreateTemplateAccordion() {
 
   const [hasExpirationTime, setHasExpirationTime] = useState(false);
   const [expirationTimeRaw, setExpirationTimeRaw] = useState<string>("");
-  const [expirationTimeDisplay, setExpirationTimeDisplay] = useState<string>("");
+  const [expirationTimeDisplay, setExpirationTimeDisplay] =
+    useState<string>("");
   const [isExpirationTimeFocused, setIsExpirationTimeFocused] = useState(false);
   const [cardInsideTime, setCardInsideTime] = useState<string>("");
   const [cardOutsideTime, setCardOutsideTime] = useState<string>("");
@@ -136,7 +155,9 @@ export function CreateTemplateAccordion() {
   const [showOtherCardOutside, setShowOtherCardOutside] = useState(false);
   const [otherCardInsideText, setOtherCardInsideText] = useState("");
   const [otherCardOutsideText, setOtherCardOutsideText] = useState("");
-  const [fichasOptions, setFichasOptions] = useState<{ value: string; label: string; estimulo: string }[]>([]);
+  const [fichasOptions, setFichasOptions] = useState<
+    { value: string; label: string; estimulo: string }[]
+  >([]);
   const [loadingFichas, setLoadingFichas] = useState(false);
   const fichasLoadedRef = useRef(false);
 
@@ -148,28 +169,40 @@ export function CreateTemplateAccordion() {
     { value: "ficha5", label: "Ficha de RH" },
   ];
 
-  const cardOptions = mockCards.map(card => ({ value: card.value, label: card.label }));
+  const cardOptions = mockCards.map((card) => ({
+    value: card.value,
+    label: card.label,
+  }));
   cardOptions.push({ value: "Outros", label: "Outros" });
 
   useEffect(() => {
     const fetchFichas = async () => {
       if (fichasLoadedRef.current) return; // Evita requisições duplicadas
-      
+
       setLoadingFichas(true);
       try {
-        const response = await axios.get(`https://in.bot/inbot-admin?action=api_lista_estimulos&bot_id=${botId}&all=1&is_ajax=1`, {
-          headers: {
-            "X-InAuth-Token": "api_edu"
+        const response = await axios.get(
+          `${serverBaseURL}/inbot-admin?action=api_lista_estimulos&bot_id=${botId}&all=1&is_ajax=1`,
+          {
+            headers: {
+              "X-InAuth-Token": "api_edu",
+            },
           }
-        });
+        );
         console.log("API response:", response.data);
         const fichas = response.data;
-        console.log("First ficha sample:", fichas[0] ? JSON.stringify(fichas[0]) : "empty");
-        const filteredFichas = fichas.filter((ficha: any) => ficha.ficha_id_title && ficha.ficha_id_title.trim() !== "");
+        console.log(
+          "First ficha sample:",
+          fichas[0] ? JSON.stringify(fichas[0]) : "empty"
+        );
+        const filteredFichas = fichas.filter(
+          (ficha: any) =>
+            ficha.ficha_id_title && ficha.ficha_id_title.trim() !== ""
+        );
         const options = filteredFichas.map((ficha: any) => ({
           value: String(ficha.ficha_id),
           label: ficha.ficha_id_title,
-          estimulo: ficha.estimulo || ficha.ficha_id_title
+          estimulo: ficha.estimulo || ficha.ficha_id_title,
         }));
         setFichasOptions(options);
         fichasLoadedRef.current = true; // Marca como carregado
@@ -183,7 +216,7 @@ export function CreateTemplateAccordion() {
     if (botId && botId !== "0") {
       fetchFichas();
     }
-  }, [botId]);
+  }, [botId, serverBaseURL]);
 
   const formatExpirationTimeRaw = (raw: string): string => {
     if (!raw) return "";
@@ -198,13 +231,15 @@ export function CreateTemplateAccordion() {
 
   const getSelectOption = (value: string, label: string) => {
     if (!value) return null;
-    const option = fichasOptions.find(opt => opt.value === value);
+    const option = fichasOptions.find((opt) => opt.value === value);
     if (option) return option;
     if (value) return { value, label: value };
     return null;
   };
 
-  const formatExpirationTimeNormalized = (raw: string): { display: string, rawNormalized: string } => {
+  const formatExpirationTimeNormalized = (
+    raw: string
+  ): { display: string; rawNormalized: string } => {
     if (!raw) return { display: "", rawNormalized: "" };
     const digits = raw.replace(/\D/g, "");
     if (digits.length === 0) return { display: "", rawNormalized: "" };
@@ -222,7 +257,9 @@ export function CreateTemplateAccordion() {
     return { display, rawNormalized };
   };
 
-  const handleExpirationTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleExpirationTimeChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const inputValue = e.target.value;
     const inputDigits = inputValue.replace(/\D/g, "");
     const prevDigits = expirationTimeRaw;
@@ -281,8 +318,8 @@ export function CreateTemplateAccordion() {
         setPhone(resp.data.number);
       })
       .catch((error) => console.log(error));
-      if (location?.state?.duplicated) {
-      console.log(location)
+    if (location?.state?.duplicated) {
+      console.log(location);
       setTypeOfHeader(location?.state?.headerConfig);
       setRodape(location?.state?.rodapeConfig === "rodape" ? false : true);
       setRodapeType(location?.state?.rodapeConfig);
@@ -343,7 +380,7 @@ export function CreateTemplateAccordion() {
 
       console.log("=== CREATE TEMPLATE DEBUG ===");
       console.log("location.state:", location.state);
-      
+
       if (location.state?.hasExpirationTime) {
         console.log("Tem expiration time!");
         console.log("cardInsideTime:", location.state.cardInsideTime);
@@ -884,7 +921,7 @@ export function CreateTemplateAccordion() {
       const minutesMatch = raw.match(/(\d+)min/);
       const hours = hoursMatch ? parseInt(hoursMatch[1]) : 0;
       const minutes = minutesMatch ? parseInt(minutesMatch[1]) : 0;
-      return (hours * 60) + minutes;
+      return hours * 60 + minutes;
     };
 
     // Obter ficha_id_title a partir do cardInsideTime/cardOutsideTime
@@ -892,7 +929,7 @@ export function CreateTemplateAccordion() {
       console.log("getEstimulo called with cardId:", cardId);
       console.log("fichasOptions:", fichasOptions);
       if (!cardId) return "";
-      const ficha = fichasOptions.find(opt => opt.value === cardId);
+      const ficha = fichasOptions.find((opt) => opt.value === cardId);
       console.log("ficha found:", ficha);
       if (ficha) return ficha.estimulo;
       return cardId;
@@ -911,9 +948,9 @@ export function CreateTemplateAccordion() {
           createdBy: "Sistema",
           phoneNumber: Number(phone),
           payloadAfterExpirationTime: getEstimulo(cardOutsideTime),
-          payloadBeforeExpirationTime: getEstimulo(cardInsideTime)
-        }
-      })
+          payloadBeforeExpirationTime: getEstimulo(cardInsideTime),
+        },
+      }),
     };
     console.log("Payload being sent:", JSON.stringify(data, null, 2));
 
@@ -927,7 +964,7 @@ export function CreateTemplateAccordion() {
       .catch((err) => {
         console.log("$s ERROR create template: %O", new Date(), err);
         toast.dismiss(toastId);
-        
+
         const errorData = err.response?.data || err;
         toast.error(
           <div>
@@ -964,11 +1001,13 @@ export function CreateTemplateAccordion() {
     setButtonB("NaoExibir");
     setTextToModal("Detalhes do Erro");
     setText("");
-    
+
     // Busca message/cause na estrutura mais profunda primeiro (err.error.error)
-    const message = err?.error?.error?.message || err?.error?.message || err?.message || "";
-    const cause = err?.error?.error?.cause || err?.error?.cause || err?.cause || "";
-    
+    const message =
+      err?.error?.error?.message || err?.error?.message || err?.message || "";
+    const cause =
+      err?.error?.error?.cause || err?.error?.cause || err?.cause || "";
+
     const parts: string[] = [];
     if (message) {
       parts.push(`${message}`);
@@ -1484,7 +1523,9 @@ export function CreateTemplateAccordion() {
               <img
                 src={chevron}
                 alt=""
-                style={{ rotate: accordionState.expiration ? "-90deg" : "90deg" }}
+                style={{
+                  rotate: accordionState.expiration ? "-90deg" : "90deg",
+                }}
               />
             </div>
           </div>
@@ -1523,12 +1564,24 @@ export function CreateTemplateAccordion() {
                   >
                     <div
                       className="row-align"
-                      style={{ alignItems: "center", justifyContent: "space-between", marginBottom: hasExpirationTime ? "15px" : "0" }}
+                      style={{
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        marginBottom: hasExpirationTime ? "15px" : "0",
+                      }}
                     >
                       <span style={{ fontWeight: "bold", color: "#004488" }}>
                         Mensagem possui tempo de validade?
                       </span>
-                      <label style={{ position: "relative", display: "inline-block", width: "50px", height: "26px", cursor: "pointer" }}>
+                      <label
+                        style={{
+                          position: "relative",
+                          display: "inline-block",
+                          width: "50px",
+                          height: "26px",
+                          cursor: "pointer",
+                        }}
+                      >
                         <input
                           type="checkbox"
                           checked={hasExpirationTime}
@@ -1554,7 +1607,9 @@ export function CreateTemplateAccordion() {
                             left: 0,
                             right: 0,
                             bottom: 0,
-                            backgroundColor: hasExpirationTime ? "#004488" : "#ccc",
+                            backgroundColor: hasExpirationTime
+                              ? "#004488"
+                              : "#ccc",
                             borderRadius: "34px",
                             transition: "0.4s",
                           }}
@@ -1590,15 +1645,24 @@ export function CreateTemplateAccordion() {
                           <input
                             type="text"
                             className="input-values"
-                            value={isExpirationTimeFocused ? expirationTimeDisplay : expirationTimeDisplay}
+                            value={
+                              isExpirationTimeFocused
+                                ? expirationTimeDisplay
+                                : expirationTimeDisplay
+                            }
                             onChange={handleExpirationTimeChange}
                             onKeyDown={(e) => {
                               if (e.key === "Backspace") {
                                 e.preventDefault();
-                                if (expirationTimeRaw && expirationTimeRaw.length > 0) {
+                                if (
+                                  expirationTimeRaw &&
+                                  expirationTimeRaw.length > 0
+                                ) {
                                   const newRaw = expirationTimeRaw.slice(0, -1);
                                   setExpirationTimeRaw(newRaw);
-                                  setExpirationTimeDisplay(formatExpirationTimeRaw(newRaw));
+                                  setExpirationTimeDisplay(
+                                    formatExpirationTimeRaw(newRaw)
+                                  );
                                 }
                               }
                             }}
@@ -1609,7 +1673,13 @@ export function CreateTemplateAccordion() {
                             style={{ width: "220px" }}
                           />
                         </div>
-                        <div style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "15px",
+                            flexWrap: "wrap",
+                          }}
+                        >
                           <div
                             style={{
                               flex: 1,
@@ -1621,11 +1691,24 @@ export function CreateTemplateAccordion() {
                             }}
                           >
                             <div style={{ marginBottom: "10px" }}>
-                              <span style={{ fontWeight: "bold", color: "#004488", fontSize: "14px" }}>
+                              <span
+                                style={{
+                                  fontWeight: "bold",
+                                  color: "#004488",
+                                  fontSize: "14px",
+                                }}
+                              >
                                 Envio Dentro do Prazo
                               </span>
-                              <div style={{ fontSize: "11px", color: "#666", marginTop: "2px" }}>
-                                Define a ficha que será utilizada quando a resposta for enviada dentro do tempo de validade
+                              <div
+                                style={{
+                                  fontSize: "11px",
+                                  color: "#666",
+                                  marginTop: "2px",
+                                }}
+                              >
+                                Define a ficha que será utilizada quando a
+                                resposta for enviada dentro do tempo de validade
                               </div>
                             </div>
                             <Select
@@ -1640,7 +1723,11 @@ export function CreateTemplateAccordion() {
                                   setCardInsideTime("");
                                 }
                               }}
-                              placeholder={loadingFichas ? "Carregando..." : "Buscar ficha..."}
+                              placeholder={
+                                loadingFichas
+                                  ? "Carregando..."
+                                  : "Buscar ficha..."
+                              }
                               isClearable
                               isDisabled={loadingFichas}
                               styles={{
@@ -1656,7 +1743,9 @@ export function CreateTemplateAccordion() {
                                   type="text"
                                   className="input-values"
                                   value={otherCardInsideText}
-                                  onChange={(e) => setOtherCardInsideText(e.target.value)}
+                                  onChange={(e) =>
+                                    setOtherCardInsideText(e.target.value)
+                                  }
                                   style={{ width: "100%" }}
                                   placeholder="Digite o nome da ficha"
                                 />
@@ -1674,11 +1763,24 @@ export function CreateTemplateAccordion() {
                             }}
                           >
                             <div style={{ marginBottom: "10px" }}>
-                              <span style={{ fontWeight: "bold", color: "#e67e22", fontSize: "14px" }}>
+                              <span
+                                style={{
+                                  fontWeight: "bold",
+                                  color: "#e67e22",
+                                  fontSize: "14px",
+                                }}
+                              >
                                 Envio Fora do Prazo
                               </span>
-                              <div style={{ fontSize: "11px", color: "#666", marginTop: "2px" }}>
-                                Define a ficha que será utilizada quando a resposta for enviada após o tempo de validade
+                              <div
+                                style={{
+                                  fontSize: "11px",
+                                  color: "#666",
+                                  marginTop: "2px",
+                                }}
+                              >
+                                Define a ficha que será utilizada quando a
+                                resposta for enviada após o tempo de validade
                               </div>
                             </div>
                             <Select
@@ -1693,7 +1795,11 @@ export function CreateTemplateAccordion() {
                                   setCardOutsideTime("");
                                 }
                               }}
-                              placeholder={loadingFichas ? "Carregando..." : "Buscar ficha..."}
+                              placeholder={
+                                loadingFichas
+                                  ? "Carregando..."
+                                  : "Buscar ficha..."
+                              }
                               isClearable
                               isDisabled={loadingFichas}
                               styles={{
@@ -1709,7 +1815,9 @@ export function CreateTemplateAccordion() {
                                   type="text"
                                   className="input-values"
                                   value={otherCardOutsideText}
-                                  onChange={(e) => setOtherCardOutsideText(e.target.value)}
+                                  onChange={(e) =>
+                                    setOtherCardOutsideText(e.target.value)
+                                  }
                                   style={{ width: "100%" }}
                                   placeholder="Digite o nome da ficha"
                                 />
@@ -1722,7 +1830,9 @@ export function CreateTemplateAccordion() {
                   </div>
                 </div>
               </div>
-              <div style={{ width: "100%", textAlign: "right", marginTop: "20px" }}>
+              <div
+                style={{ width: "100%", textAlign: "right", marginTop: "20px" }}
+              >
                 <button
                   style={{ width: "80px", margin: "0px 30px 15px 0px" }}
                   className="button-next"
@@ -2169,7 +2279,12 @@ export function CreateTemplateAccordion() {
                         checked={typeOfButtons === "quickReply"}
                         disabled={hasExpirationTime}
                       />
-                      <span className="padding-5" style={hasExpirationTime ? { color: "#999" } : {}}>Resposta rápida</span>
+                      <span
+                        className="padding-5"
+                        style={hasExpirationTime ? { color: "#999" } : {}}
+                      >
+                        Resposta rápida
+                      </span>
                     </div>
                     <div className="row-align" onChange={quickReplyRadio}>
                       <input
@@ -2179,7 +2294,12 @@ export function CreateTemplateAccordion() {
                         checked={typeOfButtons === "cta"}
                         disabled={hasExpirationTime}
                       />
-                      <span className="padding-5" style={hasExpirationTime ? { color: "#999" } : {}}>Call To Action (CTA)</span>
+                      <span
+                        className="padding-5"
+                        style={hasExpirationTime ? { color: "#999" } : {}}
+                      >
+                        Call To Action (CTA)
+                      </span>
                     </div>
                     <div className="row-align" onChange={quickReplyRadio}>
                       <input
@@ -2192,16 +2312,19 @@ export function CreateTemplateAccordion() {
                     </div>
                   </div>
                   {hasExpirationTime && typeOfButtons !== "without" && (
-                    <div style={{ 
-                      marginTop: "10px", 
-                      padding: "10px", 
-                      backgroundColor: "#fff3cd", 
-                      border: "1px solid #ffc107", 
-                      borderRadius: "5px",
-                      fontSize: "12px"
-                    }}>
+                    <div
+                      style={{
+                        marginTop: "10px",
+                        padding: "10px",
+                        backgroundColor: "#fff3cd",
+                        border: "1px solid #ffc107",
+                        borderRadius: "5px",
+                        fontSize: "12px",
+                      }}
+                    >
                       <span style={{ color: "#856404" }}>
-                        ⚠️ Quando o prazo de validade está ativo, os botões são automaticamente definidos como "Nenhum".
+                        ⚠️ Quando o prazo de validade está ativo, os botões são
+                        automaticamente definidos como "Nenhum".
                       </span>
                     </div>
                   )}
